@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Work Bridge - Find Part-Time Jobs</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ───── Keyframes ───── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(19,146,236,0.45); }
+      50% { box-shadow: 0 0 0 14px rgba(19,146,236,0); }
+    }
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes countPop {
+      from { opacity: 0; transform: scale(0.6) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .anim-float       { animation: float 6s ease-in-out infinite; }
+    .anim-float-d     { animation: float 6s ease-in-out 2s infinite; }
+    .anim-fadeUp      { animation: fadeInUp .8s ease-out both; }
+    .anim-fadeUp-d1   { animation: fadeInUp .8s ease-out .12s both; }
+    .anim-fadeUp-d2   { animation: fadeInUp .8s ease-out .24s both; }
+    .anim-fadeUp-d3   { animation: fadeInUp .8s ease-out .36s both; }
+    .anim-fadeUp-d4   { animation: fadeInUp .8s ease-out .48s both; }
+    .anim-pulse-glow  { animation: pulse-glow 2.4s ease-in-out infinite; }
+    .anim-gradient    { animation: gradient-shift 6s ease infinite; background-size: 200% 200%; }
+    .anim-countPop    { animation: countPop .55s ease-out both; }
+
+    /* Glass */
+    .glass { background: rgba(255,255,255,.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+    html { scroll-behavior: smooth; }
+
+    /* Blobs */
+    .hero-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(60px); }
+
+    /* Card hover */
+    .card-lift { transition: transform .35s cubic-bezier(.22,.68,0,1.2), box-shadow .35s ease; }
+    .card-lift:hover { transform: translateY(-7px); box-shadow: 0 22px 44px rgba(0,0,0,.08); }
+
+    /* Gradient text */
+    .grad-text {
+      background: linear-gradient(135deg, #1392ec, #7c3aed, #1392ec);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 5s ease infinite;
+    }
+
+    /* Testimonial quote */
+    .quote-card::before {
+      content: '\201C'; position: absolute; top: 14px; left: 18px;
+      font-size: 68px; line-height: 1; color: rgba(19,146,236,.1);
+      font-family: Georgia, serif; pointer-events: none;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary":    "#1392ec",
+            "primary-dk": "#0b6fbb",
+            "accent":     "#7c3aed",
+            "bg-light":   "#f8fafc",
+            "bg-dark":    "#0c1420",
+          },
+          fontFamily: { display: ["Inter","sans-serif"] },
+          borderRadius: { DEFAULT:".25rem", lg:".5rem", xl:".75rem", "2xl":"1rem", "3xl":"1.5rem", full:"9999px" },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="bg-bg-light dark:bg-bg-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased">
+
+<!-- ════════════════════ HEADER ════════════════════ -->
+<header class="glass sticky top-0 z-50 border-b border-slate-200/50">
+  <div class="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
+    <div class="flex-1 flex items-center">
+      <a href="home.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+          <span class="material-symbols-outlined !text-xl text-white">work</span>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight">Work<span class="text-primary">Bridge</span></span>
+      </a>
+    </div>
+    <nav class="hidden md:flex items-center gap-8">
+      <a class="relative text-sm font-semibold text-primary after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded" href="home.html">Home</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="jobs.html">Find Jobs</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="job-management.html">Post a Job</a>
+    </nav>
+    <div class="flex-1 flex items-center justify-end gap-3">
+      <a href="auth.html" class="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Login</a>
+      <a href="auth.html" class="inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">Sign Up Free</a>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════ HERO ════════════════════ -->
+<section class="relative overflow-hidden">
+  <!-- Decorative blobs -->
+  <div class="hero-blob w-[520px] h-[520px] bg-[radial-gradient(circle,rgba(19,146,236,.16),transparent_70%)] -top-28 -right-20 absolute"></div>
+  <div class="hero-blob w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(124,58,237,.12),transparent_70%)] -bottom-24 -left-16 absolute"></div>
+
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 pt-16 pb-20 lg:pt-24 lg:pb-28">
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-10 items-center">
+      <!-- Left -->
+      <div class="max-w-xl">
+        <div class="anim-fadeUp inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6">
+          <span class="material-symbols-outlined !text-[15px]">trending_up</span>
+          #1 Platform for Part-Time Jobs
+        </div>
+
+        <h1 class="anim-fadeUp-d1 text-4xl sm:text-5xl lg:text-[3.4rem] font-black leading-[1.1] tracking-tight">
+          Find Your <span class="grad-text">Perfect</span><br/>Part-Time Job
+        </h1>
+
+        <p class="anim-fadeUp-d2 mt-6 text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg">
+          Connecting students with flexible work. Build experience, earn income, and grow your career — on your own schedule.
+        </p>
+
+        <!-- Search -->
+        <div class="anim-fadeUp-d3 mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/70 dark:border-slate-700/50 p-2 flex flex-col sm:flex-row gap-2">
+          <div class="flex-1 flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl px-3 border border-transparent focus-within:border-primary/40 transition-colors">
+            <span class="material-symbols-outlined text-slate-400 !text-xl">search</span>
+            <input class="w-full bg-transparent border-none focus:ring-0 placeholder-slate-400 h-12 px-3 text-sm" placeholder="Job title, keywords..." type="text"/>
+          </div>
+          <div class="flex-1 flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl px-3 border border-transparent focus-within:border-primary/40 transition-colors">
+            <span class="material-symbols-outlined text-slate-400 !text-xl">location_on</span>
+            <input class="w-full bg-transparent border-none focus:ring-0 placeholder-slate-400 h-12 px-3 text-sm" placeholder="City or remote..." type="text"/>
+          </div>
+          <button class="h-12 px-7 bg-gradient-to-r from-primary to-primary-dk text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30 transition-all whitespace-nowrap flex items-center gap-2">
+            <span class="material-symbols-outlined !text-xl">search</span> Search
+          </button>
+        </div>
+
+        <!-- Trust -->
+        <div class="anim-fadeUp-d4 mt-6 flex flex-wrap items-center gap-5 text-sm text-slate-400">
+          <span class="flex items-center gap-1.5"><span class="material-symbols-outlined filled !text-[17px] text-amber-400">star</span>4.8 / 5 rating</span>
+          <span class="flex items-center gap-1.5"><span class="material-symbols-outlined !text-[17px] text-green-500">verified</span>Verified employers</span>
+          <span class="flex items-center gap-1.5"><span class="material-symbols-outlined !text-[17px] text-primary">bolt</span>Instant apply</span>
+        </div>
+      </div>
+
+      <!-- Right — floating cards -->
+      <div class="hidden lg:flex justify-center relative min-h-[430px]">
+        <div class="absolute w-[360px] h-[360px] rounded-full bg-gradient-to-br from-primary/8 to-accent/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+        <!-- Card A -->
+        <div class="anim-float absolute top-2 left-6 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-5 w-[258px]">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white font-bold text-sm shadow-md">SB</div>
+            <div>
+              <div class="text-sm font-bold">Barista</div>
+              <div class="text-xs text-slate-400">Starbucks &bull; NYC</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-md">$17.50/hr</span>
+            <span class="bg-slate-100 text-slate-500 text-[10px] font-semibold px-2 py-0.5 rounded-md">Part-Time</span>
+          </div>
+        </div>
+
+        <!-- Card B -->
+        <div class="anim-float-d absolute bottom-6 right-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-5 w-[246px]">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">FD</div>
+            <div>
+              <div class="text-sm font-bold">Delivery Driver</div>
+              <div class="text-xs text-slate-400">FastDash &bull; Chicago</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-md">$20/hr + Tips</span>
+            <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Weekends</span>
+          </div>
+        </div>
+
+        <!-- Card C — mini notification -->
+        <div class="anim-float absolute top-1/2 right-0 -translate-y-1/2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-green-500 !text-xl">check_circle</span>
+          </div>
+          <div>
+            <div class="text-sm font-bold">Application Sent!</div>
+            <div class="text-xs text-slate-400">Just now</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ STATS ════════════════════ -->
+<section class="relative -mt-5 z-10 max-w-[1120px] mx-auto px-6 lg:px-10">
+  <div class="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40 border border-slate-200/50 dark:border-slate-700/40 grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100 dark:divide-slate-700/40">
+    <div class="p-6 md:p-8 text-center">
+      <div class="text-3xl md:text-4xl font-extrabold text-primary anim-countPop">5,000+</div>
+      <div class="text-sm text-slate-500 mt-1 font-medium">Active Jobs</div>
+    </div>
+    <div class="p-6 md:p-8 text-center">
+      <div class="text-3xl md:text-4xl font-extrabold text-primary anim-countPop" style="animation-delay:.12s">320+</div>
+      <div class="text-sm text-slate-500 mt-1 font-medium">Employers</div>
+    </div>
+    <div class="p-6 md:p-8 text-center">
+      <div class="text-3xl md:text-4xl font-extrabold text-primary anim-countPop" style="animation-delay:.24s">12K+</div>
+      <div class="text-sm text-slate-500 mt-1 font-medium">Students Hired</div>
+    </div>
+    <div class="p-6 md:p-8 text-center">
+      <div class="text-3xl md:text-4xl font-extrabold text-primary anim-countPop" style="animation-delay:.36s">95%</div>
+      <div class="text-sm text-slate-500 mt-1 font-medium">Satisfaction</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ CATEGORIES ════════════════════ -->
+<section class="max-w-[1320px] mx-auto px-6 lg:px-10 mt-20">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Browse by <span class="grad-text">Category</span></h2>
+      <p class="text-slate-500 mt-2 text-sm">Explore opportunities in the fields you love</p>
+    </div>
+    <a class="hidden sm:inline-flex items-center gap-1 text-primary hover:text-primary-dk font-semibold text-sm" href="jobs.html">View all <span class="material-symbols-outlined !text-[18px]">arrow_forward</span></a>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+    <a class="card-lift flex flex-col items-center gap-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 p-7 group" href="jobs.html">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-orange-200/60 group-hover:scale-110 transition-transform">
+        <span class="material-symbols-outlined !text-3xl">restaurant</span>
+      </div>
+      <div class="text-center">
+        <h3 class="font-bold">Food &amp; Beverage</h3>
+        <p class="text-slate-400 text-sm mt-1">1,204 jobs</p>
+      </div>
+    </a>
+    <a class="card-lift flex flex-col items-center gap-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 p-7 group" href="jobs.html">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-200/60 group-hover:scale-110 transition-transform">
+        <span class="material-symbols-outlined !text-3xl">school</span>
+      </div>
+      <div class="text-center">
+        <h3 class="font-bold">Tutoring</h3>
+        <p class="text-slate-400 text-sm mt-1">856 jobs</p>
+      </div>
+    </a>
+    <a class="card-lift flex flex-col items-center gap-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 p-7 group" href="jobs.html">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-200/60 group-hover:scale-110 transition-transform">
+        <span class="material-symbols-outlined !text-3xl">local_shipping</span>
+      </div>
+      <div class="text-center">
+        <h3 class="font-bold">Delivery</h3>
+        <p class="text-slate-400 text-sm mt-1">2,341 jobs</p>
+      </div>
+    </a>
+    <a class="card-lift flex flex-col items-center gap-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 p-7 group" href="jobs.html">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-200/60 group-hover:scale-110 transition-transform">
+        <span class="material-symbols-outlined !text-3xl">storefront</span>
+      </div>
+      <div class="text-center">
+        <h3 class="font-bold">Retail</h3>
+        <p class="text-slate-400 text-sm mt-1">1,890 jobs</p>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ════════════════════ HOW IT WORKS ════════════════════ -->
+<section class="max-w-[1320px] mx-auto px-6 lg:px-10 py-20">
+  <div class="text-center mb-14">
+    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">How It <span class="grad-text">Works</span></h2>
+    <p class="text-slate-500 mt-2 text-sm max-w-md mx-auto">Three simple steps to your next opportunity</p>
+  </div>
+  <div class="grid md:grid-cols-3 gap-8 md:gap-6 relative">
+    <!-- Connector -->
+    <div class="hidden md:block absolute top-[40px] left-[16.67%] right-[16.67%] h-[2px] bg-gradient-to-r from-primary/20 via-accent/20 to-emerald-400/20"></div>
+    <!-- Step 1 -->
+    <div class="flex flex-col items-center text-center group">
+      <div class="relative z-10 w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-primary to-sky-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">1</div>
+      <h3 class="text-lg font-bold mt-5 mb-2">Create Profile</h3>
+      <p class="text-sm text-slate-500 max-w-[260px]">Sign up and build your student profile in under 3 minutes. Highlight skills and availability.</p>
+    </div>
+    <!-- Step 2 -->
+    <div class="flex flex-col items-center text-center group">
+      <div class="relative z-10 w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-accent to-purple-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform">2</div>
+      <h3 class="text-lg font-bold mt-5 mb-2">Discover Jobs</h3>
+      <p class="text-sm text-slate-500 max-w-[260px]">Browse curated part-time positions matched to your schedule, location, and interests.</p>
+    </div>
+    <!-- Step 3 -->
+    <div class="flex flex-col items-center text-center group">
+      <div class="relative z-10 w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-emerald-300/20 group-hover:scale-110 transition-transform">3</div>
+      <h3 class="text-lg font-bold mt-5 mb-2">Apply &amp; Get Hired</h3>
+      <p class="text-sm text-slate-500 max-w-[260px]">One-click apply and track progress. Employers respond fast — most within 48 hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ LATEST JOBS ════════════════════ -->
+<section class="bg-white dark:bg-slate-900/40 border-y border-slate-100 dark:border-slate-800/50 py-20">
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10">
+    <div class="flex items-end justify-between mb-9">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Latest <span class="grad-text">Jobs</span></h2>
+        <p class="text-slate-500 mt-2 text-sm">Fresh opportunities posted today</p>
+      </div>
+      <a class="hidden sm:inline-flex items-center gap-1 text-primary font-semibold text-sm" href="jobs.html">View all <span class="material-symbols-outlined !text-[18px]">arrow_forward</span></a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Job 1 -->
+      <div class="card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6 flex flex-col">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white font-bold shadow-md">SB</div>
+          <span class="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> New
+          </span>
+        </div>
+        <h3 class="text-lg font-bold mb-1">Barista (Part-Time)</h3>
+        <p class="text-slate-500 text-sm mb-4">Starbucks &bull; New York, NY</p>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-slate-400">schedule</span>15-20 hrs/wk
+          </span>
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-green-500">payments</span>$17.50/hr
+          </span>
+        </div>
+        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+          <span class="text-xs text-slate-400 flex items-center gap-1"><span class="material-symbols-outlined !text-[14px]">schedule</span>2 hours ago</span>
+          <a href="job-detail.html" class="inline-flex items-center gap-1 text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all">Apply <span class="material-symbols-outlined !text-[16px]">arrow_forward</span></a>
+        </div>
+      </div>
+
+      <!-- Job 2 -->
+      <div class="card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6 flex flex-col">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold shadow-md">AM</div>
+          <span class="bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 text-[11px] font-bold px-2.5 py-1 rounded-lg">Remote</span>
+        </div>
+        <h3 class="text-lg font-bold mb-1">Math Tutor</h3>
+        <p class="text-slate-500 text-sm mb-4">Academic Masters &bull; Remote</p>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-slate-400">schedule</span>Flexible
+          </span>
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-green-500">payments</span>$25.00/hr
+          </span>
+        </div>
+        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+          <span class="text-xs text-slate-400 flex items-center gap-1"><span class="material-symbols-outlined !text-[14px]">schedule</span>5 hours ago</span>
+          <a href="job-detail.html" class="inline-flex items-center gap-1 text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all">Apply <span class="material-symbols-outlined !text-[16px]">arrow_forward</span></a>
+        </div>
+      </div>
+
+      <!-- Job 3 -->
+      <div class="card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6 flex flex-col">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">FD</div>
+          <span class="bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[14px]">local_fire_department</span> Urgent
+          </span>
+        </div>
+        <h3 class="text-lg font-bold mb-1">Delivery Driver</h3>
+        <p class="text-slate-500 text-sm mb-4">FastDash &bull; Chicago, IL</p>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-slate-400">schedule</span>Weekends
+          </span>
+          <span class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined !text-[14px] text-green-500">payments</span>$20/hr + Tips
+          </span>
+        </div>
+        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+          <span class="text-xs text-slate-400 flex items-center gap-1"><span class="material-symbols-outlined !text-[14px]">schedule</span>1 day ago</span>
+          <a href="job-detail.html" class="inline-flex items-center gap-1 text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all">Apply <span class="material-symbols-outlined !text-[16px]">arrow_forward</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 flex justify-center">
+      <a href="jobs.html" class="inline-flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-primary hover:text-primary font-semibold py-3 px-8 rounded-xl transition-all shadow-sm hover:shadow-md">
+        <span class="material-symbols-outlined !text-xl">grid_view</span> Browse All Jobs
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ TESTIMONIALS ════════════════════ -->
+<section class="max-w-[1320px] mx-auto px-6 lg:px-10 py-20">
+  <div class="text-center mb-14">
+    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">What Students <span class="grad-text">Say</span></h2>
+    <p class="text-slate-500 mt-2 text-sm max-w-md mx-auto">Join thousands who found their perfect part-time job</p>
+  </div>
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- T1 -->
+    <div class="quote-card relative card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold text-sm">AT</div>
+        <div>
+          <div class="font-bold text-sm">An Tran</div>
+          <div class="text-xs text-slate-400">CS Student &bull; NYU</div>
+        </div>
+      </div>
+      <div class="flex gap-0.5 mb-3">
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">"Found a perfect tutoring gig that fits my class schedule. Applied on Monday, got hired by Wednesday!"</p>
+    </div>
+    <!-- T2 -->
+    <div class="quote-card relative card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">ML</div>
+        <div>
+          <div class="font-bold text-sm">Minh Le</div>
+          <div class="text-xs text-slate-400">Marketing &bull; UCLA</div>
+        </div>
+      </div>
+      <div class="flex gap-0.5 mb-3">
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">"The quality of employers here is way better than other platforms. I've been working at an amazing café for 3 months — found it here."</p>
+    </div>
+    <!-- T3 -->
+    <div class="quote-card relative card-lift bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm">SP</div>
+        <div>
+          <div class="font-bold text-sm">Sarah Park</div>
+          <div class="text-xs text-slate-400">Design &bull; RISD</div>
+        </div>
+      </div>
+      <div class="flex gap-0.5 mb-3">
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined filled !text-[16px] text-amber-400">star</span>
+        <span class="material-symbols-outlined !text-[16px] text-slate-300">star</span>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">"Love the instant apply feature! Applied for 5 positions in one evening and had 3 interviews by the weekend."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ CTA ════════════════════ -->
+<section class="max-w-[1320px] mx-auto px-6 lg:px-10 pb-20">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 md:p-16">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-accent/15 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="max-w-lg text-center md:text-left">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight">Ready to Find Your Next Opportunity?</h2>
+        <p class="text-slate-300 mt-3 leading-relaxed">Join thousands of students already earning while learning. Create your free account and start applying today.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a href="auth.html" class="inline-flex items-center justify-center h-12 px-8 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-sky-400 hover:shadow-xl hover:shadow-primary/30 transition-all anim-pulse-glow">
+          Get Started Free <span class="material-symbols-outlined !text-xl ml-2">arrow_forward</span>
+        </a>
+        <a href="jobs.html" class="inline-flex items-center justify-center h-12 px-8 rounded-xl text-sm font-semibold text-slate-200 border border-slate-600 hover:border-slate-400 hover:text-white transition-colors">Browse Jobs</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ FOOTER ════════════════════ -->
+<footer class="bg-white dark:bg-slate-900 border-t border-slate-200/50 dark:border-slate-800/50">
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 py-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+      <div class="col-span-2 md:col-span-1">
+        <a href="home.html" class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <span class="material-symbols-outlined !text-lg text-white">work</span>
+          </div>
+          <span class="font-extrabold">Work<span class="text-primary">Bridge</span></span>
+        </a>
+        <p class="text-sm text-slate-500 leading-relaxed">Connecting students with flexible work opportunities.</p>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold mb-4 uppercase tracking-wider">For Students</h4>
+        <ul class="space-y-2.5 text-sm text-slate-500">
+          <li><a href="jobs.html" class="hover:text-primary transition-colors">Browse Jobs</a></li>
+          <li><a href="profile.html" class="hover:text-primary transition-colors">My Profile</a></li>
+          <li><a href="my-applications.html" class="hover:text-primary transition-colors">Applications</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold mb-4 uppercase tracking-wider">For Employers</h4>
+        <ul class="space-y-2.5 text-sm text-slate-500">
+          <li><a href="job-management.html" class="hover:text-primary transition-colors">Post a Job</a></li>
+          <li><a href="applicant-review.html" class="hover:text-primary transition-colors">Review Applicants</a></li>
+          <li><a href="employer-dashboard.html" class="hover:text-primary transition-colors">Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold mb-4 uppercase tracking-wider">Company</h4>
+        <ul class="space-y-2.5 text-sm text-slate-500">
+          <li><a href="#" class="hover:text-primary transition-colors">About</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Contact</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-slate-100 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-slate-400 text-sm">&copy; 2026 WorkBridge. All rights reserved.</p>
+      <div class="flex gap-3">
+        <a href="#" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors"><span class="material-symbols-outlined !text-lg">language</span></a>
+        <a href="#" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors"><span class="material-symbols-outlined !text-lg">mail</span></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

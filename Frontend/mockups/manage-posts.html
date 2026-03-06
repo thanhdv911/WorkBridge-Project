@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+  <title>Manage Posts — WorkBridge</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+    .material-symbols-outlined.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .anim-fadeUp{animation:fadeInUp .8s ease-out both}
+    .anim-fadeUp-d1{animation:fadeInUp .8s ease-out .12s both}
+    .glass{background:rgba(255,255,255,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .grad-text{background:linear-gradient(135deg,#1392ec,#7c3aed,#1392ec);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-shift 5s ease infinite}
+    html{scroll-behavior:smooth}
+    .card-lift{transition:transform .35s cubic-bezier(.22,.68,0,1.2),box-shadow .35s ease}
+    .card-lift:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.06)}
+  </style>
+  <script>
+    tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#1392ec","primary-dk":"#0b6fbb","accent":"#7c3aed","bg-light":"#f8fafc","bg-dark":"#0c1420"},fontFamily:{display:["Inter","sans-serif"]},borderRadius:{DEFAULT:".25rem",lg:".5rem",xl:".75rem","2xl":"1rem","3xl":"1.5rem",full:"9999px"}}}}
+  </script>
+</head>
+
+<body class="bg-bg-light font-display text-slate-900 min-h-screen antialiased">
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="glass sticky top-0 z-50 border-b border-slate-200/50">
+  <div class="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
+    <div class="flex-1 flex items-center">
+      <a href="home.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+          <span class="material-symbols-outlined !text-xl text-white">work</span>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight">Work<span class="text-primary">Bridge</span></span>
+      </a>
+    </div>
+    <nav class="hidden md:flex items-center gap-8">
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="employer-dashboard.html">Dashboard</a>
+      <a class="relative text-sm font-semibold text-primary after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded" href="manage-posts.html">My Posts</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="applicant-review.html">Applicants</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="job-management.html">Post a Job</a>
+    </nav>
+    <div class="flex-1 flex items-center justify-end gap-3">
+      <button class="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+        <span class="material-symbols-outlined text-slate-500 !text-xl">notifications</span>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] text-white font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold cursor-pointer">CH</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ PAGE HEADER ═══════ -->
+<section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-10">
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="anim-fadeUp text-3xl font-black tracking-tight">Manage <span class="grad-text">My Posts</span></h1>
+      <p class="anim-fadeUp-d1 mt-2 text-sm text-slate-400">Monitor, edit, and control the status of your job listings.</p>
+    </div>
+    <a href="job-management.html" class="anim-fadeUp inline-flex items-center h-11 px-6 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all gap-2 flex-shrink-0">
+      <span class="material-symbols-outlined !text-xl">add</span>New Post
+    </a>
+  </div>
+</section>
+
+<!-- ═══════ FILTER BAR ═══════ -->
+<main class="max-w-[1320px] mx-auto px-6 lg:px-10 py-8">
+  <div class="anim-fadeUp flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <div class="flex items-center gap-2 overflow-x-auto pb-1">
+      <button class="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-white shadow-md shadow-primary/20">All (8)</button>
+      <button class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">Open (5)</button>
+      <button class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">Paused (1)</button>
+      <button class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">Closed (2)</button>
+    </div>
+    <div class="flex items-center bg-white rounded-xl border border-slate-200 px-3 w-full sm:w-64">
+      <span class="material-symbols-outlined text-slate-400 !text-xl">search</span>
+      <input class="w-full bg-transparent border-none focus:ring-0 placeholder-slate-400 h-10 px-2 text-sm" placeholder="Search posts..." type="text"/>
+    </div>
+  </div>
+
+  <!-- ═══════ POST TABLE ═══════ -->
+  <div class="anim-fadeUp-d1 bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50/50">
+            <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Job Title</th>
+            <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Posted</th>
+            <th class="text-center px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Applicants</th>
+            <th class="text-center px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Views</th>
+            <th class="text-center px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+            <th class="text-right px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- Row 1 -->
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">local_cafe</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Barista — Morning Shift</p>
+                  <p class="text-xs text-slate-400">District 1 · 35,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">Jun 8, 2025</td>
+            <td class="px-5 py-4 text-center"><span class="font-bold text-primary">45</span></td>
+            <td class="px-5 py-4 text-center text-slate-500">186</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100">Open</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors" title="Edit"><span class="material-symbols-outlined text-slate-400 !text-lg">edit</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors" title="Pause"><span class="material-symbols-outlined text-slate-400 !text-lg">pause_circle</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors" title="Delete"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2 -->
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">restaurant</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Waiter/Waitress — Evening</p>
+                  <p class="text-xs text-slate-400">District 7 · 32,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">Jun 5, 2025</td>
+            <td class="px-5 py-4 text-center"><span class="font-bold text-primary">33</span></td>
+            <td class="px-5 py-4 text-center text-slate-500">142</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100">Open</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">edit</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">pause_circle</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3 -->
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">cake</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Pastry Chef Assistant</p>
+                  <p class="text-xs text-slate-400">District 3 · 38,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">Jun 2, 2025</td>
+            <td class="px-5 py-4 text-center"><span class="font-bold text-primary">28</span></td>
+            <td class="px-5 py-4 text-center text-slate-500">98</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100">Open</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">edit</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">pause_circle</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4 — Paused -->
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">delivery_dining</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Delivery Rider — Lunch</p>
+                  <p class="text-xs text-slate-400">Binh Thanh · 40,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">May 28, 2025</td>
+            <td class="px-5 py-4 text-center"><span class="font-bold text-primary">52</span></td>
+            <td class="px-5 py-4 text-center text-slate-500">220</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">Paused</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">edit</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-green-50 transition-colors" title="Resume"><span class="material-symbols-outlined text-green-500 !text-lg">play_circle</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 5 — Closed -->
+          <tr class="hover:bg-slate-50/50 transition-colors opacity-60">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">cleaning_services</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Kitchen Helper — Part-time</p>
+                  <p class="text-xs text-slate-400">District 1 · 28,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">May 20, 2025</td>
+            <td class="px-5 py-4 text-center text-slate-500">38</td>
+            <td class="px-5 py-4 text-center text-slate-500">310</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">Closed</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors" title="Duplicate"><span class="material-symbols-outlined text-slate-400 !text-lg">content_copy</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 6 — Closed -->
+          <tr class="hover:bg-slate-50/50 transition-colors opacity-60">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white !text-lg">inventory_2</span></div>
+                <div>
+                  <p class="font-bold text-slate-800">Warehouse Packer — Night</p>
+                  <p class="text-xs text-slate-400">District 9 · 35,000₫/hr</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-500">May 10, 2025</td>
+            <td class="px-5 py-4 text-center text-slate-500">61</td>
+            <td class="px-5 py-4 text-center text-slate-500">405</td>
+            <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">Closed</span></td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-symbols-outlined text-slate-400 !text-lg">content_copy</span></button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"><span class="material-symbols-outlined text-red-400 !text-lg">delete</span></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="bg-slate-900 text-slate-400 mt-10">
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 py-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+          <span class="material-symbols-outlined !text-xl text-white">work</span>
+        </div>
+        <span class="text-lg font-extrabold text-white tracking-tight">Work<span class="text-primary">Bridge</span></span>
+      </div>
+      <p class="text-sm leading-relaxed">Connecting students with flexible part-time opportunities across Vietnam.</p>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">For Job Seekers</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="jobs.html" class="hover:text-primary transition-colors">Browse Jobs</a></li>
+        <li><a href="my-applications.html" class="hover:text-primary transition-colors">My Applications</a></li>
+        <li><a href="profile.html" class="hover:text-primary transition-colors">Profile</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">For Employers</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="employer-dashboard.html" class="hover:text-primary transition-colors">Dashboard</a></li>
+        <li><a href="manage-posts.html" class="hover:text-primary transition-colors">Manage Posts</a></li>
+        <li><a href="applicant-review.html" class="hover:text-primary transition-colors">Review Applicants</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">Company</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="hover:text-primary transition-colors">About Us</a></li>
+        <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+        <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-slate-800 text-center text-xs py-6 text-slate-500">© 2025 WorkBridge. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
