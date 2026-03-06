@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="WorkBridge.API/WorkBridge.API.csproj" />
+  <Project Path="WorkBridge.Application/WorkBridge.Application.csproj" />
+  <Project Path="WorkBridge.Domain/WorkBridge.Domain.csproj" />
+  <Project Path="WorkBridge.Infrastructure/WorkBridge.Infrastructure.csproj" />
 </Solution>

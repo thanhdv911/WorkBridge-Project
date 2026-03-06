@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+  <title>My Profile — WorkBridge</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+    .material-symbols-outlined.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .anim-fadeUp{animation:fadeInUp .8s ease-out both}
+    .anim-fadeUp-d1{animation:fadeInUp .8s ease-out .12s both}
+    .anim-fadeUp-d2{animation:fadeInUp .8s ease-out .24s both}
+    .glass{background:rgba(255,255,255,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .grad-text{background:linear-gradient(135deg,#1392ec,#7c3aed,#1392ec);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-shift 5s ease infinite}
+    html{scroll-behavior:smooth}
+    .hero-blob{position:absolute;border-radius:50%;pointer-events:none;filter:blur(60px)}
+  </style>
+  <script>
+    tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#1392ec","primary-dk":"#0b6fbb","accent":"#7c3aed","bg-light":"#f8fafc","bg-dark":"#0c1420"},fontFamily:{display:["Inter","sans-serif"]},borderRadius:{DEFAULT:".25rem",lg:".5rem",xl:".75rem","2xl":"1rem","3xl":"1.5rem",full:"9999px"}}}}
+  </script>
+</head>
+
+<body class="bg-bg-light font-display text-slate-900 min-h-screen antialiased">
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="glass sticky top-0 z-50 border-b border-slate-200/50">
+  <div class="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
+    <div class="flex-1 flex items-center">
+      <a href="home.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+          <span class="material-symbols-outlined !text-xl text-white">work</span>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight">Work<span class="text-primary">Bridge</span></span>
+      </a>
+    </div>
+    <nav class="hidden md:flex items-center gap-8">
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="home.html">Home</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="jobs.html">Find Jobs</a>
+      <a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="my-applications.html">My Applications</a>
+    </nav>
+    <div class="flex-1 flex items-center justify-end gap-3">
+      <button class="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+        <span class="material-symbols-outlined text-slate-500 !text-xl">notifications</span>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] text-white font-bold flex items-center justify-center">2</span>
+      </button>
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold cursor-pointer">NT</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ COVER + AVATAR ═══════ -->
+<section class="relative">
+  <div class="h-44 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <div class="hero-blob w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(19,146,236,.2),transparent_70%)] -top-32 right-0 absolute"></div>
+    <div class="hero-blob w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(124,58,237,.12),transparent_70%)] -bottom-20 -left-10 absolute"></div>
+  </div>
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 -mt-14 relative z-10">
+    <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+      <div class="w-28 h-28 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl font-black border-4 border-white shadow-xl">NT</div>
+      <div class="flex-1 pb-1">
+        <h1 class="text-2xl font-black tracking-tight">Nguyen Thanh</h1>
+        <p class="text-sm text-slate-500 flex items-center gap-1.5">
+          <span class="material-symbols-outlined !text-[16px]">school</span>
+          3rd Year Student · HCMC University of Technology
+        </p>
+      </div>
+      <button class="inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors gap-2 shadow-sm">
+        <span class="material-symbols-outlined !text-lg">edit</span>Edit Profile
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="max-w-[1320px] mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-[320px_1fr] gap-8">
+
+  <!-- ─── LEFT SIDEBAR ─── -->
+  <aside class="space-y-5">
+    <!-- Profile completion -->
+    <div class="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-slate-800">Profile Strength</h3>
+        <span class="text-sm font-bold text-primary">75%</span>
+      </div>
+      <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+        <div class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:75%"></div>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">Add more skills to reach 100%</p>
+    </div>
+
+    <!-- Contact info -->
+    <div class="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5">
+      <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary !text-lg">contact_mail</span>Contact Info</h3>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3 text-sm">
+          <span class="material-symbols-outlined text-slate-400 !text-xl">mail</span>
+          <span class="text-slate-600">thanh.nguyen@hcmut.edu.vn</span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="material-symbols-outlined text-slate-400 !text-xl">phone</span>
+          <span class="text-slate-600">0912 345 678</span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="material-symbols-outlined text-slate-400 !text-xl">location_on</span>
+          <span class="text-slate-600">Thu Duc City, HCMC</span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="material-symbols-outlined text-slate-400 !text-xl">calendar_today</span>
+          <span class="text-slate-600">Joined March 2025</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="anim-fadeUp-d1 bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5">
+      <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary !text-lg">psychology</span>Skills</h3>
+      <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20">Customer Service</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-50 text-purple-600 border border-purple-100">Communication</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-50 text-green-600 border border-green-100">Microsoft Office</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100">Teamwork</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">Time Management</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-50 text-teal-600 border border-teal-100">Basic English</span>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5">
+      <h3 class="text-sm font-bold text-slate-800 mb-3">Quick Links</h3>
+      <div class="space-y-1">
+        <a href="my-applications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors">
+          <span class="material-symbols-outlined !text-xl">description</span>My Applications
+          <span class="ml-auto bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+        </a>
+        <a href="jobs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors">
+          <span class="material-symbols-outlined !text-xl">bookmark</span>Saved Jobs
+          <span class="ml-auto bg-slate-100 text-slate-500 text-xs font-bold px-2 py-0.5 rounded-full">7</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors">
+          <span class="material-symbols-outlined !text-xl">settings</span>Settings
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── RIGHT CONTENT ─── -->
+  <div class="space-y-6">
+    <!-- About -->
+    <div class="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary !text-xl">person</span>About Me</h2>
+        <button class="text-sm text-primary font-semibold hover:underline flex items-center gap-1"><span class="material-symbols-outlined !text-[16px]">edit</span>Edit</button>
+      </div>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        I'm a 3rd-year Computer Science student at HCMC University of Technology with a passion for working with people. I'm looking for part-time opportunities in retail, food & beverage, or tutoring that allow me to balance my studies while gaining practical experience. I'm reliable, a fast learner, and enjoy working as part of a team.
+      </p>
+    </div>
+
+    <!-- Work Experience -->
+    <div class="anim-fadeUp-d1 bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary !text-xl">work_history</span>Work Experience</h2>
+        <button class="text-sm text-primary font-semibold hover:underline flex items-center gap-1"><span class="material-symbols-outlined !text-[16px]">add</span>Add</button>
+      </div>
+      <div class="space-y-5">
+        <!-- Exp 1 -->
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-white !text-lg">local_cafe</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Barista</h3>
+                <p class="text-xs text-slate-400">The Coffee House · Part-time</p>
+              </div>
+              <span class="text-xs text-slate-400">Jan 2025 — Present</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed">Prepared specialty beverages, managed morning rush customers, maintained cleanliness standards. Increased daily customer satisfaction score by 12%.</p>
+          </div>
+        </div>
+        <!-- Exp 2 -->
+        <div class="flex gap-4 pt-4 border-t border-slate-100">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-white !text-lg">storefront</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Sales Assistant</h3>
+                <p class="text-xs text-slate-400">Uniqlo Vietnam · Part-time</p>
+              </div>
+              <span class="text-xs text-slate-400">Jun 2024 — Dec 2024</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed">Assisted customers with product selection, managed inventory restocking, and processed checkout transactions during peak weekend hours.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education -->
+    <div class="anim-fadeUp-d2 bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary !text-xl">school</span>Education</h2>
+        <button class="text-sm text-primary font-semibold hover:underline flex items-center gap-1"><span class="material-symbols-outlined !text-[16px]">add</span>Add</button>
+      </div>
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+          <span class="material-symbols-outlined text-white !text-lg">school</span>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-start justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">HCMC University of Technology</h3>
+              <p class="text-xs text-slate-400">Bachelor of Computer Science</p>
+            </div>
+            <span class="text-xs text-slate-400">2022 — 2026</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">GPA: 3.2/4.0 · Dean's List 2023</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Availability -->
+    <div class="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+      <h2 class="text-lg font-bold flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary !text-xl">event_available</span>Availability</h2>
+      <div class="grid grid-cols-7 gap-2 text-center">
+        <div class="text-xs font-semibold text-slate-400 pb-2">Mon</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Tue</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Wed</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Thu</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Fri</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Sat</div>
+        <div class="text-xs font-semibold text-slate-400 pb-2">Sun</div>
+        <!-- Morning -->
+        <div class="py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold">AM</div>
+        <div class="py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold">AM</div>
+        <div class="py-2 rounded-lg bg-slate-50 text-slate-300 text-xs">—</div>
+        <div class="py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold">AM</div>
+        <div class="py-2 rounded-lg bg-slate-50 text-slate-300 text-xs">—</div>
+        <div class="py-2 rounded-lg bg-green-50 text-green-600 text-xs font-semibold">All</div>
+        <div class="py-2 rounded-lg bg-green-50 text-green-600 text-xs font-semibold">All</div>
+        <!-- Afternoon -->
+        <div class="py-2 rounded-lg bg-slate-50 text-slate-300 text-xs">—</div>
+        <div class="py-2 rounded-lg bg-slate-50 text-slate-300 text-xs">—</div>
+        <div class="py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold">PM</div>
+        <div class="py-2 rounded-lg bg-slate-50 text-slate-300 text-xs">—</div>
+        <div class="py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold">PM</div>
+        <div class="py-2 rounded-lg bg-green-50 text-green-600 text-xs font-semibold">All</div>
+        <div class="py-2 rounded-lg bg-green-50 text-green-600 text-xs font-semibold">All</div>
+      </div>
+      <p class="text-xs text-slate-400 mt-3 flex items-center gap-1"><span class="material-symbols-outlined !text-[14px]">info</span>Updated 3 days ago</p>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="bg-slate-900 text-slate-400 mt-10">
+  <div class="max-w-[1320px] mx-auto px-6 lg:px-10 py-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+          <span class="material-symbols-outlined !text-xl text-white">work</span>
+        </div>
+        <span class="text-lg font-extrabold text-white tracking-tight">Work<span class="text-primary">Bridge</span></span>
+      </div>
+      <p class="text-sm leading-relaxed">Connecting students with flexible part-time opportunities across Vietnam.</p>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">For Job Seekers</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="jobs.html" class="hover:text-primary transition-colors">Browse Jobs</a></li>
+        <li><a href="my-applications.html" class="hover:text-primary transition-colors">My Applications</a></li>
+        <li><a href="profile.html" class="hover:text-primary transition-colors">Profile</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">For Employers</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="employer-dashboard.html" class="hover:text-primary transition-colors">Dashboard</a></li>
+        <li><a href="manage-posts.html" class="hover:text-primary transition-colors">Manage Posts</a></li>
+        <li><a href="applicant-review.html" class="hover:text-primary transition-colors">Review Applicants</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-bold text-sm mb-4">Company</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="hover:text-primary transition-colors">About Us</a></li>
+        <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+        <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-slate-800 text-center text-xs py-6 text-slate-500">© 2025 WorkBridge. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
