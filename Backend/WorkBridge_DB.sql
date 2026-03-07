@@ -3,10 +3,10 @@
 -- =========================================================================================
 
 -- Create Database
--- CREATE DATABASE WorkBridgeDB;
--- GO
--- USE WorkBridgeDB;
--- GO
+CREATE DATABASE WorkBridgeDB;
+GO
+USE WorkBridgeDB;
+GO
 
 -- =========================================================================================
 -- TABLES CREATION
