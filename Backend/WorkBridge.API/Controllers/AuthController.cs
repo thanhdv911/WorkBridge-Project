@@ -50,5 +50,41 @@ namespace WorkBridge.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] ExternalAuthRequest request)
+        {
+            if (string.IsNullOrEmpty(request.IdToken))
+            {
+                return BadRequest("ID Token is required");
+            }
+
+            var response = await _authService.LoginWithGoogleAsync(request);
+
+            if (response == null)
+            {
+                return Unauthorized("Invalid Google Token or authentication failed.");
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("facebook")]
+        public async Task<IActionResult> FacebookLogin([FromBody] FacebookAuthRequest request)
+        {
+            if (string.IsNullOrEmpty(request.AccessToken))
+            {
+                return BadRequest("Access Token is required");
+            }
+
+            var response = await _authService.LoginWithFacebookAsync(request);
+
+            if (response == null)
+            {
+                return Unauthorized("Invalid Facebook Token or authentication failed.");
+            }
+
+            return Ok(response);
+        }
     }
 }

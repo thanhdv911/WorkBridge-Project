@@ -22,4 +22,14 @@ namespace WorkBridge.API.DTOs
         public string Role { get; set; } = string.Empty;
         public int UserId { get; set; }
     }
+
+  public class ExternalAuthRequest
+  {
+      public string IdToken { get; set; }
+  }
+
+  public class FacebookAuthRequest
+  {
+      public string AccessToken { get; set; }
+  }
 }
