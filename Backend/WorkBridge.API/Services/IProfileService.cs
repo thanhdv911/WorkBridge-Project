@@ -7,5 +7,6 @@ namespace WorkBridge.API.Services
     {
         Task<ApplicantProfileResponse?> GetApplicantProfileAsync(int userId);
         Task<bool> UpdateApplicantProfileAsync(int userId, UpdateApplicantProfileRequest request);
+        Task<string?> UploadCvAsync(int userId, Microsoft.AspNetCore.Http.IFormFile file);
     }
 }

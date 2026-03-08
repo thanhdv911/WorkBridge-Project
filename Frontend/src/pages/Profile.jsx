@@ -103,6 +103,7 @@ export default function Profile() {
         <div className="space-y-8">
           <ProfileContent 
             user={user} 
+            setUser={setUser}
             isEditing={isEditing}
             editForm={editForm}
             setEditForm={setEditForm}

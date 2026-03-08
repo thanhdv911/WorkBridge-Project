@@ -171,6 +171,28 @@ const EmployerApplicantReview = () => {
                                     "{selectedApp.coverMessage || "No cover message provided."}"
                                 </div>
                             </div>
+                            {selectedApp.cvUrl && (
+                                <div>
+                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Curriculum Vitae (CV)</label>
+                                    <a 
+                                        href={`http://localhost:5029${selectedApp.cvUrl}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all group"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+                                            <span className="material-symbols-outlined !text-2xl">picture_as_pdf</span>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-700">Applicant_CV.pdf</div>
+                                            <div className="text-[10px] font-bold text-primary flex items-center gap-1">
+                                                <span className="material-symbols-outlined !text-xs">visibility</span>
+                                                Click to view Resume
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-3 pt-4">

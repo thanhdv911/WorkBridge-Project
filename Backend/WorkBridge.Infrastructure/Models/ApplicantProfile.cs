@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace WorkBridge.Infrastructure.Models;
@@ -20,6 +20,8 @@ public partial class ApplicantProfile
     public string? AboutMe { get; set; }
 
     public string? Availability { get; set; }
+
+    public string? CvUrl { get; set; }
 
     public virtual User Applicant { get; set; } = null!;
 

@@ -18,6 +18,7 @@ namespace WorkBridge.API.DTOs
         public string? Address { get; set; }
         public string? AboutMe { get; set; }
         public string? Availability { get; set; }
+        public string? CvUrl { get; set; }
     }
 
     public class UpdateApplicantProfileRequest

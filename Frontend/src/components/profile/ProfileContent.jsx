@@ -1,6 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
-export default function ProfileContent({ user, isEditing, editForm, setEditForm, onSave, onCancel }) {
+export default function ProfileContent({ user, setUser, isEditing, editForm, setEditForm, onSave, onCancel }) {
+  const [cvLoading, setCvLoading] = useState(false);
+
+  const handleCvUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+       toast.error('Please upload a PDF file.');
+       return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setCvLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post('http://localhost:5029/api/profile/applicant/upload-cv', formData, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      setUser({ ...user, cvUrl: res.data.cvUrl });
+      toast.success('CV uploaded successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload CV.');
+    } finally {
+      setCvLoading(false);
+    }
+  };
   if (isEditing) {
     return (
       <div className="space-y-6">
@@ -132,6 +167,54 @@ export default function ProfileContent({ user, isEditing, editForm, setEditForm,
         <div className="space-y-5 text-center py-6 text-slate-400">
           <span className="material-symbols-outlined !text-4xl mb-2 opacity-50">work_off</span>
           <p className="text-sm">Experience data loading...</p>
+        </div>
+      </div>
+
+      {/* CV / Resume Section */}
+      <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 anim-fadeUp-d2">
+        <h2 className="text-lg font-bold flex items-center justify-between gap-2 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary !text-xl">description</span>
+            Curriculum Vitae (CV)
+          </div>
+          {user?.cvUrl && (
+            <a 
+              href={`http://localhost:5029${user.cvUrl}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined !text-sm">open_in_new</span>
+              View Current CV
+            </a>
+          )}
+        </h2>
+
+        <div className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center ${user?.cvUrl ? 'border-green-100 bg-green-50/30' : 'border-slate-200 hover:border-primary/50 bg-slate-50/50'}`}>
+          <input 
+            type="file" 
+            accept=".pdf"
+            onChange={handleCvUpload}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            disabled={cvLoading}
+          />
+          
+          {cvLoading ? (
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-3"></div>
+              <p className="text-sm font-bold text-slate-500">Uploading your CV...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <span className={`material-symbols-outlined !text-4xl mb-3 ${user?.cvUrl ? 'text-green-500' : 'text-slate-300'}`}>
+                {user?.cvUrl ? 'check_circle' : 'cloud_upload'}
+              </span>
+              <p className="text-sm font-bold text-slate-700">
+                {user?.cvUrl ? 'Replace your CV' : 'Upload your CV (PDF)'}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">Recommended size: Under 5MB</p>
+            </div>
+          )}
         </div>
       </div>
 

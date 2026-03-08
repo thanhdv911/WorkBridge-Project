@@ -57,5 +57,21 @@ namespace WorkBridge.API.Controllers
 
             return Ok(new { Message = "Profile updated successfully." });
         }
+
+        [HttpPost("applicant/upload-cv")]
+        public async Task<IActionResult> UploadCv(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
+            if (System.IO.Path.GetExtension(file.FileName).ToLower() != ".pdf") 
+                return BadRequest("Only PDF files are allowed.");
+
+            int userId = GetCurrentUserId();
+            if (userId == 0) return Unauthorized();
+
+            var cvUrl = await _profileService.UploadCvAsync(userId, file);
+            if (cvUrl == null) return NotFound("User not found.");
+
+            return Ok(new { CvUrl = cvUrl });
+        }
     }
 }

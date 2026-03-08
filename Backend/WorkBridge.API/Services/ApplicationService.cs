@@ -39,6 +39,7 @@ namespace WorkBridge.API.Services
                 JobPostId = request.JobPostId,
                 ApplicantId = profile.ApplicantId,
                 CoverMessage = request.CoverMessage,
+                CvUrl = profile.CvUrl,
                 Status = "Pending",
                 AppliedAt = System.DateTime.UtcNow
             };
