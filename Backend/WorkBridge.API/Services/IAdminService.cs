@@ -22,6 +22,10 @@ namespace WorkBridge.API.Services
 
         // Statistics
         Task<AdminStatsResponse> GetDashboardStatsAsync();
+
+        // Report Management
+        Task<IEnumerable<AdminReportResponse>> GetReportsAsync();
+        Task<bool> UpdateReportStatusAsync(int reportId, string status);
     }
 
     public class AdminCategoryResponse

@@ -78,11 +78,25 @@ namespace WorkBridge.API.Controllers
             return Ok(new { message = "Category deleted successfully." });
         }
 
-        // Statistics
         [HttpGet("stats")]
         public async Task<IActionResult> GetStats()
         {
             return Ok(await _adminService.GetDashboardStatsAsync());
+        }
+
+        // Reports
+        [HttpGet("reports")]
+        public async Task<IActionResult> GetReports()
+        {
+            return Ok(await _adminService.GetReportsAsync());
+        }
+
+        [HttpPatch("reports/{id}/status")]
+        public async Task<IActionResult> UpdateReportStatus(int id, [FromBody] AdminUpdateStatusRequest request)
+        {
+            var result = await _adminService.UpdateReportStatusAsync(id, request.NewStatus);
+            if (!result) return NotFound("Report not found.");
+            return Ok(new { message = "Report status updated successfully." });
         }
     }
 }

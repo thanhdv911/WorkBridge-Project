@@ -201,5 +201,54 @@ namespace WorkBridge.API.Services
                 ApplicationGrowth = appGrowth
             };
         }
+
+        // Report Management
+        public async Task<IEnumerable<AdminReportResponse>> GetReportsAsync()
+        {
+            var reports = await _context.Reports
+                .Include(r => r.Reporter)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            var result = new List<AdminReportResponse>();
+
+            foreach (var r in reports)
+            {
+                string entityTitle = "Unknown";
+                if (r.EntityType == "Job")
+                {
+                    entityTitle = (await _context.JobPosts.FindAsync(r.ReportedEntityId))?.Title ?? "Deleted Job";
+                }
+                else if (r.EntityType == "User")
+                {
+                    entityTitle = (await _context.Users.FindAsync(r.ReportedEntityId))?.FullName ?? "Deleted User";
+                }
+
+                result.Add(new AdminReportResponse
+                {
+                    ReportId = r.ReportId,
+                    ReporterName = r.Reporter.FullName,
+                    ReportedEntityId = r.ReportedEntityId,
+                    EntityType = r.EntityType,
+                    EntityTitle = entityTitle,
+                    Reason = r.Reason,
+                    Description = r.Description,
+                    Status = r.Status,
+                    CreatedAt = r.CreatedAt
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<bool> UpdateReportStatusAsync(int reportId, string status)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null) return false;
+
+            report.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

@@ -3,6 +3,7 @@ import AdminUsers from '../components/admin/AdminUsers';
 import AdminJobs from '../components/admin/AdminJobs';
 import AdminCategories from '../components/admin/AdminCategories';
 import AdminOverview from '../components/admin/AdminOverview';
+import AdminReports from '../components/admin/AdminReports';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
@@ -11,7 +12,8 @@ const AdminDashboard = () => {
         { id: 'overview', label: 'Overview', icon: 'dashboard' },
         { id: 'users', label: 'User Management', icon: 'groups' },
         { id: 'jobs', label: 'Job Moderation', icon: 'fact_check' },
-        { id: 'categories', label: 'Categories', icon: 'category' }
+        { id: 'categories', label: 'Categories', icon: 'category' },
+        { id: 'reports', label: 'System Reports', icon: 'report_problem' }
     ];
 
     return (
@@ -46,6 +48,7 @@ const AdminDashboard = () => {
                     {activeTab === 'users' && <AdminUsers />}
                     {activeTab === 'jobs' && <AdminJobs />}
                     {activeTab === 'categories' && <AdminCategories />}
+                    {activeTab === 'reports' && <AdminReports />}
                 </div>
             </main>
         </div>

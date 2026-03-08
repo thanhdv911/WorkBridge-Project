@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import ReportModal from '../components/shared/ReportModal';
 
 const Messages = () => {
     const location = useLocation();
@@ -9,6 +10,7 @@ const Messages = () => {
     const [conversations, setConversations] = useState([]);
     const [messages, setMessages] = useState([]);
     const [selectedContact, setSelectedContact] = useState(null);
+    const [showReportModal, setShowReportModal] = useState(false);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
@@ -174,7 +176,22 @@ const Messages = () => {
                                 </h2>
                                 <p className="text-[11px] text-green-500 font-bold uppercase tracking-wider">Online</p>
                             </div>
+                            <button 
+                                onClick={() => setShowReportModal(true)}
+                                className="ml-auto w-10 h-10 rounded-xl bg-slate-50 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center group"
+                                title="Report User"
+                            >
+                                <span className="material-symbols-outlined !text-xl">flag</span>
+                            </button>
                         </div>
+
+                        <ReportModal 
+                            isOpen={showReportModal}
+                            onClose={() => setShowReportModal(false)}
+                            entityId={selectedContact.contactId}
+                            entityType="User"
+                            entityTitle={selectedContact.contactName}
+                        />
 
                         {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import ReportModal from '../shared/ReportModal';
 
 const EmployerApplicantReview = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState(null);
+    const [showReportModal, setShowReportModal] = useState(false);
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
 
@@ -195,7 +197,23 @@ const EmployerApplicantReview = () => {
                                     Message Applicant
                                 </button>
                             )}
+
+                            <button 
+                                onClick={() => setShowReportModal(true)}
+                                className="w-full flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 hover:text-rose-500 transition-colors uppercase tracking-[0.2em] pt-4"
+                            >
+                                <span className="material-symbols-outlined !text-sm">flag</span>
+                                Report Applicant
+                            </button>
                         </div>
+
+                        <ReportModal 
+                            isOpen={showReportModal}
+                            onClose={() => setShowReportModal(false)}
+                            entityId={selectedApp.applicantId}
+                            entityType="User"
+                            entityTitle={selectedApp.applicantName}
+                        />
                     </div>
                 ) : (
                     <div className="h-96 flex flex-col items-center justify-center text-center opacity-40">

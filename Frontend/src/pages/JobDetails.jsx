@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
+import ReportModal from '../components/shared/ReportModal';
+
 const JobDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -10,6 +12,7 @@ const JobDetails = () => {
     const [isSaved, setIsSaved] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showApplyModal, setShowApplyModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
     const [coverMessage, setCoverMessage] = useState('');
     const [applying, setApplying] = useState(false);
 
@@ -262,9 +265,25 @@ const JobDetails = () => {
                                 {isSaved ? 'Job Saved' : 'Save Job'}
                             </button>
                         )}
+                        <button 
+                            onClick={() => setShowReportModal(true)}
+                            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest"
+                        >
+                            <span className="material-symbols-outlined !text-sm">flag</span>
+                            Report this Job
+                        </button>
                     </div>
                 </aside>
             </main>
+
+            {/* Models */}
+            <ReportModal 
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                entityId={parseInt(id)}
+                entityType="Job"
+                entityTitle={job.title}
+            />
 
             {/* Apply Modal */}
             {showApplyModal && (
