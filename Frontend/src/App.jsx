@@ -13,6 +13,7 @@ import MyApplications from './pages/MyApplications';
 import SavedJobs from './pages/SavedJobs';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
+import AdminDashboard from './pages/AdminDashboard';
 import './index.css';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/saved-jobs" element={<SavedJobs />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />

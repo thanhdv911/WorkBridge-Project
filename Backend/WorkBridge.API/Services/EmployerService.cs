@@ -113,7 +113,7 @@ namespace WorkBridge.API.Services
                 Description = request.Description,
                 Requirements = request.Requirements,
                 Benefits = request.Benefits,
-                Status = "Published", // Auto publish for now
+                Status = "Pending", // Require Admin approval
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow
             };
