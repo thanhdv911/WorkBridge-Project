@@ -67,6 +67,7 @@ namespace WorkBridge.API.Services
                 {
                     ApplicationId = a.ApplicationId,
                     JobPostId = a.JobPostId,
+                    EmployerId = a.JobPost.EmployerId,
                     JobTitle = a.JobPost.Title,
                     CompanyName = a.JobPost.Employer.CompanyName,
                     Status = a.Status,

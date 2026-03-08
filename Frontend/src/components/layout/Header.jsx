@@ -7,19 +7,25 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const token = localStorage.getItem('token');
   const isLoggedIn = !!token;
   const userRole = localStorage.getItem('role');
 
   useEffect(() => {
     if (isLoggedIn) {
-      fetchUnreadCount();
-      const interval = setInterval(fetchUnreadCount, 30000); // 30s check
+      fetchUnreadCounts();
+      const interval = setInterval(fetchUnreadCounts, 30000);
       return () => clearInterval(interval);
     }
   }, [isLoggedIn]);
 
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCounts = async () => {
+    fetchUnreadNotifications();
+    fetchUnreadMessages();
+  };
+
+  const fetchUnreadNotifications = async () => {
     try {
       const res = await api.get('/notification/unread-count', {
         headers: { Authorization: `Bearer ${token}` }
@@ -29,14 +35,25 @@ export default function Header() {
       console.error('Error fetching unread count:', err);
     }
   };
-  
+
+  const fetchUnreadMessages = async () => {
+    try {
+      const res = await api.get('/messages/unread-count', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUnreadMessages(res.data.count);
+    } catch (err) {
+      console.error('Error fetching unread messages:', err);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     toast.success('Logged out successfully');
     navigate('/login');
   };
-  
+
   return (
     <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
       <div className="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
@@ -51,21 +68,21 @@ export default function Header() {
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-8">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`text-sm font-semibold transition-colors ${location.pathname === '/' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
           >
             Home
           </Link>
-          <Link 
-            to="/jobs" 
+          <Link
+            to="/jobs"
             className={`text-sm font-semibold transition-colors ${location.pathname === '/jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
           >
             Find Jobs
           </Link>
           {userRole === 'Employer' && (
-            <Link 
-              to="/employer-dashboard" 
+            <Link
+              to="/employer-dashboard"
               className={`text-sm font-semibold transition-colors ${location.pathname === '/employer-dashboard' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
             >
               Dashboard
@@ -73,23 +90,32 @@ export default function Header() {
           )}
           {isLoggedIn && userRole !== 'Employer' && (
             <>
-              <Link 
-                to="/profile" 
+              <Link
+                to="/profile"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/profile' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >
                 Profile
               </Link>
-              <Link 
-                to="/my-applications" 
+              <Link
+                to="/my-applications"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/my-applications' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >
                 My Applications
               </Link>
-              <Link 
-                to="/saved-jobs" 
+              <Link
+                to="/saved-jobs"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >
                 Saved Jobs
+              </Link>
+              <Link
+                to="/messages"
+                className={`text-sm font-semibold transition-colors flex items-center gap-1.5 ${location.pathname === '/messages' ? 'text-primary' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Messages
+                {unreadMessages > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                )}
               </Link>
             </>
           )}
@@ -97,7 +123,19 @@ export default function Header() {
         <div className="flex-1 flex items-center justify-end gap-3">
           {isLoggedIn ? (
             <>
-              <Link 
+              <Link
+                to="/messages"
+                className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                title="Messages"
+              >
+                <span className="material-symbols-outlined text-slate-500 !text-xl">forum</span>
+                {unreadMessages > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[10px] text-white font-bold flex items-center justify-center">
+                    {unreadMessages > 9 ? '9+' : unreadMessages}
+                  </span>
+                )}
+              </Link>
+              <Link
                 to="/notifications"
                 className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
                 title="Notifications"

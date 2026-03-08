@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -7,6 +7,7 @@ const MyApplications = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchApplications();
@@ -72,39 +73,60 @@ const MyApplications = () => {
                 ) : (
                     <div className="grid gap-4 animate-fadeInUp">
                         {/* Table Header (Hidden on mobile) */}
-                        <div className="hidden md:grid grid-cols-[1fr_200px_160px_140px] px-8 py-4 bg-slate-100/50 rounded-2xl text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        <div className="hidden md:grid grid-cols-[1fr_200px_160px_120px_60px] px-8 py-4 bg-slate-100/50 rounded-2xl text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                             <div>Job Info</div>
                             <div>Company</div>
                             <div>Applied Date</div>
                             <div className="text-center">Status</div>
+                            <div className="text-right">Chat</div>
                         </div>
 
                         {/* Application Cards */}
                         {applications.map((app) => (
-                            <div key={app.applicationId} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow p-6 md:p-8 flex flex-col md:grid md:grid-cols-[1fr_200px_160px_140px] items-center gap-4">
-                                <div className="w-full">
-                                    <Link to={`/jobs/${app.jobPostId}`} className="text-lg font-bold text-slate-800 hover:text-primary transition-colors block leading-tight">
-                                        {app.jobTitle}
-                                    </Link>
-                                    <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
-                                        <span className="material-symbols-outlined !text-[16px]">location_on</span>
-                                        {app.location}
+                                <div key={app.applicationId} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow p-6 md:p-8 flex flex-col md:grid md:grid-cols-[1fr_200px_160px_120px_60px] items-center gap-4">
+                                    <div className="w-full">
+                                        <Link to={`/jobs/${app.jobPostId}`} className="text-lg font-bold text-slate-800 hover:text-primary transition-colors block leading-tight">
+                                            {app.jobTitle}
+                                        </Link>
+                                        <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
+                                            <span className="material-symbols-outlined !text-[16px]">location_on</span>
+                                            {app.location}
+                                        </div>
+                                    </div>
+                                    <div className="w-full text-slate-600 font-semibold md:text-sm text-center md:text-left flex items-center gap-2">
+                                        <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Company:</span>
+                                        {app.companyName}
+                                    </div>
+                                    <div className="w-full text-slate-500 md:text-sm text-center md:text-left flex items-center gap-2">
+                                       <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Date:</span>
+                                        {new Date(app.appliedAt).toLocaleDateString()}
+                                    </div>
+                                    <div className="w-full flex justify-center">
+                                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
+                                            {app.status}
+                                        </span>
+                                    </div>
+                                    <div className="w-full flex justify-end">
+                                        {(app.status === 'Accepted' || app.status === 'Under Review') ? (
+                                            <button 
+                                                onClick={() => navigate('/messages', { 
+                                                    state: { 
+                                                        contactId: app.employerId, 
+                                                        contactName: app.companyName 
+                                                    } 
+                                                })}
+                                                className="w-10 h-10 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center"
+                                                title="Chat with Recruiter"
+                                            >
+                                                <span className="material-symbols-outlined">forum</span>
+                                            </button>
+                                        ) : (
+                                            <button disabled className="w-10 h-10 rounded-xl bg-slate-50 text-slate-200 flex items-center justify-center cursor-not-allowed">
+                                                <span className="material-symbols-outlined">forum</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="w-full text-slate-600 font-semibold md:text-sm text-center md:text-left flex items-center gap-2">
-                                    <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Company:</span>
-                                    {app.companyName}
-                                </div>
-                                <div className="w-full text-slate-500 md:text-sm text-center md:text-left flex items-center gap-2">
-                                   <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Date:</span>
-                                    {new Date(app.appliedAt).toLocaleDateString()}
-                                </div>
-                                <div className="w-full flex justify-center">
-                                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
-                                        {app.status}
-                                    </span>
-                                </div>
-                            </div>
                         ))}
                     </div>
                 )}

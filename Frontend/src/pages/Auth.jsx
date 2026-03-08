@@ -35,7 +35,9 @@ export default function Auth() {
       const response = await api.post('/auth/login', { email, password });
       toast.success(`Welcome back, ${response.data.fullName}!`);
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.role); // Save role for Header routing
+      localStorage.setItem('role', response.data.role);
+      localStorage.setItem('userId', response.data.userId);
+      localStorage.setItem('fullName', response.data.fullName);
       localStorage.setItem('user', JSON.stringify(response.data));
       
       if (response.data.role === 'Employer') {

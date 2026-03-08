@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -7,6 +8,7 @@ const EmployerApplicantReview = () => {
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState(null);
     const token = localStorage.getItem('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchApplications();
@@ -177,6 +179,22 @@ const EmployerApplicantReview = () => {
                             >
                                 Mark as Under Review
                             </button>
+
+                            {/* Message Button */}
+                            {(selectedApp.status === 'Accepted' || selectedApp.status === 'Under Review') && (
+                                <button 
+                                    onClick={() => navigate('/messages', { 
+                                        state: { 
+                                            contactId: selectedApp.applicantId, 
+                                            contactName: selectedApp.applicantName 
+                                        } 
+                                    })}
+                                    className="w-full h-11 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined !text-[20px]">forum</span>
+                                    Message Applicant
+                                </button>
+                            )}
                         </div>
                     </div>
                 ) : (
