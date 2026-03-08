@@ -29,6 +29,7 @@ builder.Services.AddDbContext<WorkBridgeContext>(options =>
 
 // Register custom services
 builder.Services.AddScoped<WorkBridge.API.Services.IAuthService, WorkBridge.API.Services.AuthService>();
+builder.Services.AddScoped<WorkBridge.API.Services.IProfileService, WorkBridge.API.Services.ProfileService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

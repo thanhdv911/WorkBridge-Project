@@ -5,6 +5,8 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
+import FindJobs from './pages/FindJobs';
+import Profile from './pages/Profile';
 import './index.css';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/jobs" element={<FindJobs />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
         </Routes>
