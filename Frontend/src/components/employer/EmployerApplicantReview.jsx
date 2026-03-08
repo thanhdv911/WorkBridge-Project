@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import ReportModal from '../shared/ReportModal';
+import ReviewModal from '../shared/ReviewModal';
 
 const EmployerApplicantReview = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [selectedForReview, setSelectedForReview] = useState(null);
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
 
@@ -50,6 +53,16 @@ const EmployerApplicantReview = () => {
             console.error('Error updating application status:', error);
             toast.error('Failed to update status.');
         }
+    };
+
+    const handleOpenReview = (app) => {
+        setSelectedForReview({
+            revieweeId: app.applicantId,
+            revieweeName: app.applicantName,
+            jobPostId: app.jobPostId,
+            jobTitle: app.jobTitle
+        });
+        setShowReviewModal(true);
     };
 
     const getStatusColor = (status) => {
@@ -197,6 +210,16 @@ const EmployerApplicantReview = () => {
                                     Message Applicant
                                 </button>
                             )}
+                            
+                            {selectedApp.status === 'Accepted' && (
+                                <button 
+                                    onClick={() => handleOpenReview(selectedApp)}
+                                    className="w-full h-11 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined filled">star</span>
+                                    Rate Student
+                                </button>
+                            )}
 
                             <button 
                                 onClick={() => setShowReportModal(true)}
@@ -213,6 +236,12 @@ const EmployerApplicantReview = () => {
                             entityId={selectedApp.applicantId}
                             entityType="User"
                             entityTitle={selectedApp.applicantName}
+                        />
+
+                        <ReviewModal 
+                            isOpen={showReviewModal}
+                            onClose={() => setShowReviewModal(false)}
+                            {...selectedForReview}
                         />
                     </div>
                 ) : (
