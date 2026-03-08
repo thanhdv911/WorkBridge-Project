@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ReportModal from '../shared/ReportModal';
 
-export default function ProfileCover({ user, onEditClick }) {
+export default function ProfileCover({ user, onEditClick, isOwnProfile = true }) {
+  const [showReportModal, setShowReportModal] = useState(false);
   // Use Initials for Avatar if no image
   const initials = user?.fullName
     ? user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
@@ -24,14 +26,33 @@ export default function ProfileCover({ user, onEditClick }) {
               {user?.studyYear || 'Student'} · {user?.university || 'University Not Set'} {user?.major ? `(${user.major})` : ''}
             </p>
           </div>
-          <button 
-            onClick={onEditClick}
-            className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors gap-2 shadow-sm"
-          >
-            <span className="material-symbols-outlined !text-lg">edit</span>Edit Profile
-          </button>
+          {isOwnProfile ? (
+            <button 
+              onClick={onEditClick}
+              className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors gap-2 shadow-sm"
+            >
+              <span className="material-symbols-outlined !text-lg">edit</span>Edit Profile
+            </button>
+          ) : (
+            <button 
+              onClick={() => setShowReportModal(true)}
+              className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-rose-500 bg-rose-50 border border-rose-100 hover:bg-rose-100 transition-colors gap-2 shadow-sm"
+            >
+              <span className="material-symbols-outlined !text-lg">flag</span>Report User
+            </button>
+          )}
         </div>
       </div>
+      
+      {!isOwnProfile && (
+        <ReportModal 
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          entityId={user?.userId}
+          entityType="User"
+          entityTitle={user?.fullName}
+        />
+      )}
     </section>
   );
 }
