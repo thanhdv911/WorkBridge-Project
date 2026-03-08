@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-export default function JobFilterSidebar() {
-  const [salary, setSalary] = useState(80000);
+export default function JobFilterSidebar({ onFilterChange }) {
+  const [salary, setSalary] = useState(20000);
 
   return (
     <aside className="anim-fadeUp space-y-6">
@@ -41,7 +41,6 @@ export default function JobFilterSidebar() {
         <div className="mb-5">
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Salary Range</label>
           <div className="space-y-2">
-            {/* Custom slider styles mapped via inline/tailwind for WebKit are somewhat complex, but standard range input is okay */}
             <input 
               type="range" 
               min="20000" max="200000" step="5000"
@@ -91,7 +90,10 @@ export default function JobFilterSidebar() {
         </div>
       </div>
 
-      <button className="w-full h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2">
+      <button 
+        onClick={() => onFilterChange(salary)}
+        className="w-full h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2"
+      >
         <span className="material-symbols-outlined !text-lg">filter_list</span>Apply Filters
       </button>
     </aside>

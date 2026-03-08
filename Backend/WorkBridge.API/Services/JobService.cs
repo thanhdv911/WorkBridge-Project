@@ -16,7 +16,7 @@ namespace WorkBridge.API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary)
+        public async Task<PaginatedResponse<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary, int pageNumber = 1, int pageSize = 10)
         {
             var query = _context.JobPosts
                 .Include(j => j.Employer)
@@ -45,8 +45,12 @@ namespace WorkBridge.API.Services
                 query = query.Where(j => j.PayRate >= minSalary.Value);
             }
 
+            var totalCount = await query.CountAsync();
+
             var jobs = await query
                 .OrderByDescending(j => j.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(j => new JobResponse
                 {
                     JobPostId = j.JobPostId,
@@ -67,7 +71,13 @@ namespace WorkBridge.API.Services
                 })
                 .ToListAsync();
 
-            return jobs;
+            return new PaginatedResponse<JobResponse>
+            {
+                Items = jobs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<JobResponse?> GetJobByIdAsync(int id)

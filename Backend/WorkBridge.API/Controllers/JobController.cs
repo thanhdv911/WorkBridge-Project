@@ -21,10 +21,12 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> GetJobs(
             [FromQuery] string? keyword, 
             [FromQuery] string? location, 
-            [FromQuery] decimal? minSalary)
+            [FromQuery] decimal? minSalary,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var jobs = await _jobService.GetJobsAsync(keyword, location, minSalary);
-            return Ok(jobs);
+            var result = await _jobService.GetJobsAsync(keyword, location, minSalary, page, pageSize);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
