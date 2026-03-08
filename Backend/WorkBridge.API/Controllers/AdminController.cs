@@ -77,5 +77,12 @@ namespace WorkBridge.API.Controllers
             if (!result) return BadRequest("Category not found or still has associated jobs.");
             return Ok(new { message = "Category deleted successfully." });
         }
+
+        // Statistics
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            return Ok(await _adminService.GetDashboardStatsAsync());
+        }
     }
 }

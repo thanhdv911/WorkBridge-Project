@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import AdminUsers from '../components/admin/AdminUsers';
 import AdminJobs from '../components/admin/AdminJobs';
 import AdminCategories from '../components/admin/AdminCategories';
+import AdminOverview from '../components/admin/AdminOverview';
 
 const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState('users');
+    const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = [
+        { id: 'overview', label: 'Overview', icon: 'dashboard' },
         { id: 'users', label: 'User Management', icon: 'groups' },
         { id: 'jobs', label: 'Job Moderation', icon: 'fact_check' },
         { id: 'categories', label: 'Categories', icon: 'category' }
@@ -40,6 +42,7 @@ const AdminDashboard = () => {
             {/* Main Content */}
             <main className="flex-1 p-6 md:p-10 overflow-y-auto custom-scrollbar">
                 <div className="max-w-6xl mx-auto">
+                    {activeTab === 'overview' && <AdminOverview />}
                     {activeTab === 'users' && <AdminUsers />}
                     {activeTab === 'jobs' && <AdminJobs />}
                     {activeTab === 'categories' && <AdminCategories />}

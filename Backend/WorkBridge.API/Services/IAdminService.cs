@@ -19,6 +19,9 @@ namespace WorkBridge.API.Services
         Task<AdminCategoryResponse> CreateCategoryAsync(AdminCategoryRequest request);
         Task<bool> UpdateCategoryAsync(int id, AdminCategoryRequest request);
         Task<bool> DeleteCategoryAsync(int id);
+
+        // Statistics
+        Task<AdminStatsResponse> GetDashboardStatsAsync();
     }
 
     public class AdminCategoryResponse

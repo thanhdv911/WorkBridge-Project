@@ -140,5 +140,66 @@ namespace WorkBridge.API.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        // Statistics
+        public async Task<AdminStatsResponse> GetDashboardStatsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+            var last30Days = now.AddDays(-30);
+
+            var totalUsers = await _context.Users.CountAsync();
+            var totalJobs = await _context.JobPosts.CountAsync();
+            var totalApplications = await _context.Applications.CountAsync();
+
+            var acceptedApps = await _context.Applications.CountAsync(a => a.Status == "Accepted");
+            var successRate = totalApplications > 0 ? (double)acceptedApps / totalApplications * 100 : 0;
+
+            var newUsersThisMonth = await _context.Users.CountAsync(u => u.CreatedAt >= startOfMonth);
+            var newJobsThisMonth = await _context.JobPosts.CountAsync(j => j.CreatedAt >= startOfMonth);
+
+            // Growth data for last 30 days
+            var jobGrowthRaw = await _context.JobPosts
+                .Where(j => j.CreatedAt >= last30Days)
+                .Select(j => j.CreatedAt!.Value.Date)
+                .ToListAsync();
+
+            var jobGrowth = jobGrowthRaw
+                .GroupBy(d => d)
+                .Select(g => new GrowthDataPoint
+                {
+                    Date = g.Key.ToString("MM/dd"),
+                    Count = g.Count()
+                })
+                .OrderBy(g => g.Date)
+                .ToList();
+
+            var appGrowthRaw = await _context.Applications
+                .Where(a => a.AppliedAt >= last30Days)
+                .Select(a => a.AppliedAt!.Value.Date)
+                .ToListAsync();
+
+            var appGrowth = appGrowthRaw
+                .GroupBy(d => d)
+                .Select(g => new GrowthDataPoint
+                {
+                    Date = g.Key.ToString("MM/dd"),
+                    Count = g.Count()
+                })
+                .OrderBy(g => g.Date)
+                .ToList();
+
+            return new AdminStatsResponse
+            {
+                TotalUsers = totalUsers,
+                TotalJobs = totalJobs,
+                TotalApplications = totalApplications,
+                ApplicationSuccessRate = Math.Round(successRate, 1),
+                NewUsersThisMonth = newUsersThisMonth,
+                NewJobsThisMonth = newJobsThisMonth,
+                JobGrowth = jobGrowth,
+                ApplicationGrowth = appGrowth
+            };
+        }
     }
 }
