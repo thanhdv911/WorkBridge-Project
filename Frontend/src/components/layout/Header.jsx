@@ -1,35 +1,170 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
+
 export default function Header() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
+  const userRole = localStorage.getItem('role');
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUnreadCounts();
+      const interval = setInterval(fetchUnreadCounts, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isLoggedIn]);
+
+  const fetchUnreadCounts = async () => {
+    fetchUnreadNotifications();
+    fetchUnreadMessages();
+  };
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const res = await api.get('/notification/unread-count', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUnreadCount(res.data.count);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  };
+
+  const fetchUnreadMessages = async () => {
+    try {
+      const res = await api.get('/messages/unread-count', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUnreadMessages(res.data.count);
+    } catch (err) {
+      console.error('Error fetching unread messages:', err);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.success('Logged out successfully');
+    navigate('/login');
+  };
+
   return (
     <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
       <div className="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
         <div className="flex-1 flex items-center">
-          <a href="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
               <span className="material-symbols-outlined !text-xl text-white">work</span>
             </div>
             <span className="text-lg font-extrabold tracking-tight">
               Work<span className="text-primary">Bridge</span>
             </span>
-          </a>
+          </Link>
         </div>
         <nav className="hidden md:flex items-center gap-8">
-          <a className="relative text-sm font-semibold text-primary after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded" href="/">
+          <Link
+            to="/"
+            className={`text-sm font-semibold transition-colors ${location.pathname === '/' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+          >
             Home
-          </a>
-          <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="/jobs">
+          </Link>
+          <Link
+            to="/jobs"
+            className={`text-sm font-semibold transition-colors ${location.pathname === '/jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+          >
             Find Jobs
-          </a>
-          <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="/post-job">
-            Post a Job
-          </a>
+          </Link>
+          {userRole === 'Employer' && (
+            <Link
+              to="/employer-dashboard"
+              className={`text-sm font-semibold transition-colors ${location.pathname === '/employer-dashboard' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+            >
+              Dashboard
+            </Link>
+          )}
+          {userRole === 'Admin' && (
+            <Link
+              to="/admin-dashboard"
+              className={`text-sm font-semibold transition-colors ${location.pathname === '/admin-dashboard' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+            >
+              Management
+            </Link>
+          )}
+          {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
+            <>
+              <Link
+                to="/my-applications"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/my-applications' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                My Applications
+              </Link>
+              <Link
+                to="/saved-jobs"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Saved Jobs
+              </Link>
+              <Link
+                to="/messages"
+                className={`text-sm font-semibold transition-colors flex items-center gap-1.5 ${location.pathname === '/messages' ? 'text-primary' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Messages
+                {unreadMessages > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                )}
+              </Link>
+            </>
+          )}
         </nav>
         <div className="flex-1 flex items-center justify-end gap-3">
-          <a href="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
-            Login
-          </a>
-          <a href="/signup" className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
-            Sign Up Free
-          </a>
+          {isLoggedIn ? (
+            <>
+              <Link
+                to="/messages"
+                className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                title="Messages"
+              >
+                <span className="material-symbols-outlined text-slate-500 !text-xl">forum</span>
+                {unreadMessages > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[10px] text-white font-bold flex items-center justify-center">
+                    {unreadMessages > 9 ? '9+' : unreadMessages}
+                  </span>
+                )}
+              </Link>
+              <Link
+                to="/notifications"
+                className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                title="Notifications"
+              >
+                <span className="material-symbols-outlined text-slate-500 !text-xl">notifications</span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] text-white font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"} className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition-all" title="Profile">
+                {userRole === 'Employer' ? 'EMP' : 'ME'}
+              </Link>
+              <button onClick={handleLogout} className="w-9 h-9 rounded-xl border border-slate-200 text-slate-500 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors ml-2" title="Logout">
+                <span className="material-symbols-outlined !text-xl">logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                Login
+              </Link>
+              <Link to="/signup" className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+                Sign Up Free
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

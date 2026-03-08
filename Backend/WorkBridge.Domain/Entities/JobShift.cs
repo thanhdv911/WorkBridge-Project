@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+
+namespace WorkBridge.Domain.Entities;
+
+public partial class JobShift
+{
+    public int ShiftId { get; set; }
+
+    public string ShiftName { get; set; } = null!;
+    public string? StartTime { get; set; }
+    public string? EndTime { get; set; }
+
+    public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();
+}
