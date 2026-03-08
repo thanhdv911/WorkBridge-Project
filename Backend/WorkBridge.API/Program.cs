@@ -34,6 +34,7 @@ builder.Services.AddScoped<WorkBridge.API.Services.IJobService, WorkBridge.API.S
 builder.Services.AddScoped<WorkBridge.API.Services.IEmployerService, WorkBridge.API.Services.EmployerService>();
 builder.Services.AddScoped<WorkBridge.API.Services.IApplicationService, WorkBridge.API.Services.ApplicationService>();
 builder.Services.AddScoped<WorkBridge.API.Services.ISavedJobService, WorkBridge.API.Services.SavedJobService>();
+builder.Services.AddScoped<WorkBridge.API.Services.INotificationService, WorkBridge.API.Services.NotificationService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

@@ -9,10 +9,12 @@ namespace WorkBridge.API.Services
     public class ApplicationService : IApplicationService
     {
         private readonly WorkBridgeContext _context;
+        private readonly INotificationService _notificationService;
 
-        public ApplicationService(WorkBridgeContext context)
+        public ApplicationService(WorkBridgeContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<string?> ApplyForJobAsync(int userId, ApplyJobRequest request)
@@ -23,7 +25,9 @@ namespace WorkBridge.API.Services
             if (job.Status != "Published") return $"This job is not currently open for applications (Status: {job.Status}).";
 
             // Check if user has applicant profile
-            var profile = await _context.ApplicantProfiles.FirstOrDefaultAsync(p => p.ApplicantId == userId);
+            var profile = await _context.ApplicantProfiles
+                .Include(p => p.Applicant)
+                .FirstOrDefaultAsync(p => p.ApplicantId == userId);
             if (profile == null) return "Your profile is incomplete. Please complete your Applicant Profile before applying.";
 
             // Check if already applied
@@ -41,6 +45,14 @@ namespace WorkBridge.API.Services
 
             _context.Applications.Add(application);
             await _context.SaveChangesAsync();
+
+            // Notify Employer
+            await _notificationService.CreateNotificationAsync(
+                job.EmployerId,
+                "New Job Application",
+                $"Student {profile.Applicant?.FullName ?? "Someone"} has applied for your job: {job.Title}"
+            );
+
             return null; // Success
         }
 
@@ -102,6 +114,14 @@ namespace WorkBridge.API.Services
             application.RespondedAt = DateTime.UtcNow;
             
             await _context.SaveChangesAsync();
+
+            // Notify Applicant
+            await _notificationService.CreateNotificationAsync(
+                application.ApplicantId,
+                "Application Status Update",
+                $"Your application for '{application.JobPost.Title}' has been updated to: {status}"
+            );
+
             return true;
         }
     }

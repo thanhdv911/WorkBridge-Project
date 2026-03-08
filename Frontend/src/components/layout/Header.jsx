@@ -1,11 +1,34 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem('token');
+  const [unreadCount, setUnreadCount] = useState(0);
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
   const userRole = localStorage.getItem('role');
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 30000); // 30s check
+      return () => clearInterval(interval);
+    }
+  }, [isLoggedIn]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await api.get('/notification/unread-count', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUnreadCount(res.data.count);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  };
   
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -74,10 +97,18 @@ export default function Header() {
         <div className="flex-1 flex items-center justify-end gap-3">
           {isLoggedIn ? (
             <>
-              <button className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors tooltip-trigger">
+              <Link 
+                to="/notifications"
+                className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                title="Notifications"
+              >
                 <span className="material-symbols-outlined text-slate-500 !text-xl">notifications</span>
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] text-white font-bold flex items-center justify-center">2</span>
-              </button>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] text-white font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
               <Link to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"} className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition-all" title="Profile">
                 {userRole === 'Employer' ? 'EMP' : 'ME'}
               </Link>

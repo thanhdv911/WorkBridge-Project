@@ -11,6 +11,7 @@ import EmployerDashboard from './pages/EmployerDashboard';
 import JobDetails from './pages/JobDetails';
 import MyApplications from './pages/MyApplications';
 import SavedJobs from './pages/SavedJobs';
+import Notifications from './pages/Notifications';
 import './index.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/saved-jobs" element={<SavedJobs />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
