@@ -5,6 +5,7 @@ namespace WorkBridge.API.Services
 {
     public interface IApplicationService
     {
-        Task<bool> ApplyForJobAsync(int userId, ApplyJobRequest request);
+        Task<string?> ApplyForJobAsync(int userId, ApplyJobRequest request);
+        Task<IEnumerable<ApplicationResponse>> GetMyApplicationsAsync(int userId);
     }
 }

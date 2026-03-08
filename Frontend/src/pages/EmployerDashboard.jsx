@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmployerProfileTab from '../components/employer/EmployerProfileTab';
 import EmployerJobForm from '../components/employer/EmployerJobForm';
+import EmployerManagePosts from '../components/employer/EmployerManagePosts';
 
 export default function EmployerDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -16,9 +17,9 @@ export default function EmployerDashboard() {
     return null;
   }
 
-  // Calculate some fake numbers for the dashboard stats
+  // Calculate stats based on real data would be better, but let's keep the UI consistent
   const stats = [
-    { label: 'Active Job Posts', value: '0', icon: 'work', color: 'primary', bg: 'primary/10' },
+    { label: 'Active Job Posts', value: '---', icon: 'work', color: 'primary', bg: 'primary/10' },
     { label: 'Total Applications', value: '0', icon: 'description', color: 'blue-500', bg: 'blue-50' },
     { label: 'Qualified Candidates', value: '0%', icon: 'how_to_reg', color: 'green-500', bg: 'green-50' },
     { label: 'Employer Rating', value: '---', icon: 'star', color: 'amber-500', bg: 'amber-50' }
@@ -80,10 +81,10 @@ export default function EmployerDashboard() {
           </button>
 
           <button 
-            disabled
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 opacity-60 cursor-not-allowed transition-colors"
+            onClick={() => setActiveTab('manage-posts')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'manage-posts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
           >
-            <span className="material-symbols-outlined !text-lg text-inherit">list_alt</span>Manage Posts <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-500 ml-auto leading-none">Soon</span>
+            <span className="material-symbols-outlined !text-lg text-inherit">list_alt</span>Manage Posts
           </button>
           
           <button 
@@ -97,7 +98,8 @@ export default function EmployerDashboard() {
         {/* Content Area */}
         <main>
           {activeTab === 'profile' && <EmployerProfileTab />}
-          {activeTab === 'post-job' && <EmployerJobForm onSuccess={() => setActiveTab('profile')} />}
+          {activeTab === 'post-job' && <EmployerJobForm onSuccess={() => setActiveTab('manage-posts')} />}
+          {activeTab === 'manage-posts' && <EmployerManagePosts />}
         </main>
       </div>
     </div>

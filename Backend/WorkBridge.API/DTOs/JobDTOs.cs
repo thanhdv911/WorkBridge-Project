@@ -11,13 +11,14 @@ namespace WorkBridge.API.DTOs
         public string CompanyName { get; set; } = null!;
         public string? CompanyLogoUrl { get; set; }
         public string JobType { get; set; } = null!;
-        public string Location { get; set; } = null!; // Combined City/District
+        public string Location { get; set; } = null!; 
         public decimal? PayRate { get; set; }
         public string PayUnit { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string? Requirements { get; set; }
         public string? Benefits { get; set; }
         public DateTime? ApplicationDeadline { get; set; }
+        public string Status { get; set; } = null!;
         public DateTime? CreatedAt { get; set; }
     }
 }

@@ -10,5 +10,6 @@ namespace WorkBridge.API.Services
         Task<EmployerProfileResponse> UpdateProfileAsync(int userId, UpdateEmployerProfileRequest request);
         Task<JobResponse> CreateJobAsync(int userId, CreateJobRequest request);
         Task<IEnumerable<JobResponse>> GetMyJobsAsync(int userId);
+        Task<bool> UpdateJobStatusAsync(int userId, int jobId, string status);
     }
 }

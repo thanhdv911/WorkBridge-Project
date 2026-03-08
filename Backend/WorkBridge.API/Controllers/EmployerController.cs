@@ -88,5 +88,21 @@ namespace WorkBridge.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpPatch("jobs/{id}/status")]
+        public async Task<IActionResult> UpdateJobStatus(int id, [FromBody] string status)
+        {
+            try
+            {
+                var userId = GetUserId();
+                var success = await _employerService.UpdateJobStatusAsync(userId, id, status);
+                if (!success) return NotFound(new { Message = "Job not found or access denied." });
+                return Ok(new { Message = "Job status updated successfully." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

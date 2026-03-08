@@ -49,12 +49,20 @@ export default function Header() {
             </Link>
           )}
           {isLoggedIn && userRole !== 'Employer' && (
-            <Link 
-              to="/profile" 
-              className={`text-sm font-semibold transition-colors ${location.pathname === '/profile' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
-            >
-              Profile
-            </Link>
+            <>
+              <Link 
+                to="/profile" 
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/profile' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Profile
+              </Link>
+              <Link 
+                to="/my-applications" 
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/my-applications' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                My Applications
+              </Link>
+            </>
           )}
         </nav>
         <div className="flex-1 flex items-center justify-end gap-3">

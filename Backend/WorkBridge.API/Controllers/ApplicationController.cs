@@ -28,14 +28,28 @@ namespace WorkBridge.API.Controllers
                 return Unauthorized("Invalid user token.");
             }
 
-            var success = await _applicationService.ApplyForJobAsync(userId, request);
+            var error = await _applicationService.ApplyForJobAsync(userId, request);
             
-            if (!success)
+            if (error != null)
             {
-                return BadRequest("Failed to apply. You may have already applied, or your profile is incomplete, or the job does not exist.");
+                return BadRequest(error);
             }
 
             return Ok(new { message = "Application submitted successfully." });
+        }
+
+        [HttpGet("my")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> GetMyApplications()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return Unauthorized("Invalid user token.");
+            }
+
+            var applications = await _applicationService.GetMyApplicationsAsync(userId);
+            return Ok(applications);
         }
     }
 }

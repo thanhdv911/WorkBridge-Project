@@ -156,10 +156,23 @@ namespace WorkBridge.API.Services
                      PayRate = j.PayRate,
                      PayUnit = j.PayUnit,
                      Description = j.Description,
+                     Status = j.Status,
                      CreatedAt = j.CreatedAt,
                      ApplicationDeadline = j.ApplicationDeadline
                 })
                 .ToListAsync();
+        }
+
+        public async Task<bool> UpdateJobStatusAsync(int userId, int jobId, string status)
+        {
+            var job = await _context.JobPosts
+                .FirstOrDefaultAsync(j => j.JobPostId == jobId && j.EmployerId == userId && !j.IsDeleted);
+
+            if (job == null) return false;
+
+            job.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
