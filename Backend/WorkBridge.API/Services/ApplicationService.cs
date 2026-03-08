@@ -63,5 +63,46 @@ namespace WorkBridge.API.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<EmployerApplicationResponse>> GetApplicationsForEmployerAsync(int employerId)
+        {
+            return await _context.Applications
+                .Include(a => a.JobPost)
+                .Include(a => a.Applicant)
+                    .ThenInclude(p => p.Applicant) // Inner User
+                .Where(a => a.JobPost.EmployerId == employerId && !a.IsDeleted)
+                .OrderByDescending(a => a.AppliedAt)
+                .Select(a => new EmployerApplicationResponse
+                {
+                    ApplicationId = a.ApplicationId,
+                    JobPostId = a.JobPostId,
+                    JobTitle = a.JobPost.Title,
+                    ApplicantId = a.ApplicantId,
+                    ApplicantName = a.Applicant.Applicant.FullName,
+                    ApplicantEmail = a.Applicant.Applicant.Email,
+                    ApplicantMajor = a.Applicant.Major,
+                    StudyYear = a.Applicant.StudyYear,
+                    CoverMessage = a.CoverMessage,
+                    CvUrl = a.CvUrl,
+                    Status = a.Status,
+                    AppliedAt = a.AppliedAt.GetValueOrDefault()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateApplicationStatusAsync(int employerId, int applicationId, string status)
+        {
+            var application = await _context.Applications
+                .Include(a => a.JobPost)
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
+
+            if (application == null) return false;
+
+            application.Status = status;
+            application.RespondedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

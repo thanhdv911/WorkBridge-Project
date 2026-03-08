@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import EmployerProfileTab from '../components/employer/EmployerProfileTab';
 import EmployerJobForm from '../components/employer/EmployerJobForm';
 import EmployerManagePosts from '../components/employer/EmployerManagePosts';
+import EmployerApplicantReview from '../components/employer/EmployerApplicantReview';
 
 export default function EmployerDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -20,7 +21,7 @@ export default function EmployerDashboard() {
   // Calculate stats based on real data would be better, but let's keep the UI consistent
   const stats = [
     { label: 'Active Job Posts', value: '---', icon: 'work', color: 'primary', bg: 'primary/10' },
-    { label: 'Total Applications', value: '0', icon: 'description', color: 'blue-500', bg: 'blue-50' },
+    { label: 'Total Applications', value: '---', icon: 'description', color: 'blue-500', bg: 'blue-50' },
     { label: 'Qualified Candidates', value: '0%', icon: 'how_to_reg', color: 'green-500', bg: 'green-50' },
     { label: 'Employer Rating', value: '---', icon: 'star', color: 'amber-500', bg: 'amber-50' }
   ];
@@ -88,10 +89,10 @@ export default function EmployerDashboard() {
           </button>
           
           <button 
-             disabled
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 opacity-60 cursor-not-allowed transition-colors"
+            onClick={() => setActiveTab('review-applicants')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'review-applicants' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
           >
-            <span className="material-symbols-outlined !text-lg text-inherit">group</span>Review Applicants <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-500 ml-auto leading-none">Soon</span>
+            <span className="material-symbols-outlined !text-lg text-inherit">group</span>Review Applicants
           </button>
         </aside>
 
@@ -100,6 +101,7 @@ export default function EmployerDashboard() {
           {activeTab === 'profile' && <EmployerProfileTab />}
           {activeTab === 'post-job' && <EmployerJobForm onSuccess={() => setActiveTab('manage-posts')} />}
           {activeTab === 'manage-posts' && <EmployerManagePosts />}
+          {activeTab === 'review-applicants' && <EmployerApplicantReview />}
         </main>
       </div>
     </div>
