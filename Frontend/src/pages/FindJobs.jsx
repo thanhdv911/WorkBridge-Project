@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import HeroSearch from '../components/jobs/HeroSearch';
 import JobFilterSidebar from '../components/jobs/JobFilterSidebar';
@@ -7,22 +7,67 @@ import JobCard from '../components/jobs/JobCard';
 
 export default function FindJobs() {
   const [jobs, setJobs] = useState([]);
+  const [savedJobIds, setSavedJobIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const isApplicant = role && role.toLowerCase() === 'applicant';
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+    if (isApplicant && token) {
+      fetchSavedJobIds();
+    }
+  }, [token, isApplicant]);
+
+  const fetchSavedJobIds = async () => {
+    try {
+      const res = await api.get('/savedjobs/ids', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSavedJobIds(res.data);
+    } catch (err) {
+      console.error('Error fetching saved job IDs:', err);
+    }
+  };
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5029/api/jobs');
+      const res = await api.get('/jobs');
       setJobs(res.data);
     } catch (err) {
       console.error(err);
       toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleSave = async (jobId) => {
+    if (!token) {
+      toast.error('Please login to save jobs');
+      return;
+    }
+
+    const isAlreadySaved = savedJobIds.includes(jobId);
+    try {
+      if (isAlreadySaved) {
+        await api.delete(`/savedjobs/${jobId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setSavedJobIds(prev => prev.filter(id => id !== jobId));
+        toast.success('Job removed from saved list');
+      } else {
+        await api.post(`/savedjobs/${jobId}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setSavedJobIds(prev => [...prev, jobId]);
+        toast.success('Job saved successfully');
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
+      toast.error('Failed to update saved jobs');
     }
   };
 
@@ -65,7 +110,12 @@ export default function FindJobs() {
           ) : (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {jobs.map((job) => (
-                <JobCard key={job.jobPostId} job={job} />
+                <JobCard 
+                  key={job.jobPostId} 
+                  job={job} 
+                  isSaved={savedJobIds.includes(job.jobPostId)}
+                  onToggleSave={isApplicant ? handleToggleSave : null}
+                />
               ))}
             </div>
           )}

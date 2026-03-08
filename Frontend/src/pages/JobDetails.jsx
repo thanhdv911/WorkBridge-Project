@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const JobDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [job, setJob] = useState(null);
+    const [isSaved, setIsSaved] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [coverMessage, setCoverMessage] = useState('');
@@ -14,20 +15,35 @@ const JobDetails = () => {
 
     const userRole = localStorage.getItem('role');
     const token = localStorage.getItem('token');
+    const isApplicant = userRole?.toLowerCase() === 'applicant';
 
     useEffect(() => {
         fetchJobDetails();
-    }, [id]);
+        if (isApplicant && token) {
+            checkIfSaved();
+        }
+    }, [id, token, isApplicant]);
 
     const fetchJobDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:5029/api/jobs/${id}`);
+            const response = await api.get(`/jobs/${id}`);
             setJob(response.data);
         } catch (error) {
             console.error('Error fetching job details:', error);
             toast.error('Could not load job details.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const checkIfSaved = async () => {
+        try {
+            const res = await api.get('/savedjobs/ids', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setIsSaved(res.data.includes(parseInt(id)));
+        } catch (err) {
+            console.error('Error checking save status:', err);
         }
     };
 
@@ -52,7 +68,7 @@ const JobDetails = () => {
         e.preventDefault();
         setApplying(true);
         try {
-            await axios.post('http://localhost:5029/api/application', {
+            await api.post('/application', {
                 jobPostId: parseInt(id),
                 coverMessage: coverMessage
             }, {
@@ -61,12 +77,37 @@ const JobDetails = () => {
             toast.success('Application submitted successfully!');
             setShowApplyModal(false);
             setCoverMessage('');
-            // Optional: refresh job to update applicant count if we had that
         } catch (error) {
             const msg = error.response?.data || 'Failed to submit application.';
             toast.error(typeof msg === 'string' ? msg : 'An error occurred.');
         } finally {
             setApplying(false);
+        }
+    };
+
+    const handleToggleSave = async () => {
+        if (!token) {
+            toast.error('Please login to save jobs.');
+            return;
+        }
+
+        try {
+            if (isSaved) {
+                await api.delete(`/savedjobs/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setIsSaved(false);
+                toast.success('Job removed from saved list.');
+            } else {
+                await api.post(`/savedjobs/${id}`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setIsSaved(true);
+                toast.success('Job saved successfully.');
+            }
+        } catch (err) {
+            console.error('Error toggling save status:', err);
+            toast.error('Failed to update saved jobs.');
         }
     };
 
@@ -206,10 +247,21 @@ const JobDetails = () => {
                             <span className="material-symbols-outlined !text-xl">send</span>
                             Apply Now
                         </button>
-                        <button className="w-full h-11 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
-                            <span className="material-symbols-outlined !text-xl">bookmark_border</span>
-                            Save Job
-                        </button>
+                        {isApplicant && (
+                            <button 
+                                onClick={handleToggleSave}
+                                className={`w-full h-11 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                                    isSaved 
+                                    ? 'bg-rose-50 text-rose-500 border border-rose-100 shadow-sm' 
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                            >
+                                <span className={`material-symbols-outlined !text-xl ${isSaved ? 'filled' : ''}`}>
+                                    {isSaved ? 'favorite' : 'bookmark_border'}
+                                </span>
+                                {isSaved ? 'Job Saved' : 'Save Job'}
+                            </button>
+                        )}
                     </div>
                 </aside>
             </main>

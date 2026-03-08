@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function JobCard({ job }) {
+export default function JobCard({ job, isSaved = false, onToggleSave }) {
   const typeStyles = {
     'Part-time': 'bg-green-50 text-green-600 border-green-100',
     'Flexible': 'bg-green-50 text-green-600 border-green-100',
@@ -45,10 +45,29 @@ export default function JobCard({ job }) {
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
             <span className="material-symbols-outlined text-white !text-xl">work</span>
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-primary transition-colors">{job.title}</h3>
             <p className="text-xs text-slate-400 truncate">{job.companyName} · {job.location}</p>
           </div>
+          
+          {onToggleSave && (
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleSave(job.jobPostId);
+              }}
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                isSaved 
+                ? 'bg-rose-50 border-rose-100 text-rose-500 shadow-sm shadow-rose-100' 
+                : 'bg-white border-slate-200 text-slate-400 hover:text-rose-400 hover:border-rose-100'
+              }`}
+            >
+              <span className={`material-symbols-outlined !text-xl ${isSaved ? 'filled' : ''}`}>
+                favorite
+              </span>
+            </button>
+          )}
         </div>
         
         <div className="flex flex-wrap gap-1.5 mb-3">

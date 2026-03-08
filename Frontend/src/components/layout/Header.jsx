@@ -62,6 +62,12 @@ export default function Header() {
               >
                 My Applications
               </Link>
+              <Link 
+                to="/saved-jobs" 
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Saved Jobs
+              </Link>
             </>
           )}
         </nav>
