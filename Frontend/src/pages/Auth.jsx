@@ -35,8 +35,14 @@ export default function Auth() {
       const response = await api.post('/auth/login', { email, password });
       toast.success(`Welcome back, ${response.data.fullName}!`);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role); // Save role for Header routing
       localStorage.setItem('user', JSON.stringify(response.data));
-      navigate('/'); // Or profile
+      
+      if (response.data.role === 'Employer') {
+        navigate('/employer-dashboard');
+      } else {
+        navigate('/'); 
+      }
     } catch (err) {
       toast.error(err.response?.data || 'Login failed. Please check your credentials.');
     } finally {
@@ -70,8 +76,14 @@ export default function Auth() {
       });
       toast.success('Account created successfully!');
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
       localStorage.setItem('user', JSON.stringify(response.data));
-      navigate('/'); // Or profile
+      
+      if (response.data.role === 'Employer') {
+        navigate('/employer-dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       toast.error(err.response?.data || 'Registration failed. Please try again.');
     } finally {
@@ -113,8 +125,13 @@ export default function Auth() {
       const response = await api.post('/auth/google', { IdToken: credentialResponse.credential });
       toast.success(`Welcome, ${response.data.fullName}!`);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
       localStorage.setItem('user', JSON.stringify(response.data));
-      navigate('/');
+      if (response.data.role === 'Employer') {
+        navigate('/employer-dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       toast.error(err.response?.data || 'Google Login failed.');
     } finally {
@@ -133,8 +150,13 @@ export default function Auth() {
         const res = await api.post('/auth/facebook', { AccessToken: response.accessToken });
         toast.success(`Welcome, ${res.data.fullName}!`);
         localStorage.setItem('token', res.data.token);
+        localStorage.setItem('role', res.data.role);
         localStorage.setItem('user', JSON.stringify(res.data));
-        navigate('/');
+        if (res.data.role === 'Employer') {
+          navigate('/employer-dashboard');
+        } else {
+          navigate('/');
+        }
       } catch (err) {
         toast.error(err.response?.data || 'Facebook login failed.');
       } finally {
