@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 export default function EmployerJobForm({ onSuccess }) {
   const [jobForm, setJobForm] = useState({
     title: '',
-    categoryId: 1, // Defaulting to F&B for now
+    categoryId: 1, 
     jobType: 'Part-time',
     payRate: '',
     payUnit: 'Hourly',
@@ -15,9 +15,24 @@ export default function EmployerJobForm({ onSuccess }) {
     applicationDeadline: '',
     description: '',
     requirements: '',
-    benefits: ''
+    benefits: '',
+    shiftIds: []
   });
+  const [availableShifts, setAvailableShifts] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  React.useEffect(() => {
+    fetchShifts();
+  }, []);
+
+  const fetchShifts = async () => {
+    try {
+      const res = await axios.get('http://localhost:5029/api/shifts');
+      setAvailableShifts(res.data);
+    } catch (err) {
+      console.error('Error fetching shifts:', err);
+    }
+  };
 
   const categories = [
     { id: 1, name: 'Food & Beverage' },
@@ -33,6 +48,19 @@ export default function EmployerJobForm({ onSuccess }) {
     setJobForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleShiftToggle = (shiftId) => {
+    setJobForm(prev => {
+      const currentShifts = [...prev.shiftIds];
+      const index = currentShifts.indexOf(shiftId);
+      if (index > -1) {
+        currentShifts.splice(index, 1);
+      } else {
+        currentShifts.push(shiftId);
+      }
+      return { ...prev, shiftIds: currentShifts };
+    });
+  };
+
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
     setJobForm(prev => ({ ...prev, [name]: value === '' ? '' : Number(value) }));
@@ -42,12 +70,12 @@ export default function EmployerJobForm({ onSuccess }) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Formatting the payload to match the CreateJobRequest DTO
     const payload = {
       ...jobForm,
       categoryId: parseInt(jobForm.categoryId),
       payRate: jobForm.payRate ? parseFloat(jobForm.payRate) : null,
-      applicationDeadline: jobForm.applicationDeadline ? new Date(jobForm.applicationDeadline).toISOString() : null
+      applicationDeadline: jobForm.applicationDeadline ? new Date(jobForm.applicationDeadline).toISOString() : null,
+      shiftIds: jobForm.shiftIds
     };
 
     try {
@@ -56,17 +84,18 @@ export default function EmployerJobForm({ onSuccess }) {
       });
       toast.success('Job posted successfully!');
       if (onSuccess) onSuccess();
-      // Optional: reset form
+      // Reset form
       setJobForm({
         ...jobForm,
         title: '',
         payRate: '',
         description: '',
         requirements: '',
-        benefits: ''
+        benefits: '',
+        shiftIds: []
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to post job. Please ensure you saved your profile first.');
+      toast.error(error.response?.data?.message || 'Failed to post job.');
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -210,6 +239,48 @@ export default function EmployerJobForm({ onSuccess }) {
                 placeholder="e.g. 123 Nguyen Hue St"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Working Shifts */}
+        <div className="space-y-4 pt-2">
+          <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">Working Shifts</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {availableShifts.map(shift => (
+              <label 
+                key={shift.shiftId} 
+                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                  jobForm.shiftIds.includes(shift.shiftId) 
+                    ? 'border-primary bg-primary/5 shadow-sm' 
+                    : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                  jobForm.shiftIds.includes(shift.shiftId) 
+                    ? 'bg-primary border-primary' 
+                    : 'bg-white border-slate-300'
+                }`}>
+                  {jobForm.shiftIds.includes(shift.shiftId) && (
+                    <span className="material-symbols-outlined !text-sm text-white">check</span>
+                  )}
+                </div>
+                <input 
+                  type="checkbox" 
+                  className="hidden" 
+                  checked={jobForm.shiftIds.includes(shift.shiftId)}
+                  onChange={() => handleShiftToggle(shift.shiftId)}
+                />
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">{shift.shiftName}</p>
+                  {shift.startTime && (
+                    <p className="text-xs text-slate-500">{shift.startTime} - {shift.endTime}</p>
+                  )}
+                </div>
+              </label>
+            ))}
+            {availableShifts.length === 0 && (
+              <p className="text-sm text-slate-400 italic">Loading shifts...</p>
+            )}
           </div>
         </div>
 

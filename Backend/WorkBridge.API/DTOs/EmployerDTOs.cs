@@ -39,5 +39,6 @@ namespace WorkBridge.API.DTOs
         public string Description { get; set; } = null!;
         public string? Requirements { get; set; }
         public string? Benefits { get; set; }
+        public List<int>? ShiftIds { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -200,6 +200,8 @@ public partial class WorkBridgeContext : DbContext
             entity.HasIndex(e => e.ShiftName, "UQ__JobShift__EB2D1556C8DF7BA1").IsUnique();
 
             entity.Property(e => e.ShiftName).HasMaxLength(50);
+            entity.Property(e => e.StartTime).HasMaxLength(10);
+            entity.Property(e => e.EndTime).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Message>(entity =>

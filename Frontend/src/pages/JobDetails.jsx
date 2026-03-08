@@ -59,7 +59,7 @@ const JobDetails = () => {
             navigate('/auth');
             return;
         }
-        
+
         if (userRole?.toLowerCase() !== 'applicant') {
             toast.error(`Only Applicants can apply for jobs. (Current role: ${userRole})`);
             return;
@@ -205,6 +205,31 @@ const JobDetails = () => {
                         </div>
                     </div>
 
+                    {/* Shifts */}
+                    {job.shifts && job.shifts.length > 0 && (
+                        <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-150">
+                            <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
+                                <span className="material-symbols-outlined text-primary !text-xl">schedule</span>
+                                Working Shifts
+                            </h2>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                {job.shifts.map(shift => (
+                                    <div key={shift.shiftId} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined !text-xl">timer</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-800">{shift.shiftName}</p>
+                                            {shift.startTime && (
+                                                <p className="text-xs text-slate-500">{shift.startTime} - {shift.endTime}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Requirements */}
                     {job.requirements && (
                         <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-200">
@@ -243,7 +268,7 @@ const JobDetails = () => {
                             </p>
                             <p className="text-xs text-slate-400 mt-1">Flexible Scheduling</p>
                         </div>
-                        <button 
+                        <button
                             onClick={handleApplyClick}
                             className="w-full h-12 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mb-3"
                         >
@@ -251,13 +276,12 @@ const JobDetails = () => {
                             Apply Now
                         </button>
                         {isApplicant && (
-                            <button 
+                            <button
                                 onClick={handleToggleSave}
-                                className={`w-full h-11 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                                    isSaved 
-                                    ? 'bg-rose-50 text-rose-500 border border-rose-100 shadow-sm' 
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                }`}
+                                className={`w-full h-11 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${isSaved
+                                        ? 'bg-rose-50 text-rose-500 border border-rose-100 shadow-sm'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
                             >
                                 <span className={`material-symbols-outlined !text-xl ${isSaved ? 'filled' : ''}`}>
                                     {isSaved ? 'favorite' : 'bookmark_border'}
@@ -265,7 +289,7 @@ const JobDetails = () => {
                                 {isSaved ? 'Job Saved' : 'Save Job'}
                             </button>
                         )}
-                        <button 
+                        <button
                             onClick={() => setShowReportModal(true)}
                             className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest"
                         >
@@ -277,7 +301,7 @@ const JobDetails = () => {
             </main>
 
             {/* Models */}
-            <ReportModal 
+            <ReportModal
                 isOpen={showReportModal}
                 onClose={() => setShowReportModal(false)}
                 entityId={parseInt(id)}

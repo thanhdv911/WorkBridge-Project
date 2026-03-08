@@ -20,7 +20,17 @@ namespace WorkBridge.API.DTOs
         public DateTime? ApplicationDeadline { get; set; }
         public string Status { get; set; } = null!;
         public DateTime? CreatedAt { get; set; }
+        public List<ShiftResponse> Shifts { get; set; } = new();
     }
+
+    public class ShiftResponse
+    {
+        public int ShiftId { get; set; }
+        public string ShiftName { get; set; } = null!;
+        public string? StartTime { get; set; }
+        public string? EndTime { get; set; }
+    }
+
     public class PaginatedResponse<T>
     {
         public IEnumerable<T> Items { get; set; } = new List<T>();

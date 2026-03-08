@@ -67,7 +67,14 @@ namespace WorkBridge.API.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
-                    CreatedAt = j.CreatedAt
+                    CreatedAt = j.CreatedAt,
+                    Shifts = j.Shifts.Select(s => new ShiftResponse
+                    {
+                        ShiftId = s.ShiftId,
+                        ShiftName = s.ShiftName,
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -82,9 +89,10 @@ namespace WorkBridge.API.Services
 
         public async Task<JobResponse?> GetJobByIdAsync(int id)
         {
-            var job = await _context.JobPosts
+            return await _context.JobPosts
                 .Include(j => j.Employer)
-                .Where(j => j.JobPostId == id && j.Status == "Published" && !j.IsDeleted)
+                .Include(j => j.Shifts)
+                .Where(j => j.JobPostId == id && !j.IsDeleted)
                 .Select(j => new JobResponse
                 {
                     JobPostId = j.JobPostId,
@@ -101,11 +109,16 @@ namespace WorkBridge.API.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
-                    CreatedAt = j.CreatedAt
+                    CreatedAt = j.CreatedAt,
+                    Shifts = j.Shifts.Select(s => new ShiftResponse
+                    {
+                        ShiftId = s.ShiftId,
+                        ShiftName = s.ShiftName,
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    }).ToList()
                 })
                 .FirstOrDefaultAsync();
-
-            return job;
         }
     }
 }

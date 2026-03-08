@@ -77,6 +77,7 @@ export default function Header() {
             to="/jobs"
             className={`text-sm font-semibold transition-colors ${location.pathname === '/jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
           >
+            Find Jobs
           </Link>
           {userRole === 'Employer' && (
             <Link
@@ -96,12 +97,6 @@ export default function Header() {
           )}
           {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
             <>
-              <Link
-                to="/profile"
-                className={`text-sm font-semibold transition-colors ${location.pathname === '/profile' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
-              >
-                Profile
-              </Link>
               <Link
                 to="/my-applications"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/my-applications' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}

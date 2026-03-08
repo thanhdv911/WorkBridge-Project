@@ -119,6 +119,18 @@ namespace WorkBridge.API.Services
             };
 
             _context.JobPosts.Add(newJob);
+
+            if (request.ShiftIds != null && request.ShiftIds.Any())
+            {
+                var shifts = await _context.JobShifts
+                    .Where(s => request.ShiftIds.Contains(s.ShiftId))
+                    .ToListAsync();
+                foreach (var shift in shifts)
+                {
+                    newJob.Shifts.Add(shift);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             // Return limited info or refetch with full details
