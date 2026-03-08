@@ -5,7 +5,7 @@ using WorkBridge.API.Services;
 
 namespace WorkBridge.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/jobs")]
     [ApiController]
     public class JobController : ControllerBase
     {
@@ -25,6 +25,18 @@ namespace WorkBridge.API.Controllers
         {
             var jobs = await _jobService.GetJobsAsync(keyword, location, minSalary);
             return Ok(jobs);
+        }
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetJob(int id)
+        {
+            var job = await _jobService.GetJobByIdAsync(id);
+            if (job == null)
+            {
+                return NotFound("Job not found or not available.");
+            }
+            return Ok(job);
         }
     }
 }

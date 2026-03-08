@@ -69,5 +69,33 @@ namespace WorkBridge.API.Services
 
             return jobs;
         }
+
+        public async Task<JobResponse?> GetJobByIdAsync(int id)
+        {
+            var job = await _context.JobPosts
+                .Include(j => j.Employer)
+                .Where(j => j.JobPostId == id && j.Status == "Published" && !j.IsDeleted)
+                .Select(j => new JobResponse
+                {
+                    JobPostId = j.JobPostId,
+                    EmployerId = j.EmployerId,
+                    CategoryId = j.CategoryId,
+                    Title = j.Title,
+                    CompanyName = j.Employer.CompanyName,
+                    CompanyLogoUrl = j.Employer.LogoUrl,
+                    JobType = j.JobType,
+                    Location = (!string.IsNullOrEmpty(j.District) ? j.District + ", " : "") + j.City,
+                    PayRate = j.PayRate,
+                    PayUnit = j.PayUnit,
+                    Description = j.Description,
+                    Requirements = j.Requirements,
+                    Benefits = j.Benefits,
+                    ApplicationDeadline = j.ApplicationDeadline,
+                    CreatedAt = j.CreatedAt
+                })
+                .FirstOrDefaultAsync();
+
+            return job;
+        }
     }
 }

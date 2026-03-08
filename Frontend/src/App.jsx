@@ -8,6 +8,7 @@ import Auth from './pages/Auth';
 import FindJobs from './pages/FindJobs';
 import Profile from './pages/Profile';
 import EmployerDashboard from './pages/EmployerDashboard';
+import JobDetails from './pages/JobDetails';
 import './index.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/jobs" element={<FindJobs />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+          <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
         </Routes>

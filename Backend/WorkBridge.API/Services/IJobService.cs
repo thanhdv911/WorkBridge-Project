@@ -7,5 +7,6 @@ namespace WorkBridge.API.Services
     public interface IJobService
     {
         Task<IEnumerable<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary);
+        Task<JobResponse?> GetJobByIdAsync(int id);
     }
 }
