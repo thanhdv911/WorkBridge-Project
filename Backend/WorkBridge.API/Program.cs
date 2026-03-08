@@ -64,7 +64,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled to prevent CORS Preflight 3xx Redirect errors on localhost HTTP
 app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
