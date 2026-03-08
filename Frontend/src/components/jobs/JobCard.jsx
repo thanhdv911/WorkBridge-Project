@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function JobCard({ job }) {
-  // Use mapping configs for badged to replicate html visuals
   const typeStyles = {
     'Part-time': 'bg-green-50 text-green-600 border-green-100',
     'Flexible': 'bg-green-50 text-green-600 border-green-100',
@@ -29,37 +28,44 @@ export default function JobCard({ job }) {
     'Office': 'bg-slate-100 text-slate-600 border-slate-200'
   };
 
+  // Determine a default mock icon/category since the DB doesn't have an icon field yet
+  // We'll use the Category Name strings if available, else fallback
+  const categoryName = job.categoryName || 'General'; // Note: DTO doesn't have categoryName yet, assuming fallback
+  const mockShift = job.shift || 'Flexible'; // Assuming fallback if not in join
+
+  // Format the posted time
+  const timePostedDate = job.createdAt ? new Date(job.createdAt) : new Date();
+  const diffHours = Math.round((new Date() - timePostedDate) / (1000 * 60 * 60));
+  const timeStr = diffHours > 24 ? `${Math.round(diffHours / 24)}d ago` : `${diffHours}h ago`;
+
   return (
-    <Link to={`/jobs/${job.id}`} className="card-lift bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden group">
+    <Link to={`/jobs/${job.jobPostId}`} className="card-lift bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden group">
       <div className="p-5">
         <div className="flex items-start gap-3 mb-3">
-          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${job.iconBg} flex items-center justify-center flex-shrink-0 shadow-md`}>
-            <span className="material-symbols-outlined text-white !text-xl">{job.icon}</span>
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
+            <span className="material-symbols-outlined text-white !text-xl">work</span>
           </div>
           <div className="min-w-0">
             <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-primary transition-colors">{job.title}</h3>
-            <p className="text-xs text-slate-400 truncate">{job.company} · {job.location}</p>
+            <p className="text-xs text-slate-400 truncate">{job.companyName} · {job.location}</p>
           </div>
         </div>
         
         <div className="flex flex-wrap gap-1.5 mb-3">
-          <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${typeStyles[job.type] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
-            {job.type}
+          <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${typeStyles[job.jobType] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+            {job.jobType}
           </span>
-          <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${shiftStyles[job.shift] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
-            {job.shift}
-          </span>
-          <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${catStyles[job.category] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
-            {job.category}
+          <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${shiftStyles[mockShift] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+            {mockShift}
           </span>
         </div>
         
         <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4">{job.description}</p>
         
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <span className="text-sm font-bold text-primary">{job.salary.toLocaleString()}₫<span className="text-xs font-normal text-slate-400">/hr</span></span>
+          <span className="text-sm font-bold text-primary">{job.payRate?.toLocaleString() || 0} {job.payUnit}</span>
           <span className="text-xs text-slate-400 flex items-center gap-1">
-            <span className="material-symbols-outlined !text-[14px]">schedule</span>Posted {job.timePosted}
+            <span className="material-symbols-outlined !text-[14px]">schedule</span>Posted {timeStr}
           </span>
         </div>
       </div>

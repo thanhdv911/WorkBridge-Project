@@ -30,6 +30,7 @@ builder.Services.AddDbContext<WorkBridgeContext>(options =>
 // Register custom services
 builder.Services.AddScoped<WorkBridge.API.Services.IAuthService, WorkBridge.API.Services.AuthService>();
 builder.Services.AddScoped<WorkBridge.API.Services.IProfileService, WorkBridge.API.Services.ProfileService>();
+builder.Services.AddScoped<WorkBridge.API.Services.IJobService, WorkBridge.API.Services.JobService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -58,14 +59,12 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// app.UseHttpsRedirection(); // Disabled to prevent CORS Preflight 3xx Redirect errors on localhost HTTP
 app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
