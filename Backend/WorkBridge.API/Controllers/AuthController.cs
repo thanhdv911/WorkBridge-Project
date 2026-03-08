@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkBridge.API.DTOs;
-using WorkBridge.API.Services;
+using WorkBridge.Application.DTOs;
+using WorkBridge.Application.Services;
 
 namespace WorkBridge.API.Controllers
 {

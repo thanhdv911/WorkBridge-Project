@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function EmployerProfileTab() {
@@ -20,7 +20,7 @@ export default function EmployerProfileTab() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('http://localhost:5029/api/employer/profile', {
+      const response = await api.get('/employer/profile', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       // Filter out nulls to prevent React controlled input warnings
@@ -50,7 +50,7 @@ export default function EmployerProfileTab() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await axios.put('http://localhost:5029/api/employer/profile', profile, {
+      await api.put('/employer/profile', profile, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       toast.success('Company profile updated successfully!');

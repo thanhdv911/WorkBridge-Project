@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import ProfileCover from '../components/profile/ProfileCover';
@@ -21,8 +21,8 @@ export default function Profile() {
 
   const fetchReviewsData = async (userId) => {
     try {
-      const statsRes = await axios.get(`http://localhost:5029/api/review/user/${userId}/stats`);
-      const reviewsRes = await axios.get(`http://localhost:5029/api/review/user/${userId}`);
+      const statsRes = await api.get(`/review/user/${userId}/stats`);
+      const reviewsRes = await api.get(`/review/user/${userId}`);
       setRatingStats(statsRes.data);
       setReviews(reviewsRes.data);
     } catch (err) {
@@ -39,7 +39,7 @@ export default function Profile() {
         return;
       }
 
-      const res = await axios.get('http://localhost:5029/api/profile/applicant', {
+      const res = await api.get('/profile/applicant', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(res.data);
@@ -68,7 +68,7 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5029/api/profile/applicant', editForm, {
+      await api.put('/profile/applicant', editForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

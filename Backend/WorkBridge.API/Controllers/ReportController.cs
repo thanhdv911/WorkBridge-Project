@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using WorkBridge.API.DTOs;
-using WorkBridge.API.Services;
+using WorkBridge.Application.DTOs;
+using WorkBridge.Application.Services;
 
 namespace WorkBridge.API.Controllers
 {

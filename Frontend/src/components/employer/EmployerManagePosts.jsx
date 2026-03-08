@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const EmployerManagePosts = () => {
@@ -13,7 +13,7 @@ const EmployerManagePosts = () => {
 
     const fetchMyJobs = async () => {
         try {
-            const response = await axios.get('http://localhost:5029/api/employer/jobs', {
+            const response = await api.get('/employer/jobs', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setJobs(response.data);
@@ -27,7 +27,7 @@ const EmployerManagePosts = () => {
 
     const handleUpdateStatus = async (jobId, newStatus) => {
         try {
-            await axios.patch(`http://localhost:5029/api/employer/jobs/${jobId}/status`, 
+            await api.patch(`/employer/jobs/${jobId}/status`, 
                 JSON.stringify(newStatus), 
                 {
                     headers: { 

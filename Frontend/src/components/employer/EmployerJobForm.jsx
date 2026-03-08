@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function EmployerJobForm({ onSuccess }) {
@@ -27,7 +27,7 @@ export default function EmployerJobForm({ onSuccess }) {
 
   const fetchShifts = async () => {
     try {
-      const res = await axios.get('http://localhost:5029/api/shifts');
+      const res = await api.get('/shifts');
       setAvailableShifts(res.data);
     } catch (err) {
       console.error('Error fetching shifts:', err);
@@ -79,7 +79,7 @@ export default function EmployerJobForm({ onSuccess }) {
     };
 
     try {
-      await axios.post('http://localhost:5029/api/employer/jobs', payload, {
+      await api.post('/employer/jobs', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       toast.success('Job posted successfully!');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, jobTitle, onSuccess }) => {
@@ -13,7 +13,7 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5029/api/review', {
+      await api.post('/review', {
         revieweeId,
         jobPostId,
         rating,

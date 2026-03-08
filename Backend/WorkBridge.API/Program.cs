@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WorkBridge.Infrastructure.Models;
+using WorkBridge.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,16 +28,19 @@ builder.Services.AddDbContext<WorkBridgeContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register custom services
-builder.Services.AddScoped<WorkBridge.API.Services.IAuthService, WorkBridge.API.Services.AuthService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IProfileService, WorkBridge.API.Services.ProfileService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IJobService, WorkBridge.API.Services.JobService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IEmployerService, WorkBridge.API.Services.EmployerService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IApplicationService, WorkBridge.API.Services.ApplicationService>();
-builder.Services.AddScoped<WorkBridge.API.Services.ISavedJobService, WorkBridge.API.Services.SavedJobService>();
-builder.Services.AddScoped<WorkBridge.API.Services.INotificationService, WorkBridge.API.Services.NotificationService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IMessageService, WorkBridge.API.Services.MessageService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IAdminService, WorkBridge.API.Services.AdminService>();
-builder.Services.AddScoped<WorkBridge.API.Services.IReviewService, WorkBridge.API.Services.ReviewService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IAuthService, WorkBridge.Application.Services.AuthService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IProfileService, WorkBridge.Application.Services.ProfileService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IJobService, WorkBridge.Application.Services.JobService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IEmployerService, WorkBridge.Application.Services.EmployerService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IApplicationService, WorkBridge.Application.Services.ApplicationService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.ISavedJobService, WorkBridge.Application.Services.SavedJobService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.INotificationService, WorkBridge.Application.Services.NotificationService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IMessageService, WorkBridge.Application.Services.MessageService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IAdminService, WorkBridge.Application.Services.AdminService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IReviewService, WorkBridge.Application.Services.ReviewService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IReportService, WorkBridge.Application.Services.ReportService>();
+builder.Services.AddScoped<WorkBridge.Application.Interfaces.IWorkBridgeContext>(provider =>
+    provider.GetRequiredService<WorkBridgeContext>());
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

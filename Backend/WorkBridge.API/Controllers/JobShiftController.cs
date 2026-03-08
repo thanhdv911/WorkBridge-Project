@@ -3,8 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WorkBridge.API.DTOs;
-using WorkBridge.Infrastructure.Models;
+using WorkBridge.Application.DTOs;
+using WorkBridge.Infrastructure.Data;
+using WorkBridge.Domain.Entities;
 
 namespace WorkBridge.API.Controllers
 {

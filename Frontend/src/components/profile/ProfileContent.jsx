@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function ProfileContent({ user, setUser, isEditing, editForm, setEditForm, onSave, onCancel }) {
@@ -20,7 +20,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
     setCvLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5029/api/profile/applicant/upload-cv', formData, {
+      const res = await api.post('/profile/applicant/upload-cv', formData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

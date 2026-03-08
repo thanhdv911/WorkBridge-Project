@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import ReviewModal from '../components/shared/ReviewModal';
 
@@ -18,7 +18,7 @@ const MyApplications = () => {
 
     const fetchApplications = async () => {
         try {
-            const response = await axios.get('http://localhost:5029/api/application/my', {
+            const response = await api.get('/application/my', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setApplications(response.data);

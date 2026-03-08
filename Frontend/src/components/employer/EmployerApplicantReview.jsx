@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 import ReportModal from '../shared/ReportModal';
 import ReviewModal from '../shared/ReviewModal';
@@ -21,7 +21,7 @@ const EmployerApplicantReview = () => {
 
     const fetchApplications = async () => {
         try {
-            const response = await axios.get('http://localhost:5029/api/application/employer', {
+            const response = await api.get('/application/employer', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setApplications(response.data);
@@ -35,7 +35,7 @@ const EmployerApplicantReview = () => {
 
     const handleUpdateStatus = async (appId, newStatus) => {
         try {
-            await axios.patch(`http://localhost:5029/api/application/${appId}/status`, 
+            await api.patch(`/application/${appId}/status`, 
                 JSON.stringify(newStatus), 
                 {
                     headers: { 
