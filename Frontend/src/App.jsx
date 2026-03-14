@@ -19,6 +19,7 @@ import './index.css';
 function App() {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isMessagesPage = location.pathname === '/messages';
 
   return (
     <>
@@ -40,7 +41,7 @@ function App() {
           <Route path="/signup" element={<Auth />} />
         </Routes>
       </main>
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isMessagesPage && <Footer />}
     </>
   );
 }
