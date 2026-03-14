@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 // New Demo Assets
-import heroImage from '../assets/hero_demo.png';
+import heroImage from '../assets/herodemo.png';
 import techIcon from '../assets/cat_tech_demo.png';
 import cafeIcon from '../assets/cat_cafe_demo.png';
 import eduIcon from '../assets/cat_edu_demo.png';
 import deliveryIcon from '../assets/cat_delivery_demo.png';
 import ctaIcon from '../assets/cta_success_demo.png';
 import howItWorksImage from '../assets/how_it_works_demo.png';
+import appsImage from '../assets/apps_demo.png';
 
 export default function Home() {
   return (
@@ -318,6 +319,10 @@ function HowItWorks() {
            <div className="aspect-square bg-white rounded-[4rem] shadow-2xl border border-slate-100 flex items-center justify-center p-12 overflow-hidden">
               <div className="w-full h-full bg-slate-50 rounded-[3rem] border border-dashed border-slate-200 flex items-center justify-center relative overflow-hidden">
                  <img src={howItWorksImage} alt="How it works" className="w-full h-full object-contain opacity-90 anim-float" />
+                 {/* Small floating app preview */}
+                 <div className="absolute -bottom-4 -right-4 w-1/2 aspect-video bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 anim-float-d">
+                    <img src={appsImage} alt="App Preview" className="w-full h-full object-cover rounded-xl" />
+                 </div>
               </div>
            </div>
         </div>
