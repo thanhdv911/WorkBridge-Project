@@ -81,11 +81,26 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         
         <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4">{job.description}</p>
         
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <span className="text-sm font-bold text-primary">{job.payRate?.toLocaleString() || 0} {job.payUnit}</span>
-          <span className="text-xs text-slate-400 flex items-center gap-1">
-            <span className="material-symbols-outlined !text-[14px]">schedule</span>Posted {timeStr}
-          </span>
+        <div className="flex items-center justify-between pt-3 border-t border-slate-100 gap-2">
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-400">Salary</span>
+            <span className="text-sm font-bold text-primary">{job.payRate?.toLocaleString() || 0} {job.payUnit}</span>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const token = localStorage.getItem('token');
+              if (!token) {
+                navigate('/login');
+              } else {
+                navigate(`/jobs/${job.jobPostId}`);
+              }
+            }}
+            className="px-4 py-2 bg-slate-900 border border-slate-900 text-white rounded-xl text-[11px] font-black hover:bg-primary hover:border-primary transition-all shadow-lg shadow-black/5"
+          >
+            Apply
+          </button>
         </div>
       </div>
     </Link>

@@ -56,7 +56,7 @@ const JobDetails = () => {
 
         if (!token) {
             toast.error('Please login to apply for this job.');
-            navigate('/auth');
+            navigate('/login');
             return;
         }
 

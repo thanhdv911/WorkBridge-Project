@@ -5,6 +5,9 @@ import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
+// New Demo Asset
+import authImage from '../assets/auth_demo.png';
+
 export default function Auth() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -426,65 +429,54 @@ export default function Auth() {
           </div>
 
           {/* ── RIGHT: Illustration Panel ── */}
-          <div className="hidden lg:flex w-[46%] bg-gradient-to-br from-accent via-violet-500 to-indigo-500 relative overflow-hidden rounded-[2rem] m-3 flex-col items-center justify-center wavy-bg">
+          <div className="hidden lg:flex w-[46%] bg-[#F8FAFF] relative overflow-hidden rounded-[2rem] m-3 flex-col items-center justify-center border border-slate-100">
 
-            {/* Decorative organic shapes */}
-            <div className="blob-deco w-60 h-60 bg-white/10 -top-16 -right-16 blur-[40px]"></div>
-            <div className="blob-deco w-40 h-40 bg-indigo-400/20 bottom-10 -left-10 blur-[30px]"></div>
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3"></div>
 
-            {/* Wavy decorative arcs */}
-            <svg className="absolute inset-0 w-full h-full opacity-[0.06]" viewBox="0 0 500 500" fill="none">
-              <path d="M-50 250c80-120 180 60 280-20s180 100 280-10" stroke="white" strokeWidth="1.5"/>
-              <path d="M-50 300c80-120 180 60 280-20s180 100 280-10" stroke="white" strokeWidth="1.5"/>
-              <path d="M-50 200c80-120 180 60 280-20s180 100 280-10" stroke="white" strokeWidth="1.5"/>
-              <path d="M-50 350c80-100 160 40 260-20s200 100 280-10" stroke="white" strokeWidth="1"/>
-              <path d="M-50 150c80-100 160 40 260-20s200 100 280-10" stroke="white" strokeWidth="1"/>
+            {/* Main Illustration Container */}
+            <div className="relative z-10 w-full px-10 flex flex-col items-center gap-10">
+              
+              <div className="relative w-full aspect-square max-w-[320px] anim-float">
+                 {/* Glow backdrop */}
+                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-[60px]"></div>
+                 
+                 {/* Premium 3D Image */}
+                 <img src={authImage} alt="Auth Illustration" className="w-full h-full object-contain relative z-10 drop-shadow-2xl" />
+                 
+                 {/* Floating accents */}
+                 <div className="absolute -top-4 -right-4 w-12 h-12 bg-white rounded-2xl flex items-center justify-center anim-float-d shadow-xl border border-slate-50">
+                    <span className="material-symbols-outlined !text-xl text-primary font-black">verified</span>
+                 </div>
+                 <div className="absolute -bottom-6 -left-6 w-14 h-14 bg-white rounded-2xl flex items-center justify-center anim-float shadow-xl border border-slate-50" style={{ animationDelay: '1s' }}>
+                    <span className="material-symbols-outlined !text-2xl text-accent font-black">rocket_launch</span>
+                 </div>
+              </div>
+
+              <div className="text-center max-w-[300px] anim-fadeUp-d2">
+                <h3 className="text-3xl font-black text-primary leading-tight">Your Career Journey Starts <span className="text-accent">Here.</span></h3>
+                <p className="text-indigo-500 text-sm mt-4 leading-relaxed font-semibold">Access over 5,000+ student-friendly opportunities curated just for you.</p>
+              </div>
+
+              {/* Minimalist social proof */}
+              <div className="flex items-center gap-4 bg-white border border-slate-100 p-4 rounded-3xl w-full max-w-[280px] shadow-lg shadow-slate-200/50">
+                 <div className="flex -space-x-3">
+                    {[1,2,3].map(i => (
+                       <img key={i} src={`https://api.dicebear.com/7.x/avataaars/svg?seed=auth${i}`} className="w-8 h-8 rounded-full border-2 border-white" alt="User" />
+                    ))}
+                 </div>
+                 <div className="text-[11px] text-slate-400 font-bold leading-tight">
+                    Joined by <br /> <span className="text-slate-900 font-black">15,000+ pupils</span>
+                 </div>
+              </div>
+            </div>
+
+            {/* Decorative arcs SVG */}
+            <svg className="absolute inset-0 w-full h-full opacity-[0.4]" viewBox="0 0 500 500" fill="none">
+              <path d="M-50 250c80-120 180 60 280-20s180 100 280-10" stroke="#F1F5F9" strokeWidth="2"/>
+              <path d="M-50 300c80-120 180 60 280-20s180 100 280-10" stroke="#F1F5F9" strokeWidth="2"/>
             </svg>
-
-            {/* Glass card with illustration content */}
-            <div className="relative z-10 flex flex-col items-center gap-6 px-8">
-              {/* Glass frame */}
-              <div className="anim-fadeLeft bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl shadow-black/10 flex flex-col items-center gap-5 max-w-[300px]">
-                {/* Big icon illustration */}
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur flex items-center justify-center border border-white/20">
-                  <span className="material-symbols-outlined !text-6xl text-white/90">handshake</span>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-white text-xl font-black tracking-tight">Find Your Match</h3>
-                  <p className="text-white/70 text-sm mt-1.5 leading-relaxed">Connect with thousands of opportunities tailored for students.</p>
-                </div>
-              </div>
-
-              {/* Floating badge */}
-              <div className="anim-float absolute -right-4 top-1/2 -translate-y-1/2">
-                <div className="w-12 h-12 rounded-full bg-white shadow-lg shadow-black/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined filled !text-2xl text-amber-500">bolt</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom stats row */}
-            <div className="relative z-10 flex items-center gap-6 mt-8 px-8">
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur rounded-xl px-4 py-3 border border-white/10">
-                <div className="w-9 h-9 rounded-lg bg-emerald-400/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined !text-lg text-emerald-300">trending_up</span>
-                </div>
-                <div>
-                  <div className="text-white font-bold text-base">5,000+</div>
-                  <div className="text-white/50 text-[11px]">Active jobs</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur rounded-xl px-4 py-3 border border-white/10">
-                <div className="w-9 h-9 rounded-lg bg-sky-400/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined !text-lg text-sky-300">groups</span>
-                </div>
-                <div>
-                  <div className="text-white font-bold text-base">12K+</div>
-                  <div className="text-white/50 text-[11px]">Students hired</div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </main>

@@ -182,61 +182,106 @@ function Categories() {
 }
 
 function LatestJobs() {
+  const navigate = useNavigate();
   const mockJobs = [
-    { id: 1, title: 'Premium Barista', company: 'The Alley', initials: 'TA', color: 'from-pink-500 to-rose-400', loc: 'District 1, HCMC', pay: '25k', unit: 'hr', type: 'Part-time', tag: 'Hot' },
-    { id: 2, title: 'Junior Content Creator', company: 'FPT Software', initials: 'FPT', color: 'from-orange-500 to-amber-400', loc: 'Thu Duc, HCMC', pay: '5M', unit: 'mo', type: 'Internship', tag: 'New' },
-    { id: 3, title: 'English Teaching Assistant', company: 'VUS English', initials: 'VUS', color: 'from-blue-600 to-sky-400', loc: 'Láng Hạ, Hanoi', pay: '150k', unit: 'session', type: 'Flexible', tag: 'Tutor' },
-    { id: 4, title: 'UI/UX Design Intern', company: 'Grab', initials: 'GR', color: 'from-emerald-500 to-teal-400', loc: 'District 7, HCMC', pay: '4M', unit: 'mo', type: 'Remote', tag: 'Remote' },
-    { id: 5, title: 'Luxury Event Staff', company: 'VinGroup', initials: 'VIN', color: 'from-amber-600 to-yellow-500', loc: 'Nha Trang', pay: '500k', unit: 'day', type: 'Contract', tag: 'Event' },
-    { id: 6, title: 'Retail Associate', company: 'Uniqlo', initials: 'UQ', color: 'from-rose-600 to-red-400', loc: 'Dong Khoi, HCMC', pay: '30k', unit: 'hr', type: 'Part-time', tag: 'Urgent' },
+    { id: 1, title: 'Premium Barista', company: 'The Alley', initials: 'TA', color: 'from-pink-500 to-rose-400', loc: 'District 1, HCMC', pay: '25k', unit: 'hr', type: 'Part-time', tag: 'Hot', trending: true },
+    { id: 2, title: 'Junior Content Creator', company: 'FPT Software', initials: 'FPT', color: 'from-orange-500 to-amber-400', loc: 'Thu Duc, HCMC', pay: '5M', unit: 'mo', type: 'Internship', tag: 'New', trending: false },
+    { id: 3, title: 'English Teaching Assistant', company: 'VUS English', initials: 'VUS', color: 'from-blue-600 to-sky-400', loc: 'Láng Hạ, Hanoi', pay: '150k', unit: 'session', type: 'Flexible', tag: 'Tutor', trending: true },
+    { id: 4, title: 'UI/UX Design Intern', company: 'Grab', initials: 'GR', color: 'from-emerald-500 to-teal-400', loc: 'District 7, HCMC', pay: '4M', unit: 'mo', type: 'Remote', tag: 'Remote', trending: false },
+    { id: 5, title: 'Luxury Event Staff', company: 'VinGroup', initials: 'VIN', color: 'from-amber-600 to-yellow-500', loc: 'Nha Trang', pay: '500k', unit: 'day', type: 'Contract', tag: 'Event', trending: true },
+    { id: 6, title: 'Retail Associate', company: 'Uniqlo', initials: 'UQ', color: 'from-rose-600 to-red-400', loc: 'Dong Khoi, HCMC', pay: '30k', unit: 'hr', type: 'Part-time', tag: 'Urgent', trending: false },
   ];
 
   return (
-    <section className="bg-slate-900 py-24 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+    <section className="bg-[#F8FAFF] py-32 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] translate-y-1/2"></div>
       
       <div className="max-w-[1320px] mx-auto px-6 lg:px-10 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-black text-white">Recommended <span className="grad-text">For You</span></h2>
-          <p className="text-slate-400 mt-4 text-lg font-medium">Curated job opportunities tailored for student life.</p>
+        <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-8">
+          <div className="text-center md:text-left">
+            <div className="text-primary font-black text-xs uppercase tracking-[0.3em] mb-4">Top Curated Roles</div>
+            <h2 className="text-5xl font-black text-slate-900 tracking-tight">Recommended <span className="grad-text">For You</span></h2>
+          </div>
+          <div className="flex gap-4">
+             <button className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-slate-400 hover:text-primary">
+                <span className="material-symbols-outlined">chevron_left</span>
+             </button>
+             <button className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-xl shadow-primary/20 hover:scale-110 transition-all">
+                <span className="material-symbols-outlined">chevron_right</span>
+             </button>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
           {mockJobs.map((job) => (
-            <div key={job.id} className="group bg-white/5 border border-white/10 p-8 rounded-[2rem] hover:bg-white/10 transition-all flex flex-col h-full">
-              <div className="flex justify-between items-start mb-6">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${job.color} flex items-center justify-center text-white font-black text-xl shadow-lg`}>
-                  {job.initials}
+            <div key={job.id} className="group relative bg-white rounded-[3rem] p-1 border border-slate-100/80 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 ease-out hover:-translate-y-3">
+              <div className="bg-white rounded-[2.8rem] p-8 h-full flex flex-col">
+                <div className="flex justify-between items-start mb-10">
+                  <div className={`w-16 h-16 rounded-[1.5rem] bg-gradient-to-br ${job.color} flex items-center justify-center text-white font-black text-2xl shadow-2xl`}>
+                    {job.initials}
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-full border border-primary/10">
+                      {job.tag}
+                    </span>
+                    {job.trending && (
+                      <span className="flex items-center gap-1.5 text-[10px] font-black text-orange-500 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full">
+                         <span className="material-symbols-outlined !text-sm">bolt</span> Trending
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="bg-primary/20 text-primary text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border border-primary/30">
-                   {job.tag}
-                </span>
-              </div>
-              <h3 className="text-xl font-black text-white group-hover:text-primary transition-colors">{job.title}</h3>
-              <p className="text-slate-400 text-sm font-bold mt-2">{job.company} • {job.loc}</p>
-              
-              <div className="flex flex-wrap gap-2 mt-6">
-                <span className="bg-white/5 text-slate-300 text-[11px] font-bold px-3 py-1.5 rounded-xl border border-white/5">
-                   {job.type}
-                </span>
-                <span className="bg-emerald-500/10 text-emerald-400 text-[11px] font-bold px-3 py-1.5 rounded-xl border border-emerald-500/10">
-                   {job.pay}/{job.unit}
-                </span>
-              </div>
 
-              <div className="mt-auto pt-8 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-bold">Posted 2h ago</span>
-                <a href={`/jobs/${job.id}`} className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-black text-xs hover:bg-primary hover:text-white transition-all shadow-xl shadow-black/20">
-                   Full Details
-                </a>
+                <h3 className="text-2xl font-black text-slate-900 group-hover:text-primary transition-colors leading-tight mb-3">{job.title}</h3>
+                <div className="flex items-center gap-2 text-slate-400 text-sm font-bold">
+                   <span className="material-symbols-outlined !text-lg">apartment</span>
+                   {job.company}
+                   <span className="w-1 h-1 rounded-full bg-slate-200 mx-1"></span>
+                   {job.loc}
+                </div>
+                
+                <div className="flex items-center gap-3 mt-8">
+                  <div className="flex -space-x-3">
+                    {[1,2,3].map(i => (
+                      <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 overflow-hidden`}>
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${job.id + i}`} alt="User" />
+                      </div>
+                    ))}
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400">
+                      +12
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-400 font-bold">Applied recently</span>
+                </div>
+
+                <div className="mt-auto pt-10 flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      const token = localStorage.getItem('token');
+                      if (!token) {
+                        navigate('/login');
+                      } else {
+                        navigate(`/jobs/${job.id}`);
+                      }
+                    }}
+                    className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-primary transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-2"
+                  >
+                    Apply Now
+                  </button>
+                  <a href={`/jobs/${job.id}`} className="w-14 h-14 border border-slate-200 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-white hover:text-primary hover:border-primary transition-all group-hover:rotate-12">
+                     <span className="material-symbols-outlined">arrow_outward</span>
+                  </a>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 text-center">
-           <button className="px-12 py-4 bg-white/10 hover:bg-white/20 text-white rounded-full font-black text-sm border border-white/10 transition-all">
-              Load More Opportunities
+        <div className="mt-20 text-center">
+           <button className="inline-flex items-center gap-4 px-12 py-5 bg-white text-slate-900 rounded-[2rem] font-black text-sm border border-slate-100 shadow-xl shadow-slate-200/60 hover:shadow-2xl hover:shadow-primary/20 hover:text-primary transition-all">
+              Load More Opportunities <span className="material-symbols-outlined">expand_more</span>
            </button>
         </div>
       </div>
