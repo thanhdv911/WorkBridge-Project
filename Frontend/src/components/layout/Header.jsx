@@ -119,6 +119,16 @@ export default function Header() {
                 My Applications
               </Link>
               <Link
+                to="/ai-matches"
+                className={`flex items-center gap-1.5 text-sm font-black px-3 py-1  rounded-lg transition-all ${
+                  location.pathname === '/ai-matches'
+                    ? 'text-white bg-primary shadow-md shadow-primary/20'
+                    : 'text-primary bg-primary/10 hover:bg-primary hover:text-white hover:shadow-md hover:shadow-primary/20'
+                }`}
+              >
+                🤖 AI Picks
+              </Link>
+              <Link
                 to="/saved-jobs"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >

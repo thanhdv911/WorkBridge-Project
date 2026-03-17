@@ -14,6 +14,7 @@ import SavedJobs from './pages/SavedJobs';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import AdminDashboard from './pages/AdminDashboard';
+import AIMatching from './pages/AIMatching';
 import './index.css';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
+          <Route path="/ai-matches" element={<AIMatching />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
         </Routes>
