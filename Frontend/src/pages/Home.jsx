@@ -292,8 +292,8 @@ function LatestJobs() {
 function Pricing() {
   const plans = [
     { name: 'Standard', price: 'Free', desc: 'Perfect for local small business owners looking for student help.', features: ['Post 3 jobs per month', 'Standard Support', 'Candidate Filter'] },
-    { name: 'Professional', price: '$29', desc: 'Boost your recruitment with advanced tools and priority listing.', features: ['Unlimited Job Posts', 'Featured Job Badge', 'Direct Chat Access', 'Priority Support'], popular: true },
-    { name: 'Enterprise', price: '$99', desc: 'Full-scale talent acquisition for major corporations.', features: ['Custom Branding', 'API Integration', 'Dedicated Manager', 'Analytics Dashboard'] },
+    { name: 'Professional', price: '199K', desc: 'Boost your recruitment with advanced tools and priority listing.', features: ['Unlimited Job Posts', 'Featured Job Badge', 'Direct Chat Access', 'Priority Support'], popular: true },
+    { name: 'Enterprise', price: '599K', desc: 'Full-scale talent acquisition for major corporations.', features: ['Custom Branding', 'API Integration', 'Dedicated Manager', 'Analytics Dashboard'] },
   ];
 
   return (

@@ -95,6 +95,7 @@ namespace WorkBridge.Application.Services
                 {
                     CategoryId = c.CategoryId,
                     Name = c.Name,
+                    IconName = c.IconName,
                     Description = c.Description
                 })
                 .ToListAsync();
@@ -105,6 +106,7 @@ namespace WorkBridge.Application.Services
             var category = new JobCategory
             {
                 Name = request.Name,
+                IconName = request.IconName,
                 Description = request.Description
             };
 
@@ -115,6 +117,7 @@ namespace WorkBridge.Application.Services
             {
                 CategoryId = category.CategoryId,
                 Name = category.Name,
+                IconName = category.IconName,
                 Description = category.Description
             };
         }
@@ -125,6 +128,7 @@ namespace WorkBridge.Application.Services
             if (category == null) return false;
 
             category.Name = request.Name;
+            category.IconName = request.IconName;
             category.Description = request.Description;
             await _context.SaveChangesAsync();
             return true;

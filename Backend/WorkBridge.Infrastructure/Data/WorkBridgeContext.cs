@@ -147,6 +147,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.IconName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<JobPost>(entity =>
@@ -168,6 +169,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Draft");
+            entity.Property(e => e.IsTrending).HasDefaultValue(false);
+            entity.Property(e => e.Tag).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 

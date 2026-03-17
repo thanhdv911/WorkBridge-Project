@@ -19,6 +19,8 @@ namespace WorkBridge.Application.DTOs
         public string? Benefits { get; set; }
         public DateTime? ApplicationDeadline { get; set; }
         public string Status { get; set; } = null!;
+        public bool IsTrending { get; set; }
+        public string? Tag { get; set; }
         public DateTime? CreatedAt { get; set; }
         public List<ShiftResponse> Shifts { get; set; } = new();
     }

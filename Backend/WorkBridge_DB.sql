@@ -1,6 +1,17 @@
 -- =========================================================================================
--- WORKBRIDGE DATABASE SCHEMA SCRIPT (V2 - OPTIMIZED FOR PRODUCTION)
+-- WORKBRIDGE DATABASE SCHEMA SCRIPT (V4 - CLEAN SEEDING)
 -- =========================================================================================
+
+USE master;
+GO
+
+-- Drop Database if exists to start fresh
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'WorkBridgeDB')
+BEGIN
+    ALTER DATABASE WorkBridgeDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE WorkBridgeDB;
+END
+GO
 
 -- Create Database
 CREATE DATABASE WorkBridgeDB;
@@ -15,7 +26,7 @@ GO
 -- 1. Roles Table
 CREATE TABLE Roles (
     RoleId INT IDENTITY(1,1) PRIMARY KEY,
-    RoleName NVARCHAR(50) NOT NULL UNIQUE -- e.g., 'Admin', 'Employer', 'Applicant'
+    RoleName NVARCHAR(50) NOT NULL UNIQUE
 );
 
 -- 2. Users Table
@@ -26,8 +37,8 @@ CREATE TABLE Users (
     PasswordHash NVARCHAR(255) NOT NULL,
     FullName NVARCHAR(150) NOT NULL,
     AvatarUrl NVARCHAR(MAX) NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Active', -- 'Active', 'Pending', 'Suspended'
-    IsDeleted BIT NOT NULL DEFAULT 0, -- Soft delete flag
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Active',
+    IsDeleted BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME NULL,
     FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
@@ -42,9 +53,9 @@ CREATE TABLE ApplicantProfiles (
     Phone NVARCHAR(20) NULL,
     Address NVARCHAR(255) NULL,
     AboutMe NVARCHAR(MAX) NULL,
-    Availability NVARCHAR(MAX) NULL, -- Can store as JSON array "['Mon_AM', 'Tue_PM']"
-    FOREIGN KEY (ApplicantId) REFERENCES Users(UserId) 
-    -- Removed ON DELETE CASCADE to enforce soft delete
+    Availability NVARCHAR(MAX) NULL,
+    CvUrl NVARCHAR(MAX) NULL,
+    FOREIGN KEY (ApplicantId) REFERENCES Users(UserId)
 );
 
 -- 4. Applicant Experiences
@@ -53,7 +64,7 @@ CREATE TABLE ApplicantExperiences (
     ApplicantId INT NOT NULL,
     Title NVARCHAR(150) NOT NULL,
     CompanyName NVARCHAR(150) NOT NULL,
-    Duration NVARCHAR(100) NULL, -- e.g., "Jan 2024 - Present"
+    Duration NVARCHAR(100) NULL,
     Description NVARCHAR(MAX) NULL,
     FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
 );
@@ -81,14 +92,17 @@ CREATE TABLE EmployerProfiles (
 -- 7. Job Categories
 CREATE TABLE JobCategories (
     CategoryId INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(100) NOT NULL UNIQUE, -- e.g., 'F&B', 'Tutoring', 'Retail'
+    Name NVARCHAR(100) NOT NULL UNIQUE,
+    IconName NVARCHAR(100) NULL,
     Description NVARCHAR(500) NULL
 );
 
 -- 8. Job Shifts
 CREATE TABLE JobShifts (
     ShiftId INT IDENTITY(1,1) PRIMARY KEY,
-    ShiftName NVARCHAR(50) NOT NULL UNIQUE -- e.g., 'Morning', 'Afternoon', 'Evening', 'Weekend'
+    ShiftName NVARCHAR(50) NOT NULL UNIQUE,
+    StartTime NVARCHAR(10) NULL,
+    EndTime NVARCHAR(10) NULL
 );
 
 -- 9. Job Posts
@@ -97,35 +111,32 @@ CREATE TABLE JobPosts (
     EmployerId INT NOT NULL,
     CategoryId INT NOT NULL,
     Title NVARCHAR(200) NOT NULL,
-    JobType NVARCHAR(50) NOT NULL, -- e.g., 'Part-time', 'Freelance', 'Internship'
-    
-    -- Tiền lương được cải tiến
-    PayRate DECIMAL(18,2) NULL, -- Cho phép NULL nếu là Thỏa thuận
-    PayUnit NVARCHAR(50) NOT NULL DEFAULT 'PerHour', -- 'PerHour', 'PerDay', 'PerMonth', 'Negotiable'
-    
-    -- Địa lý được chia nhỏ để dễ Filter
+    JobType NVARCHAR(50) NOT NULL,
+    PayRate DECIMAL(18,2) NULL,
+    PayUnit NVARCHAR(50) NOT NULL DEFAULT 'PerHour',
     City NVARCHAR(100) NULL,
     District NVARCHAR(100) NULL,
-    Address NVARCHAR(255) NOT NULL, -- Số nhà, tên đường cụ thể
-    
+    Address NVARCHAR(255) NOT NULL,
     ApplicationDeadline DATETIME NULL,
     Description NVARCHAR(MAX) NOT NULL,
     Requirements NVARCHAR(MAX) NULL,
     Benefits NVARCHAR(MAX) NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Draft', -- 'Draft', 'Published', 'Closed'
-    IsDeleted BIT NOT NULL DEFAULT 0, -- Soft delete flag
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Draft',
+    IsTrending BIT NOT NULL DEFAULT 0,
+    Tag NVARCHAR(50) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME NULL,
     FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
     FOREIGN KEY (CategoryId) REFERENCES JobCategories(CategoryId)
 );
 
--- 10. Job Post Shifts (Many-to-Many between JobPosts and JobShifts)
+-- 10. Job Post Shifts
 CREATE TABLE JobPostShifts (
     JobPostId INT NOT NULL,
     ShiftId INT NOT NULL,
     PRIMARY KEY (JobPostId, ShiftId),
-    FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId) ON DELETE CASCADE, -- Giữ Cascade cho bảng trung gian
+    FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId) ON DELETE CASCADE,
     FOREIGN KEY (ShiftId) REFERENCES JobShifts(ShiftId) ON DELETE CASCADE
 );
 
@@ -135,10 +146,10 @@ CREATE TABLE Applications (
     JobPostId INT NOT NULL,
     ApplicantId INT NOT NULL,
     CoverMessage NVARCHAR(MAX) NULL,
-    CvUrl NVARCHAR(MAX) NULL, -- Bổ sung link tải file CV (PDF/Word)
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending', -- 'Pending', 'Approved', 'Rejected'
+    CvUrl NVARCHAR(MAX) NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
     EmployerNotes NVARCHAR(MAX) NULL,
-    IsDeleted BIT NOT NULL DEFAULT 0, -- Soft delete cho lịch sử ứng tuyển
+    IsDeleted BIT NOT NULL DEFAULT 0,
     AppliedAt DATETIME DEFAULT GETDATE(),
     RespondedAt DATETIME NULL,
     FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId),
@@ -157,11 +168,10 @@ CREATE TABLE Reviews (
     CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ReviewerId) REFERENCES Users(UserId),
     FOREIGN KEY (RevieweeId) REFERENCES Users(UserId),
-    -- Tạm bỏ FK với JobPosts hoặc để NO ACTION để tránh lỗi vòng lặp xóa
     FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId) 
 );
 
--- 13. Saved Jobs (Bookmarks)
+-- 13. Saved Jobs
 CREATE TABLE SavedJobs (
     SavedJobId INT IDENTITY(1,1) PRIMARY KEY,
     ApplicantId INT NOT NULL,
@@ -182,7 +192,7 @@ CREATE TABLE Notifications (
     FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
 );
 
--- 15. Messages (Chat)
+-- 15. Messages
 CREATE TABLE Messages (
     MessageId INT IDENTITY(1,1) PRIMARY KEY,
     SenderId INT NOT NULL,
@@ -196,45 +206,51 @@ CREATE TABLE Messages (
     FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId)
 );
 
--- 16. Subscriptions (Payment/Premium Plans)
+-- 16. Subscriptions
 CREATE TABLE Subscriptions (
     SubscriptionId INT IDENTITY(1,1) PRIMARY KEY,
     EmployerId INT NOT NULL,
-    PlanName NVARCHAR(100) NOT NULL, -- e.g., 'Basic', 'Premium', 'Pro'
+    PlanName NVARCHAR(100) NOT NULL,
     Price DECIMAL(18,2) NOT NULL,
     StartDate DATETIME NOT NULL DEFAULT GETDATE(),
     EndDate DATETIME NOT NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Active', -- 'Active', 'Expired', 'Cancelled'
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Active',
     FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId)
 );
 
--- 17. Reports (Báo xấu/vi phạm)
+-- 17. Reports
 CREATE TABLE Reports (
     ReportId INT IDENTITY(1,1) PRIMARY KEY,
     ReporterId INT NOT NULL,
     ReportedEntityId INT NOT NULL, 
-    EntityType NVARCHAR(50) NOT NULL, -- 'JobPost', 'User'
+    EntityType NVARCHAR(50) NOT NULL,
     Reason NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX) NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending', -- 'Pending', 'Resolved', 'Dismissed'
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
     CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ReporterId) REFERENCES Users(UserId)
 );
 
 -- =========================================================================================
--- INITIAL DATA SEEDING (OPTIONAL QUICK START)
+-- INITIAL DATA SEEDING (LOOKUP DATA ONLY)
 -- =========================================================================================
 
+-- Roles
 INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Employer'), ('Applicant');
 
-INSERT INTO JobCategories (Name, Description) VALUES 
-('Food & Beverage', 'Cafe, restaurants, bars'),
-('Tutoring', 'Academic and skill tutoring'),
-('Delivery', 'Food and parcel delivery services'),
-('Retail', 'Stores, sales assistants'),
-('Marketing', 'Digital marketing, promoters'),
-('Creative', 'Design, photography, writing'),
-('Office', 'Data entry, admin assistants');
+-- Categories
+INSERT INTO JobCategories (Name, IconName, Description) VALUES 
+('Food & Beverage', 'restaurant', 'Cafe, restaurants, bars'),
+('Creative Tech', 'code', 'Design, development, and tech roles'),
+('Education', 'school', 'Academic and skill tutoring'),
+('Delivery Service', 'local_shipping', 'Food and parcel delivery services'),
+('Retail', 'store', 'Stores, sales assistants'),
+('Marketing', 'trending_up', 'Digital marketing, promoters'),
+('Office', 'work', 'Data entry, admin assistants');
 
-INSERT INTO JobShifts (ShiftName) VALUES ('Morning'), ('Afternoon'), ('Evening'), ('Weekend');
-
+-- Shifts
+INSERT INTO JobShifts (ShiftName, StartTime, EndTime) VALUES 
+('Morning', '08:00', '12:00'),
+('Afternoon', '13:00', '17:00'),
+('Evening', '18:00', '22:00'),
+('Weekend', '08:00', '20:00');

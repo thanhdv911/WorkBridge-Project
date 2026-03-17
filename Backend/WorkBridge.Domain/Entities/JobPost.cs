@@ -34,7 +34,8 @@ public partial class JobPost
     public string? Benefits { get; set; }
 
     public string Status { get; set; } = null!;
-
+    public bool IsTrending { get; set; }
+    public string? Tag { get; set; }
     public bool IsDeleted { get; set; }
 
     public DateTime? CreatedAt { get; set; }

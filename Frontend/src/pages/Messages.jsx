@@ -16,7 +16,8 @@ const Messages = () => {
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef(null);
     const token = localStorage.getItem('token');
-    const currentUserId = parseInt(localStorage.getItem('userId') || '0');
+    const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+    const currentUserId = parseInt(localStorage.getItem('userId') || userObj.userId || '0');
 
     // Parse initial contact from navigation state (if navigating from "Message" button)
     useEffect(() => {
@@ -112,7 +113,7 @@ const Messages = () => {
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                     <h1 className="text-xl font-black text-slate-800 tracking-tight">Messages</h1>
                     <div className="flex gap-2">
-                         <span className="material-symbols-outlined text-slate-400">search</span>
+                        <span className="material-symbols-outlined text-slate-400">search</span>
                     </div>
                 </div>
 
@@ -123,12 +124,11 @@ const Messages = () => {
                         </div>
                     ) : (
                         conversations.map((conv) => (
-                            <div 
+                            <div
                                 key={conv.contactId}
                                 onClick={() => setSelectedContact(conv)}
-                                className={`p-4 flex items-center gap-4 cursor-pointer transition-all border-b border-slate-50 hover:bg-slate-50 ${
-                                    selectedContact?.contactId === conv.contactId ? 'bg-primary/[0.03] border-l-4 border-l-primary' : ''
-                                }`}
+                                className={`p-4 flex items-center gap-4 cursor-pointer transition-all border-b border-slate-50 hover:bg-slate-50 ${selectedContact?.contactId === conv.contactId ? 'bg-primary/[0.03] border-l-4 border-l-primary' : ''
+                                    }`}
                             >
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
                                     {conv.contactName.substring(0, 2).toUpperCase()}
@@ -176,7 +176,7 @@ const Messages = () => {
                                 </h2>
                                 <p className="text-[11px] text-green-500 font-bold uppercase tracking-wider">Online</p>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setShowReportModal(true)}
                                 className="ml-auto w-10 h-10 rounded-xl bg-slate-50 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center group"
                                 title="Report User"
@@ -185,7 +185,7 @@ const Messages = () => {
                             </button>
                         </div>
 
-                        <ReportModal 
+                        <ReportModal
                             isOpen={showReportModal}
                             onClose={() => setShowReportModal(false)}
                             entityId={selectedContact.contactId}
@@ -196,15 +196,14 @@ const Messages = () => {
                         {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                             {messages.map((m) => (
-                                <div 
+                                <div
                                     key={m.messageId}
                                     className={`flex ${m.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
                                 >
-                                    <div className={`max-w-[70%] lg:max-w-[60%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
-                                        m.senderId === currentUserId 
-                                        ? 'bg-primary text-white rounded-tr-none' 
-                                        : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'
-                                    }`}>
+                                    <div className={`max-w-[70%] lg:max-w-[60%] px-4 py-3 rounded-2xl text-sm shadow-sm ${m.senderId === currentUserId
+                                            ? 'bg-primary text-white rounded-tr-none'
+                                            : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'
+                                        }`}>
                                         <p className="leading-relaxed">{m.content}</p>
                                         <div className={`text-[10px] mt-1.5 opacity-60 ${m.senderId === currentUserId ? 'text-right' : 'text-left'}`}>
                                             {new Date(m.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -222,28 +221,27 @@ const Messages = () => {
 
                         {/* Input Area */}
                         <div className="p-4 bg-white border-t border-slate-200/60">
-                            <form 
+                            <form
                                 onSubmit={handleSendMessage}
                                 className="max-w-[900px] mx-auto flex items-center gap-3 bg-slate-50 rounded-2xl p-2 px-4 border border-slate-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all"
                             >
                                 <button type="button" className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
                                     <span className="material-symbols-outlined">add_circle</span>
                                 </button>
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="Type a message..."
                                     className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2"
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                 />
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={!newMessage.trim() || sending}
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                                        newMessage.trim() && !sending 
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95' 
-                                        : 'bg-slate-200 text-slate-400'
-                                    }`}
+                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${newMessage.trim() && !sending
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
+                                            : 'bg-slate-200 text-slate-400'
+                                        }`}
                                 >
                                     <span className="material-symbols-outlined !text-[20px] transform rotate-[-45deg] relative left-[1px]">send</span>
                                 </button>

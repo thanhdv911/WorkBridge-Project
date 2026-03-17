@@ -70,6 +70,9 @@ namespace WorkBridge.Application.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
+                    Status = j.Status,
+                    IsTrending = j.IsTrending,
+                    Tag = j.Tag,
                     CreatedAt = j.CreatedAt,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {
@@ -112,6 +115,9 @@ namespace WorkBridge.Application.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
+                    Status = j.Status,
+                    IsTrending = j.IsTrending,
+                    Tag = j.Tag,
                     CreatedAt = j.CreatedAt,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {
