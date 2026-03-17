@@ -28,22 +28,37 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
     'Office': 'bg-slate-100 text-slate-600 border-slate-200'
   };
 
-  // Determine a default mock icon/category since the DB doesn't have an icon field yet
-  // We'll use the Category Name strings if available, else fallback
-  const categoryName = job.categoryName || 'General'; // Note: DTO doesn't have categoryName yet, assuming fallback
-  const mockShift = job.shift || 'Flexible'; // Assuming fallback if not in join
+  const getJobAssets = (title = "") => {
+    const t = title.toLowerCase();
+    if (t.includes('pha chế') || t.includes('barista') || t.includes('coffee') || t.includes('cafe')) 
+      return { icon: 'local_cafe', color: 'from-orange-400 to-rose-500' };
+    if (t.includes('gia sư') || t.includes('tutoring') || t.includes('dạy') || t.includes('teacher') || t.includes('english')) 
+      return { icon: 'school', color: 'from-blue-500 to-indigo-600' };
+    if (t.includes('shipper') || t.includes('giao hàng') || t.includes('delivery')) 
+      return { icon: 'delivery_dining', color: 'from-sky-400 to-blue-600' };
+    if (t.includes('kho') || t.includes('warehouse') || t.includes('điều phối')) 
+      return { icon: 'inventory_2', color: 'from-slate-500 to-slate-700' };
+    if (t.includes('developer') || t.includes('it') || t.includes('analyst') || t.includes('data') || t.includes('lập trình') || t.includes('game')) 
+      return { icon: 'terminal', color: 'from-indigo-500 to-purple-600' };
+    if (t.includes('marketing') || t.includes('media') || t.includes('social') || t.includes('content')) 
+      return { icon: 'campaign', color: 'from-pink-500 to-rose-600' };
+    if (t.includes('bán lẻ') || t.includes('retail') || t.includes('sales') || t.includes('lấy hàng') || t.includes('shop')) 
+      return { icon: 'storefront', color: 'from-emerald-400 to-teal-600' };
+    if (t.includes('quản lý') || t.includes('manager')) 
+      return { icon: 'manage_accounts', color: 'from-amber-400 to-orange-500' };
+    
+    return { icon: 'work', color: 'from-primary to-accent' };
+  };
 
-  // Format the posted time
-  const timePostedDate = job.createdAt ? new Date(job.createdAt) : new Date();
-  const diffHours = Math.round((new Date() - timePostedDate) / (1000 * 60 * 60));
-  const timeStr = diffHours > 24 ? `${Math.round(diffHours / 24)}d ago` : `${diffHours}h ago`;
+  const assets = getJobAssets(job.title);
+  const mockShift = job.shift || 'Flexible'; 
 
   return (
     <Link to={`/jobs/${job.jobPostId}`} className="card-lift bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden group">
       <div className="p-5">
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
-            <span className="material-symbols-outlined text-white !text-xl">work</span>
+          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${assets.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+            <span className="material-symbols-outlined text-white !text-xl">{assets.icon}</span>
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-primary transition-colors">{job.title}</h3>

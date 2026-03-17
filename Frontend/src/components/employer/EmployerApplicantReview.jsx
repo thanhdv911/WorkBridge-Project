@@ -107,7 +107,7 @@ const EmployerApplicantReview = () => {
                         <table className="w-full text-left">
                             <thead className="bg-slate-50/50">
                                 <tr>
-                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">Student Info</th>
+                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 whitespace-nowrap">Student Info</th>
                                     <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">Job Title</th>
                                     <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Status</th>
                                     <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-right">Action</th>
@@ -121,8 +121,8 @@ const EmployerApplicantReview = () => {
                                         onClick={() => setSelectedApp(app)}
                                     >
                                         <td className="px-8 py-5">
-                                            <div className="font-bold text-slate-800">{app.applicantName}</div>
-                                            <div className="text-xs text-slate-400 mt-1">{app.applicantMajor}</div>
+                                            <div className="font-bold text-slate-800 whitespace-nowrap">{app.applicantName}</div>
+                                            <div className="text-xs text-slate-400 mt-1 whitespace-nowrap">{app.applicantMajor}</div>
                                         </td>
                                         <td className="px-8 py-5 text-sm font-semibold text-slate-600 whitespace-nowrap">
                                             {app.jobTitle}

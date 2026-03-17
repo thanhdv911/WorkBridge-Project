@@ -16,23 +16,23 @@ export default function JobFilterSidebar({ onFilterChange }) {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" defaultChecked />
-              Food & Beverage <span className="ml-auto text-xs text-slate-400">48</span>
+              🍔 Food & Beverage <span className="ml-auto text-xs text-slate-400">48</span>
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Tutoring <span className="ml-auto text-xs text-slate-400">32</span>
+              🎓 Tutoring <span className="ml-auto text-xs text-slate-400">32</span>
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Delivery <span className="ml-auto text-xs text-slate-400">27</span>
+              🛵 Delivery <span className="ml-auto text-xs text-slate-400">27</span>
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Retail <span className="ml-auto text-xs text-slate-400">21</span>
+              🛍️ Retail <span className="ml-auto text-xs text-slate-400">21</span>
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Marketing <span className="ml-auto text-xs text-slate-400">14</span>
+              🚀 Marketing <span className="ml-auto text-xs text-slate-400">14</span>
             </label>
           </div>
         </div>
@@ -41,12 +41,12 @@ export default function JobFilterSidebar({ onFilterChange }) {
         <div className="mb-5">
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Salary Range</label>
           <div className="space-y-2">
-            <input 
-              type="range" 
+            <input
+              type="range"
               min="20000" max="200000" step="5000"
-              value={salary} 
+              value={salary}
               onChange={(e) => setSalary(Number(e.target.value))}
-              className="w-full h-1.5 rounded-full bg-slate-200 appearance-none outline-none focus:ring-2 focus:ring-primary/20 accent-primary" 
+              className="w-full h-1.5 rounded-full bg-slate-200 appearance-none outline-none focus:ring-2 focus:ring-primary/20 accent-primary"
             />
             <div className="flex justify-between text-xs text-slate-400">
               <span>20,000₫/hr</span>
@@ -90,7 +90,7 @@ export default function JobFilterSidebar({ onFilterChange }) {
         </div>
       </div>
 
-      <button 
+      <button
         onClick={() => onFilterChange(salary)}
         className="w-full h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2"
       >

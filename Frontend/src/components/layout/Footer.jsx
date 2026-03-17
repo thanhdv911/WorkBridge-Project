@@ -4,11 +4,20 @@ export default function Footer() {
       <div className="max-w-[1320px] mx-auto px-6 lg:px-10 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
-            <a href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="material-symbols-outlined !text-lg text-white">work</span>
-              </div>
-              <span className="font-extrabold">Work<span className="text-primary">Bridge</span></span>
+            <a href="/" className="flex items-center gap-2 mb-4 group">
+              <svg viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-9 w-auto group-hover:scale-105 transition-transform duration-300">
+                <circle cx="32" cy="15" r="11" stroke="#1392EC" strokeWidth="4" fill="none"/>
+                <path d="M26 18 Q32 22 38 18" stroke="#1392EC" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+                <path d="M7 68 C7 68 12 46 32 44" stroke="#1392EC" strokeWidth="4" strokeLinecap="round" fill="none"/>
+                <path d="M57 68 C57 68 52 46 32 44" stroke="#1392EC" strokeWidth="4" strokeLinecap="round" fill="none"/>
+                <path d="M32 44 L26 50" stroke="#1392EC" strokeWidth="3.5" strokeLinecap="round"/>
+                <path d="M32 44 L38 50" stroke="#1392EC" strokeWidth="3.5" strokeLinecap="round"/>
+                <path d="M29 50 L32 48 L35 50 L32 70 Z" fill="#1A1A2E"/>
+              </svg>
+              <span className="text-xl font-black tracking-tight flex items-center leading-none">
+                <span className="text-slate-900">Work</span>
+                <span className="text-[#1392EC]">Bridge</span>
+              </span>
             </a>
             <p className="text-sm text-slate-500 leading-relaxed">Connecting students with flexible work opportunities.</p>
           </div>

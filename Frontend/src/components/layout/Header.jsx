@@ -57,12 +57,27 @@ export default function Header() {
     <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
       <div className="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
         <div className="flex-1 flex items-center">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-              <span className="material-symbols-outlined !text-xl text-white">work</span>
-            </div>
-            <span className="text-lg font-extrabold tracking-tight">
-              Work<span className="text-primary">Bridge</span>
+          <Link to="/" className="flex items-center gap-2.5 group">
+            {/* Professional Suit & Tie Logo SVG */}
+            <svg viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-auto group-hover:scale-105 transition-transform duration-300">
+              {/* Head - open circle */}
+              <circle cx="32" cy="15" r="11" stroke="#1392EC" strokeWidth="4" fill="none"/>
+              {/* Face arc inside head */}
+              <path d="M26 18 Q32 22 38 18" stroke="#1392EC" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+              {/* Left suit lapel */}
+              <path d="M7 68 C7 68 12 46 32 44" stroke="#1392EC" strokeWidth="4" strokeLinecap="round" fill="none"/>
+              {/* Right suit lapel */}
+              <path d="M57 68 C57 68 52 46 32 44" stroke="#1392EC" strokeWidth="4" strokeLinecap="round" fill="none"/>
+              {/* Left collar */}
+              <path d="M32 44 L26 50" stroke="#1392EC" strokeWidth="3.5" strokeLinecap="round"/>
+              {/* Right collar */}
+              <path d="M32 44 L38 50" stroke="#1392EC" strokeWidth="3.5" strokeLinecap="round"/>
+              {/* Tie knot */}
+              <path d="M29 50 L32 48 L35 50 L32 70 Z" fill="#1A1A2E"/>
+            </svg>
+            <span className="text-2xl font-black tracking-tight flex items-center leading-none">
+              <span className="text-slate-900">Work</span>
+              <span className="text-[#1392EC]">Bridge</span>
             </span>
           </Link>
         </div>

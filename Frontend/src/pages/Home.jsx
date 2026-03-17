@@ -336,9 +336,9 @@ function Pricing() {
 
 function HowItWorks() {
   const steps = [
-    { num: '01', title: 'Smart Profile', desc: 'Create a dynamic profile highlighting your local availability.' },
-    { num: '02', title: 'One-Click Apply', desc: 'Review shifts and apply instantly with verified student status.' },
-    { num: '03', title: 'Get Hired', desc: 'Join the community of 15k students finding jobs locally.' },
+    { num: '01', title: 'Smart Profile', desc: 'Create a dynamic profile highlighting your local availability.', color: 'text-blue-500' },
+    { num: '02', title: 'One-Click Apply', desc: 'Review shifts and apply instantly with verified student status.', color: 'text-violet-500' },
+    { num: '03', title: 'Get Hired', desc: 'Join the community of 15k students finding jobs locally.', color: 'text-emerald-500' },
   ];
 
   return (
@@ -351,7 +351,7 @@ function HowItWorks() {
            <div className="mt-12 space-y-8">
               {steps.map(s => (
                 <div key={s.num} className="flex items-start gap-6 group">
-                   <div className="text-5xl font-black text-slate-200 group-hover:text-primary transition-colors">{s.num}</div>
+                   <div className={`text-5xl font-black ${s.color} transition-all duration-500`}>{s.num}</div>
                    <div>
                       <h3 className="text-xl font-black text-slate-800">{s.title}</h3>
                       <p className="text-slate-400 text-sm font-bold mt-1 max-w-xs">{s.desc}</p>

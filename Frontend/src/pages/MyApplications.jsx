@@ -49,6 +49,15 @@ const MyApplications = () => {
             default: return 'bg-slate-50 text-slate-600 border-slate-100';
         }
     };
+    const getStatusCardBg = (status) => {
+        switch (status) {
+            case 'Pending': return 'bg-amber-50/40 border-amber-100/50';
+            case 'Under Review': return 'bg-blue-50/40 border-blue-100/50';
+            case 'Accepted': return 'bg-emerald-50/40 border-emerald-100/50';
+            case 'Rejected': return 'bg-rose-50/40 border-rose-100/50';
+            default: return 'bg-slate-50/40 border-slate-100/50';
+        }
+    };
 
     if (loading) {
         return (
@@ -59,96 +68,136 @@ const MyApplications = () => {
     }
 
     return (
-        <div className="bg-bg-light min-h-screen pb-20 font-display">
-            {/* Header section */}
-            <div className="bg-white border-b border-slate-200/60 pb-10 pt-8">
+        <div className="bg-[#FDFDFF] min-h-screen pb-20 font-display relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+            <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] bg-accent/[0.03] rounded-full blur-[100px] pointer-events-none"></div>
+            
+            {/* Header section with Glass Effect */}
+            <div className="relative z-10 bg-white/60 backdrop-blur-xl border-b border-slate-200/50 pb-12 pt-10">
                 <div className="max-w-[1320px] mx-auto px-6 lg:px-10">
-                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">My Applications</h1>
-                    <p className="text-slate-500 mt-2">Track the progress of your job applications in one place.</p>
+                    <div className="anim-fadeUp inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider mb-4">
+                        <span className="material-symbols-outlined !text-sm">analytics</span>
+                        Your Journey
+                    </div>
+                    <h1 className="anim-fadeUp-d1 text-4xl font-black text-slate-900 tracking-tight leading-none">
+                        My <span className="grad-text">Applications</span>
+                    </h1>
+                    <p className="anim-fadeUp-d2 text-slate-500 mt-4 text-lg max-w-xl font-medium">
+                        Track your progress, manage interviews, and land your next flexible role with ease.
+                    </p>
                 </div>
             </div>
 
-            <main className="max-w-[1320px] mx-auto px-6 lg:px-10 mt-10">
+            <main className="relative z-10 max-w-[1320px] mx-auto px-6 lg:px-10 mt-12">
                 {applications.length === 0 ? (
-                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-20 text-center animate-fadeInUp">
-                        <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6">
-                            <span className="material-symbols-outlined text-slate-300 !text-4xl">folder_open</span>
+                    <div className="bg-white/80 backdrop-blur-md rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/50 p-20 text-center animate-fadeInUp">
+                        <div className="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center mx-auto mb-8 shadow-inner">
+                            <span className="material-symbols-outlined text-slate-300 !text-5xl">auto_stories</span>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-700">No applications yet</h2>
-                        <p className="text-slate-500 mt-2 mb-8">You haven't applied for any jobs yet. Start your journey today!</p>
+                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Your story starts here</h2>
+                        <p className="text-slate-500 mt-3 mb-10 max-w-sm mx-auto font-medium leading-relaxed">You haven't applied for any jobs yet. Browse thousands of student-friendly roles today.</p>
                         <Link 
                             to="/jobs" 
-                            className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+                            className="inline-flex items-center gap-3 h-14 px-10 rounded-2xl bg-gradient-to-r from-primary to-primary-dk text-white font-black shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-1 active:scale-95"
                         >
-                            Find Jobs
+                            Explore Opportunities <span className="material-symbols-outlined !text-xl">arrow_forward</span>
                         </Link>
                     </div>
                 ) : (
-                    <div className="grid gap-4 animate-fadeInUp">
-                        {/* Table Header (Hidden on mobile) */}
-                        <div className="hidden md:grid grid-cols-[1fr_200px_160px_120px_100px] px-8 py-4 bg-slate-100/50 rounded-2xl text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                            <div>Job Info</div>
-                            <div>Company</div>
-                            <div>Applied Date</div>
-                            <div className="text-center">Status</div>
-                            <div className="text-right">Actions</div>
-                        </div>
-
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fadeInUp">
                         {/* Application Cards */}
-                        {applications.map((app) => (
-                                <div key={app.applicationId} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow p-6 md:p-8 flex flex-col md:grid md:grid-cols-[1fr_200px_160px_120px_100px] items-center gap-4">
-                                    <div className="w-full">
-                                        <Link to={`/jobs/${app.jobPostId}`} className="text-lg font-bold text-slate-800 hover:text-primary transition-colors block leading-tight">
-                                            {app.jobTitle}
-                                        </Link>
-                                        <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
-                                            <span className="material-symbols-outlined !text-[16px]">location_on</span>
-                                            {app.location}
+                        {applications.map((app, i) => (
+                            <div 
+                                key={app.applicationId} 
+                                className={`group relative ${getStatusCardBg(app.status)} rounded-[2.5rem] border shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-2 p-1`}
+                                style={{ animationDelay: `${i * 0.1}s` }}
+                            >
+                                <div className="bg-white/40 backdrop-blur-md rounded-[2.3rem] p-8 h-full flex flex-col">
+                                    <div className="flex justify-between items-start mb-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-primary font-black text-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                                                {app.companyName.substring(0, 1).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <Link to={`/jobs/${app.jobPostId}`} className="text-xl font-black text-slate-800 hover:text-primary transition-colors block leading-tight">
+                                                    {app.jobTitle}
+                                                </Link>
+                                                <div className="text-slate-400 text-sm font-bold mt-1">
+                                                    {app.companyName}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(app.status)} shadow-sm bg-white`}>
+                                            {app.status}
                                         </div>
                                     </div>
-                                    <div className="w-full text-slate-600 font-semibold md:text-sm text-center md:text-left flex items-center gap-2">
-                                        <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Company:</span>
-                                        {app.companyName}
+
+                                    <div className="grid grid-cols-2 gap-4 py-6 border-y border-white/50 mb-8">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Location</span>
+                                            <div className="flex items-center gap-1.5 text-slate-700 font-bold text-sm">
+                                                <span className="material-symbols-outlined !text-lg text-slate-400">location_on</span>
+                                                {app.location}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1 text-right">
+                                            <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Applied Date</span>
+                                            <div className="flex items-center justify-end gap-1.5 text-slate-700 font-bold text-sm">
+                                                <span className="material-symbols-outlined !text-lg text-slate-400">calendar_today</span>
+                                                {new Date(app.appliedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="w-full text-slate-500 md:text-sm text-center md:text-left flex items-center gap-2">
-                                       <span className="md:hidden text-xs text-slate-400 font-bold uppercase tracking-widest">Date:</span>
-                                        {new Date(app.appliedAt).toLocaleDateString()}
-                                    </div>
-                                    <div className="w-full flex justify-center">
-                                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
-                                            {app.status}
-                                        </span>
-                                    </div>
-                                    <div className="w-full flex justify-end gap-2">
-                                        {(app.status === 'Accepted' || app.status === 'Under Review') ? (
-                                            <button 
-                                                onClick={() => navigate('/messages', { 
-                                                    state: { 
-                                                        contactId: app.employerId, 
-                                                        contactName: app.companyName 
-                                                    } 
-                                                })}
-                                                className="w-10 h-10 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center"
-                                                title="Chat with Recruiter"
+
+                                    <div className="mt-auto flex items-center justify-between gap-4">
+                                        <div className="flex items-center -space-x-2">
+                                            {[1,2,3].map(user => (
+                                                <div key={user} className="w-8 h-8 rounded-full border-2 border-white bg-white/80 flex items-center justify-center text-[10px] font-black text-slate-400 overflow-hidden">
+                                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=app${app.applicationId + user}`} alt="User" />
+                                                </div>
+                                            ))}
+                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-white/50 flex items-center justify-center text-[10px] font-extrabold text-slate-400">+5</div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {(app.status === 'Accepted' || app.status === 'Under Review') ? (
+                                                <button 
+                                                    onClick={() => navigate('/messages', { 
+                                                        state: { 
+                                                            contactId: app.employerId, 
+                                                            contactName: app.companyName 
+                                                        } 
+                                                    })}
+                                                    className="w-12 h-12 rounded-2xl bg-slate-900 text-white hover:bg-primary transition-all flex items-center justify-center shadow-lg shadow-black/10 group-hover:scale-110 active:scale-95"
+                                                    title="Chat with Recruiter"
+                                                >
+                                                    <span className="material-symbols-outlined !text-xl">forum</span>
+                                                </button>
+                                            ) : (
+                                                <button disabled className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-200 flex items-center justify-center cursor-not-allowed border border-slate-100">
+                                                    <span className="material-symbols-outlined !text-xl">forum</span>
+                                                </button>
+                                            )}
+                                            {app.status === 'Accepted' && (
+                                                <button 
+                                                    onClick={() => handleOpenReview(app)}
+                                                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white hover:shadow-lg hover:shadow-orange-200 transition-all flex items-center justify-center group-hover:scale-110 active:scale-95"
+                                                    title="Rate Employer"
+                                                >
+                                                    <span className="material-symbols-outlined !text-xl filled">star</span>
+                                                </button>
+                                            )}
+                                            <Link 
+                                                to={`/jobs/${app.jobPostId}`}
+                                                className="w-12 h-12 rounded-2xl border border-slate-100 text-slate-400 flex items-center justify-center hover:bg-slate-50 hover:text-primary transition-all group-hover:scale-110"
                                             >
-                                                <span className="material-symbols-outlined">forum</span>
-                                            </button>
-                                        ) : (
-                                            <button disabled className="w-10 h-10 rounded-xl bg-slate-50 text-slate-200 flex items-center justify-center cursor-not-allowed">
-                                                <span className="material-symbols-outlined">forum</span>
-                                            </button>
-                                        )}
-                                        {app.status === 'Accepted' && (
-                                            <button 
-                                                onClick={() => handleOpenReview(app)}
-                                                className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 hover:bg-amber-100 transition-all flex items-center justify-center"
-                                                title="Rate Employer"
-                                            >
-                                                <span className="material-symbols-outlined filled">star</span>
-                                            </button>
-                                        )}
+                                                <span className="material-symbols-outlined !text-xl">arrow_outward</span>
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
                         ))}
                     </div>
                 )}
