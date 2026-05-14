@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import ReportModal from '../shared/ReportModal';
 import ReviewModal from '../shared/ReviewModal';
 import EContractModal from '../shared/EContractModal';
+import EndorseSkillsModal from '../shared/EndorseSkillsModal';
 
 const EmployerApplicantReview = () => {
     const [applications, setApplications] = useState([]);
@@ -14,6 +15,7 @@ const EmployerApplicantReview = () => {
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedForReview, setSelectedForReview] = useState(null);
     const [showContractModal, setShowContractModal] = useState(false);
+    const [showEndorseModal, setShowEndorseModal] = useState(false);
     const [statusModal, setStatusModal] = useState({ isOpen: false, status: '', note: '' });
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
@@ -282,6 +284,16 @@ const EmployerApplicantReview = () => {
                             )}
                             
                             {selectedApp.status === 'Accepted' && (
+                                <button
+                                    onClick={() => setShowEndorseModal(true)}
+                                    className="w-full h-11 rounded-xl bg-primary/10 text-primary font-bold text-sm border border-primary/10 hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined !text-[20px]">verified</span>
+                                    Endorse Skills
+                                </button>
+                            )}
+
+                            {selectedApp.status === 'Accepted' && (
                                 <button 
                                     onClick={() => handleOpenReview(selectedApp)}
                                     className="w-full h-11 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-center gap-2"
@@ -318,6 +330,13 @@ const EmployerApplicantReview = () => {
                             isOpen={showContractModal}
                             onClose={() => setShowContractModal(false)}
                             applicationId={selectedApp.applicationId}
+                        />
+
+                        <EndorseSkillsModal
+                            isOpen={showEndorseModal}
+                            onClose={() => setShowEndorseModal(false)}
+                            applicantId={selectedApp.applicantId}
+                            applicantName={selectedApp.applicantName}
                         />
 
                         {/* Status Update Modal */}

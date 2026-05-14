@@ -18,6 +18,7 @@ import AIMatching from './pages/AIMatching';
 import MySchedules from './pages/MySchedules';
 import ShiftSwapBoard from './pages/ShiftSwapBoard';
 import ResolutionCenter from './pages/ResolutionCenter';
+import SkillWallet from './pages/SkillWallet';
 import './index.css';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="/my-schedules" element={<MySchedules />} />
           <Route path="/swap-board" element={<ShiftSwapBoard />} />
           <Route path="/resolution-center" element={<ResolutionCenter />} />
+          <Route path="/skill-wallet" element={<SkillWallet />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
         </Routes>

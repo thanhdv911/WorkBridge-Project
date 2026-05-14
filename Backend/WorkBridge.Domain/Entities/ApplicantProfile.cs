@@ -40,4 +40,6 @@ public partial class ApplicantProfile
     public virtual ICollection<ShiftSwapRequest> ShiftSwapRequestsReceived { get; set; } = new List<ShiftSwapRequest>();
 
     public virtual ICollection<EContract> EContracts { get; set; } = new List<EContract>();
+
+    public virtual ICollection<ApplicantBadge> ApplicantBadges { get; set; } = new List<ApplicantBadge>();
 }

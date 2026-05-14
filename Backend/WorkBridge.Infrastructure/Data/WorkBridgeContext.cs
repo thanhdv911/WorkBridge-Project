@@ -62,6 +62,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<Dispute> Disputes { get; set; }
 
+    public virtual DbSet<ApplicantBadge> ApplicantBadges { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=DESKTOP-H2NCE3I;Database=WorkBridgeDB;User Id=sa;Password=1;Encrypt=False;TrustServerCertificate=True");
@@ -487,6 +489,19 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.RespondentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Disputes_Respondent");
+        });
+
+        modelBuilder.Entity<ApplicantBadge>(entity =>
+        {
+            entity.HasKey(e => e.BadgeId).HasName("PK_ApplicantBadges");
+            entity.Property(e => e.BadgeName).HasMaxLength(100);
+            entity.Property(e => e.IconClass).HasMaxLength(100);
+            entity.Property(e => e.EarnedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+
+            entity.HasOne(d => d.Applicant).WithMany(p => p.ApplicantBadges)
+                .HasForeignKey(d => d.ApplicantId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ApplicantBadges_ApplicantProfiles");
         });
 
         OnModelCreatingPartial(modelBuilder);

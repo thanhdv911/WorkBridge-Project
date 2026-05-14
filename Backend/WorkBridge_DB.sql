@@ -74,6 +74,18 @@ CREATE TABLE ApplicantSkills (
     SkillId INT IDENTITY(1,1) PRIMARY KEY,
     ApplicantId INT NOT NULL,
     SkillName NVARCHAR(100) NOT NULL,
+    EndorsementCount INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
+);
+
+-- 5.5 Applicant Badges (Gamification)
+CREATE TABLE ApplicantBadges (
+    BadgeId INT IDENTITY(1,1) PRIMARY KEY,
+    ApplicantId INT NOT NULL,
+    BadgeName NVARCHAR(100) NOT NULL,
+    IconClass NVARCHAR(100) NULL,
+    Description NVARCHAR(MAX) NULL,
+    EarnedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
 );
 

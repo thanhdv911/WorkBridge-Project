@@ -35,6 +35,7 @@ builder.Services.AddScoped<WorkBridge.Application.Services.IEmployerService, Wor
 builder.Services.AddScoped<WorkBridge.Application.Services.IApplicationService, WorkBridge.Application.Services.ApplicationService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.IShiftService, WorkBridge.Application.Services.ShiftService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.IContractService, WorkBridge.Application.Services.ContractService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IGamificationService, WorkBridge.Application.Services.GamificationService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.ISavedJobService, WorkBridge.Application.Services.SavedJobService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.INotificationService, WorkBridge.Application.Services.NotificationService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.IMessageService, WorkBridge.Application.Services.MessageService>();

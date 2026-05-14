@@ -148,6 +148,13 @@ export default function Header() {
                 Disputes
               </Link>
               <Link
+                to="/skill-wallet"
+                className={`flex items-center gap-1 text-sm font-semibold transition-colors ${location.pathname === '/skill-wallet' ? 'text-violet-600 relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-violet-600 after:rounded' : 'text-violet-400 hover:text-violet-600'}`}
+              >
+                <span className="material-symbols-outlined !text-[16px]">workspace_premium</span>
+                Skill Wallet
+              </Link>
+              <Link
                 to="/saved-jobs"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >

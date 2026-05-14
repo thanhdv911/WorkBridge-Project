@@ -11,5 +11,7 @@ public partial class ApplicantSkill
 
     public string SkillName { get; set; } = null!;
 
+    public int EndorsementCount { get; set; }
+
     public virtual ApplicantProfile Applicant { get; set; } = null!;
 }
