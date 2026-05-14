@@ -68,10 +68,10 @@ namespace WorkBridge.Application.Services
 
             var attendances = await _context.Attendances
                 .Include(a => a.Schedule).ThenInclude(s => s.JobPost).ThenInclude(j => j.Employer)
-                .Where(a => a.Schedule.ApplicantId == applicantId && a.CheckInTime != null && a.CheckOutTime != null)
+                .Where(a => a.Schedule.ApplicantId == applicantId && a.CheckOutTime != null)
                 .ToListAsync();
 
-            var totalMinutes = attendances.Sum(a => (a.CheckOutTime!.Value - a.CheckInTime!.Value).TotalMinutes);
+            var totalMinutes = attendances.Sum(a => (a.CheckOutTime!.Value - a.CheckInTime).TotalMinutes);
             var totalHours = (int)(totalMinutes / 60);
 
             var reviews = await _context.Reviews
@@ -87,15 +87,15 @@ namespace WorkBridge.Application.Services
                 {
                     JobTitle = g.Key.Title,
                     CompanyName = g.Key.CompanyName,
-                    TotalHours = (int)(g.Sum(a => (a.CheckOutTime!.Value - a.CheckInTime!.Value).TotalMinutes) / 60)
+                    TotalHours = (int)(g.Sum(a => (a.CheckOutTime!.Value - a.CheckInTime).TotalMinutes) / 60)
                 }).ToList();
 
             return new PracticalCvResponse
             {
                 ApplicantId = applicantId,
                 FullName = profile.Applicant.FullName,
-                Major = profile.Major,
-                University = profile.University,
+                Major = profile.Major ?? string.Empty,
+                University = profile.University ?? string.Empty,
                 TotalJobsCompleted = completedJobsCount,
                 TotalHoursWorked = totalHours,
                 AverageRating = averageRating,
@@ -147,7 +147,7 @@ namespace WorkBridge.Application.Services
             {
                 var onTimeCount = await _context.Attendances
                     .Include(a => a.Schedule)
-                    .CountAsync(a => a.Schedule.ApplicantId == applicantId && a.CheckInTime <= a.Schedule.StartTime);
+                    .CountAsync(a => a.Schedule.ApplicantId == applicantId && a.CheckInTime.TimeOfDay <= a.Schedule.StartTime);
                 
                 if (onTimeCount >= 5) 
                 {
