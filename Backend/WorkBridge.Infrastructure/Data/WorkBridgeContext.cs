@@ -26,6 +26,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<JobApplication> Applications { get; set; }
 
+    public virtual DbSet<ApplicationHistory> ApplicationHistories { get; set; }
+
     public virtual DbSet<EmployerProfile> EmployerProfiles { get; set; }
 
     public virtual DbSet<JobCategory> JobCategories { get; set; }
@@ -121,6 +123,22 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.JobPostId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Applicati__JobPo__60A75C0F");
+        });
+
+        modelBuilder.Entity<ApplicationHistory>(entity =>
+        {
+            entity.HasKey(e => e.HistoryId).HasName("PK_ApplicationHistories");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.Application).WithMany(p => p.Histories)
+                .HasForeignKey(d => d.ApplicationId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ApplicationHistories_Applications");
         });
 
         modelBuilder.Entity<EmployerProfile>(entity =>

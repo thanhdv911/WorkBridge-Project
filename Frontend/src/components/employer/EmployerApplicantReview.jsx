@@ -12,6 +12,7 @@ const EmployerApplicantReview = () => {
     const [showReportModal, setShowReportModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedForReview, setSelectedForReview] = useState(null);
+    const [statusModal, setStatusModal] = useState({ isOpen: false, status: '', note: '' });
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
 
@@ -33,10 +34,14 @@ const EmployerApplicantReview = () => {
         }
     };
 
-    const handleUpdateStatus = async (appId, newStatus) => {
+    const handleUpdateStatus = (newStatus) => {
+        setStatusModal({ isOpen: true, status: newStatus, note: '' });
+    };
+
+    const submitStatusUpdate = async () => {
         try {
-            await api.patch(`/application/${appId}/status`, 
-                JSON.stringify(newStatus), 
+            await api.patch(`/application/${selectedApp.applicationId}/status`, 
+                JSON.stringify({ status: statusModal.status, note: statusModal.note }), 
                 {
                     headers: { 
                         Authorization: `Bearer ${token}`,
@@ -44,11 +49,17 @@ const EmployerApplicantReview = () => {
                     }
                 }
             );
-            toast.success(`Application marked as ${newStatus}`);
+            toast.success(`Application marked as ${statusModal.status}`);
+            
+            // Update local selectedApp temporarily to reflect new status & history
+            setSelectedApp(prev => ({ 
+                ...prev, 
+                status: statusModal.status,
+                histories: [...(prev.histories || []), { status: statusModal.status, note: statusModal.note, createdAt: new Date().toISOString() }]
+            }));
+            
+            setStatusModal({ isOpen: false, status: '', note: '' });
             fetchApplications();
-            if (selectedApp?.applicationId === appId) {
-                setSelectedApp(prev => ({ ...prev, status: newStatus }));
-            }
         } catch (error) {
             console.error('Error updating application status:', error);
             toast.error('Failed to update status.');
@@ -196,22 +207,47 @@ const EmployerApplicantReview = () => {
                         </div>
 
                         <div className="space-y-3 pt-4">
-                            <div className="flex gap-2">
+                            {/* Application History Timeline */}
+                            <div className="mt-6 mb-4">
+                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-4">Application History</label>
+                                <div className="pl-3 border-l-2 border-slate-100 space-y-4">
+                                    {selectedApp.histories?.map((history, idx) => (
+                                        <div key={idx} className="relative">
+                                            <div className={`absolute -left-[17px] top-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(history.status).split(' ')[0]}`}></div>
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-sm font-bold text-slate-700">{history.status}</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold">{new Date(history.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                </div>
+                                                {history.note && <div className="text-xs text-slate-500 mt-1 p-2 bg-slate-50 rounded-lg">"{history.note}"</div>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 border-t border-slate-100 pt-4">
                                 <button 
-                                    onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Accepted')}
+                                    onClick={() => handleUpdateStatus('Accepted')}
                                     className="flex-1 h-11 rounded-xl bg-green-500 text-white font-bold text-sm shadow-md shadow-green-200 hover:shadow-lg transition-all"
                                 >
                                     Accept
                                 </button>
                                 <button 
-                                    onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Rejected')}
+                                    onClick={() => handleUpdateStatus('Rejected')}
                                     className="flex-1 h-11 rounded-xl bg-red-50 text-red-500 font-bold text-sm border border-red-100 hover:bg-red-100 transition-all"
                                 >
                                     Reject
                                 </button>
                             </div>
                             <button 
-                                onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Under Review')}
+                                onClick={() => handleUpdateStatus('Interview Scheduled')}
+                                className="w-full h-11 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm border border-blue-100 hover:bg-blue-100 transition-all"
+                            >
+                                Schedule Interview
+                            </button>
+                            <button 
+                                onClick={() => handleUpdateStatus('Under Review')}
                                 className="w-full h-11 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-200 transition-all"
                             >
                                 Mark as Under Review
@@ -265,6 +301,38 @@ const EmployerApplicantReview = () => {
                             onClose={() => setShowReviewModal(false)}
                             {...selectedForReview}
                         />
+
+                        {/* Status Update Modal */}
+                        {statusModal.isOpen && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">Update Status to {statusModal.status}</h3>
+                                    <p className="text-slate-500 text-sm mb-4">Add a note for the applicant (optional but recommended for interviews/rejections).</p>
+                                    
+                                    <textarea
+                                        value={statusModal.note}
+                                        onChange={(e) => setStatusModal({ ...statusModal, note: e.target.value })}
+                                        placeholder={statusModal.status === 'Interview Scheduled' ? "E.g., 2:00 PM tomorrow at Highlands Coffee..." : "Add a note..."}
+                                        className="w-full p-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none resize-none h-32 mb-4"
+                                    ></textarea>
+                                    
+                                    <div className="flex gap-3 justify-end">
+                                        <button 
+                                            onClick={() => setStatusModal({ isOpen: false, status: '', note: '' })}
+                                            className="px-6 py-2 rounded-xl text-slate-500 font-bold hover:bg-slate-100"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            onClick={submitStatusUpdate}
+                                            className="px-6 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary-dk shadow-md shadow-primary/20"
+                                        >
+                                            Confirm Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="h-96 flex flex-col items-center justify-center text-center opacity-40">

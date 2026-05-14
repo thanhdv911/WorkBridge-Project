@@ -41,8 +41,17 @@ namespace WorkBridge.Application.Services
                 ApplicantId = profile.ApplicantId,
                 CoverMessage = request.CoverMessage,
                 CvUrl = profile.CvUrl,
-                Status = "Pending",
-                AppliedAt = System.DateTime.UtcNow
+                Status = "Applied",
+                AppliedAt = System.DateTime.UtcNow,
+                Histories = new System.Collections.Generic.List<ApplicationHistory>
+                {
+                    new ApplicationHistory
+                    {
+                        Status = "Applied",
+                        Note = "Application submitted successfully.",
+                        CreatedAt = System.DateTime.UtcNow
+                    }
+                }
             };
 
             _context.Applications.Add(application);
@@ -63,6 +72,7 @@ namespace WorkBridge.Application.Services
             return await _context.Applications
                 .Include(a => a.JobPost)
                     .ThenInclude(j => j.Employer)
+                .Include(a => a.Histories)
                 .Where(a => a.ApplicantId == userId)
                 .OrderByDescending(a => a.AppliedAt)
                 .Select(a => new ApplicationResponse
@@ -74,7 +84,13 @@ namespace WorkBridge.Application.Services
                     CompanyName = a.JobPost.Employer.CompanyName,
                     Status = a.Status,
                     AppliedAt = a.AppliedAt.GetValueOrDefault(),
-                    Location = (!string.IsNullOrEmpty(a.JobPost.District) ? a.JobPost.District + ", " : "") + a.JobPost.City
+                    Location = (!string.IsNullOrEmpty(a.JobPost.District) ? a.JobPost.District + ", " : "") + a.JobPost.City,
+                    Histories = a.Histories.OrderBy(h => h.CreatedAt).Select(h => new ApplicationHistoryDto
+                    {
+                        Status = h.Status,
+                        Note = h.Note,
+                        CreatedAt = h.CreatedAt.GetValueOrDefault()
+                    }).ToList()
                 })
                 .ToListAsync();
         }
@@ -85,6 +101,7 @@ namespace WorkBridge.Application.Services
                 .Include(a => a.JobPost)
                 .Include(a => a.Applicant)
                     .ThenInclude(p => p.Applicant) // Inner User
+                .Include(a => a.Histories)
                 .Where(a => a.JobPost.EmployerId == employerId && !a.IsDeleted)
                 .OrderByDescending(a => a.AppliedAt)
                 .Select(a => new EmployerApplicationResponse
@@ -100,21 +117,35 @@ namespace WorkBridge.Application.Services
                     CoverMessage = a.CoverMessage,
                     CvUrl = a.CvUrl,
                     Status = a.Status,
-                    AppliedAt = a.AppliedAt.GetValueOrDefault()
+                    AppliedAt = a.AppliedAt.GetValueOrDefault(),
+                    Histories = a.Histories.OrderBy(h => h.CreatedAt).Select(h => new ApplicationHistoryDto
+                    {
+                        Status = h.Status,
+                        Note = h.Note,
+                        CreatedAt = h.CreatedAt.GetValueOrDefault()
+                    }).ToList()
                 })
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateApplicationStatusAsync(int employerId, int applicationId, string status)
+        public async Task<bool> UpdateApplicationStatusAsync(int employerId, int applicationId, UpdateApplicationStatusRequest request)
         {
             var application = await _context.Applications
                 .Include(a => a.JobPost)
+                .Include(a => a.Histories)
                 .FirstOrDefaultAsync(a => a.ApplicationId == applicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
 
             if (application == null) return false;
 
-            application.Status = status;
-            application.RespondedAt = DateTime.UtcNow;
+            application.Status = request.Status;
+            application.RespondedAt = System.DateTime.UtcNow;
+            
+            application.Histories.Add(new ApplicationHistory
+            {
+                Status = request.Status,
+                Note = request.Note,
+                CreatedAt = System.DateTime.UtcNow
+            });
             
             await _context.SaveChangesAsync();
 
@@ -122,7 +153,7 @@ namespace WorkBridge.Application.Services
             await _notificationService.CreateNotificationAsync(
                 application.ApplicantId,
                 "Application Status Update",
-                $"Your application for '{application.JobPost.Title}' has been updated to: {status}"
+                $"Your application for '{application.JobPost.Title}' has been updated to: {request.Status}"
             );
 
             return true;

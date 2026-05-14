@@ -6,6 +6,19 @@ namespace WorkBridge.Application.DTOs
         public string? CoverMessage { get; set; }
     }
 
+    public class UpdateApplicationStatusRequest
+    {
+        public string Status { get; set; } = string.Empty;
+        public string? Note { get; set; }
+    }
+
+    public class ApplicationHistoryDto
+    {
+        public string Status { get; set; } = string.Empty;
+        public string? Note { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class ApplicationResponse
     {
         public int ApplicationId { get; set; }
@@ -16,6 +29,7 @@ namespace WorkBridge.Application.DTOs
         public string Status { get; set; } = string.Empty;
         public DateTime AppliedAt { get; set; }
         public string Location { get; set; } = string.Empty;
+        public List<ApplicationHistoryDto> Histories { get; set; } = new();
     }
 
     public class EmployerApplicationResponse
@@ -32,5 +46,6 @@ namespace WorkBridge.Application.DTOs
         public string? CvUrl { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateTime AppliedAt { get; set; }
+        public List<ApplicationHistoryDto> Histories { get; set; } = new();
     }
 }

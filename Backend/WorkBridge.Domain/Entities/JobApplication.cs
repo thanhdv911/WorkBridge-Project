@@ -28,4 +28,6 @@ public partial class JobApplication
     public virtual ApplicantProfile Applicant { get; set; } = null!;
 
     public virtual JobPost JobPost { get; set; } = null!;
+
+    public virtual ICollection<ApplicationHistory> Histories { get; set; } = new List<ApplicationHistory>();
 }

@@ -150,6 +150,24 @@ const MyApplications = () => {
                                         </div>
                                     </div>
 
+                                    {/* Application Timeline */}
+                                    <div className="mb-8 pl-4 border-l-2 border-slate-200/60 space-y-4">
+                                        {app.histories && app.histories.map((history, idx) => (
+                                            <div key={idx} className="relative">
+                                                <div className={`absolute -left-[21px] top-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(history.status).split(' ')[0]} ${idx === app.histories.length - 1 ? 'ring-4 ring-primary/20' : ''}`}></div>
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <div className="text-sm font-bold text-slate-700">{history.status}</div>
+                                                        {history.note && <div className="text-xs text-slate-500 mt-1 italic p-2 bg-white/50 rounded-lg">"{history.note}"</div>}
+                                                    </div>
+                                                    <div className="text-[10px] text-slate-400 font-bold whitespace-nowrap ml-4">
+                                                        {new Date(history.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
                                     <div className="mt-auto flex items-center justify-between gap-4">
                                         <div className="flex items-center -space-x-2">
                                             {[1,2,3].map(user => (

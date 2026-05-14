@@ -156,6 +156,17 @@ CREATE TABLE Applications (
     FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
 );
 
+-- 11.5. Application Histories
+CREATE TABLE ApplicationHistories (
+    HistoryId INT IDENTITY(1,1) PRIMARY KEY,
+    ApplicationId INT NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    Note NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ApplicationId) REFERENCES Applications(ApplicationId) ON DELETE CASCADE
+);
+
+
 -- 12. Reviews
 CREATE TABLE Reviews (
     ReviewId INT IDENTITY(1,1) PRIMARY KEY,
