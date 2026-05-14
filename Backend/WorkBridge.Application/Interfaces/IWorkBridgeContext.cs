@@ -21,7 +21,10 @@ namespace WorkBridge.Application.Interfaces
         DbSet<SavedJob> SavedJobs { get; set; }
         DbSet<Subscription> Subscriptions { get; set; }
         DbSet<User> Users { get; set; }
-
+        DbSet<ApplicationHistory> ApplicationHistories { get; set; }
+        DbSet<WorkSchedule> WorkSchedules { get; set; }
+        DbSet<Attendance> Attendances { get; set; }
+        DbSet<ShiftSwapRequest> ShiftSwapRequests { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

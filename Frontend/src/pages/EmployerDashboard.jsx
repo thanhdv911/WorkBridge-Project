@@ -4,6 +4,7 @@ import EmployerProfileTab from '../components/employer/EmployerProfileTab';
 import EmployerJobForm from '../components/employer/EmployerJobForm';
 import EmployerManagePosts from '../components/employer/EmployerManagePosts';
 import EmployerApplicantReview from '../components/employer/EmployerApplicantReview';
+import EmployerSchedule from '../components/employer/EmployerSchedule';
 
 export default function EmployerDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -94,6 +95,13 @@ export default function EmployerDashboard() {
           >
             <span className="material-symbols-outlined !text-lg text-inherit">group</span>Review Applicants
           </button>
+
+          <button 
+            onClick={() => setActiveTab('schedules')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'schedules' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">calendar_month</span>Shift Scheduler
+          </button>
         </aside>
 
         {/* Content Area */}
@@ -102,6 +110,7 @@ export default function EmployerDashboard() {
           {activeTab === 'post-job' && <EmployerJobForm onSuccess={() => setActiveTab('manage-posts')} />}
           {activeTab === 'manage-posts' && <EmployerManagePosts />}
           {activeTab === 'review-applicants' && <EmployerApplicantReview />}
+          {activeTab === 'schedules' && <EmployerSchedule />}
         </main>
       </div>
     </div>

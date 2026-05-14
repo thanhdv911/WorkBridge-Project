@@ -242,6 +242,44 @@ CREATE TABLE Reports (
     FOREIGN KEY (ReporterId) REFERENCES Users(UserId)
 );
 
+-- 18. Work Schedules
+CREATE TABLE WorkSchedules (
+    ScheduleId INT IDENTITY(1,1) PRIMARY KEY,
+    JobPostId INT NOT NULL,
+    ApplicantId INT NOT NULL,
+    ShiftDate DATE NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Scheduled',
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId) ON DELETE CASCADE,
+    FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
+);
+
+-- 19. Attendances
+CREATE TABLE Attendances (
+    AttendanceId INT IDENTITY(1,1) PRIMARY KEY,
+    ScheduleId INT NOT NULL,
+    CheckInTime DATETIME NOT NULL,
+    CheckOutTime DATETIME NULL,
+    Note NVARCHAR(MAX) NULL,
+    FOREIGN KEY (ScheduleId) REFERENCES WorkSchedules(ScheduleId) ON DELETE CASCADE
+);
+
+-- 20. Shift Swap Requests
+CREATE TABLE ShiftSwapRequests (
+    SwapRequestId INT IDENTITY(1,1) PRIMARY KEY,
+    ScheduleId INT NOT NULL,
+    RequestorId INT NOT NULL,
+    TargetApplicantId INT NULL,
+    Reason NVARCHAR(MAX) NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ScheduleId) REFERENCES WorkSchedules(ScheduleId) ON DELETE CASCADE,
+    FOREIGN KEY (RequestorId) REFERENCES ApplicantProfiles(ApplicantId),
+    FOREIGN KEY (TargetApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
+);
+
 -- =========================================================================================
 -- INITIAL DATA SEEDING (LOOKUP DATA ONLY)
 -- =========================================================================================

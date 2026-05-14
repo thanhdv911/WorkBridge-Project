@@ -52,6 +52,12 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<WorkSchedule> WorkSchedules { get; set; }
+
+    public virtual DbSet<Attendance> Attendances { get; set; }
+
+    public virtual DbSet<ShiftSwapRequest> ShiftSwapRequests { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=DESKTOP-H2NCE3I;Database=WorkBridgeDB;User Id=sa;Password=1;Encrypt=False;TrustServerCertificate=True");
@@ -376,6 +382,59 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__3E52440B");
+        });
+
+        modelBuilder.Entity<WorkSchedule>(entity =>
+        {
+            entity.HasKey(e => e.ScheduleId).HasName("PK_WorkSchedules");
+            entity.Property(e => e.ShiftDate).HasColumnType("date");
+            entity.Property(e => e.StartTime).HasColumnType("time");
+            entity.Property(e => e.EndTime).HasColumnType("time");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Scheduled");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+
+            entity.HasOne(d => d.JobPost).WithMany(p => p.WorkSchedules)
+                .HasForeignKey(d => d.JobPostId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_WorkSchedules_JobPosts");
+
+            entity.HasOne(d => d.Applicant).WithMany(p => p.WorkSchedules)
+                .HasForeignKey(d => d.ApplicantId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WorkSchedules_ApplicantProfiles");
+        });
+
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.HasKey(e => e.AttendanceId).HasName("PK_Attendances");
+            entity.Property(e => e.CheckInTime).HasColumnType("datetime");
+            entity.Property(e => e.CheckOutTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Schedule).WithMany(p => p.Attendances)
+                .HasForeignKey(d => d.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Attendances_WorkSchedules");
+        });
+
+        modelBuilder.Entity<ShiftSwapRequest>(entity =>
+        {
+            entity.HasKey(e => e.SwapRequestId).HasName("PK_ShiftSwapRequests");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+
+            entity.HasOne(d => d.Schedule).WithMany(p => p.ShiftSwapRequests)
+                .HasForeignKey(d => d.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ShiftSwapRequests_WorkSchedules");
+
+            entity.HasOne(d => d.Requestor).WithMany(p => p.ShiftSwapRequestsMade)
+                .HasForeignKey(d => d.RequestorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ShiftSwapRequests_Requestor");
+
+            entity.HasOne(d => d.TargetApplicant).WithMany(p => p.ShiftSwapRequestsReceived)
+                .HasForeignKey(d => d.TargetApplicantId)
+                .HasConstraintName("FK_ShiftSwapRequests_Target");
         });
 
         OnModelCreatingPartial(modelBuilder);

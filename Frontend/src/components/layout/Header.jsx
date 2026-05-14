@@ -129,6 +129,18 @@ export default function Header() {
                 🤖 AI Picks
               </Link>
               <Link
+                to="/my-schedules"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/my-schedules' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Time Tracking
+              </Link>
+              <Link
+                to="/swap-board"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/swap-board' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Swap Board
+              </Link>
+              <Link
                 to="/saved-jobs"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >

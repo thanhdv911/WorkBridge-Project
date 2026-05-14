@@ -32,4 +32,10 @@ public partial class ApplicantProfile
     public virtual ICollection<JobApplication> Applications { get; set; } = new List<JobApplication>();
 
     public virtual ICollection<SavedJob> SavedJobs { get; set; } = new List<SavedJob>();
+
+    public virtual ICollection<WorkSchedule> WorkSchedules { get; set; } = new List<WorkSchedule>();
+
+    public virtual ICollection<ShiftSwapRequest> ShiftSwapRequestsMade { get; set; } = new List<ShiftSwapRequest>();
+
+    public virtual ICollection<ShiftSwapRequest> ShiftSwapRequestsReceived { get; set; } = new List<ShiftSwapRequest>();
 }

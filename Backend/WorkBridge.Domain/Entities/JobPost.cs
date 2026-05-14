@@ -55,4 +55,6 @@ public partial class JobPost
     public virtual ICollection<SavedJob> SavedJobs { get; set; } = new List<SavedJob>();
 
     public virtual ICollection<JobShift> Shifts { get; set; } = new List<JobShift>();
+
+    public virtual ICollection<WorkSchedule> WorkSchedules { get; set; } = new List<WorkSchedule>();
 }
