@@ -58,6 +58,10 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<ShiftSwapRequest> ShiftSwapRequests { get; set; }
 
+    public virtual DbSet<EContract> EContracts { get; set; }
+
+    public virtual DbSet<Dispute> Disputes { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=DESKTOP-H2NCE3I;Database=WorkBridgeDB;User Id=sa;Password=1;Encrypt=False;TrustServerCertificate=True");
@@ -435,6 +439,54 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasOne(d => d.TargetApplicant).WithMany(p => p.ShiftSwapRequestsReceived)
                 .HasForeignKey(d => d.TargetApplicantId)
                 .HasConstraintName("FK_ShiftSwapRequests_Target");
+        });
+
+        modelBuilder.Entity<EContract>(entity =>
+        {
+            entity.HasKey(e => e.ContractId).HasName("PK_EContracts");
+            entity.Property(e => e.AgreedPayRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.AgreedPayUnit).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.SignedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Application).WithMany(p => p.EContracts)
+                .HasForeignKey(d => d.ApplicationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EContracts_Applications");
+
+            entity.HasOne(d => d.Employer).WithMany(p => p.EContracts)
+                .HasForeignKey(d => d.EmployerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EContracts_EmployerProfiles");
+
+            entity.HasOne(d => d.Applicant).WithMany(p => p.EContracts)
+                .HasForeignKey(d => d.ApplicantId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EContracts_ApplicantProfiles");
+        });
+
+        modelBuilder.Entity<Dispute>(entity =>
+        {
+            entity.HasKey(e => e.DisputeId).HasName("PK_Disputes");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Open");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.ResolvedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Contract).WithMany(p => p.Disputes)
+                .HasForeignKey(d => d.ContractId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Disputes_EContracts");
+
+            entity.HasOne(d => d.Initiator).WithMany(p => p.DisputesInitiated)
+                .HasForeignKey(d => d.InitiatorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Disputes_Initiator");
+
+            entity.HasOne(d => d.Respondent).WithMany(p => p.DisputesResponded)
+                .HasForeignKey(d => d.RespondentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Disputes_Respondent");
         });
 
         OnModelCreatingPartial(modelBuilder);

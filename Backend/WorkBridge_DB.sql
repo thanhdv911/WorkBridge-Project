@@ -280,6 +280,40 @@ CREATE TABLE ShiftSwapRequests (
     FOREIGN KEY (TargetApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
 );
 
+-- 21. EContracts (Hợp đồng điện tử)
+CREATE TABLE EContracts (
+    ContractId INT IDENTITY(1,1) PRIMARY KEY,
+    ApplicationId INT NOT NULL,
+    EmployerId INT NOT NULL,
+    ApplicantId INT NOT NULL,
+    AgreedPayRate DECIMAL(18,2) NOT NULL,
+    AgreedPayUnit NVARCHAR(50) NOT NULL,
+    Terms NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    SignedAt DATETIME NULL,
+    FOREIGN KEY (ApplicationId) REFERENCES Applications(ApplicationId),
+    FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+    FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
+);
+
+-- 22. Disputes (Khiếu nại/Tranh chấp)
+CREATE TABLE Disputes (
+    DisputeId INT IDENTITY(1,1) PRIMARY KEY,
+    ContractId INT NOT NULL,
+    InitiatorId INT NOT NULL,
+    RespondentId INT NOT NULL,
+    Reason NVARCHAR(MAX) NOT NULL,
+    EvidenceData NVARCHAR(MAX) NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Open',
+    AdminNotes NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    ResolvedAt DATETIME NULL,
+    FOREIGN KEY (ContractId) REFERENCES EContracts(ContractId),
+    FOREIGN KEY (InitiatorId) REFERENCES Users(UserId),
+    FOREIGN KEY (RespondentId) REFERENCES Users(UserId)
+);
+
 -- =========================================================================================
 -- INITIAL DATA SEEDING (LOOKUP DATA ONLY)
 -- =========================================================================================

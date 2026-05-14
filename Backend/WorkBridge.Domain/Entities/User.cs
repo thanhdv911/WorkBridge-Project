@@ -42,4 +42,8 @@ public partial class User
     public virtual ICollection<Review> ReviewReviewers { get; set; } = new List<Review>();
 
     public virtual Role Role { get; set; } = null!;
+
+    public virtual ICollection<Dispute> DisputesInitiated { get; set; } = new List<Dispute>();
+
+    public virtual ICollection<Dispute> DisputesResponded { get; set; } = new List<Dispute>();
 }

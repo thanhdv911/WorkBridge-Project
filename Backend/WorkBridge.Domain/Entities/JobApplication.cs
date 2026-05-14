@@ -30,4 +30,6 @@ public partial class JobApplication
     public virtual JobPost JobPost { get; set; } = null!;
 
     public virtual ICollection<ApplicationHistory> Histories { get; set; } = new List<ApplicationHistory>();
+
+    public virtual ICollection<EContract> EContracts { get; set; } = new List<EContract>();
 }

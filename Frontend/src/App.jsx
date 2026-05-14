@@ -17,6 +17,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AIMatching from './pages/AIMatching';
 import MySchedules from './pages/MySchedules';
 import ShiftSwapBoard from './pages/ShiftSwapBoard';
+import ResolutionCenter from './pages/ResolutionCenter';
 import './index.css';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
           <Route path="/ai-matches" element={<AIMatching />} />
           <Route path="/my-schedules" element={<MySchedules />} />
           <Route path="/swap-board" element={<ShiftSwapBoard />} />
+          <Route path="/resolution-center" element={<ResolutionCenter />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
         </Routes>

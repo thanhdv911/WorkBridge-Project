@@ -141,6 +141,13 @@ export default function Header() {
                 Swap Board
               </Link>
               <Link
+                to="/resolution-center"
+                className={`flex items-center gap-1 text-sm font-semibold transition-colors ${location.pathname === '/resolution-center' ? 'text-rose-500 relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-rose-500 after:rounded' : 'text-rose-400 hover:text-rose-500'}`}
+              >
+                <span className="material-symbols-outlined !text-[16px]">gavel</span>
+                Disputes
+              </Link>
+              <Link
                 to="/saved-jobs"
                 className={`text-sm font-semibold transition-colors ${location.pathname === '/saved-jobs' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
               >

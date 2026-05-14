@@ -147,6 +147,26 @@ namespace WorkBridge.Application.Services
                 CreatedAt = System.DateTime.UtcNow
             });
             
+            if (request.Status == "Accepted")
+            {
+                var existingContract = await _context.EContracts.FirstOrDefaultAsync(c => c.ApplicationId == application.ApplicationId);
+                if (existingContract == null)
+                {
+                    var contract = new EContract
+                    {
+                        ApplicationId = application.ApplicationId,
+                        EmployerId = application.JobPost.EmployerId,
+                        ApplicantId = application.ApplicantId,
+                        AgreedPayRate = application.JobPost.PayRate ?? 0,
+                        AgreedPayUnit = application.JobPost.PayUnit ?? "VND/hour",
+                        Terms = "1. Student agrees to show up on time as scheduled.\n2. Employer agrees to pay the agreed rate according to the recorded hours.\n3. Both parties must adhere to WorkBridge Community Guidelines.",
+                        Status = "Pending",
+                        CreatedAt = System.DateTime.UtcNow
+                    };
+                    _context.EContracts.Add(contract);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             // Notify Applicant

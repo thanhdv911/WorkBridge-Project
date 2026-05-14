@@ -25,6 +25,8 @@ namespace WorkBridge.Application.Interfaces
         DbSet<WorkSchedule> WorkSchedules { get; set; }
         DbSet<Attendance> Attendances { get; set; }
         DbSet<ShiftSwapRequest> ShiftSwapRequests { get; set; }
+        DbSet<EContract> EContracts { get; set; }
+        DbSet<Dispute> Disputes { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

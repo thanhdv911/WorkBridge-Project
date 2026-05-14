@@ -4,6 +4,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import ReportModal from '../shared/ReportModal';
 import ReviewModal from '../shared/ReviewModal';
+import EContractModal from '../shared/EContractModal';
 
 const EmployerApplicantReview = () => {
     const [applications, setApplications] = useState([]);
@@ -12,6 +13,7 @@ const EmployerApplicantReview = () => {
     const [showReportModal, setShowReportModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedForReview, setSelectedForReview] = useState(null);
+    const [showContractModal, setShowContractModal] = useState(false);
     const [statusModal, setStatusModal] = useState({ isOpen: false, status: '', note: '' });
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
@@ -253,6 +255,16 @@ const EmployerApplicantReview = () => {
                                 Mark as Under Review
                             </button>
 
+                            {selectedApp.status === 'Accepted' && (
+                                <button 
+                                    onClick={() => setShowContractModal(true)}
+                                    className="w-full h-11 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm border border-indigo-100 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined !text-[20px]">contract</span>
+                                    View E-Contract
+                                </button>
+                            )}
+
                             {/* Message Button */}
                             {(selectedApp.status === 'Accepted' || selectedApp.status === 'Under Review') && (
                                 <button 
@@ -300,6 +312,12 @@ const EmployerApplicantReview = () => {
                             isOpen={showReviewModal}
                             onClose={() => setShowReviewModal(false)}
                             {...selectedForReview}
+                        />
+
+                        <EContractModal
+                            isOpen={showContractModal}
+                            onClose={() => setShowContractModal(false)}
+                            applicationId={selectedApp.applicationId}
                         />
 
                         {/* Status Update Modal */}

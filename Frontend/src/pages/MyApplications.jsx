@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import ReviewModal from '../components/shared/ReviewModal';
+import EContractModal from '../components/shared/EContractModal';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedForReview, setSelectedForReview] = useState(null);
+    const [showContractModal, setShowContractModal] = useState(false);
+    const [selectedApplicationId, setSelectedApplicationId] = useState(null);
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
 
@@ -38,6 +41,11 @@ const MyApplications = () => {
             jobTitle: app.jobTitle
         });
         setShowReviewModal(true);
+    };
+
+    const handleOpenContract = (appId) => {
+        setSelectedApplicationId(appId);
+        setShowContractModal(true);
     };
 
     const getStatusColor = (status) => {
@@ -206,6 +214,15 @@ const MyApplications = () => {
                                                     <span className="material-symbols-outlined !text-xl filled">star</span>
                                                 </button>
                                             )}
+                                            {app.status === 'Accepted' && (
+                                                <button 
+                                                    onClick={() => handleOpenContract(app.applicationId)}
+                                                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center justify-center group-hover:scale-110 active:scale-95"
+                                                    title="View E-Contract"
+                                                >
+                                                    <span className="material-symbols-outlined !text-xl">contract</span>
+                                                </button>
+                                            )}
                                             <Link 
                                                 to={`/jobs/${app.jobPostId}`}
                                                 className="w-12 h-12 rounded-2xl border border-slate-100 text-slate-400 flex items-center justify-center hover:bg-slate-50 hover:text-primary transition-all group-hover:scale-110"
@@ -225,6 +242,11 @@ const MyApplications = () => {
                 isOpen={showReviewModal}
                 onClose={() => setShowReviewModal(false)}
                 {...selectedForReview}
+            />
+            <EContractModal
+                isOpen={showContractModal}
+                onClose={() => setShowContractModal(false)}
+                applicationId={selectedApplicationId}
             />
         </div>
     );
