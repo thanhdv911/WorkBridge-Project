@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 
 const EmployerManagePosts = () => {
     const [jobs, setJobs] = useState([]);
@@ -9,6 +10,10 @@ const EmployerManagePosts = () => {
 
     useEffect(() => {
         fetchMyJobs();
+
+        const handleApplicationChanged = () => fetchMyJobs();
+        signalRService.on('ApplicationChanged', handleApplicationChanged);
+        return () => signalRService.off('ApplicationChanged', handleApplicationChanged);
     }, []);
 
     const fetchMyJobs = async () => {

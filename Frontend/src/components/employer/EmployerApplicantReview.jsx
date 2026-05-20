@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 import ReportModal from '../shared/ReportModal';
 import ReviewModal from '../shared/ReviewModal';
 
@@ -37,6 +38,10 @@ const EmployerApplicantReview = () => {
     useEffect(() => {
         fetchApplications();
         fetchBranches();
+
+        const handleApplicationChanged = () => fetchApplications();
+        signalRService.on('ApplicationChanged', handleApplicationChanged);
+        return () => signalRService.off('ApplicationChanged', handleApplicationChanged);
     }, []);
 
     const fetchApplications = async () => {

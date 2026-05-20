@@ -78,5 +78,29 @@ namespace WorkBridge.API.Services
                             .SendAsync("OfferStatusChanged", offer)
             );
         }
+
+        // ── Applications ──────────────────────────────────────────────────────
+
+        public async Task NotifyApplicationChangedAsync(int employerId, int applicantId)
+        {
+            await Task.WhenAll(
+                _hub.Clients.Group(WorkBridgeHub.UserGroup(employerId))
+                            .SendAsync("ApplicationChanged"),
+                _hub.Clients.Group(WorkBridgeHub.UserGroup(applicantId))
+                            .SendAsync("ApplicationChanged")
+            );
+        }
+
+        // ── Workforce ─────────────────────────────────────────────────────────
+
+        public async Task NotifyWorkforceChangedAsync(int employerId, int employeeUserId)
+        {
+            await Task.WhenAll(
+                _hub.Clients.Group(WorkBridgeHub.UserGroup(employerId))
+                            .SendAsync("WorkforceChanged"),
+                _hub.Clients.Group(WorkBridgeHub.UserGroup(employeeUserId))
+                            .SendAsync("WorkforceChanged")
+            );
+        }
     }
 }

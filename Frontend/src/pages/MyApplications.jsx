@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 import ReviewModal from '../components/shared/ReviewModal';
 
 const MyApplications = () => {
@@ -19,6 +20,10 @@ const MyApplications = () => {
             return;
         }
         fetchApplications();
+
+        const handleApplicationChanged = () => fetchApplications();
+        signalRService.on('ApplicationChanged', handleApplicationChanged);
+        return () => signalRService.off('ApplicationChanged', handleApplicationChanged);
     }, [token, navigate]);
 
     const fetchApplications = async () => {

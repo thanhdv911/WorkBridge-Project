@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 
 const EmployerShifts = () => {
     const [branches, setBranches] = useState([]);
@@ -19,6 +20,10 @@ const EmployerShifts = () => {
 
     useEffect(() => {
         fetchAll();
+
+        const handleWorkforceChanged = () => fetchAll();
+        signalRService.on('WorkforceChanged', handleWorkforceChanged);
+        return () => signalRService.off('WorkforceChanged', handleWorkforceChanged);
     }, []);
 
     const authHeaders = { Authorization: `Bearer ${token}` };

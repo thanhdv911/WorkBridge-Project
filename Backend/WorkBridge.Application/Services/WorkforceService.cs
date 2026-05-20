@@ -9,12 +9,14 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IHubNotifier _hubNotifier;
         private static readonly string[] ActiveAssignmentStatuses = { "Assigned", "InProgress", "Completed" };
 
-        public WorkforceService(IWorkBridgeContext context, INotificationService notificationService)
+        public WorkforceService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
         {
             _context = context;
             _notificationService = notificationService;
+            _hubNotifier = hubNotifier;
         }
 
         public async Task<IEnumerable<EmploymentResponse>> GetEmployerEmployeesAsync(int employerId)
@@ -52,6 +54,8 @@ namespace WorkBridge.Application.Services
                 "Employment Updated",
                 $"Your employment status was changed to {status}."
             );
+
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
 
             return (await GetEmploymentResponseAsync(employment.EmploymentId), null);
         }
@@ -95,6 +99,8 @@ namespace WorkBridge.Application.Services
                 "Pay Rate Updated",
                 $"Your hourly rate was updated to {request.HourlyRate:N0} VND/hour."
             );
+
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
 
             return (await GetEmploymentResponseAsync(employment.EmploymentId), null);
         }
@@ -201,6 +207,8 @@ namespace WorkBridge.Application.Services
             await _context.ShiftAssignments.AddAsync(newAssignment);
             await _context.SaveChangesAsync();
 
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
+
             return (await GetAssignmentResponseAsync(newAssignment.ShiftAssignmentId), null);
         }
 
@@ -228,6 +236,10 @@ namespace WorkBridge.Application.Services
             assignment.Status = "InProgress";
             await _context.SaveChangesAsync();
 
+            // Get employer ID from shift
+            var shift = await (from a in _context.ShiftAssignments join s in _context.WorkShifts on a.WorkShiftId equals s.WorkShiftId where a.ShiftAssignmentId == shiftAssignmentId select s).FirstOrDefaultAsync();
+            if (shift != null) _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(shift.EmployerId, employeeUserId); } catch { } });
+
             return (await GetAttendanceResponseAsync(attendance.AttendanceRecordId), null);
         }
 
@@ -246,6 +258,10 @@ namespace WorkBridge.Application.Services
             if (assignment != null) assignment.Status = "Completed";
 
             await _context.SaveChangesAsync();
+
+            var shiftForCheckout = await (from a in _context.ShiftAssignments join s in _context.WorkShifts on a.WorkShiftId equals s.WorkShiftId where a.ShiftAssignmentId == shiftAssignmentId select s).FirstOrDefaultAsync();
+            if (shiftForCheckout != null) _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(shiftForCheckout.EmployerId, employeeUserId); } catch { } });
+
             return (await GetAttendanceResponseAsync(attendance.AttendanceRecordId), null);
         }
 
@@ -265,6 +281,8 @@ namespace WorkBridge.Application.Services
             attendance.ApprovedByEmployerId = employerId;
             attendance.ApprovedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, attendance.EmployeeUserId); } catch { } });
 
             return (await GetAttendanceResponseAsync(attendance.AttendanceRecordId), null);
         }
@@ -286,6 +304,8 @@ namespace WorkBridge.Application.Services
                 "Attendance Rejected",
                 "Your attendance record was rejected by the employer."
             );
+
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, attendance.EmployeeUserId); } catch { } });
 
             return (await GetAttendanceResponseAsync(attendance.AttendanceRecordId), null);
         }
@@ -311,6 +331,8 @@ namespace WorkBridge.Application.Services
                 "Attendance Adjusted",
                 "Your attendance record was adjusted by the employer."
             );
+
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, attendance.EmployeeUserId); } catch { } });
 
             return (await GetAttendanceResponseAsync(attendance.AttendanceRecordId), null);
         }
@@ -561,6 +583,8 @@ namespace WorkBridge.Application.Services
                 $"A coworker wants to pass shift '{data.Shift.Title}' to you."
             );
 
+            _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(data.Employment.EmployerId, request.ToEmployeeUserId); } catch { } });
+
             return (await GetShiftPassRequestResponseAsync(passRequest.ShiftPassRequestId), null);
         }
 
@@ -644,6 +668,16 @@ namespace WorkBridge.Application.Services
             await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Shift Passed", $"Your shift '{shift.Title}' was accepted by a coworker.");
             await _notificationService.CreateNotificationAsync(shift.EmployerId, "Shift Passed", $"Shift '{shift.Title}' was transferred between employees.");
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _hubNotifier.NotifyWorkforceChangedAsync(shift.EmployerId, request.FromEmployeeUserId);
+                    await _hubNotifier.NotifyWorkforceChangedAsync(shift.EmployerId, employeeUserId);
+                }
+                catch { }
+            });
+
             return (await GetShiftPassRequestResponseAsync(request.ShiftPassRequestId), null);
         }
 
@@ -660,6 +694,10 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
 
             await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Shift Pass Rejected", "Your coworker rejected the shift pass request.");
+
+            var rejShift = await _context.WorkShifts.FirstOrDefaultAsync(s => s.WorkShiftId == request.WorkShiftId);
+            if (rejShift != null) _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(rejShift.EmployerId, request.FromEmployeeUserId); } catch { } });
+
             return (await GetShiftPassRequestResponseAsync(request.ShiftPassRequestId), null);
         }
 

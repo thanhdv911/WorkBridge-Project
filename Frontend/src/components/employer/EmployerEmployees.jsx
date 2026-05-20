@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 
 const EmployerEmployees = () => {
     const [employees, setEmployees] = useState([]);
@@ -11,6 +12,14 @@ const EmployerEmployees = () => {
 
     useEffect(() => {
         fetchEmployees();
+
+        const handleRefresh = () => fetchEmployees();
+        signalRService.on('OfferStatusChanged', handleRefresh);
+        signalRService.on('WorkforceChanged', handleRefresh);
+        return () => {
+            signalRService.off('OfferStatusChanged', handleRefresh);
+            signalRService.off('WorkforceChanged', handleRefresh);
+        };
     }, []);
 
     const fetchEmployees = async () => {

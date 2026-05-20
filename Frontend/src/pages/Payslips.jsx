@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 
 const Payslips = () => {
     const navigate = useNavigate();
@@ -15,6 +16,10 @@ const Payslips = () => {
             return;
         }
         fetchPayslips();
+
+        const handleWorkforceChanged = () => fetchPayslips();
+        signalRService.on('WorkforceChanged', handleWorkforceChanged);
+        return () => signalRService.off('WorkforceChanged', handleWorkforceChanged);
     }, [token, navigate]);
 
     const fetchPayslips = async () => {

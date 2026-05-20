@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { signalRService } from '../../services/signalrService';
 import toast from 'react-hot-toast';
 
 const tomorrowDate = () => new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -36,6 +37,10 @@ const EmployerInterviews = () => {
     useEffect(() => {
         fetchInterviews();
         fetchBranches();
+
+        const handleInterviewChanged = () => fetchInterviews();
+        signalRService.on('InterviewStatusChanged', handleInterviewChanged);
+        return () => signalRService.off('InterviewStatusChanged', handleInterviewChanged);
     }, []);
 
     const fetchInterviews = async () => {

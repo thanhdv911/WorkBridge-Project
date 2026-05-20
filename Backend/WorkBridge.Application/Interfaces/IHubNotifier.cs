@@ -21,5 +21,11 @@ namespace WorkBridge.Application.Interfaces
 
         // ── Offers ────────────────────────────────────────────────────────────
         Task NotifyOfferChangedAsync(int employerId, int applicantId, OfferResponse offer);
+
+        // ── Applications ──────────────────────────────────────────────────────
+        Task NotifyApplicationChangedAsync(int employerId, int applicantId);
+
+        // ── Workforce (shifts, attendance, payroll, shift-pass) ──────────────
+        Task NotifyWorkforceChangedAsync(int employerId, int employeeUserId);
     }
 }

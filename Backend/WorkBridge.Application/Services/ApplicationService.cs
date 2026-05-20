@@ -13,6 +13,7 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IHubNotifier _hubNotifier;
         private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
         {
             "Applied",
@@ -36,10 +37,11 @@ namespace WorkBridge.Application.Services
             "Hired"
         };
 
-        public ApplicationService(IWorkBridgeContext context, INotificationService notificationService)
+        public ApplicationService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
         {
             _context = context;
             _notificationService = notificationService;
+            _hubNotifier = hubNotifier;
         }
 
         public async Task<string?> ApplyForJobAsync(int userId, ApplyJobRequest request)
@@ -78,6 +80,13 @@ namespace WorkBridge.Application.Services
                 "New Job Application",
                 $"Student {profile.Applicant?.FullName ?? "Someone"} has applied for your job: {job.Title}"
             );
+
+            // Push real-time to both employer and applicant
+            _ = Task.Run(async () =>
+            {
+                try { await _hubNotifier.NotifyApplicationChangedAsync(job.EmployerId, profile.ApplicantId); }
+                catch { }
+            });
 
             return null; // Success
         }
@@ -213,6 +222,13 @@ namespace WorkBridge.Application.Services
                 "Application Status Update",
                 $"Your application for '{application.JobPost.Title}' has been updated to: {normalizedStatus}"
             );
+
+            // Push real-time
+            _ = Task.Run(async () =>
+            {
+                try { await _hubNotifier.NotifyApplicationChangedAsync(employerId, application.ApplicantId); }
+                catch { }
+            });
 
             return new ApplicationStatusUpdateResult
             {

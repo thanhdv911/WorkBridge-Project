@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 
 const getCurrentUserId = () => {
     const userId = localStorage.getItem('userId');
@@ -68,6 +69,10 @@ const MyWork = () => {
         }
 
         fetchWorkData();
+
+        const handleWorkforceChanged = () => fetchWorkData();
+        signalRService.on('WorkforceChanged', handleWorkforceChanged);
+        return () => signalRService.off('WorkforceChanged', handleWorkforceChanged);
     }, [token, navigate]);
 
     const fetchWorkData = async () => {

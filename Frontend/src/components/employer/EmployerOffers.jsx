@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { signalRService } from '../../services/signalrService';
 import toast from 'react-hot-toast';
 
 const EmployerOffers = () => {
@@ -9,6 +10,10 @@ const EmployerOffers = () => {
 
     useEffect(() => {
         fetchOffers();
+
+        const handleOfferChanged = () => fetchOffers();
+        signalRService.on('OfferStatusChanged', handleOfferChanged);
+        return () => signalRService.off('OfferStatusChanged', handleOfferChanged);
     }, []);
 
     const fetchOffers = async () => {
