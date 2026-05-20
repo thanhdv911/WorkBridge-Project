@@ -14,10 +14,12 @@ namespace WorkBridge.Application.Services
     public class NotificationService : INotificationService
     {
         private readonly IWorkBridgeContext _context;
+        private readonly IHubNotifier _hubNotifier;
 
-        public NotificationService(IWorkBridgeContext context)
+        public NotificationService(IWorkBridgeContext context, IHubNotifier hubNotifier)
         {
             _context = context;
+            _hubNotifier = hubNotifier;
         }
 
         public async Task CreateNotificationAsync(int userId, string title, string message)
@@ -33,6 +35,29 @@ namespace WorkBridge.Application.Services
 
             await _context.Notifications.AddAsync(notification);
             await _context.SaveChangesAsync();
+
+            var response = new NotificationResponse
+            {
+                NotificationId = notification.NotificationId,
+                Title = notification.Title,
+                Message = notification.Message,
+                IsRead = notification.IsRead,
+                CreatedAt = notification.CreatedAt
+            };
+
+            // Push real-time to the target user (fire-and-forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _hubNotifier.SendNotificationAsync(userId, response);
+
+                    var unreadCount = await _context.Notifications
+                        .CountAsync(n => n.UserId == userId && !n.IsRead);
+                    await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+                }
+                catch { /* Hub errors must never break notification creation */ }
+            });
         }
 
         public async Task<IEnumerable<NotificationResponse>> GetNotificationsAsync(int userId)
@@ -60,6 +85,19 @@ namespace WorkBridge.Application.Services
 
             notification.IsRead = true;
             await _context.SaveChangesAsync();
+
+            // Update the badge count in real-time
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var unreadCount = await _context.Notifications
+                        .CountAsync(n => n.UserId == userId && !n.IsRead);
+                    await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+                }
+                catch { }
+            });
+
             return true;
         }
 

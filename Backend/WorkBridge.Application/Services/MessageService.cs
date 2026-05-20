@@ -8,6 +8,7 @@ namespace WorkBridge.Application.Services
     public class MessageService : IMessageService
     {
         private readonly IWorkBridgeContext _context;
+        private readonly IHubNotifier _hubNotifier;
         private static readonly string[] MessageableStatuses =
         {
             "Accepted",
@@ -17,9 +18,10 @@ namespace WorkBridge.Application.Services
             "Hired"
         };
 
-        public MessageService(IWorkBridgeContext context)
+        public MessageService(IWorkBridgeContext context, IHubNotifier hubNotifier)
         {
             _context = context;
+            _hubNotifier = hubNotifier;
         }
 
         public async Task<IEnumerable<ConversationResponse>> GetConversationsAsync(int userId)
@@ -135,7 +137,7 @@ namespace WorkBridge.Application.Services
             await _context.Messages.AddAsync(message);
             await _context.SaveChangesAsync();
 
-            return new MessageResponse
+            var response = new MessageResponse
             {
                 MessageId = message.MessageId,
                 SenderId = message.SenderId,
@@ -146,6 +148,19 @@ namespace WorkBridge.Application.Services
                 IsRead = message.IsRead,
                 SentAt = message.SentAt
             };
+
+            // Push real-time via SignalR (fire-and-forget, never block on Hub errors)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _hubNotifier.SendMessageToUsersAsync(senderId, request.ReceiverId, response);
+                    await _hubNotifier.NotifyConversationUpdatedAsync(senderId, request.ReceiverId);
+                }
+                catch { /* Hub push errors must never break message delivery */ }
+            });
+
+            return response;
         }
 
         public async Task MarkAsReadAsync(int userId, int contactId)
@@ -163,6 +178,12 @@ namespace WorkBridge.Application.Services
             {
                 unreadMessages.ForEach(m => m.IsRead = true);
                 await _context.SaveChangesAsync();
+                // Notify the sender that their messages were read
+                _ = Task.Run(async () =>
+                {
+                    try { await _hubNotifier.NotifyConversationUpdatedAsync(userId, contactId); }
+                    catch { }
+                });
             }
         }
 

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import ReportModal from '../components/shared/ReportModal';
+import { signalRService } from '../services/signalrService';
 
 const defaultInterviewTime = () => {
     const value = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -58,6 +59,9 @@ const Messages = () => {
     });
     const messagesContainerRef = useRef(null);
     const lastMessageCountRef = useRef(0);
+    const typingTimeoutRef = useRef(null);
+    const [peerIsTyping, setPeerIsTyping] = useState(false);
+    const peerTypingTimeoutRef = useRef(null);
     const token = localStorage.getItem('token');
     const currentUserId = parseInt(localStorage.getItem('userId') || '0');
     const userRole = localStorage.getItem('role');
@@ -74,15 +78,18 @@ const Messages = () => {
     }, [location.state]);
 
     useEffect(() => {
-        if (token) {
-            fetchConversations();
-            if (isEmployer) fetchBranches();
-            const interval = setInterval(fetchConversations, 10000);
-            return () => clearInterval(interval);
+        if (!token) {
+            setLoading(false);
+            navigate('/login');
+            return;
         }
+        fetchConversations();
+        if (isEmployer) fetchBranches();
 
-        setLoading(false);
-        navigate('/login');
+        // Real-time: refresh conversation list when any message is read or new one arrives
+        const onConvUpdated = () => fetchConversations();
+        signalRService.on('ConversationUpdated', onConvUpdated);
+        return () => signalRService.off('ConversationUpdated', onConvUpdated);
     }, [token, navigate, isEmployer]);
 
     useEffect(() => {
@@ -92,8 +99,46 @@ const Messages = () => {
         fetchChatHistory(selectedContact.contactId);
         if (isEmployer) fetchChatContext(selectedContact.contactId);
 
-        const interval = setInterval(() => fetchChatHistory(selectedContact.contactId), 3000);
-        return () => clearInterval(interval);
+        // Join the shared chat room for this pair of users
+        signalRService.invoke('JoinConversation', selectedContact.contactId);
+
+        // Real-time: new text message arrives
+        const onReceiveMessage = (msg) => {
+            setMessages(prev => {
+                if (prev.some(m => m.messageId === msg.messageId)) return prev;
+                return [...prev, msg];
+            });
+            fetchConversations();
+        };
+
+        // Real-time: interview invite sent via chat gets refreshed
+        const onInterviewChanged = () => {
+            fetchChatHistory(selectedContact.contactId);
+            if (isEmployer) fetchChatContext(selectedContact.contactId);
+        };
+
+        // Real-time: typing indicator from peer
+        const onTyping = (senderId, isTyping) => {
+            if (senderId === selectedContact.contactId) {
+                setPeerIsTyping(isTyping);
+                clearTimeout(peerTypingTimeoutRef.current);
+                if (isTyping) {
+                    peerTypingTimeoutRef.current = setTimeout(() => setPeerIsTyping(false), 3000);
+                }
+            }
+        };
+
+        signalRService.on('ReceiveMessage', onReceiveMessage);
+        signalRService.on('InterviewStatusChanged', onInterviewChanged);
+        signalRService.on('TypingIndicator', onTyping);
+
+        return () => {
+            signalRService.invoke('LeaveConversation', selectedContact.contactId);
+            signalRService.off('ReceiveMessage', onReceiveMessage);
+            signalRService.off('InterviewStatusChanged', onInterviewChanged);
+            signalRService.off('TypingIndicator', onTyping);
+            setPeerIsTyping(false);
+        };
     }, [selectedContact, isEmployer]);
 
     useEffect(() => {
@@ -505,6 +550,20 @@ const Messages = () => {
                             })}
                         </div>
 
+                        {/* Typing indicator */}
+                        {peerIsTyping && (
+                            <div className="px-4 sm:px-6 py-2 bg-[#F8FAFC]">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex gap-1 items-center">
+                                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                                    </div>
+                                    <span className="text-xs text-slate-400 font-medium">{selectedContact.contactName} is typing…</span>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="p-3 sm:p-4 bg-white border-t border-slate-200/60 shrink-0">
                             <form
                                 onSubmit={handleSendMessage}
@@ -518,7 +577,16 @@ const Messages = () => {
                                     placeholder="Type a message..."
                                     className="flex-1 min-w-0 bg-transparent border-none focus:ring-0 text-sm py-2"
                                     value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onChange={(e) => {
+                                        setNewMessage(e.target.value);
+                                        if (selectedContact) {
+                                            signalRService.invoke('SendTypingIndicator', selectedContact.contactId, true);
+                                            clearTimeout(typingTimeoutRef.current);
+                                            typingTimeoutRef.current = setTimeout(() => {
+                                                signalRService.invoke('SendTypingIndicator', selectedContact.contactId, false);
+                                            }, 1500);
+                                        }
+                                    }}
                                 />
                                 <button
                                     type="submit"

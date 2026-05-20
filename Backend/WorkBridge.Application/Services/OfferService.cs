@@ -9,11 +9,13 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IHubNotifier _hubNotifier;
 
-        public OfferService(IWorkBridgeContext context, INotificationService notificationService)
+        public OfferService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
         {
             _context = context;
             _notificationService = notificationService;
+            _hubNotifier = hubNotifier;
         }
 
         public async Task<(OfferResponse? Offer, string? Error)> CreateOfferAsync(int employerId, CreateOfferRequest request)
@@ -67,6 +69,14 @@ namespace WorkBridge.Application.Services
             );
 
             var response = await GetOfferResponseAsync(offer.OfferId);
+            if (response != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try { await _hubNotifier.NotifyOfferChangedAsync(employerId, application.ApplicantId, response); }
+                    catch { }
+                });
+            }
             return (response, null);
         }
 
@@ -142,6 +152,18 @@ namespace WorkBridge.Application.Services
             );
 
             var response = await GetEmploymentResponseAsync(employment.EmploymentId);
+
+            // Also push updated offer state to both parties
+            var offerResponse = await GetOfferResponseAsync(offer.OfferId);
+            if (offerResponse != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try { await _hubNotifier.NotifyOfferChangedAsync(offer.EmployerId, applicantId, offerResponse); }
+                    catch { }
+                });
+            }
+
             return (response, null);
         }
 
@@ -160,6 +182,16 @@ namespace WorkBridge.Application.Services
                 "Offer Declined",
                 "An applicant declined your offer."
             );
+
+            var offerResponse = await GetOfferResponseAsync(offer.OfferId);
+            if (offerResponse != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try { await _hubNotifier.NotifyOfferChangedAsync(offer.EmployerId, applicantId, offerResponse); }
+                    catch { }
+                });
+            }
 
             return null;
         }

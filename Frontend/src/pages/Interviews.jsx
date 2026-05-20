@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 
 const statusClass = (status) => {
     switch (status) {
@@ -25,6 +26,11 @@ const Interviews = () => {
             return;
         }
         fetchInterviews();
+
+        // Real-time: interview status changed (employer accepted/declined/result)
+        const onInterviewChanged = () => fetchInterviews();
+        signalRService.on('InterviewStatusChanged', onInterviewChanged);
+        return () => signalRService.off('InterviewStatusChanged', onInterviewChanged);
     }, [token, navigate]);
 
     const fetchInterviews = async () => {

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WorkBridge.API.Services;
+using WorkBridge.API.Hubs;
+using WorkBridge.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS for React Vite frontend Let's assume port 5173
+// Add SignalR
+builder.Services.AddSignalR();
+
+// Configure CORS — must AllowCredentials for SignalR WebSocket auth
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
@@ -20,7 +25,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Required for SignalR
         });
 });
 
@@ -48,6 +54,9 @@ builder.Services.AddScoped<WorkBridge.Application.Interfaces.IWorkBridgeContext>
     provider.GetRequiredService<WorkBridgeContext>());
 builder.Services.AddHostedService<ShiftPassExpiryHostedService>();
 
+// Register HubNotifier — bridges Application services to SignalR Hub
+builder.Services.AddScoped<IHubNotifier, HubNotifier>();
+
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
@@ -69,6 +78,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(secretKey)
     };
+
+    // Allow SignalR to pass the JWT token via query string (WebSocket upgrade)
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -87,5 +111,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map the SignalR hub endpoint
+app.MapHub<WorkBridgeHub>("/hubs/workbridge");
 
 app.Run();

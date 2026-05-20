@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 
 export default function Header() {
   const location = useLocation();
@@ -13,17 +14,26 @@ export default function Header() {
   const userRole = localStorage.getItem('role');
 
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchUnreadCounts();
-      const interval = setInterval(fetchUnreadCounts, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [isLoggedIn]);
+    if (!isLoggedIn) return;
 
-  const fetchUnreadCounts = async () => {
     fetchUnreadNotifications();
     fetchUnreadMessages();
-  };
+
+    // Real-time: server pushes exact count — no more polling
+    const onNotifCount = (count) => setUnreadCount(count);
+    const onMsgUpdated = () => fetchUnreadMessages();
+
+    signalRService.on('NotificationCountChanged', onNotifCount);
+    signalRService.on('ConversationUpdated', onMsgUpdated);
+    signalRService.on('ReceiveMessage', onMsgUpdated);
+    signalRService.start(); // idempotent
+
+    return () => {
+      signalRService.off('NotificationCountChanged', onNotifCount);
+      signalRService.off('ConversationUpdated', onMsgUpdated);
+      signalRService.off('ReceiveMessage', onMsgUpdated);
+    };
+  }, [isLoggedIn]);
 
   const fetchUnreadNotifications = async () => {
     try {
@@ -48,6 +58,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
+    signalRService.stop(); // cleanly disconnect on logout
     localStorage.clear();
     toast.success('Logged out successfully');
     navigate('/login');

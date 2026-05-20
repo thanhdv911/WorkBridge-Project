@@ -9,6 +9,7 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IHubNotifier _hubNotifier;
 
         private static readonly string[] SchedulableApplicationStatuses =
         {
@@ -21,10 +22,11 @@ namespace WorkBridge.Application.Services
         private static readonly string[] ApplicantStatuses = { "Confirmed", "Declined", "ChangeRequested" };
         private static readonly string[] EmployerStatuses = { "Cancelled" };
 
-        public InterviewService(IWorkBridgeContext context, INotificationService notificationService)
+        public InterviewService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
         {
             _context = context;
             _notificationService = notificationService;
+            _hubNotifier = hubNotifier;
         }
 
         public Task<(InterviewResponse? Interview, string? Error)> CreateInterviewAsync(int employerId, CreateInterviewRequest request)
@@ -144,7 +146,20 @@ namespace WorkBridge.Application.Services
                 $"Interview status changed to {status}."
             );
 
-            return (await GetInterviewResponseAsync(interview.InterviewId), null);
+            var updatedInterview = await GetInterviewResponseAsync(interview.InterviewId);
+
+            // Push real-time update to both participants
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    if (updatedInterview != null)
+                        await _hubNotifier.NotifyInterviewChangedAsync(interview.EmployerId, interview.ApplicantId, updatedInterview);
+                }
+                catch { }
+            });
+
+            return (updatedInterview, null);
         }
 
         public async Task<(InterviewResponse? Interview, string? Error)> UpdateResultAsync(int employerId, int interviewId, UpdateInterviewResultRequest request)
@@ -183,7 +198,18 @@ namespace WorkBridge.Application.Services
                     $"Your interview for '{application.JobPost.Title}' was marked as Failed."
                 );
 
-                return (await GetInterviewResponseAsync(interview.InterviewId), null);
+                var failedInterview = await GetInterviewResponseAsync(interview.InterviewId);
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        if (failedInterview != null)
+                            await _hubNotifier.NotifyInterviewChangedAsync(interview.EmployerId, interview.ApplicantId, failedInterview);
+                    }
+                    catch { }
+                });
+
+                return (failedInterview, null);
             }
 
             var hireError = ValidateHireRequest(request);
@@ -270,7 +296,18 @@ namespace WorkBridge.Application.Services
                 $"You passed the interview for '{application.JobPost.Title}' and are now an employee."
             );
 
-            return (await GetInterviewResponseAsync(interview.InterviewId), null);
+            var passedInterview = await GetInterviewResponseAsync(interview.InterviewId);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    if (passedInterview != null)
+                        await _hubNotifier.NotifyInterviewChangedAsync(interview.EmployerId, interview.ApplicantId, passedInterview);
+                }
+                catch { }
+            });
+
+            return (passedInterview, null);
         }
 
         private async Task<(InterviewResponse? Interview, string? Error)> CreateInterviewCoreAsync(int employerId, CreateInterviewRequest request, bool createChatMessage)

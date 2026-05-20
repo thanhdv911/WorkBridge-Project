@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 
 const Notifications = () => {
     const [notifications, setNotifications] = useState([]);
@@ -13,6 +14,17 @@ const Notifications = () => {
         } else {
             setLoading(false);
         }
+
+        // Real-time: new notification pushed by server
+        const onReceiveNotif = (notif) => {
+            setNotifications(prev => {
+                if (prev.some(n => n.notificationId === notif.notificationId)) return prev;
+                return [notif, ...prev];
+            });
+        };
+
+        signalRService.on('ReceiveNotification', onReceiveNotif);
+        return () => signalRService.off('ReceiveNotification', onReceiveNotif);
     }, [token]);
 
     const fetchNotifications = async () => {

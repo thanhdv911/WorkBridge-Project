@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { signalRService } from '../services/signalrService';
 
 const Offers = () => {
     const [offers, setOffers] = useState([]);
@@ -10,6 +11,11 @@ const Offers = () => {
 
     useEffect(() => {
         fetchOffers();
+
+        // Real-time: offer status changed (new offer from employer, or accepted/declined)
+        const onOfferChanged = () => fetchOffers();
+        signalRService.on('OfferStatusChanged', onOfferChanged);
+        return () => signalRService.off('OfferStatusChanged', onOfferChanged);
     }, []);
 
     const fetchOffers = async () => {
