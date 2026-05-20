@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,28 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
+        private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Applied",
+            "Pending",
+            "Under Review",
+            "Accepted",
+            "Rejected",
+            "Interview Scheduled",
+            "Interview Passed",
+            "Interview Failed",
+            "Offered",
+            "Hired",
+            "Cancelled"
+        };
+        private static readonly string[] MessageableStatuses =
+        {
+            "Accepted",
+            "Interview Scheduled",
+            "Interview Passed",
+            "Offered",
+            "Hired"
+        };
 
         public ApplicationService(IWorkBridgeContext context, INotificationService notificationService)
         {
@@ -41,7 +65,7 @@ namespace WorkBridge.Application.Services
                 ApplicantId = profile.ApplicantId,
                 CoverMessage = request.CoverMessage,
                 CvUrl = profile.CvUrl,
-                Status = "Pending",
+                Status = "Applied",
                 AppliedAt = System.DateTime.UtcNow
             };
 
@@ -74,7 +98,8 @@ namespace WorkBridge.Application.Services
                     CompanyName = a.JobPost.Employer.CompanyName,
                     Status = a.Status,
                     AppliedAt = a.AppliedAt.GetValueOrDefault(),
-                    Location = (!string.IsNullOrEmpty(a.JobPost.District) ? a.JobPost.District + ", " : "") + a.JobPost.City
+                    Location = (!string.IsNullOrEmpty(a.JobPost.District) ? a.JobPost.District + ", " : "") + a.JobPost.City,
+                    CanMessage = MessageableStatuses.Contains(a.Status)
                 })
                 .ToListAsync();
         }
@@ -100,32 +125,152 @@ namespace WorkBridge.Application.Services
                     CoverMessage = a.CoverMessage,
                     CvUrl = a.CvUrl,
                     Status = a.Status,
-                    AppliedAt = a.AppliedAt.GetValueOrDefault()
+                    AppliedAt = a.AppliedAt.GetValueOrDefault(),
+                    CanMessage = MessageableStatuses.Contains(a.Status),
+                    University = a.Applicant.University,
+                    Phone = a.Applicant.Phone,
+                    Address = a.Applicant.Address,
+                    AboutMe = a.Applicant.AboutMe,
+                    Availability = a.Applicant.Availability,
+                    Skills = a.Applicant.ApplicantSkills
+                        .OrderBy(s => s.SkillName)
+                        .Select(s => s.SkillName)
+                        .ToList(),
+                    Experiences = a.Applicant.ApplicantExperiences
+                        .OrderBy(e => e.ExperienceId)
+                        .Select(e => new ApplicantExperienceSummary
+                        {
+                            Title = e.Title,
+                            CompanyName = e.CompanyName,
+                            Duration = e.Duration,
+                            Description = e.Description
+                        })
+                        .ToList(),
+                    AverageRating = _context.Reviews
+                        .Where(r => r.RevieweeId == a.ApplicantId && !r.IsDeleted)
+                        .Select(r => (double?)r.Rating)
+                        .Average() ?? 0,
+                    TotalReviews = _context.Reviews
+                        .Count(r => r.RevieweeId == a.ApplicantId && !r.IsDeleted),
+                    RecentReviews = _context.Reviews
+                        .Where(r => r.RevieweeId == a.ApplicantId && !r.IsDeleted)
+                        .OrderByDescending(r => r.CreatedAt)
+                        .Take(3)
+                        .Select(r => new ApplicantReviewSummary
+                        {
+                            ReviewerName = r.Reviewer.FullName,
+                            JobTitle = r.JobPost.Title,
+                            Rating = r.Rating,
+                            Comment = r.Comment,
+                            CreatedAt = r.CreatedAt.GetValueOrDefault()
+                        })
+                        .ToList()
                 })
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateApplicationStatusAsync(int employerId, int applicationId, string status)
+        public async Task<ApplicationStatusUpdateResult> UpdateApplicationStatusAsync(int employerId, int applicationId, string status)
         {
+            var normalizedStatus = NormalizeStatus(status);
+            if (string.IsNullOrWhiteSpace(normalizedStatus) || !AllowedStatuses.Contains(normalizedStatus))
+            {
+                return new ApplicationStatusUpdateResult
+                {
+                    Success = false,
+                    Error = "Invalid application status."
+                };
+            }
+
             var application = await _context.Applications
                 .Include(a => a.JobPost)
+                .Include(a => a.Applicant)
+                    .ThenInclude(p => p.Applicant)
                 .FirstOrDefaultAsync(a => a.ApplicationId == applicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
 
-            if (application == null) return false;
+            if (application == null)
+            {
+                return new ApplicationStatusUpdateResult
+                {
+                    Success = false,
+                    Error = "Application not found or you do not have permission to update it."
+                };
+            }
 
-            application.Status = status;
+            var wasAccepted = application.Status.Equals("Accepted", StringComparison.OrdinalIgnoreCase);
+            application.Status = normalizedStatus;
             application.RespondedAt = DateTime.UtcNow;
-            
+
+            if (normalizedStatus.Equals("Accepted", StringComparison.OrdinalIgnoreCase) && !wasAccepted)
+            {
+                await EnsureAcceptedConversationAsync(application);
+            }
+
             await _context.SaveChangesAsync();
 
             // Notify Applicant
             await _notificationService.CreateNotificationAsync(
                 application.ApplicantId,
                 "Application Status Update",
-                $"Your application for '{application.JobPost.Title}' has been updated to: {status}"
+                $"Your application for '{application.JobPost.Title}' has been updated to: {normalizedStatus}"
             );
 
-            return true;
+            return new ApplicationStatusUpdateResult
+            {
+                Success = true,
+                Status = normalizedStatus,
+                ConversationContactId = MessageableStatuses.Contains(normalizedStatus) ? application.ApplicantId : null,
+                ConversationContactName = MessageableStatuses.Contains(normalizedStatus)
+                    ? application.Applicant.Applicant.FullName
+                    : null
+            };
+        }
+
+        private static string NormalizeStatus(string status)
+        {
+            if (string.IsNullOrWhiteSpace(status)) return string.Empty;
+
+            var trimmed = status.Trim();
+            return trimmed.ToLowerInvariant() switch
+            {
+                "pending" => "Applied",
+                "applied" => "Applied",
+                "underreview" => "Under Review",
+                "under review" => "Under Review",
+                "accepted" => "Accepted",
+                "approved" => "Accepted",
+                "rejected" => "Rejected",
+                "interviewscheduled" => "Interview Scheduled",
+                "interview scheduled" => "Interview Scheduled",
+                "interviewpassed" => "Interview Passed",
+                "interview passed" => "Interview Passed",
+                "interviewfailed" => "Interview Failed",
+                "interview failed" => "Interview Failed",
+                "offered" => "Offered",
+                "hired" => "Hired",
+                "cancelled" => "Cancelled",
+                "canceled" => "Cancelled",
+                _ => trimmed
+            };
+        }
+
+        private async Task EnsureAcceptedConversationAsync(JobApplication application)
+        {
+            var alreadyHasThread = await _context.Messages.AnyAsync(m =>
+                m.JobPostId == application.JobPostId &&
+                ((m.SenderId == application.JobPost.EmployerId && m.ReceiverId == application.ApplicantId) ||
+                 (m.SenderId == application.ApplicantId && m.ReceiverId == application.JobPost.EmployerId)));
+
+            if (alreadyHasThread) return;
+
+            _context.Messages.Add(new Message
+            {
+                SenderId = application.JobPost.EmployerId,
+                ReceiverId = application.ApplicantId,
+                JobPostId = application.JobPostId,
+                Content = $"Your application for \"{application.JobPost.Title}\" has been accepted. Let's discuss the interview schedule here.",
+                IsRead = false,
+                SentAt = DateTime.UtcNow
+            });
         }
     }
 }

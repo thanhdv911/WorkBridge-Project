@@ -22,10 +22,12 @@ namespace WorkBridge.API.Controllers
             [FromQuery] string? keyword, 
             [FromQuery] string? location, 
             [FromQuery] decimal? minSalary,
+            [FromQuery] int? categoryId,
+            [FromQuery] int? category,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
-            var result = await _jobService.GetJobsAsync(keyword, location, minSalary, page, pageSize);
+            var result = await _jobService.GetJobsAsync(keyword, location, minSalary, page, pageSize, categoryId ?? category);
             return Ok(result);
         }
 

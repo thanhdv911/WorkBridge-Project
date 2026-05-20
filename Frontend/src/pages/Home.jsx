@@ -144,11 +144,13 @@ function Stats() {
       .catch(() => {}); // keep null on error → shows placeholders
   }, []);
 
+  const formatCount = (value) => (value ?? 0).toLocaleString();
+
   const items = [
-    { value: stats ? `${stats.totalJobs?.toLocaleString()}+` : '...', label: 'Active Jobs' },
-    { value: stats ? `${stats.totalEmployers?.toLocaleString()}+` : '...', label: 'Employers' },
-    { value: stats ? `${stats.totalUsers?.toLocaleString()}+` : '...', label: 'Students Joined' },
-    { value: stats ? `${stats.totalApplications?.toLocaleString()}+` : '...', label: 'Applications' },
+    { value: stats ? `${formatCount(stats.totalJobs)}+` : '...', label: 'Active Jobs' },
+    { value: stats ? `${formatCount(stats.totalEmployers)}+` : '...', label: 'Employers' },
+    { value: stats ? `${formatCount(stats.totalUsers)}+` : '...', label: 'Students Joined' },
+    { value: stats ? `${formatCount(stats.totalApplications)}+` : '...', label: 'Applications' },
   ];
 
   return (
@@ -191,11 +193,13 @@ function getCategoryStyle(name) {
 
 function Categories() {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/admin/categories')
+    api.get('/home/categories')
       .then(res => setCategories(res.data || []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -210,7 +214,7 @@ function Categories() {
         </a>
       </div>
 
-      {categories.length === 0 ? (
+      {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 p-7 animate-pulse">
@@ -220,10 +224,15 @@ function Categories() {
             </div>
           ))}
         </div>
+      ) : categories.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200/70 bg-white p-8 text-center text-sm text-slate-500">
+          No categories available yet.
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
           {categories.slice(0, 8).map(cat => {
-            const style = getCategoryStyle(cat.categoryName);
+            const categoryName = cat.categoryName || cat.name;
+            const style = getCategoryStyle(categoryName);
             return (
               <a
                 key={cat.categoryId}
@@ -234,7 +243,7 @@ function Categories() {
                   <span className="material-symbols-outlined !text-3xl">{style.icon}</span>
                 </div>
                 <div className="text-center">
-                  <h3 className="font-bold">{cat.categoryName}</h3>
+                  <h3 className="font-bold">{categoryName}</h3>
                   <p className="text-slate-400 text-sm mt-1">{cat.jobCount ?? 0} jobs</p>
                 </div>
               </a>
@@ -460,7 +469,7 @@ function CTA() {
             <p className="text-slate-300 mt-3 leading-relaxed">Join thousands of students already earning while learning. Create your free account and start applying today.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <a href="/auth" className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-sky-400 hover:shadow-xl hover:shadow-primary/30 transition-all anim-pulse-glow">
+            <a href="/signup" className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-sky-400 hover:shadow-xl hover:shadow-primary/30 transition-all anim-pulse-glow">
               Get Started Free <span className="material-symbols-outlined !text-xl ml-2">arrow_forward</span>
             </a>
             <a href="/jobs" className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-sm font-semibold text-slate-200 border border-slate-600 hover:border-slate-400 hover:text-white transition-colors">

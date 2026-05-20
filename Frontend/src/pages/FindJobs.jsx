@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import HeroSearch from '../components/jobs/HeroSearch';
@@ -6,6 +7,7 @@ import JobFilterSidebar from '../components/jobs/JobFilterSidebar';
 import JobCard from '../components/jobs/JobCard';
 
 export default function FindJobs() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [paginationData, setPaginationData] = useState({
     totalCount: 0,
@@ -16,11 +18,13 @@ export default function FindJobs() {
     hasNextPage: false
   });
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({
-    keyword: '',
-    location: '',
-    minSalary: ''
+  const readFiltersFromUrl = () => ({
+    keyword: searchParams.get('keyword') || '',
+    location: searchParams.get('location') || '',
+    minSalary: searchParams.get('minSalary') || '',
+    categoryId: searchParams.get('categoryId') || searchParams.get('category') || ''
   });
+  const [filters, setFilters] = useState(readFiltersFromUrl);
   const [savedJobIds, setSavedJobIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
@@ -33,6 +37,15 @@ export default function FindJobs() {
       fetchSavedJobIds();
     }
   }, [token, isApplicant, page, filters]); // Re-fetch on filter change too
+
+  useEffect(() => {
+    const nextFilters = readFiltersFromUrl();
+    setFilters(prev => {
+      const isSame = Object.keys(nextFilters).every(key => prev[key] === nextFilters[key]);
+      return isSame ? prev : nextFilters;
+    });
+    setPage(1);
+  }, [searchParams]);
 
   const fetchSavedJobIds = async () => {
     try {
@@ -48,11 +61,12 @@ export default function FindJobs() {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const { keyword, location, minSalary } = filters;
+      const { keyword, location, minSalary, categoryId } = filters;
       let url = `/jobs?page=${page}&pageSize=9`;
       if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
       if (location) url += `&location=${encodeURIComponent(location)}`;
       if (minSalary) url += `&minSalary=${minSalary}`;
+      if (categoryId) url += `&categoryId=${encodeURIComponent(categoryId)}`;
       
       const res = await api.get(url);
       setJobs(res.data.items);
@@ -73,8 +87,16 @@ export default function FindJobs() {
   };
 
   const handleSearch = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    const nextFilters = { ...filters, ...newFilters };
+    setFilters(nextFilters);
     setPage(1); // Reset to first page on search
+
+    const params = new URLSearchParams();
+    if (nextFilters.keyword) params.set('keyword', nextFilters.keyword);
+    if (nextFilters.location) params.set('location', nextFilters.location);
+    if (nextFilters.minSalary) params.set('minSalary', nextFilters.minSalary);
+    if (nextFilters.categoryId) params.set('categoryId', nextFilters.categoryId);
+    setSearchParams(params);
   };
 
   const handleToggleSave = async (jobId) => {

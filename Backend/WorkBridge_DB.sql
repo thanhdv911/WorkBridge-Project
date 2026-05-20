@@ -43,6 +43,7 @@ CREATE TABLE ApplicantProfiles (
     Address NVARCHAR(255) NULL,
     AboutMe NVARCHAR(MAX) NULL,
     Availability NVARCHAR(MAX) NULL, -- Can store as JSON array "['Mon_AM', 'Tue_PM']"
+    CvUrl NVARCHAR(MAX) NULL,
     FOREIGN KEY (ApplicantId) REFERENCES Users(UserId) 
     -- Removed ON DELETE CASCADE to enforce soft delete
 );
@@ -88,7 +89,9 @@ CREATE TABLE JobCategories (
 -- 8. Job Shifts
 CREATE TABLE JobShifts (
     ShiftId INT IDENTITY(1,1) PRIMARY KEY,
-    ShiftName NVARCHAR(50) NOT NULL UNIQUE -- e.g., 'Morning', 'Afternoon', 'Evening', 'Weekend'
+    ShiftName NVARCHAR(50) NOT NULL UNIQUE, -- e.g., 'Morning', 'Afternoon', 'Evening', 'Weekend'
+    StartTime NVARCHAR(10) NULL,
+    EndTime NVARCHAR(10) NULL
 );
 
 -- 9. Job Posts
@@ -136,7 +139,7 @@ CREATE TABLE Applications (
     ApplicantId INT NOT NULL,
     CoverMessage NVARCHAR(MAX) NULL,
     CvUrl NVARCHAR(MAX) NULL, -- Bổ sung link tải file CV (PDF/Word)
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending', -- 'Pending', 'Approved', 'Rejected'
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Applied', -- 'Applied', 'Under Review', 'Accepted', 'Rejected'
     EmployerNotes NVARCHAR(MAX) NULL,
     IsDeleted BIT NOT NULL DEFAULT 0, -- Soft delete cho lịch sử ứng tuyển
     AppliedAt DATETIME DEFAULT GETDATE(),
@@ -188,6 +191,8 @@ CREATE TABLE Messages (
     SenderId INT NOT NULL,
     ReceiverId INT NOT NULL,
     JobPostId INT NULL, 
+    InterviewId INT NULL,
+    MessageType NVARCHAR(30) NOT NULL DEFAULT 'Text',
     Content NVARCHAR(MAX) NOT NULL,
     IsRead BIT NOT NULL DEFAULT 0,
     SentAt DATETIME DEFAULT GETDATE(),
@@ -221,6 +226,237 @@ CREATE TABLE Reports (
     FOREIGN KEY (ReporterId) REFERENCES Users(UserId)
 );
 
+-- Workforce extension: Branch -> Offer -> Employment -> Shift -> Attendance -> Payroll
+IF OBJECT_ID('dbo.Branches', 'U') IS NULL
+BEGIN
+    CREATE TABLE Branches (
+        BranchId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        Name NVARCHAR(150) NOT NULL,
+        Address NVARCHAR(255) NOT NULL,
+        Phone NVARCHAR(20) NULL,
+        IsActive BIT NOT NULL DEFAULT 1,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId)
+    );
+END;
+
+IF OBJECT_ID('dbo.Offers', 'U') IS NULL
+BEGIN
+    CREATE TABLE Offers (
+        OfferId INT IDENTITY(1,1) PRIMARY KEY,
+        ApplicationId INT NOT NULL,
+        EmployerId INT NOT NULL,
+        ApplicantId INT NOT NULL,
+        BranchId INT NOT NULL,
+        Position NVARCHAR(150) NOT NULL,
+        HourlyRate DECIMAL(18,2) NOT NULL CHECK (HourlyRate > 0),
+        StartDate DATETIME NOT NULL,
+        PaydayOfMonth INT NOT NULL DEFAULT 5 CHECK (PaydayOfMonth BETWEEN 1 AND 28),
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Sent',
+        ExpiredAt DATETIME NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        AcceptedAt DATETIME NULL,
+        RespondedAt DATETIME NULL,
+        FOREIGN KEY (ApplicationId) REFERENCES Applications(ApplicationId),
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        FOREIGN KEY (ApplicantId) REFERENCES Users(UserId),
+        FOREIGN KEY (BranchId) REFERENCES Branches(BranchId)
+    );
+END;
+
+IF OBJECT_ID('dbo.Employments', 'U') IS NULL
+BEGIN
+    CREATE TABLE Employments (
+        EmploymentId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        EmployeeUserId INT NOT NULL,
+        BranchId INT NOT NULL,
+        OfferId INT NOT NULL,
+        Position NVARCHAR(150) NOT NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Active',
+        StartDate DATETIME NOT NULL,
+        EndDate DATETIME NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        FOREIGN KEY (EmployeeUserId) REFERENCES Users(UserId),
+        FOREIGN KEY (BranchId) REFERENCES Branches(BranchId),
+        FOREIGN KEY (OfferId) REFERENCES Offers(OfferId)
+    );
+END;
+
+IF OBJECT_ID('dbo.EmployeeRates', 'U') IS NULL
+BEGIN
+    CREATE TABLE EmployeeRates (
+        EmployeeRateId INT IDENTITY(1,1) PRIMARY KEY,
+        EmploymentId INT NOT NULL,
+        HourlyRate DECIMAL(18,2) NOT NULL CHECK (HourlyRate > 0),
+        EffectiveFrom DATETIME NOT NULL,
+        EffectiveTo DATETIME NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FOREIGN KEY (EmploymentId) REFERENCES Employments(EmploymentId)
+    );
+END;
+
+IF OBJECT_ID('dbo.WorkShifts', 'U') IS NULL
+BEGIN
+    CREATE TABLE WorkShifts (
+        WorkShiftId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        BranchId INT NOT NULL,
+        Title NVARCHAR(150) NOT NULL,
+        StartTime DATETIME NOT NULL,
+        EndTime DATETIME NOT NULL,
+        RequiredRole NVARCHAR(100) NULL,
+        RequiredPeople INT NOT NULL DEFAULT 1 CHECK (RequiredPeople > 0),
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Published',
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        FOREIGN KEY (BranchId) REFERENCES Branches(BranchId),
+        CHECK (EndTime > StartTime)
+    );
+END;
+
+IF OBJECT_ID('dbo.ShiftAssignments', 'U') IS NULL
+BEGIN
+    CREATE TABLE ShiftAssignments (
+        ShiftAssignmentId INT IDENTITY(1,1) PRIMARY KEY,
+        WorkShiftId INT NOT NULL,
+        EmploymentId INT NOT NULL,
+        EmployeeUserId INT NOT NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Assigned',
+        AssignedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        TransferredFromAssignmentId INT NULL,
+        FOREIGN KEY (WorkShiftId) REFERENCES WorkShifts(WorkShiftId),
+        FOREIGN KEY (EmploymentId) REFERENCES Employments(EmploymentId),
+        FOREIGN KEY (EmployeeUserId) REFERENCES Users(UserId)
+    );
+END;
+
+IF OBJECT_ID('dbo.Interviews', 'U') IS NULL
+BEGIN
+    CREATE TABLE Interviews (
+        InterviewId INT IDENTITY(1,1) PRIMARY KEY,
+        ApplicationId INT NOT NULL,
+        EmployerId INT NOT NULL,
+        ApplicantId INT NOT NULL,
+        ScheduledAt DATETIME NOT NULL,
+        Location NVARCHAR(255) NOT NULL,
+        Note NVARCHAR(MAX) NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Scheduled',
+        Result NVARCHAR(20) NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        UpdatedAt DATETIME NULL,
+        FOREIGN KEY (ApplicationId) REFERENCES Applications(ApplicationId),
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        FOREIGN KEY (ApplicantId) REFERENCES Users(UserId)
+    );
+END;
+
+IF COL_LENGTH('dbo.Messages', 'MessageType') IS NULL
+BEGIN
+    ALTER TABLE dbo.Messages
+    ADD MessageType NVARCHAR(30) NOT NULL
+        CONSTRAINT DF_Messages_MessageType DEFAULT 'Text';
+END;
+
+IF COL_LENGTH('dbo.Messages', 'InterviewId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Messages ADD InterviewId INT NULL;
+END;
+
+IF OBJECT_ID('dbo.Messages', 'U') IS NOT NULL
+   AND OBJECT_ID('dbo.Interviews', 'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = 'FK_Messages_Interviews_InterviewId'
+          AND parent_object_id = OBJECT_ID('dbo.Messages')
+   )
+BEGIN
+    ALTER TABLE dbo.Messages
+    ADD CONSTRAINT FK_Messages_Interviews_InterviewId
+    FOREIGN KEY (InterviewId) REFERENCES dbo.Interviews(InterviewId);
+END;
+
+IF OBJECT_ID('dbo.ShiftPassRequests', 'U') IS NULL
+BEGIN
+    CREATE TABLE ShiftPassRequests (
+        ShiftPassRequestId INT IDENTITY(1,1) PRIMARY KEY,
+        ShiftAssignmentId INT NOT NULL,
+        WorkShiftId INT NOT NULL,
+        FromEmployeeUserId INT NOT NULL,
+        ToEmployeeUserId INT NOT NULL,
+        BranchId INT NOT NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+        RequestedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        RespondedAt DATETIME NULL,
+        ExpiresAt DATETIME NOT NULL,
+        Reason NVARCHAR(MAX) NULL,
+        FOREIGN KEY (ShiftAssignmentId) REFERENCES ShiftAssignments(ShiftAssignmentId),
+        FOREIGN KEY (WorkShiftId) REFERENCES WorkShifts(WorkShiftId),
+        FOREIGN KEY (FromEmployeeUserId) REFERENCES Users(UserId),
+        FOREIGN KEY (ToEmployeeUserId) REFERENCES Users(UserId),
+        FOREIGN KEY (BranchId) REFERENCES Branches(BranchId)
+    );
+END;
+
+IF OBJECT_ID('dbo.AttendanceRecords', 'U') IS NULL
+BEGIN
+    CREATE TABLE AttendanceRecords (
+        AttendanceRecordId INT IDENTITY(1,1) PRIMARY KEY,
+        ShiftAssignmentId INT NOT NULL,
+        EmployeeUserId INT NOT NULL,
+        CheckInAt DATETIME NULL,
+        CheckOutAt DATETIME NULL,
+        WorkedMinutes INT NOT NULL DEFAULT 0,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'NotStarted',
+        ApprovedByEmployerId INT NULL,
+        ApprovedAt DATETIME NULL,
+        Note NVARCHAR(MAX) NULL,
+        FOREIGN KEY (ShiftAssignmentId) REFERENCES ShiftAssignments(ShiftAssignmentId),
+        FOREIGN KEY (EmployeeUserId) REFERENCES Users(UserId)
+    );
+END;
+
+IF OBJECT_ID('dbo.PayrollPeriods', 'U') IS NULL
+BEGIN
+    CREATE TABLE PayrollPeriods (
+        PayrollPeriodId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        Month INT NOT NULL CHECK (Month BETWEEN 1 AND 12),
+        Year INT NOT NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Draft',
+        Payday DATETIME NOT NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        LockedAt DATETIME NULL,
+        PaidAt DATETIME NULL,
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        CONSTRAINT UQ_PayrollPeriods_Employer_Month_Year UNIQUE (EmployerId, Month, Year)
+    );
+END;
+
+IF OBJECT_ID('dbo.PayrollItems', 'U') IS NULL
+BEGIN
+    CREATE TABLE PayrollItems (
+        PayrollItemId INT IDENTITY(1,1) PRIMARY KEY,
+        PayrollPeriodId INT NOT NULL,
+        EmploymentId INT NOT NULL,
+        EmployeeUserId INT NOT NULL,
+        TotalApprovedMinutes INT NOT NULL DEFAULT 0,
+        HourlyRateSnapshot DECIMAL(18,2) NOT NULL DEFAULT 0,
+        BaseSalary DECIMAL(18,2) NOT NULL DEFAULT 0,
+        Bonus DECIMAL(18,2) NOT NULL DEFAULT 0,
+        Penalty DECIMAL(18,2) NOT NULL DEFAULT 0,
+        Deduction DECIMAL(18,2) NOT NULL DEFAULT 0,
+        FinalSalary DECIMAL(18,2) NOT NULL DEFAULT 0,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Draft',
+        FOREIGN KEY (PayrollPeriodId) REFERENCES PayrollPeriods(PayrollPeriodId),
+        FOREIGN KEY (EmploymentId) REFERENCES Employments(EmploymentId),
+        FOREIGN KEY (EmployeeUserId) REFERENCES Users(UserId)
+    );
+END;
+
 -- =========================================================================================
 -- INITIAL DATA SEEDING (OPTIONAL QUICK START)
 -- =========================================================================================
@@ -236,5 +472,8 @@ INSERT INTO JobCategories (Name, Description) VALUES
 ('Creative', 'Design, photography, writing'),
 ('Office', 'Data entry, admin assistants');
 
-INSERT INTO JobShifts (ShiftName) VALUES ('Morning'), ('Afternoon'), ('Evening'), ('Weekend');
-
+INSERT INTO JobShifts (ShiftName, StartTime, EndTime) VALUES
+('Morning', '08:00', '12:00'),
+('Afternoon', '13:00', '17:00'),
+('Evening', '18:00', '22:00'),
+('Weekend', NULL, NULL);

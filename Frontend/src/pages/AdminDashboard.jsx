@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminUsers from '../components/admin/AdminUsers';
 import AdminJobs from '../components/admin/AdminJobs';
 import AdminCategories from '../components/admin/AdminCategories';
@@ -7,6 +8,21 @@ import AdminReports from '../components/admin/AdminReports';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
+    const isAdmin = localStorage.getItem('role') === 'Admin';
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+        } else if (!isAdmin) {
+            navigate('/');
+        }
+    }, [token, isAdmin, navigate]);
+
+    if (!token || !isAdmin) {
+        return null;
+    }
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: 'dashboard' },

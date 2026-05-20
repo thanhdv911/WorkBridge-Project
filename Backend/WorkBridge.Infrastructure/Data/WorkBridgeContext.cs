@@ -24,6 +24,14 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<ApplicantSkill> ApplicantSkills { get; set; }
 
+    public virtual DbSet<AttendanceRecord> AttendanceRecords { get; set; }
+
+    public virtual DbSet<Branch> Branches { get; set; }
+
+    public virtual DbSet<EmployeeRate> EmployeeRates { get; set; }
+
+    public virtual DbSet<Employment> Employments { get; set; }
+
     public virtual DbSet<JobApplication> Applications { get; set; }
 
     public virtual DbSet<EmployerProfile> EmployerProfiles { get; set; }
@@ -34,9 +42,17 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<JobShift> JobShifts { get; set; }
 
+    public virtual DbSet<Interview> Interviews { get; set; }
+
     public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
+
+    public virtual DbSet<Offer> Offers { get; set; }
+
+    public virtual DbSet<PayrollItem> PayrollItems { get; set; }
+
+    public virtual DbSet<PayrollPeriod> PayrollPeriods { get; set; }
 
     public virtual DbSet<Report> Reports { get; set; }
 
@@ -46,13 +62,26 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<SavedJob> SavedJobs { get; set; }
 
+    public virtual DbSet<ShiftAssignment> ShiftAssignments { get; set; }
+
+    public virtual DbSet<ShiftPassRequest> ShiftPassRequests { get; set; }
+
     public virtual DbSet<Subscription> Subscriptions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<WorkShift> WorkShifts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-H2NCE3I;Database=WorkBridgeDB;User Id=sa;Password=1;Encrypt=False;TrustServerCertificate=True");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                ?? "Server=.;Database=WorkBridgeDB;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True";
+
+            optionsBuilder.UseSqlServer(connectionString);
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,6 +129,77 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasConstraintName("FK__Applicant__Appli__46E78A0C");
         });
 
+        modelBuilder.Entity<AttendanceRecord>(entity =>
+        {
+            entity.HasKey(e => e.AttendanceRecordId);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("NotStarted");
+            entity.Property(e => e.CheckInAt).HasColumnType("datetime");
+            entity.Property(e => e.CheckOutAt).HasColumnType("datetime");
+            entity.Property(e => e.ApprovedAt).HasColumnType("datetime");
+            entity.Property(e => e.WorkedMinutes).HasDefaultValue(0);
+            entity.HasOne<ShiftAssignment>()
+                .WithMany()
+                .HasForeignKey(e => e.ShiftAssignmentId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<Branch>(entity =>
+        {
+            entity.HasKey(e => e.BranchId);
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<EmployeeRate>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeRateId);
+            entity.Property(e => e.HourlyRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.EffectiveFrom).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveTo).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasOne<Employment>()
+                .WithMany()
+                .HasForeignKey(e => e.EmploymentId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<Employment>(entity =>
+        {
+            entity.HasKey(e => e.EmploymentId);
+            entity.Property(e => e.Position).HasMaxLength(150);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Branch>()
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Offer>()
+                .WithMany()
+                .HasForeignKey(e => e.OfferId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
         modelBuilder.Entity<JobApplication>(entity =>
         {
             entity.HasKey(e => e.ApplicationId).HasName("PK__Applicat__C93A4C99EAD2D717");
@@ -110,7 +210,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.RespondedAt).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValue("Pending");
+                .HasDefaultValue("Applied");
 
             entity.HasOne(d => d.Applicant).WithMany(p => p.Applications)
                 .HasForeignKey(d => d.ApplicantId)
@@ -147,6 +247,15 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.HasData(
+                new JobCategory { CategoryId = 1, Name = "Food & Beverage", Description = "Cafe, restaurants, bars" },
+                new JobCategory { CategoryId = 2, Name = "Tutoring", Description = "Academic and skill tutoring" },
+                new JobCategory { CategoryId = 3, Name = "Delivery", Description = "Food and parcel delivery services" },
+                new JobCategory { CategoryId = 4, Name = "Retail", Description = "Stores, sales assistants" },
+                new JobCategory { CategoryId = 5, Name = "Marketing", Description = "Digital marketing, promoters" },
+                new JobCategory { CategoryId = 6, Name = "Creative", Description = "Design, photography, writing" },
+                new JobCategory { CategoryId = 7, Name = "Office", Description = "Data entry, admin assistants" }
+            );
         });
 
         modelBuilder.Entity<JobPost>(entity =>
@@ -206,11 +315,44 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.ShiftName).HasMaxLength(50);
             entity.Property(e => e.StartTime).HasMaxLength(10);
             entity.Property(e => e.EndTime).HasMaxLength(10);
+            entity.HasData(
+                new JobShift { ShiftId = 1, ShiftName = "Morning", StartTime = "08:00", EndTime = "12:00" },
+                new JobShift { ShiftId = 2, ShiftName = "Afternoon", StartTime = "13:00", EndTime = "17:00" },
+                new JobShift { ShiftId = 3, ShiftName = "Evening", StartTime = "18:00", EndTime = "22:00" },
+                new JobShift { ShiftId = 4, ShiftName = "Weekend", StartTime = null, EndTime = null }
+            );
+        });
+
+        modelBuilder.Entity<Interview>(entity =>
+        {
+            entity.HasKey(e => e.InterviewId);
+            entity.Property(e => e.ScheduledAt).HasColumnType("datetime");
+            entity.Property(e => e.Location).HasMaxLength(255);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Scheduled");
+            entity.Property(e => e.Result).HasMaxLength(20);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.HasOne<JobApplication>()
+                .WithMany()
+                .HasForeignKey(e => e.ApplicationId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ApplicantId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Message>(entity =>
         {
             entity.HasKey(e => e.MessageId).HasName("PK__Messages__C87C0C9C94C14212");
+
+            entity.Property(e => e.MessageType)
+                .HasMaxLength(30)
+                .HasDefaultValue("Text");
 
             entity.Property(e => e.SentAt)
                 .HasDefaultValueSql("(getdate())")
@@ -219,6 +361,10 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasOne(d => d.JobPost).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.JobPostId)
                 .HasConstraintName("FK__Messages__JobPos__797309D9");
+
+            entity.HasOne(d => d.Interview).WithMany()
+                .HasForeignKey(d => d.InterviewId)
+                .HasConstraintName("FK_Messages_Interviews_InterviewId");
 
             entity.HasOne(d => d.Receiver).WithMany(p => p.MessageReceivers)
                 .HasForeignKey(d => d.ReceiverId)
@@ -243,6 +389,75 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasOne(d => d.User).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Notificat__UserI__72C60C4A");
+        });
+
+        modelBuilder.Entity<Offer>(entity =>
+        {
+            entity.HasKey(e => e.OfferId);
+            entity.Property(e => e.Position).HasMaxLength(150);
+            entity.Property(e => e.HourlyRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.PaydayOfMonth).HasDefaultValue(5);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Sent");
+            entity.Property(e => e.ExpiredAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.AcceptedAt).HasColumnType("datetime");
+            entity.Property(e => e.RespondedAt).HasColumnType("datetime");
+            entity.HasOne<JobApplication>()
+                .WithMany()
+                .HasForeignKey(e => e.ApplicationId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ApplicantId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Branch>()
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<PayrollItem>(entity =>
+        {
+            entity.HasKey(e => e.PayrollItemId);
+            entity.Property(e => e.HourlyRateSnapshot).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BaseSalary).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Bonus).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Penalty).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Deduction).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FinalSalary).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Draft");
+            entity.HasOne<PayrollPeriod>()
+                .WithMany()
+                .HasForeignKey(e => e.PayrollPeriodId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Employment>()
+                .WithMany()
+                .HasForeignKey(e => e.EmploymentId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<PayrollPeriod>(entity =>
+        {
+            entity.HasKey(e => e.PayrollPeriodId);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Draft");
+            entity.Property(e => e.Payday).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.LockedAt).HasColumnType("datetime");
+            entity.Property(e => e.PaidAt).HasColumnType("datetime");
+            entity.HasIndex(e => new { e.EmployerId, e.Month, e.Year }).IsUnique();
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Report>(entity =>
@@ -295,6 +510,11 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160952414CC").IsUnique();
 
             entity.Property(e => e.RoleName).HasMaxLength(50);
+            entity.HasData(
+                new Role { RoleId = 1, RoleName = "Admin" },
+                new Role { RoleId = 2, RoleName = "Employer" },
+                new Role { RoleId = 3, RoleName = "Applicant" }
+            );
         });
 
         modelBuilder.Entity<SavedJob>(entity =>
@@ -312,6 +532,54 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasOne(d => d.JobPost).WithMany(p => p.SavedJobs)
                 .HasForeignKey(d => d.JobPostId)
                 .HasConstraintName("FK__SavedJobs__JobPo__6E01572D");
+        });
+
+        modelBuilder.Entity<ShiftAssignment>(entity =>
+        {
+            entity.HasKey(e => e.ShiftAssignmentId);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Assigned");
+            entity.Property(e => e.AssignedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasOne<WorkShift>()
+                .WithMany()
+                .HasForeignKey(e => e.WorkShiftId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Employment>()
+                .WithMany()
+                .HasForeignKey(e => e.EmploymentId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<ShiftPassRequest>(entity =>
+        {
+            entity.HasKey(e => e.ShiftPassRequestId);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.RequestedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.RespondedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.HasOne<ShiftAssignment>()
+                .WithMany()
+                .HasForeignKey(e => e.ShiftAssignmentId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<WorkShift>()
+                .WithMany()
+                .HasForeignKey(e => e.WorkShiftId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.FromEmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ToEmployeeUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Branch>()
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Subscription>(entity =>
@@ -355,6 +623,26 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__3E52440B");
+        });
+
+        modelBuilder.Entity<WorkShift>(entity =>
+        {
+            entity.HasKey(e => e.WorkShiftId);
+            entity.Property(e => e.Title).HasMaxLength(150);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.RequiredRole).HasMaxLength(100);
+            entity.Property(e => e.RequiredPeople).HasDefaultValue(1);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Published");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Branch>()
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         OnModelCreatingPartial(modelBuilder);

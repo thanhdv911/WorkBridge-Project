@@ -1,20 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmployerProfileTab from '../components/employer/EmployerProfileTab';
 import EmployerJobForm from '../components/employer/EmployerJobForm';
 import EmployerManagePosts from '../components/employer/EmployerManagePosts';
 import EmployerApplicantReview from '../components/employer/EmployerApplicantReview';
+import EmployerEmployees from '../components/employer/EmployerEmployees';
+import EmployerBranches from '../components/employer/EmployerBranches';
+import EmployerOffers from '../components/employer/EmployerOffers';
+import EmployerShifts from '../components/employer/EmployerShifts';
+import EmployerPayroll from '../components/employer/EmployerPayroll';
+import EmployerInterviews from '../components/employer/EmployerInterviews';
 
 export default function EmployerDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
   
   // Basic role check (In a real app, verify from decoded JWT)
   const isEmployer = localStorage.getItem('role') === 'Employer';
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else if (!isEmployer) {
+      navigate('/profile');
+    }
+  }, [token, isEmployer, navigate]);
   
-  if (!isEmployer && localStorage.getItem('token')) {
-    // If user is applicant, rederect to standard profile
-    navigate('/profile');
+  if (!token || !isEmployer) {
     return null;
   }
 
@@ -27,7 +40,7 @@ export default function EmployerDashboard() {
   ];
 
   return (
-    <div className="bg-bg-light min-h-[calc(100vh-64px)] font-display text-slate-900 pb-12">
+    <div className="bg-bg-light min-h-[calc(100vh-64px)] font-display text-slate-900 pb-12 overflow-x-hidden">
       {/* Welcome Banner */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-10">
         <div className="absolute w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(19,146,236,.18),transparent_70%)] -top-20 -right-10 rounded-full pointer-events-none blur-[60px]"></div>
@@ -64,7 +77,7 @@ export default function EmployerDashboard() {
         </div>
       </div>
 
-      <div className="max-w-[1320px] mx-auto px-6 lg:px-10 grid lg:grid-cols-[240px_1fr] gap-8">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 lg:gap-8 min-w-0">
         {/* Sidebar Nav */}
         <aside className="space-y-2">
           <button 
@@ -94,14 +107,62 @@ export default function EmployerDashboard() {
           >
             <span className="material-symbols-outlined !text-lg text-inherit">group</span>Review Applicants
           </button>
+
+          <button
+            onClick={() => setActiveTab('branches')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'branches' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">storefront</span>Branches
+          </button>
+
+          <button
+            onClick={() => setActiveTab('interviews')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'interviews' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">event</span>Interviews
+          </button>
+
+          <button
+            onClick={() => setActiveTab('offers')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'offers' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">contract</span>Offers
+          </button>
+
+          <button
+            onClick={() => setActiveTab('employees')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'employees' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">badge</span>Employees
+          </button>
+
+          <button
+            onClick={() => setActiveTab('shifts')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'shifts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">calendar_month</span>Shifts
+          </button>
+
+          <button
+            onClick={() => setActiveTab('payroll')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'payroll' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">payments</span>Payroll
+          </button>
         </aside>
 
         {/* Content Area */}
-        <main>
+        <main className="min-w-0">
           {activeTab === 'profile' && <EmployerProfileTab />}
           {activeTab === 'post-job' && <EmployerJobForm onSuccess={() => setActiveTab('manage-posts')} />}
           {activeTab === 'manage-posts' && <EmployerManagePosts />}
           {activeTab === 'review-applicants' && <EmployerApplicantReview />}
+          {activeTab === 'branches' && <EmployerBranches />}
+          {activeTab === 'interviews' && <EmployerInterviews />}
+          {activeTab === 'offers' && <EmployerOffers />}
+          {activeTab === 'employees' && <EmployerEmployees />}
+          {activeTab === 'shifts' && <EmployerShifts />}
+          {activeTab === 'payroll' && <EmployerPayroll />}
         </main>
       </div>
     </div>

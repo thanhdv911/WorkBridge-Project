@@ -35,6 +35,7 @@ export default function Profile() {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please login first');
+        setLoading(false);
         navigate('/login');
         return;
       }
@@ -45,13 +46,13 @@ export default function Profile() {
       setUser(res.data);
       setEditForm(res.data);
       fetchReviewsData(res.data.applicantId || res.data.employerId || res.data.userId); // Support different profile types
-      setLoading(false);
     } catch (err) {
       console.error(err);
       toast.error('Failed to load profile');
       if (err.response?.status === 401) {
         navigate('/login');
       }
+    } finally {
       setLoading(false);
     }
   };

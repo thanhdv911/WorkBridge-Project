@@ -35,5 +35,13 @@ namespace WorkBridge.API.Controllers
             var result = await _jobService.GetJobsAsync(null, null, null, 1, 6);
             return Ok(result.Items);
         }
+
+        /// <summary>GET job categories for public home page</summary>
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _adminService.GetCategoriesAsync();
+            return Ok(categories);
+        }
     }
 }

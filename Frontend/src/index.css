@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
@@ -69,8 +76,10 @@
   .anim-fadeLeft    { animation: fadeInLeft .8s ease-out both; }
   .blob-deco        { position: absolute; border-radius: 50%; pointer-events: none; }
   .wavy-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 300c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='2'/%3E%3Cpath d='M0 350c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='2'/%3E%3Cpath d='M0 250c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3C/svg%3E");
-    background-size: cover; 
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='600' height='600' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 300c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='2'/%3E%3Cpath d='M0 350c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='2'/%3E%3Cpath d='M0 250c100-80 200 80 300 0s200 80 300 0' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3C/svg%3E"),
+      linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #4f46e5 100%);
+    background-size: cover, cover; 
     background-position: center;
   }
 }

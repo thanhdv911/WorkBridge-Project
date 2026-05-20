@@ -15,6 +15,7 @@ const JobDetails = () => {
     const [showReportModal, setShowReportModal] = useState(false);
     const [coverMessage, setCoverMessage] = useState('');
     const [applying, setApplying] = useState(false);
+    const [applicationStatus, setApplicationStatus] = useState(null);
 
     const userRole = localStorage.getItem('role');
     const token = localStorage.getItem('token');
@@ -24,6 +25,7 @@ const JobDetails = () => {
         fetchJobDetails();
         if (isApplicant && token) {
             checkIfSaved();
+            checkApplicationStatus();
         }
     }, [id, token, isApplicant]);
 
@@ -50,18 +52,34 @@ const JobDetails = () => {
         }
     };
 
+    const checkApplicationStatus = async () => {
+        try {
+            const res = await api.get('/application/my', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const existingApplication = res.data.find(app => app.jobPostId === parseInt(id));
+            setApplicationStatus(existingApplication?.status || null);
+        } catch (err) {
+            console.error('Error checking application status:', err);
+        }
+    };
+
     const handleApplyClick = () => {
         console.log('Current User Token:', token);
         console.log('Current User Role in Storage:', userRole);
 
         if (!token) {
             toast.error('Please login to apply for this job.');
-            navigate('/auth');
+            navigate('/login');
             return;
         }
 
         if (userRole?.toLowerCase() !== 'applicant') {
             toast.error(`Only Applicants can apply for jobs. (Current role: ${userRole})`);
+            return;
+        }
+        if (applicationStatus) {
+            toast.error(`You already applied for this job. Current status: ${applicationStatus}`);
             return;
         }
         setShowApplyModal(true);
@@ -80,6 +98,7 @@ const JobDetails = () => {
             toast.success('Application submitted successfully!');
             setShowApplyModal(false);
             setCoverMessage('');
+            setApplicationStatus('Applied');
         } catch (error) {
             const msg = error.response?.data || 'Failed to submit application.';
             toast.error(typeof msg === 'string' ? msg : 'An error occurred.');
@@ -270,10 +289,15 @@ const JobDetails = () => {
                         </div>
                         <button
                             onClick={handleApplyClick}
-                            className="w-full h-12 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mb-3"
+                            disabled={isApplicant && !!applicationStatus}
+                            className={`w-full h-12 rounded-xl text-sm font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 mb-3 ${
+                                isApplicant && applicationStatus
+                                    ? 'bg-slate-300 shadow-none cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-primary to-primary-dk shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5'
+                            }`}
                         >
                             <span className="material-symbols-outlined !text-xl">send</span>
-                            Apply Now
+                            {isApplicant && applicationStatus ? `Applied: ${applicationStatus}` : 'Apply Now'}
                         </button>
                         {isApplicant && (
                             <button

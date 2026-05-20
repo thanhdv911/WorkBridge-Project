@@ -68,7 +68,7 @@ namespace WorkBridge.API.Controllers
 
         [HttpPatch("{id}/status")]
         [Authorize(Roles = "Employer")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateApplicationStatusRequest request)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
@@ -76,13 +76,29 @@ namespace WorkBridge.API.Controllers
                 return Unauthorized("Invalid user token.");
             }
 
-            var success = await _applicationService.UpdateApplicationStatusAsync(userId, id, status);
-            if (!success)
+            if (request == null || string.IsNullOrWhiteSpace(request.Status))
             {
-                return NotFound("JobApplication not found or you don't have permission to update it.");
+                return BadRequest(new { message = "Status is required." });
             }
 
-            return Ok(new { message = $"JobApplication status updated to {status}." });
+            var result = await _applicationService.UpdateApplicationStatusAsync(userId, id, request.Status);
+            if (!result.Success)
+            {
+                if (result.Error?.Contains("not found", System.StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return NotFound(new { message = result.Error });
+                }
+
+                return BadRequest(new { message = result.Error });
+            }
+
+            return Ok(new
+            {
+                message = $"JobApplication status updated to {result.Status}.",
+                status = result.Status,
+                conversationContactId = result.ConversationContactId,
+                conversationContactName = result.ConversationContactName
+            });
         }
     }
 }

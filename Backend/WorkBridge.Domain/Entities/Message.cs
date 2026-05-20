@@ -13,6 +13,10 @@ public partial class Message
 
     public int? JobPostId { get; set; }
 
+    public int? InterviewId { get; set; }
+
+    public string MessageType { get; set; } = "Text";
+
     public string Content { get; set; } = null!;
 
     public bool IsRead { get; set; }
@@ -20,6 +24,8 @@ public partial class Message
     public DateTime? SentAt { get; set; }
 
     public virtual JobPost? JobPost { get; set; }
+
+    public virtual Interview? Interview { get; set; }
 
     public virtual User Receiver { get; set; } = null!;
 

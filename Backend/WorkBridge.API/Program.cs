@@ -3,6 +3,7 @@ using WorkBridge.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WorkBridge.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +40,13 @@ builder.Services.AddScoped<WorkBridge.Application.Services.IMessageService, Work
 builder.Services.AddScoped<WorkBridge.Application.Services.IAdminService, WorkBridge.Application.Services.AdminService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.IReviewService, WorkBridge.Application.Services.ReviewService>();
 builder.Services.AddScoped<WorkBridge.Application.Services.IReportService, WorkBridge.Application.Services.ReportService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IBranchService, WorkBridge.Application.Services.BranchService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IOfferService, WorkBridge.Application.Services.OfferService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IWorkforceService, WorkBridge.Application.Services.WorkforceService>();
+builder.Services.AddScoped<WorkBridge.Application.Services.IInterviewService, WorkBridge.Application.Services.InterviewService>();
 builder.Services.AddScoped<WorkBridge.Application.Interfaces.IWorkBridgeContext>(provider =>
     provider.GetRequiredService<WorkBridgeContext>());
+builder.Services.AddHostedService<ShiftPassExpiryHostedService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

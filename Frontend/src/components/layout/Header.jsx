@@ -55,8 +55,8 @@ export default function Header() {
 
   return (
     <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
-      <div className="max-w-[1320px] mx-auto flex items-center px-6 lg:px-10 h-16">
-        <div className="flex-1 flex items-center">
+      <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 h-16">
+        <div className="flex items-center min-w-0">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
               <span className="material-symbols-outlined !text-xl text-white">work</span>
@@ -66,7 +66,7 @@ export default function Header() {
             </span>
           </Link>
         </div>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-5 lg:gap-8">
           <Link
             to="/"
             className={`text-sm font-semibold transition-colors ${location.pathname === '/' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
@@ -118,10 +118,34 @@ export default function Header() {
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
                 )}
               </Link>
+              <Link
+                to="/offers"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/offers' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Offers
+              </Link>
+              <Link
+                to="/my-work"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/my-work' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                My Work
+              </Link>
+              <Link
+                to="/interviews"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/interviews' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Interviews
+              </Link>
+              <Link
+                to="/payslips"
+                className={`text-sm font-semibold transition-colors ${location.pathname === '/payslips' ? 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded' : 'text-slate-500 hover:text-primary'}`}
+              >
+                Payslips
+              </Link>
             </>
           )}
         </nav>
-        <div className="flex-1 flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
           {isLoggedIn ? (
             <>
               <Link
@@ -160,7 +184,7 @@ export default function Header() {
               <Link to="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
                 Login
               </Link>
-              <Link to="/signup" className="inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+              <Link to="/signup" className="inline-flex items-center h-10 px-3 sm:px-5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">
                 Sign Up Free
               </Link>
             </>

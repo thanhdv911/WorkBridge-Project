@@ -19,7 +19,7 @@ namespace WorkBridge.Application.Services
             _context = context;
         }
 
-        public async Task<PaginatedResponse<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary, int pageNumber = 1, int pageSize = 10)
+        public async Task<PaginatedResponse<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary, int pageNumber = 1, int pageSize = 10, int? categoryId = null)
         {
             var query = _context.JobPosts
                 .Include(j => j.Employer)
@@ -48,6 +48,11 @@ namespace WorkBridge.Application.Services
                 query = query.Where(j => j.PayRate >= minSalary.Value);
             }
 
+            if (categoryId.HasValue)
+            {
+                query = query.Where(j => j.CategoryId == categoryId.Value);
+            }
+
             var totalCount = await query.CountAsync();
 
             var jobs = await query
@@ -70,6 +75,7 @@ namespace WorkBridge.Application.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
+                    Status = j.Status,
                     CreatedAt = j.CreatedAt,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {
@@ -112,6 +118,7 @@ namespace WorkBridge.Application.Services
                     Requirements = j.Requirements,
                     Benefits = j.Benefits,
                     ApplicationDeadline = j.ApplicationDeadline,
+                    Status = j.Status,
                     CreatedAt = j.CreatedAt,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {

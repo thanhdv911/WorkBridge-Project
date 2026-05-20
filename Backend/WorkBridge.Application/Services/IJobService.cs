@@ -9,7 +9,7 @@ namespace WorkBridge.Application.Services
 {
     public interface IJobService
     {
-        Task<PaginatedResponse<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary, int pageNumber = 1, int pageSize = 10);
+        Task<PaginatedResponse<JobResponse>> GetJobsAsync(string? keyword, string? location, decimal? minSalary, int pageNumber = 1, int pageSize = 10, int? categoryId = null);
         Task<JobResponse?> GetJobByIdAsync(int id);
     }
 }

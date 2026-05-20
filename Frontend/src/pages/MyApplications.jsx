@@ -13,8 +13,13 @@ const MyApplications = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!token) {
+            setLoading(false);
+            navigate('/login');
+            return;
+        }
         fetchApplications();
-    }, []);
+    }, [token, navigate]);
 
     const fetchApplications = async () => {
         try {
@@ -43,8 +48,12 @@ const MyApplications = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending': return 'bg-yellow-50 text-yellow-600 border-yellow-100';
+            case 'Applied': return 'bg-yellow-50 text-yellow-600 border-yellow-100';
             case 'Under Review': return 'bg-blue-50 text-blue-600 border-blue-100';
+            case 'Interview Scheduled': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
             case 'Accepted': return 'bg-green-50 text-green-600 border-green-100';
+            case 'Offered': return 'bg-violet-50 text-violet-600 border-violet-100';
+            case 'Hired': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
             case 'Rejected': return 'bg-red-50 text-red-600 border-red-100';
             default: return 'bg-slate-50 text-slate-600 border-slate-100';
         }
@@ -120,7 +129,7 @@ const MyApplications = () => {
                                         </span>
                                     </div>
                                     <div className="w-full flex justify-end gap-2">
-                                        {(app.status === 'Accepted' || app.status === 'Under Review') ? (
+                                        {(app.status === 'Accepted' || app.status === 'Hired' || app.canMessage) ? (
                                             <button 
                                                 onClick={() => navigate('/messages', { 
                                                     state: { 
@@ -138,13 +147,31 @@ const MyApplications = () => {
                                                 <span className="material-symbols-outlined">forum</span>
                                             </button>
                                         )}
-                                        {app.status === 'Accepted' && (
+                                        {(app.status === 'Accepted' || app.status === 'Hired') && (
                                             <button 
                                                 onClick={() => handleOpenReview(app)}
                                                 className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 hover:bg-amber-100 transition-all flex items-center justify-center"
                                                 title="Rate Employer"
                                             >
                                                 <span className="material-symbols-outlined filled">star</span>
+                                            </button>
+                                        )}
+                                        {app.status === 'Offered' && (
+                                            <button
+                                                onClick={() => navigate('/offers')}
+                                                className="h-10 px-4 rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-100 transition-all flex items-center justify-center text-xs font-bold"
+                                                title="View Offer"
+                                            >
+                                                Offer
+                                            </button>
+                                        )}
+                                        {app.status === 'Hired' && (
+                                            <button
+                                                onClick={() => navigate('/my-work')}
+                                                className="h-10 px-4 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all flex items-center justify-center text-xs font-bold"
+                                                title="View Work"
+                                            >
+                                                Work
                                             </button>
                                         )}
                                     </div>
