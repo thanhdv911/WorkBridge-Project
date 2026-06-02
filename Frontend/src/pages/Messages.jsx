@@ -27,6 +27,13 @@ const parseVND = (value) => {
     return Number(String(value).replace(/\D/g, ''));
 };
 
+const getApiErrorMessage = (error, fallback) => (
+    error.response?.data?.message ||
+    error.response?.data?.title ||
+    error.message ||
+    fallback
+);
+
 const FILTERS = [
     { id: 'all', label: 'Tất cả', icon: 'inbox' },
     { id: 'unread', label: 'Chưa đọc', icon: 'mark_email_unread' },
@@ -695,7 +702,8 @@ const Messages = () => {
             fetchChatContext(selectedContact.contactId);
             fetchConversations();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không thể gửi lời mời nhận việc.');
+            console.error('Send offer failed:', error.response?.status, error.response?.data || error.message);
+            toast.error(getApiErrorMessage(error, 'Không thể gửi lời mời nhận việc.'));
         } finally {
             setSendingOffer(false);
         }

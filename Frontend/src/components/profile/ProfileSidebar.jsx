@@ -16,6 +16,13 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
   };
 
   const formattedDate = getFormattedJoinedDate(user?.createdAt);
+  const reputationScore = Number.isFinite(Number(user?.reputationScore)) ? Number(user.reputationScore) : 100;
+  const reportCount = Number.isFinite(Number(user?.reportCount)) ? Number(user.reportCount) : 0;
+  const reputationTone = reputationScore >= 90
+    ? 'from-emerald-500 to-teal-500 text-emerald-700 bg-emerald-50 border-emerald-100'
+    : reputationScore >= 80
+      ? 'from-sky-500 to-cyan-500 text-sky-700 bg-sky-50 border-sky-100'
+      : 'from-rose-500 to-orange-500 text-rose-700 bg-rose-50 border-rose-100';
 
   return (
     <aside className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 space-y-5 h-fit">
@@ -39,6 +46,30 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
           <div className="border-b border-slate-100/70 pt-3"></div>
         </div>
       )}
+
+      <div className={`rounded-2xl border p-4 ${reputationTone}`}>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-70">Uy tín cá nhân</p>
+            <div className="mt-1 flex items-end gap-1">
+              <span className="text-3xl font-black text-slate-900">{reputationScore}</span>
+              <span className="pb-1 text-xs font-black opacity-70">/100</span>
+            </div>
+          </div>
+          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${reputationTone.split(' ').slice(0, 2).join(' ')} text-white shadow-lg shadow-slate-200`}>
+            <span className="material-symbols-outlined filled">verified_user</span>
+          </div>
+        </div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/80">
+          <div
+            className={`h-full rounded-full bg-gradient-to-r ${reputationTone.split(' ').slice(0, 2).join(' ')}`}
+            style={{ width: `${Math.max(0, Math.min(100, reputationScore))}%` }}
+          ></div>
+        </div>
+        <p className="mt-2 text-[11px] font-bold opacity-75">
+          {reportCount > 0 ? `${reportCount} báo cáo đã ghi nhận` : 'Chưa có báo cáo vi phạm'}
+        </p>
+      </div>
 
       {/* Contact info */}
       <div className="space-y-4">

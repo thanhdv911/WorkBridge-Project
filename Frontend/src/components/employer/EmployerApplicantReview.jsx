@@ -32,6 +32,13 @@ const parseVND = (formattedValue) => {
     return Number(String(formattedValue).replace(/\D/g, ''));
 };
 
+const getApiErrorMessage = (error, fallback) => (
+    error.response?.data?.message ||
+    error.response?.data?.title ||
+    error.message ||
+    fallback
+);
+
 const decisionStatuses = ['Applied', 'Pending', 'Under Review'];
 
 const getStatusText = (status) => {
@@ -283,16 +290,41 @@ const EmployerApplicantReview = () => {
             setShowOfferModal(false);
             return;
         }
+
+        const hourlyRate = parseVND(offerForm.hourlyRate);
+        const payday = Number(offerForm.paydayOfMonth);
+
+        if (!offerForm.branchId) {
+            toast.error('Vui lòng chọn chi nhánh làm việc.');
+            return;
+        }
+        if (!offerForm.position.trim()) {
+            toast.error('Vui lòng nhập vị trí làm việc.');
+            return;
+        }
+        if (hourlyRate <= 0) {
+            toast.error('Mức lương theo giờ phải lớn hơn 0.');
+            return;
+        }
+        if (!offerForm.startDate) {
+            toast.error('Vui lòng chọn ngày bắt đầu làm việc.');
+            return;
+        }
+        if (payday < 1 || payday > 28) {
+            toast.error('Ngày trả lương phải nằm trong khoảng 1 - 28.');
+            return;
+        }
+
         setSendingOffer(true);
         try {
             const response = await api.post('/offers', {
                 applicationId: selectedApp.applicationId,
                 branchId: Number(offerForm.branchId),
-                position: offerForm.position,
-                hourlyRate: parseVND(offerForm.hourlyRate),
+                position: offerForm.position.trim(),
+                hourlyRate,
                 startDate: offerForm.startDate,
-                paydayOfMonth: Number(offerForm.paydayOfMonth),
-                expectedShifts: selectedShifts.join(', ')
+                paydayOfMonth: payday,
+                expectedShifts: selectedShifts.length > 0 ? selectedShifts.join(', ') : null
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -302,7 +334,8 @@ const EmployerApplicantReview = () => {
             setSelectedApp(prev => ({ ...prev, status: 'Offered', offerId: newOfferId, offerStatus: 'Sent', hasOffer: true, hasSentOffer: true, hasAcceptedOffer: false, canMessage: true }));
             setApplications(prev => prev.map(app => app.applicationId === selectedApp.applicationId ? { ...app, status: 'Offered', offerId: newOfferId, offerStatus: 'Sent', hasOffer: true, hasSentOffer: true, hasAcceptedOffer: false, canMessage: true } : app));
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không thể gửi lời mời nhận việc.');
+            console.error('Send offer failed:', error.response?.status, error.response?.data || error.message);
+            toast.error(getApiErrorMessage(error, 'Không thể gửi lời mời nhận việc.'));
         } finally {
             setSendingOffer(false);
         }

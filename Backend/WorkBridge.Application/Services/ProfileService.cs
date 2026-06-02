@@ -48,7 +48,9 @@ namespace WorkBridge.Application.Services
                 Address = user.ApplicantProfile?.Address,
                 AboutMe = user.ApplicantProfile?.AboutMe,
                 Availability = user.ApplicantProfile?.Availability,
-                CvUrl = user.ApplicantProfile?.CvUrl
+                CvUrl = user.ApplicantProfile?.CvUrl,
+                ReputationScore = user.ApplicantProfile?.ReputationScore ?? 100,
+                ReportCount = user.ApplicantProfile?.ReportCount ?? 0
             };
         }
 

@@ -12,30 +12,48 @@ namespace WorkBridge.API.Controllers
     public class OffersController : ControllerBase
     {
         private readonly IOfferService _offerService;
+        private readonly ILogger<OffersController> _logger;
 
-        public OffersController(IOfferService offerService)
+        public OffersController(IOfferService offerService, ILogger<OffersController> logger)
         {
             _offerService = offerService;
+            _logger = logger;
         }
 
         [HttpPost]
         [Authorize(Roles = "Employer")]
         public async Task<IActionResult> CreateOffer([FromBody] CreateOfferRequest request)
         {
-            var employerId = GetUserId();
-            var (offer, error) = await _offerService.CreateOfferAsync(employerId, request);
-            if (error != null) return BadRequest(new { message = error });
-            return Ok(offer);
+            try
+            {
+                var employerId = GetUserId();
+                var (offer, error) = await _offerService.CreateOfferAsync(employerId, request);
+                if (error != null) return BadRequest(new { message = error });
+                return Ok(offer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Create offer failed.");
+                return StatusCode(500, new { message = "Không thể gửi lời mời nhận việc. Vui lòng thử lại hoặc kiểm tra dữ liệu offer." });
+            }
         }
 
         [HttpPatch("{id}")]
         [Authorize(Roles = "Employer")]
         public async Task<IActionResult> UpdateOffer(int id, [FromBody] UpdateOfferRequest request)
         {
-            var employerId = GetUserId();
-            var (offer, error) = await _offerService.UpdateOfferAsync(employerId, id, request);
-            if (error != null) return BadRequest(new { message = error });
-            return Ok(offer);
+            try
+            {
+                var employerId = GetUserId();
+                var (offer, error) = await _offerService.UpdateOfferAsync(employerId, id, request);
+                if (error != null) return BadRequest(new { message = error });
+                return Ok(offer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Update offer {OfferId} failed.", id);
+                return StatusCode(500, new { message = "Không thể cập nhật lời mời nhận việc. Vui lòng thử lại hoặc kiểm tra dữ liệu offer." });
+            }
         }
 
         [HttpGet("employer")]

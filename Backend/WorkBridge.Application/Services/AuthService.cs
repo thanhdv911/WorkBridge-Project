@@ -157,10 +157,10 @@ namespace WorkBridge.Application.Services
             _emailQueue.QueueNotificationEmail(
                 user.Email,
                 user.FullName,
-                "Reset your password",
-                "We received a request to reset your WorkBridge password. This link is valid for 30 minutes. If you did not request this, you can ignore this email.",
+                "Đặt lại mật khẩu",
+                "WorkBridge vừa nhận yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Liên kết này có hiệu lực trong 30 phút. Nếu bạn không yêu cầu thao tác này, bạn có thể bỏ qua email.",
                 resetUrl,
-                "Reset password");
+                "Đặt lại mật khẩu");
         }
 
         public async Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request)

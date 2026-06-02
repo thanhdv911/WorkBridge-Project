@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WorkBridge.Application.DTOs;
 using WorkBridge.Application.Interfaces;
 using WorkBridge.Domain.Entities;
@@ -10,12 +11,18 @@ namespace WorkBridge.Application.Services
         private readonly IWorkBridgeContext _context;
         private readonly INotificationService _notificationService;
         private readonly IHubNotifier _hubNotifier;
+        private readonly ILogger<OfferService> _logger;
 
-        public OfferService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
+        public OfferService(
+            IWorkBridgeContext context,
+            INotificationService notificationService,
+            IHubNotifier hubNotifier,
+            ILogger<OfferService> logger)
         {
             _context = context;
             _notificationService = notificationService;
             _hubNotifier = hubNotifier;
+            _logger = logger;
         }
 
         public async Task<(OfferResponse? Offer, string? Error)> CreateOfferAsync(int employerId, CreateOfferRequest request)
@@ -81,37 +88,30 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
 
             await CancelOtherPendingOffersAsync(offer.ApplicationId, offer.OfferId, now);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
-            var offerMessage = await UpsertOfferMessageAsync(
+            var response = await GetOfferResponseAsync(offer.OfferId)
+                ?? await BuildOfferResponseFallbackAsync(offer, application, branch, employerProfile);
+
+            var offerMessage = await TryUpsertOfferMessageAsync(
                 employerId,
                 application.ApplicantId,
                 application.JobPostId,
                 offer.OfferId,
-                now);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+                now,
+                "create offer");
 
-            await _notificationService.CreateNotificationAsync(
+            var messageResponse = await BuildOfferMessageResponseAsync(employerId, offerMessage, response);
+
+            await TryCreateNotificationAsync(
                 application.ApplicantId,
                 isRevision ? "Job Offer Updated" : "New Job Offer",
                 isRevision
                     ? $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond."
-                    : $"You received a job offer for '{application.JobPost.Title}'. Open WorkBridge to review the salary, start date, branch, and accept or decline the offer."
+                    : $"You received a job offer for '{application.JobPost.Title}'. Open WorkBridge to review the salary, start date, branch, and accept or decline the offer.",
+                $"create offer {offer.OfferId}"
             );
-
-            var response = await GetOfferResponseAsync(offer.OfferId);
-            var messageResponse = new MessageResponse
-            {
-                MessageId = offerMessage.MessageId,
-                SenderId = offerMessage.SenderId,
-                SenderName = (await _context.Users.FindAsync(employerId))?.FullName ?? "",
-                ReceiverId = offerMessage.ReceiverId,
-                Content = offerMessage.Content,
-                MessageType = offerMessage.MessageType,
-                Offer = response,
-                IsRead = false,
-                SentAt = offerMessage.SentAt
-            };
 
             if (response != null)
             {
@@ -120,10 +120,16 @@ namespace WorkBridge.Application.Services
                     try
                     {
                         await _hubNotifier.NotifyOfferChangedAsync(employerId, application.ApplicantId, response);
-                        await _hubNotifier.SendMessageToUsersAsync(employerId, application.ApplicantId, messageResponse);
+                        if (messageResponse != null)
+                        {
+                            await _hubNotifier.SendMessageToUsersAsync(employerId, application.ApplicantId, messageResponse);
+                        }
                         await _hubNotifier.NotifyConversationUpdatedAsync(employerId, application.ApplicantId);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Offer realtime push failed after creating offer {OfferId}.", offer.OfferId);
+                    }
                 });
             }
             return (response, null);
@@ -171,47 +177,46 @@ namespace WorkBridge.Application.Services
             application.RespondedAt = now;
             await CancelOtherPendingOffersAsync(offer.ApplicationId, offer.OfferId, now);
 
-            var offerMessage = await UpsertOfferMessageAsync(
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            var response = await GetOfferResponseAsync(offer.OfferId)
+                ?? await BuildOfferResponseFallbackAsync(offer, application, branch, employerProfile);
+
+            var offerMessage = await TryUpsertOfferMessageAsync(
                 employerId,
                 offer.ApplicantId,
                 application.JobPostId,
                 offer.OfferId,
-                now);
+                now,
+                "update offer");
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            await _notificationService.CreateNotificationAsync(
-                offer.ApplicantId,
-                "Job Offer Updated",
-                $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond."
-            );
-
-            var response = await GetOfferResponseAsync(offer.OfferId);
             if (response != null)
             {
-                var messageResponse = new MessageResponse
-                {
-                    MessageId = offerMessage.MessageId,
-                    SenderId = offerMessage.SenderId,
-                    SenderName = (await _context.Users.FindAsync(employerId))?.FullName ?? "",
-                    ReceiverId = offerMessage.ReceiverId,
-                    Content = offerMessage.Content,
-                    MessageType = offerMessage.MessageType,
-                    Offer = response,
-                    IsRead = false,
-                    SentAt = offerMessage.SentAt
-                };
+                var messageResponse = await BuildOfferMessageResponseAsync(employerId, offerMessage, response);
+
+                await TryCreateNotificationAsync(
+                    offer.ApplicantId,
+                    "Job Offer Updated",
+                    $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond.",
+                    $"update offer {offer.OfferId}"
+                );
 
                 _ = Task.Run(async () =>
                 {
                     try
                     {
                         await _hubNotifier.NotifyOfferChangedAsync(employerId, offer.ApplicantId, response);
-                        await _hubNotifier.SendMessageToUsersAsync(employerId, offer.ApplicantId, messageResponse);
+                        if (messageResponse != null)
+                        {
+                            await _hubNotifier.SendMessageToUsersAsync(employerId, offer.ApplicantId, messageResponse);
+                        }
                         await _hubNotifier.NotifyConversationUpdatedAsync(employerId, offer.ApplicantId);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Offer realtime push failed after updating offer {OfferId}.", offer.OfferId);
+                    }
                 });
             }
 
@@ -416,7 +421,8 @@ namespace WorkBridge.Application.Services
                    join app in _context.Applications on offer.ApplicationId equals app.ApplicationId
                    join job in _context.JobPosts on app.JobPostId equals job.JobPostId
                    join branch in _context.Branches on offer.BranchId equals branch.BranchId
-                   join employer in _context.EmployerProfiles on offer.EmployerId equals employer.EmployerId
+                   join employerProfile in _context.EmployerProfiles on offer.EmployerId equals employerProfile.EmployerId into employerProfiles
+                   from employer in employerProfiles.DefaultIfEmpty()
                    join applicant in _context.Users on offer.ApplicantId equals applicant.UserId
                    select new OfferResponse
                    {
@@ -427,7 +433,7 @@ namespace WorkBridge.Application.Services
                        ApplicantId = offer.ApplicantId,
                        BranchId = offer.BranchId,
                        BranchName = branch.Name,
-                       CompanyName = employer.CompanyName,
+                       CompanyName = employer == null ? "WorkBridge Employer" : employer.CompanyName,
                        ApplicantName = applicant.FullName,
                        JobTitle = job.Title,
                        Position = offer.Position,
@@ -489,6 +495,104 @@ namespace WorkBridge.Application.Services
                     ? $"Đã có {activeCount}/{offer.Vacancies.Value} nhân viên active cho tin này. Đây là cảnh báo vượt nhu cầu dự kiến, không chặn doanh nghiệp tuyển thêm."
                     : $"Đã có {activeCount}/{offer.Vacancies.Value} nhân viên active theo nhu cầu dự kiến.";
             }
+        }
+
+        private async Task TryCreateNotificationAsync(int userId, string title, string message, string operation)
+        {
+            try
+            {
+                await _notificationService.CreateNotificationAsync(userId, title, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Notification/email queue failed during {Operation}.", operation);
+            }
+        }
+
+        private async Task<Message?> TryUpsertOfferMessageAsync(
+            int employerId,
+            int applicantId,
+            int jobPostId,
+            int offerId,
+            DateTime sentAt,
+            string operation)
+        {
+            try
+            {
+                var message = await UpsertOfferMessageAsync(employerId, applicantId, jobPostId, offerId, sentAt);
+                await _context.SaveChangesAsync();
+                return message;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Offer chat message failed during {Operation} for offer {OfferId}.", operation, offerId);
+                return null;
+            }
+        }
+
+        private async Task<MessageResponse?> BuildOfferMessageResponseAsync(
+            int employerId,
+            Message? offerMessage,
+            OfferResponse? offer)
+        {
+            if (offerMessage == null)
+            {
+                return null;
+            }
+
+            return new MessageResponse
+            {
+                MessageId = offerMessage.MessageId,
+                SenderId = offerMessage.SenderId,
+                SenderName = (await _context.Users.FindAsync(employerId))?.FullName ?? "",
+                ReceiverId = offerMessage.ReceiverId,
+                Content = offerMessage.Content,
+                MessageType = offerMessage.MessageType,
+                Offer = offer,
+                IsRead = offerMessage.IsRead,
+                SentAt = offerMessage.SentAt
+            };
+        }
+
+        private async Task<OfferResponse> BuildOfferResponseFallbackAsync(
+            Offer offer,
+            JobApplication application,
+            Branch branch,
+            EmployerProfile? employerProfile)
+        {
+            var applicantName = await _context.Users
+                .Where(u => u.UserId == offer.ApplicantId)
+                .Select(u => u.FullName)
+                .FirstOrDefaultAsync();
+
+            var response = new OfferResponse
+            {
+                OfferId = offer.OfferId,
+                ApplicationId = offer.ApplicationId,
+                JobPostId = application.JobPost?.JobPostId ?? application.JobPostId,
+                EmployerId = offer.EmployerId,
+                ApplicantId = offer.ApplicantId,
+                BranchId = offer.BranchId,
+                BranchName = branch.Name,
+                CompanyName = string.IsNullOrWhiteSpace(employerProfile?.CompanyName)
+                    ? "WorkBridge Employer"
+                    : employerProfile.CompanyName,
+                ApplicantName = applicantName ?? "",
+                JobTitle = application.JobPost?.Title ?? offer.Position,
+                Position = offer.Position,
+                HourlyRate = offer.HourlyRate,
+                StartDate = offer.StartDate,
+                PaydayOfMonth = offer.PaydayOfMonth,
+                Status = offer.Status,
+                CreatedAt = offer.CreatedAt,
+                AcceptedAt = offer.AcceptedAt,
+                ExpiredAt = offer.ExpiredAt,
+                ExpectedShifts = offer.ExpectedShifts,
+                Vacancies = application.JobPost?.Vacancies
+            };
+
+            await AttachHiringPlanInfoAsync(new List<OfferResponse> { response });
+            return response;
         }
 
         private static void ApplyOfferFields(

@@ -621,6 +621,20 @@ using (var scope = app.Services.CreateScope())
         END
     ");
 
+    RunSubscriptionSchemaSql(@"
+        IF OBJECT_ID('dbo.Offers', 'U') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH('dbo.Offers', 'ExpectedShifts') IS NULL
+                ALTER TABLE dbo.Offers ADD ExpectedShifts NVARCHAR(100) NULL;
+        END
+
+        IF OBJECT_ID('dbo.Employments', 'U') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH('dbo.Employments', 'ExpectedShifts') IS NULL
+                ALTER TABLE dbo.Employments ADD ExpectedShifts NVARCHAR(100) NULL;
+        END
+    ");
+
     // 1. Seed Admin
     var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Admin");
     if (adminRole != null)

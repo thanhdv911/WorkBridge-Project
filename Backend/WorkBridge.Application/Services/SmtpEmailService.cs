@@ -38,13 +38,14 @@ namespace WorkBridge.Application.Services
 
             if (!enabled || string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(fromEmail))
             {
-                _logger.LogInformation(
-                    "\n=================== [MOCK EMAIL DISPATCHED] ===================\n" +
+                _logger.LogWarning(
+                    "\n=================== [EMAIL DISABLED - MOCK ONLY] ===================\n" +
+                    "SMTP is not configured. The email below was not sent to the user.\n" +
                     $"TO: {toEmail} ({toName})\n" +
                     $"SUBJECT: WorkBridge - {title}\n" +
                     $"MESSAGE:\n{message}\n" +
                     (!string.IsNullOrWhiteSpace(actionUrl) ? $"ACTION: {actionUrl}\n" : string.Empty) +
-                    "===============================================================");
+                    "================================================================");
                 return;
             }
 
@@ -79,11 +80,11 @@ namespace WorkBridge.Application.Services
 
         private static string BuildHtmlBody(string toName, string title, string message, string webAppUrl, string? actionUrl, string? actionText)
         {
-            var safeName = WebUtility.HtmlEncode(string.IsNullOrWhiteSpace(toName) ? "ban" : toName);
+            var safeName = WebUtility.HtmlEncode(string.IsNullOrWhiteSpace(toName) ? "bạn" : toName);
             var safeTitle = WebUtility.HtmlEncode(title);
             var safeMessage = WebUtility.HtmlEncode(message);
             var finalUrl = string.IsNullOrWhiteSpace(actionUrl) ? webAppUrl : actionUrl;
-            var finalText = string.IsNullOrWhiteSpace(actionText) ? "Mo WorkBridge" : actionText;
+            var finalText = string.IsNullOrWhiteSpace(actionText) ? "Mở WorkBridge" : actionText;
             var safeUrl = WebUtility.HtmlEncode(finalUrl);
             var safeActionText = WebUtility.HtmlEncode(finalText);
 
@@ -98,16 +99,16 @@ namespace WorkBridge.Application.Services
         <h1 style=""margin:8px 0 0;font-size:22px;line-height:1.3;"">{safeTitle}</h1>
       </div>
       <div style=""padding:24px;"">
-        <p style=""margin:0 0 14px;font-size:15px;line-height:1.6;"">Xin chao {safeName},</p>
+        <p style=""margin:0 0 14px;font-size:15px;line-height:1.6;"">Xin chào {safeName},</p>
         <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;"">{safeMessage}</p>
         <div style=""margin:18px 0;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;color:#1d4ed8;font-size:14px;line-height:1.5;"">
-          Ban nhan email nay vi co cap nhat quan trong tren WorkBridge. Hay vao website de xem chi tiet va thuc hien hanh dong can thiet.
+          Bạn nhận email này vì có cập nhật quan trọng trên WorkBridge. Hãy vào website để xem chi tiết và thực hiện hành động cần thiết.
         </div>
         <a href=""{safeUrl}"" style=""display:inline-block;margin-top:8px;padding:12px 18px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;"">
           {safeActionText}
         </a>
         <p style=""margin:22px 0 0;color:#64748b;font-size:12px;line-height:1.5;"">
-          Neu nut tren khong mo duoc, hay truy cap: <a href=""{safeUrl}"" style=""color:#2563eb;"">{safeUrl}</a>
+          Nếu nút trên không mở được, hãy truy cập: <a href=""{safeUrl}"" style=""color:#2563eb;"">{safeUrl}</a>
         </p>
       </div>
     </div>
