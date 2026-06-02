@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using WorkBridge.Application.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -14,10 +15,14 @@ namespace WorkBridge.Application.Services
     public class ProfileService : IProfileService
     {
         private readonly IWorkBridgeContext _context;
+        private readonly string _cvUploadsRoot;
+        private readonly IReadOnlyList<string> _cvUploadCandidateRoots;
 
-        public ProfileService(IWorkBridgeContext context)
+        public ProfileService(IWorkBridgeContext context, IHostEnvironment hostEnvironment)
         {
             _context = context;
+            _cvUploadsRoot = UploadStorage.ResolveCvUploadsRoot(hostEnvironment.ContentRootPath);
+            _cvUploadCandidateRoots = UploadStorage.GetCandidateCvUploadRoots(hostEnvironment.ContentRootPath);
         }
 
         public async Task<ApplicantProfileResponse?> GetApplicantProfileAsync(int userId)
@@ -60,8 +65,8 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
             }
 
-            // Ensure directory exists
-            var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs");
+            // Store runtime uploads outside the deployed package on App Service.
+            var uploadsFolder = _cvUploadsRoot;
             if (!System.IO.Directory.Exists(uploadsFolder))
             {
                 System.IO.Directory.CreateDirectory(uploadsFolder);
@@ -106,14 +111,12 @@ namespace WorkBridge.Application.Services
             return true;
         }
 
-        private static void TryDeleteUploadedCvFile(string? cvUrl)
+        private void TryDeleteUploadedCvFile(string? cvUrl)
         {
             if (string.IsNullOrWhiteSpace(cvUrl)) return;
 
             try
             {
-                var uploadsFolder = System.IO.Path.GetFullPath(
-                    System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs"));
                 var cleanUrl = cvUrl.Split('?', '#')[0]
                     .TrimStart('/', '\\')
                     .Replace('/', System.IO.Path.DirectorySeparatorChar)
@@ -132,10 +135,13 @@ namespace WorkBridge.Application.Services
                     fileName = System.IO.Path.GetFileName(cleanUrl);
                 }
 
-                var fullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(uploadsFolder, fileName));
-                if (fullPath.StartsWith(uploadsFolder, System.StringComparison.OrdinalIgnoreCase) && System.IO.File.Exists(fullPath))
+                foreach (var uploadsFolder in _cvUploadCandidateRoots)
                 {
-                    System.IO.File.Delete(fullPath);
+                    var fullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(uploadsFolder, fileName));
+                    if (UploadStorage.IsInsideRoot(uploadsFolder, fullPath) && System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
                 }
             }
             catch
@@ -157,7 +163,7 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
             }
 
-            var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs");
+            var uploadsFolder = _cvUploadsRoot;
             if (!System.IO.Directory.Exists(uploadsFolder))
             {
                 System.IO.Directory.CreateDirectory(uploadsFolder);

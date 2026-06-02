@@ -36,8 +36,11 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
   const [cvAnalysisData, setCvAnalysisData] = useState(null);
   const [isVip, setIsVip] = useState(false);
   const [checkingVip, setCheckingVip] = useState(false);
+  const [cvPreviewStatus, setCvPreviewStatus] = useState('idle');
   const cvPreviewUrl = toAbsoluteFileUrl(user?.cvUrl);
   const cvFileName = user?.cvUrl ? getFileNameFromUrl(user.cvUrl) : '';
+  const isCheckingCvFile = cvPreviewStatus === 'checking';
+  const isCvFileMissing = cvPreviewStatus === 'missing';
   const cvScore = clampScore(cvAnalysisData?.score);
   const cvScorePercent = `${cvScore * 10}%`;
   const cvStrengths = asList(cvAnalysisData?.strengths);
@@ -61,6 +64,32 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
       .catch(() => setIsVip(false))
       .finally(() => setCheckingVip(false));
   }, [isOwnProfile]);
+
+  useEffect(() => {
+    if (!cvPreviewUrl) {
+      setCvPreviewStatus('idle');
+      return;
+    }
+
+    let cancelled = false;
+    setCvPreviewStatus('checking');
+
+    fetch(cvPreviewUrl, { method: 'HEAD', cache: 'no-store' })
+      .then((response) => {
+        if (!cancelled) {
+          setCvPreviewStatus(response.ok ? 'ready' : 'missing');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCvPreviewStatus('missing');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cvPreviewUrl]);
 
 
   const fetchEmployments = async () => {
@@ -314,7 +343,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             <button
               type="button"
               onClick={handleAiAnalyzeCv}
-              disabled={!user?.cvUrl || isAnalyzingCv || checkingVip}
+              disabled={!user?.cvUrl || isCvFileMissing || isAnalyzingCv || checkingVip}
               className="ai-cv-cta inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-slate-950 via-[#1687d9] to-emerald-500 px-4 text-xs font-black text-white shadow-lg shadow-blue-500/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="material-symbols-outlined !text-[16px]">{isVip ? 'psychology' : 'lock'}</span>
@@ -349,14 +378,42 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
       {user?.cvUrl ? (
         <div className={`grid min-h-0 ${isOwnProfile ? 'xl:grid-cols-[minmax(0,1fr)_300px]' : ''}`}>
           <div className="bg-slate-100">
-            <iframe
-              key={cvPreviewUrl}
-              src={`${cvPreviewUrl}#toolbar=0&navpanes=0&view=FitH`}
-              width="100%"
-              height="100%"
-              title="CV PDF"
-              className="h-[72vh] min-h-[620px] w-full border-0 bg-white"
-            />
+            {isCheckingCvFile ? (
+              <div className="flex h-[72vh] min-h-[620px] flex-col items-center justify-center bg-white px-6 text-center">
+                <div className="h-9 w-9 rounded-full border-4 border-slate-200 border-t-[#1687d9] animate-spin" />
+                <p className="mt-4 text-sm font-black text-slate-700">Đang kiểm tra file CV...</p>
+              </div>
+            ) : isCvFileMissing ? (
+              <div className="flex h-[72vh] min-h-[620px] flex-col items-center justify-center bg-white px-6 text-center">
+                <span className="material-symbols-outlined !text-5xl text-amber-500">draft_orders</span>
+                <h3 className="mt-4 text-lg font-black text-slate-900">Không tìm thấy file CV trên máy chủ</h3>
+                <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-slate-500">
+                  Hồ sơ vẫn còn tên CV trong dữ liệu, nhưng file PDF không còn ở storage. Hãy upload lại CV để xem và dùng AI chấm điểm.
+                </p>
+                {isOwnProfile && (
+                  <label className="mt-5 inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1687d9] px-5 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleCvUpload}
+                      className="hidden"
+                      disabled={cvLoading}
+                    />
+                    <span className="material-symbols-outlined !text-[18px]">{cvLoading ? 'progress_activity' : 'upload_file'}</span>
+                    Upload lại CV
+                  </label>
+                )}
+              </div>
+            ) : (
+              <iframe
+                key={cvPreviewUrl}
+                src={`${cvPreviewUrl}#toolbar=0&navpanes=0&view=FitH`}
+                width="100%"
+                height="100%"
+                title="CV PDF"
+                className="h-[72vh] min-h-[620px] w-full border-0 bg-white"
+              />
+            )}
           </div>
 
           {isOwnProfile && (
@@ -399,7 +456,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   <button
                     type="button"
                     onClick={handleAiAnalyzeCv}
-                    disabled={!user?.cvUrl || isAnalyzingCv || checkingVip}
+                    disabled={!user?.cvUrl || isCvFileMissing || isAnalyzingCv || checkingVip}
                     className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-black text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span className="material-symbols-outlined !text-[17px]">{isVip ? 'psychology' : 'lock'}</span>

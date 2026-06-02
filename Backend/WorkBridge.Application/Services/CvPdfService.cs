@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,12 +19,14 @@ namespace WorkBridge.Application.Services
         private readonly IWorkBridgeContext _context;
         private readonly string _contentRootPath;
         private readonly string _uploadsRoot;
+        private readonly IReadOnlyList<string> _cvUploadRoots;
 
         public CvPdfService(IWorkBridgeContext context, IHostEnvironment hostEnvironment)
         {
             _context = context;
             _contentRootPath = Path.GetFullPath(hostEnvironment.ContentRootPath);
-            _uploadsRoot = ResolveUploadsRoot(_contentRootPath);
+            _uploadsRoot = UploadStorage.ResolveCvUploadsRoot(_contentRootPath);
+            _cvUploadRoots = UploadStorage.GetCandidateCvUploadRoots(_contentRootPath);
         }
 
         public async Task<CvPdfReadResult> ReadCurrentCvAsync(int userId)
@@ -135,6 +138,16 @@ namespace WorkBridge.Application.Services
             if (relativePath.StartsWith(uploadsPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 var filePart = relativePath[uploadsPrefix.Length..];
+                foreach (var root in _cvUploadRoots)
+                {
+                    var candidatePath = Path.GetFullPath(Path.Combine(root, filePart));
+                    if (UploadStorage.IsInsideRoot(root, candidatePath) && File.Exists(candidatePath))
+                    {
+                        fullPath = candidatePath;
+                        return true;
+                    }
+                }
+
                 fullPath = Path.GetFullPath(Path.Combine(uploadsRoot, filePart));
             }
             else
@@ -155,45 +168,6 @@ namespace WorkBridge.Application.Services
             }
 
             return true;
-        }
-
-        private static string ResolveUploadsRoot(string contentRootPath)
-        {
-            var candidates = new[]
-            {
-                Path.Combine(contentRootPath, "wwwroot", "uploads", "cvs"),
-                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs"),
-                Path.Combine(Directory.GetCurrentDirectory(), "Backend", "WorkBridge.API", "wwwroot", "uploads", "cvs")
-            };
-
-            foreach (var candidate in candidates)
-            {
-                var fullCandidate = Path.GetFullPath(candidate);
-                if (Directory.Exists(fullCandidate))
-                {
-                    return fullCandidate;
-                }
-            }
-
-            var cursor = new DirectoryInfo(AppContext.BaseDirectory);
-            while (cursor != null)
-            {
-                var direct = Path.Combine(cursor.FullName, "wwwroot", "uploads", "cvs");
-                if (Directory.Exists(direct))
-                {
-                    return Path.GetFullPath(direct);
-                }
-
-                var projectRelative = Path.Combine(cursor.FullName, "Backend", "WorkBridge.API", "wwwroot", "uploads", "cvs");
-                if (Directory.Exists(projectRelative))
-                {
-                    return Path.GetFullPath(projectRelative);
-                }
-
-                cursor = cursor.Parent;
-            }
-
-            return Path.GetFullPath(Path.Combine(contentRootPath, "wwwroot", "uploads", "cvs"));
         }
 
         private static string CleanCvText(string value)

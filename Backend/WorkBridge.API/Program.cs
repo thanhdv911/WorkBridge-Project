@@ -5,9 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.Extensions.FileProviders;
 using WorkBridge.API.Services;
 using WorkBridge.API.Hubs;
 using WorkBridge.Application.Interfaces;
+using WorkBridge.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -173,6 +175,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
+
+var runtimeUploadsRoot = UploadStorage.ResolveUploadsRoot(app.Environment.ContentRootPath);
+Directory.CreateDirectory(runtimeUploadsRoot);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(runtimeUploadsRoot),
+    RequestPath = "/uploads",
+    OnPrepareResponse = context =>
+    {
+        var origin = context.Context.Request.Headers.Origin.ToString().TrimEnd('/');
+        if (!string.IsNullOrWhiteSpace(origin) &&
+            allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            context.Context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            context.Context.Response.Headers["Vary"] = "Origin";
+        }
+    }
+});
 
 app.UseStaticFiles(new StaticFileOptions
 {
