@@ -12,6 +12,7 @@ namespace WorkBridge.Application.DTOs
         public string MessageType { get; set; } = "Text";
         public int? InterviewId { get; set; }
         public InterviewMessageSummary? Interview { get; set; }
+        public OfferResponse? Offer { get; set; }
         public bool IsRead { get; set; }
         public DateTime? SentAt { get; set; }
     }
@@ -31,6 +32,8 @@ namespace WorkBridge.Application.DTOs
         public string LastMessage { get; set; } = null!;
         public DateTime? LastMessageAt { get; set; }
         public int UnreadCount { get; set; }
+        public bool IsOnline { get; set; }
+        public DateTime? LastSeenAt { get; set; }
     }
 
     public class InterviewMessageSummary
@@ -48,5 +51,10 @@ namespace WorkBridge.Application.DTOs
         public string Status { get; set; } = string.Empty;
         public string? Result { get; set; }
         public bool CanEmployerMarkResult { get; set; }
+        public string ApplicationStatus { get; set; } = string.Empty;
+        public string? OfferStatus { get; set; }
+        public bool HasSentOffer { get; set; }
+        public bool HasAcceptedOffer { get; set; }
+        public bool IsEmployee { get; set; }
     }
 }

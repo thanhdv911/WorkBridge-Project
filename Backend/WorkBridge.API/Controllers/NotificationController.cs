@@ -49,5 +49,29 @@ namespace WorkBridge.API.Controllers
             if (!success) return NotFound("Notification not found.");
             return Ok(new { message = "Notification marked as read." });
         }
+        [HttpPatch("read-all")]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var userId = GetUserId();
+            await _notificationService.MarkAllAsReadAsync(userId);
+            return Ok(new { message = "All notifications marked as read." });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteNotification(int id)
+        {
+            var userId = GetUserId();
+            var success = await _notificationService.DeleteNotificationAsync(userId, id);
+            if (!success) return NotFound("Notification not found.");
+            return Ok(new { message = "Notification deleted successfully." });
+        }
+
+        [HttpDelete("delete-read")]
+        public async Task<IActionResult> DeleteAllRead()
+        {
+            var userId = GetUserId();
+            await _notificationService.DeleteAllReadNotificationsAsync(userId);
+            return Ok(new { message = "All read notifications deleted." });
+        }
     }
 }

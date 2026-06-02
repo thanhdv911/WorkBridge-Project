@@ -50,6 +50,7 @@ packages/
 # ASP.NET Core
 **/appsettings.Development.json
 **/appsettings.local.json
+**/wwwroot/uploads/
 
 # Node.js / Frontend
 node_modules/

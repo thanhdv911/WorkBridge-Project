@@ -21,11 +21,11 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      toast.success('Review submitted successfully!');
+      toast.success('Đã gửi đánh giá thành công!');
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to submit review.');
+      toast.error(error.response?.data?.message || 'Gửi đánh giá thất bại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -35,19 +35,19 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-scaleIn">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-xl font-bold text-slate-800">Rate & Review</h3>
+          <h3 className="text-xl font-bold text-slate-800">Đánh giá</h3>
           <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Reviewing for: <span className="text-slate-800 font-bold">{jobTitle}</span></p>
-            <p className="text-sm font-medium text-slate-500">Target: <span className="text-primary font-bold">{revieweeName}</span></p>
+            <p className="text-sm font-medium text-slate-500 mb-1">Đánh giá cho: <span className="text-slate-800 font-bold">{jobTitle}</span></p>
+            <p className="text-sm font-medium text-slate-500">Đối tượng: <span className="text-primary font-bold">{revieweeName}</span></p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Rating</label>
+            <label className="text-sm font-bold text-slate-700">Số sao</label>
             <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -67,10 +67,10 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Comment (Optional)</label>
+            <label className="text-sm font-bold text-slate-700">Nhận xét (Tùy chọn)</label>
             <textarea
               className="w-full h-24 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-sm"
-              placeholder="Share your experience..."
+              placeholder="Chia sẻ trải nghiệm của bạn..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             ></textarea>
@@ -87,7 +87,7 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
               ) : (
                 <>
                   <span className="material-symbols-outlined !text-xl">send</span>
-                  Submit Review
+                  Gửi đánh giá
                 </>
               )}
             </button>

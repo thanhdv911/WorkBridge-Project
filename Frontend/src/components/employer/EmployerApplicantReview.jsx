@@ -1,12 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { API_BASE_URL } from '../../services/api';
 import toast from 'react-hot-toast';
 import { signalRService } from '../../services/signalrService';
 import ReportModal from '../shared/ReportModal';
 import ReviewModal from '../shared/ReviewModal';
+import GoongAddressPicker from '../shared/GoongAddressPicker';
+import { parseStoredGoongAddress } from '../../services/goongAddressService';
+
+const getLocalDateTimeString = (date) => {
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+};
+
+const defaultInterviewTime = () => {
+    const value = new Date(Date.now() + 2 * 60 * 60 * 1000 + 10 * 60 * 1000);
+    value.setMinutes(0, 0, 0);
+    return getLocalDateTimeString(value);
+};
+
+const formatVND = (value) => {
+    if (value === undefined || value === null || value === '') return '';
+    const clean = String(value).replace(/\D/g, '');
+    if (!clean) return '';
+    return parseInt(clean, 10).toLocaleString('de-DE');
+};
+
+const parseVND = (formattedValue) => {
+    if (!formattedValue) return 0;
+    return Number(String(formattedValue).replace(/\D/g, ''));
+};
 
 const decisionStatuses = ['Applied', 'Pending', 'Under Review'];
+
+const getStatusText = (status) => {
+    switch (status) {
+        case 'Pending':
+        case 'Applied':
+            return 'Đang chờ duyệt';
+        case 'Under Review':
+            return 'Đang xem xét';
+        case 'Interview Scheduled':
+            return 'Đã hẹn phỏng vấn';
+        case 'Interview Passed':
+            return 'Đạt phỏng vấn';
+        case 'Accepted':
+            return 'Đã chấp nhận';
+        case 'Offered':
+            return 'Đã gửi lời mời';
+        case 'Hired':
+            return 'Đã tuyển dụng';
+        case 'Rejected':
+            return 'Đã từ chối';
+        default:
+            return status;
+    }
+};
 
 const EmployerApplicantReview = () => {
     const [applications, setApplications] = useState([]);
@@ -18,7 +68,10 @@ const EmployerApplicantReview = () => {
     const [showInterviewModal, setShowInterviewModal] = useState(false);
     const [branches, setBranches] = useState([]);
     const [sendingOffer, setSendingOffer] = useState(false);
+    const [cancelingOffer, setCancelingOffer] = useState(false);
     const [schedulingInterview, setSchedulingInterview] = useState(false);
+    const [shiftTemplates, setShiftTemplates] = useState([]);
+    const [selectedShifts, setSelectedShifts] = useState([]);
     const [offerForm, setOfferForm] = useState({
         branchId: '',
         position: '',
@@ -27,10 +80,11 @@ const EmployerApplicantReview = () => {
         paydayOfMonth: 5
     });
     const [interviewForm, setInterviewForm] = useState({
-        scheduledAt: '',
+        scheduledAt: defaultInterviewTime(),
         location: '',
         note: ''
     });
+    const parsedInterviewLocation = parseStoredGoongAddress(interviewForm.location || '');
     const [selectedForReview, setSelectedForReview] = useState(null);
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
@@ -38,11 +92,35 @@ const EmployerApplicantReview = () => {
     useEffect(() => {
         fetchApplications();
         fetchBranches();
+        fetchShiftTemplates();
 
         const handleApplicationChanged = () => fetchApplications();
         signalRService.on('ApplicationChanged', handleApplicationChanged);
-        return () => signalRService.off('ApplicationChanged', handleApplicationChanged);
+        signalRService.on('OfferStatusChanged', handleApplicationChanged);
+        signalRService.on('InterviewStatusChanged', handleApplicationChanged);
+        return () => {
+            signalRService.off('ApplicationChanged', handleApplicationChanged);
+            signalRService.off('OfferStatusChanged', handleApplicationChanged);
+            signalRService.off('InterviewStatusChanged', handleApplicationChanged);
+        };
     }, []);
+
+    const fetchShiftTemplates = async () => {
+        try {
+            const response = await api.get('/workforce/shift-timings', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setShiftTemplates(response.data);
+        } catch (err) {
+            console.error('Error fetching shift templates:', err);
+            setShiftTemplates([
+                { shiftName: 'Ca Sáng', startTime: '08:00', endTime: '12:00' },
+                { shiftName: 'Ca Trưa', startTime: '12:00', endTime: '16:00' },
+                { shiftName: 'Ca Chiều', startTime: '16:00', endTime: '20:00' },
+                { shiftName: 'Ca Tối', startTime: '20:00', endTime: '00:00' }
+            ]);
+        }
+    };
 
     const fetchApplications = async () => {
         try {
@@ -56,7 +134,7 @@ const EmployerApplicantReview = () => {
             }
         } catch (error) {
             console.error('Error fetching applications:', error);
-            toast.error('Could not load applicant list.');
+            toast.error('Không thể tải danh sách ứng viên.');
         } finally {
             setLoading(false);
         }
@@ -109,7 +187,7 @@ const EmployerApplicantReview = () => {
             ));
             setSelectedApp(nextSelected);
 
-            toast.success(`Application marked as ${updatedStatus}`);
+            toast.success(`Đã cập nhật trạng thái ứng tuyển thành: ${getStatusText(updatedStatus)}`);
 
             if (options.openChat && response.data?.conversationContactId) {
                 handleOpenChat({
@@ -120,7 +198,7 @@ const EmployerApplicantReview = () => {
             }
         } catch (error) {
             console.error('Error updating application status:', error);
-            toast.error(error.response?.data?.message || 'Failed to update status.');
+            toast.error(error.response?.data?.message || 'Không thể cập nhật trạng thái.');
         }
     };
 
@@ -136,8 +214,12 @@ const EmployerApplicantReview = () => {
 
     const openOfferModal = () => {
         if (!selectedApp) return;
+        if (selectedApp.isEmployee) {
+            toast.error('Ứng viên này đã là nhân viên chính thức của bạn.');
+            return;
+        }
         if (branches.length === 0) {
-            toast.error('Create a branch before sending an offer.');
+            toast.error('Vui lòng tạo ít nhất một chi nhánh trước khi gửi lời mời nhận việc.');
             return;
         }
         setOfferForm(prev => ({
@@ -151,11 +233,9 @@ const EmployerApplicantReview = () => {
 
     const openInterviewModal = () => {
         if (!selectedApp) return;
-        const defaultTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        defaultTime.setMinutes(0, 0, 0);
         setInterviewForm(prev => ({
             ...prev,
-            scheduledAt: prev.scheduledAt || defaultTime.toISOString().slice(0, 16),
+            scheduledAt: prev.scheduledAt || defaultInterviewTime(),
             location: prev.location || ''
         }));
         setShowInterviewModal(true);
@@ -164,23 +244,31 @@ const EmployerApplicantReview = () => {
     const scheduleInterview = async (e) => {
         e.preventDefault();
         if (!selectedApp) return;
+
+        const selectedTime = new Date(interviewForm.scheduledAt);
+        const minTime = new Date(Date.now() + 2 * 60 * 60 * 1000 - 60000);
+        if (selectedTime < minTime) {
+            toast.error("Lịch phỏng vấn phải được hẹn trước ít nhất 2 giờ!");
+            return;
+        }
+
         setSchedulingInterview(true);
         try {
             await api.post('/interviews/chat-invite', {
                 contactId: selectedApp.applicantId,
                 applicationId: selectedApp.applicationId,
-                scheduledAt: interviewForm.scheduledAt,
+                scheduledAt: selectedTime.toISOString(),
                 location: interviewForm.location,
                 note: interviewForm.note
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success('Interview invitation sent in chat.');
+            toast.success('Đã gửi lời mời phỏng vấn qua tin nhắn.');
             setShowInterviewModal(false);
             setSelectedApp(prev => ({ ...prev, status: 'Interview Scheduled', canMessage: true }));
             setApplications(prev => prev.map(app => app.applicationId === selectedApp.applicationId ? { ...app, status: 'Interview Scheduled', canMessage: true } : app));
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Could not schedule interview.');
+            toast.error(error.response?.data?.message || 'Không thể lên lịch phỏng vấn.');
         } finally {
             setSchedulingInterview(false);
         }
@@ -189,26 +277,59 @@ const EmployerApplicantReview = () => {
     const sendOffer = async (e) => {
         e.preventDefault();
         if (!selectedApp) return;
+        if (sendingOffer) return;
+        if (selectedApp.isEmployee) {
+            toast.error('Ứng viên này đã là nhân viên chính thức của bạn.');
+            setShowOfferModal(false);
+            return;
+        }
         setSendingOffer(true);
         try {
-            await api.post('/offers', {
+            const response = await api.post('/offers', {
                 applicationId: selectedApp.applicationId,
                 branchId: Number(offerForm.branchId),
                 position: offerForm.position,
-                hourlyRate: Number(offerForm.hourlyRate),
+                hourlyRate: parseVND(offerForm.hourlyRate),
                 startDate: offerForm.startDate,
-                paydayOfMonth: Number(offerForm.paydayOfMonth)
+                paydayOfMonth: Number(offerForm.paydayOfMonth),
+                expectedShifts: selectedShifts.join(', ')
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success('Offer sent. Applicant must accept it to become an employee.');
+            toast.success('Đã gửi lời mời nhận việc. Ứng viên cần chấp nhận để trở thành nhân viên.');
+            const newOfferId = response.data?.offerId || 0;
             setShowOfferModal(false);
-            setSelectedApp(prev => ({ ...prev, status: 'Offered', canMessage: true }));
-            setApplications(prev => prev.map(app => app.applicationId === selectedApp.applicationId ? { ...app, status: 'Offered', canMessage: true } : app));
+            setSelectedApp(prev => ({ ...prev, status: 'Offered', offerId: newOfferId, offerStatus: 'Sent', hasOffer: true, hasSentOffer: true, hasAcceptedOffer: false, canMessage: true }));
+            setApplications(prev => prev.map(app => app.applicationId === selectedApp.applicationId ? { ...app, status: 'Offered', offerId: newOfferId, offerStatus: 'Sent', hasOffer: true, hasSentOffer: true, hasAcceptedOffer: false, canMessage: true } : app));
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Could not send offer.');
+            toast.error(error.response?.data?.message || 'Không thể gửi lời mời nhận việc.');
         } finally {
             setSendingOffer(false);
+        }
+    };
+
+    const handleCancelOffer = async () => {
+        if (!selectedApp) return;
+        const offerId = selectedApp.offerId;
+        if (!offerId) {
+            toast.error('Không tìm thấy ID lời mời. Vui lòng tải lại trang.');
+            return;
+        }
+
+        if (!window.confirm('Bạn có chắc chắn muốn rút lại/hủy lời mời nhận việc này?')) return;
+
+        setCancelingOffer(true);
+        try {
+            await api.patch(`/offers/${offerId}/cancel`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Đã rút lại lời mời nhận việc thành công.');
+            setSelectedApp(prev => ({ ...prev, status: 'Accepted', offerId: 0, offerStatus: 'Cancelled', hasOffer: false, hasSentOffer: false }));
+            setApplications(prev => prev.map(app => app.applicationId === selectedApp.applicationId ? { ...app, status: 'Accepted', offerId: 0, offerStatus: 'Cancelled', hasOffer: false, hasSentOffer: false } : app));
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Không thể hủy lời mời nhận việc.');
+        } finally {
+            setCancelingOffer(false);
         }
     };
 
@@ -239,8 +360,10 @@ const EmployerApplicantReview = () => {
     const isDecisionOpen = (status) => decisionStatuses.includes(status);
     const isAccepted = selectedApp?.status === 'Accepted';
     const canScheduleInterview = selectedApp?.status === 'Accepted' || selectedApp?.status === 'Under Review' || selectedApp?.status === 'Interview Scheduled' || selectedApp?.status === 'Interview Passed';
-    const isOffered = selectedApp?.status === 'Offered';
-    const isHired = selectedApp?.status === 'Hired';
+    const hasSentOffer = selectedApp?.hasSentOffer || selectedApp?.offerStatus === 'Sent' || selectedApp?.offerId > 0;
+    const isOffered = selectedApp?.status === 'Offered' || hasSentOffer;
+    const isHired = selectedApp?.isEmployee;
+    const canSendOfficialOffer = canScheduleInterview && !isHired;
     const skills = selectedApp?.skills || [];
     const experiences = selectedApp?.experiences || [];
     const recentReviews = selectedApp?.recentReviews || [];
@@ -249,17 +372,18 @@ const EmployerApplicantReview = () => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-12 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto"></div>
-                <p className="text-slate-500 mt-4 font-medium">Loading applications...</p>
+                <p className="text-slate-500 mt-4 font-medium">Đang tải danh sách ứng viên...</p>
             </div>
         );
     }
 
     return (
-        <div className="grid xl:grid-cols-[minmax(0,1fr)_minmax(340px,420px)] gap-6 items-start min-w-0">
-            <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden anim-fadeUp min-w-0">
-                <div className="px-5 sm:px-6 py-5 border-b border-slate-100">
-                    <h2 className="text-xl font-bold text-slate-800">Applicant Review</h2>
-                    <p className="text-slate-500 text-sm mt-1">Review applicant profiles, accept candidates, and open chat.</p>
+        <div className="grid xl:grid-cols-[minmax(0,1fr)_minmax(340px,420px)] gap-6 items-start min-w-0 h-[calc(100vh-140px)]">
+            {/* Left side: Applicant List */}
+            <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden anim-fadeUp flex flex-col h-full min-w-0">
+                <div className="px-5 sm:px-6 py-5 border-b border-slate-100 shrink-0">
+                    <h2 className="text-xl font-bold text-slate-800">Đánh giá ứng viên</h2>
+                    <p className="text-slate-500 text-sm mt-1">Xem thông tin ứng viên, phê duyệt hồ sơ và trò chuyện.</p>
                 </div>
 
                 {applications.length === 0 ? (
@@ -267,11 +391,11 @@ const EmployerApplicantReview = () => {
                         <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
                             <span className="material-symbols-outlined text-slate-300">group_off</span>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-700">No applicants yet</h3>
-                        <p className="text-slate-500 mt-1">When students apply, they will appear here.</p>
+                        <h3 className="text-lg font-bold text-slate-700">Chưa có ứng viên nào</h3>
+                        <p className="text-slate-500 mt-1">Khi sinh viên nộp hồ sơ, họ sẽ xuất hiện tại đây.</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-slate-100 overflow-y-auto flex-1 min-h-0">
                         {applications.map((app) => (
                             <button
                                 key={app.applicationId}
@@ -296,12 +420,12 @@ const EmployerApplicantReview = () => {
 
                                     <div className="min-w-0">
                                         <p className="text-sm font-semibold text-slate-700 truncate">{app.jobTitle}</p>
-                                        <p className="text-xs text-slate-400 truncate">{app.applicantMajor || app.university || 'Profile not completed'}</p>
+                                        <p className="text-xs text-slate-400 truncate">{app.applicantMajor || app.university || 'Hồ sơ chưa hoàn thiện'}</p>
                                     </div>
 
                                     <div className="flex md:justify-end">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${getStatusColor(app.status)}`}>
-                                            {app.status}
+                                            {getStatusText(app.status)}
                                         </span>
                                     </div>
                                 </div>
@@ -311,7 +435,7 @@ const EmployerApplicantReview = () => {
                 )}
             </section>
 
-            <aside className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6 anim-fadeUp-d1 xl:sticky xl:top-24 min-w-0">
+            <aside className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6 anim-fadeUp-d1 flex flex-col h-full min-w-0 overflow-y-auto">
                 {selectedApp ? (
                     <div className="space-y-6">
                         <div className="text-center">
@@ -320,121 +444,114 @@ const EmployerApplicantReview = () => {
                             </div>
                             <h3 className="text-xl font-black text-slate-800 tracking-tight break-words">{selectedApp.applicantName}</h3>
                             <p className="text-slate-400 text-sm font-medium break-all">{selectedApp.applicantEmail}</p>
-                            <div className="mt-3 flex items-center justify-center gap-2">
-                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${getStatusColor(selectedApp.status)}`}>
-                                    {selectedApp.status}
-                                </span>
-                                <span className="text-xs text-slate-400">
-                                    {Number(selectedApp.averageRating || 0).toFixed(1)} stars / {selectedApp.totalReviews || 0} reviews
-                                </span>
+                            <div className="mt-3 flex flex-col items-center gap-1.5">
+                                <div className="flex items-center gap-2 justify-center">
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${getStatusColor(selectedApp.status)}`}>
+                                        {getStatusText(selectedApp.status)}
+                                    </span>
+                                    <span className="text-xs text-slate-400 font-semibold">
+                                        {Number(selectedApp.averageRating || 0).toFixed(1)} sao / {selectedApp.totalReviews || 0} đánh giá
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                                    <span className="material-symbols-outlined text-amber-500 !text-sm filled">verified_user</span>
+                                    <span className="text-xs font-black text-slate-600">
+                                        Uy tín: <span className={selectedApp.reputationScore >= 80 ? "text-emerald-600" : "text-rose-500"}>{selectedApp.reputationScore ?? 100} / 100</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         <div className="h-px bg-slate-100"></div>
 
-                        <div className="space-y-5">
+                        <div className="space-y-4">
                             <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">Applicant Profile</label>
-                                <div className="grid gap-2 text-sm">
-                                    <p className="text-slate-700"><span className="font-bold">Major:</span> {selectedApp.applicantMajor || 'Not updated'}</p>
-                                    <p className="text-slate-700"><span className="font-bold">University:</span> {selectedApp.university || 'Not updated'}</p>
-                                    <p className="text-slate-700"><span className="font-bold">Class:</span> {selectedApp.studyYear || 'Not updated'}</p>
-                                    <p className="text-slate-700"><span className="font-bold">Phone:</span> {selectedApp.phone || 'Not updated'}</p>
-                                    <p className="text-slate-700"><span className="font-bold">Availability:</span> {selectedApp.availability || 'Not updated'}</p>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Lời nhắn kèm theo</label>
+                                <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-600 leading-relaxed italic border border-slate-100/80 break-words">
+                                    "{selectedApp.coverMessage || 'Không có lời nhắn kèm theo.'}"
                                 </div>
-                            </section>
-
-                            <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">About</label>
-                                <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-600 leading-relaxed border border-slate-100">
-                                    {selectedApp.aboutMe || 'This applicant has not added an introduction yet.'}
-                                </div>
-                            </section>
-
-                            <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">Cover Message</label>
-                                <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-600 leading-relaxed italic border border-slate-100 break-words">
-                                    "{selectedApp.coverMessage || 'No cover message provided.'}"
-                                </div>
-                            </section>
-
-                            <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">Skills</label>
-                                {skills.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {skills.map(skill => (
-                                            <span key={skill} className="px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold">
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-slate-400">No skills added yet.</p>
-                                )}
-                            </section>
-
-                            <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">Experience</label>
-                                {experiences.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {experiences.map((exp, index) => (
-                                            <div key={`${exp.title}-${index}`} className="p-3 rounded-2xl border border-slate-100 bg-white">
-                                                <p className="text-sm font-bold text-slate-800">{exp.title}</p>
-                                                <p className="text-xs text-slate-500">{exp.companyName} {exp.duration ? `- ${exp.duration}` : ''}</p>
-                                                {exp.description && <p className="text-xs text-slate-500 mt-2 leading-relaxed">{exp.description}</p>}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-slate-400">No experience added yet.</p>
-                                )}
-                            </section>
-
-                            <section>
-                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">Reviews</label>
-                                {recentReviews.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {recentReviews.map((review, index) => (
-                                            <div key={`${review.reviewerName}-${index}`} className="p-3 rounded-2xl bg-amber-50/60 border border-amber-100">
-                                                <div className="flex items-center justify-between gap-3">
-                                                    <p className="text-sm font-bold text-slate-800 truncate">{review.reviewerName}</p>
-                                                    <span className="text-xs font-black text-amber-600">{review.rating}/5</span>
-                                                </div>
-                                                <p className="text-xs text-slate-500 mt-1">{review.jobTitle}</p>
-                                                {review.comment && <p className="text-xs text-slate-600 mt-2 leading-relaxed">{review.comment}</p>}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-slate-400">No reviews yet.</p>
-                                )}
                             </section>
 
                             {selectedApp.cvUrl && (
                                 <section>
-                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">CV</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">CV / Hồ sơ</label>
                                     <a
-                                        href={`http://localhost:5029${selectedApp.cvUrl}`}
+                                        href={`${API_BASE_URL}${selectedApp.cvUrl}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all group"
+                                        className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all group"
                                     >
-                                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-105 transition-transform">
+                                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm group-hover:scale-105 transition-transform shrink-0">
                                             <span className="material-symbols-outlined !text-2xl">picture_as_pdf</span>
                                         </div>
                                         <div className="min-w-0">
-                                            <div className="text-sm font-bold text-slate-700 truncate">Applicant CV</div>
+                                            <div className="text-sm font-bold text-slate-700 truncate">CV Ứng viên</div>
                                             <div className="text-[10px] font-bold text-primary flex items-center gap-1">
                                                 <span className="material-symbols-outlined !text-xs">visibility</span>
-                                                Open resume
+                                                Xem CV
                                             </div>
                                         </div>
                                     </a>
                                 </section>
                             )}
+
+                            <section>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Kỹ năng</label>
+                                {skills.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {skills.slice(0, 8).map((skill, index) => (
+                                            <span key={`${skill.skillName || skill}-${index}`} className="px-3 py-1 rounded-full bg-primary/5 text-primary border border-primary/10 text-xs font-bold">
+                                                {skill.skillName || skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400">Chưa bổ sung kỹ năng.</p>
+                                )}
+                            </section>
+
+                            <section>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Kinh nghiệm</label>
+                                {experiences.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {experiences.slice(0, 3).map((experience, index) => (
+                                            <div key={experience.experienceId || index} className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                                                <p className="text-sm font-bold text-slate-700">{experience.title || 'Kinh nghiệm'}</p>
+                                                <p className="text-xs text-slate-400">{experience.companyName || experience.company || 'Chưa ghi rõ công ty'}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400">Chưa bổ sung kinh nghiệm.</p>
+                                )}
+                            </section>
+
+                            <section>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Đánh giá gần đây</label>
+                                {recentReviews.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {recentReviews.slice(0, 2).map((review, index) => (
+                                            <div key={review.reviewId || index} className="rounded-2xl bg-amber-50/50 border border-amber-100 p-3">
+                                                <p className="text-xs font-black text-amber-600">{review.rating || 0}/5 sao</p>
+                                                <p className="text-xs text-slate-600 mt-1 break-words">{review.comment || 'Không có nhận xét.'}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400">Chưa có đánh giá nào.</p>
+                                )}
+                            </section>
                         </div>
 
                         <div className="space-y-3 pt-2">
+                            <button
+                                onClick={() => navigate(`/profile/${selectedApp.applicantId}`)}
+                                className="w-full h-11 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-sm transition-all flex items-center justify-center gap-2 border border-slate-200/50"
+                            >
+                                <span className="material-symbols-outlined !text-[20px]">person</span>
+                                Xem hồ sơ chi tiết
+                            </button>
+
                             {isDecisionOpen(selectedApp.status) && (
                                 <>
                                     <div className="grid grid-cols-2 gap-2">
@@ -442,13 +559,13 @@ const EmployerApplicantReview = () => {
                                             onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Accepted', { openChat: true })}
                                             className="h-11 rounded-xl bg-green-500 text-white font-bold text-sm shadow-md shadow-green-200 hover:shadow-lg transition-all"
                                         >
-                                            Accept & Chat
+                                            Nhận hồ sơ & Chat
                                         </button>
                                         <button
                                             onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Rejected')}
                                             className="h-11 rounded-xl bg-red-50 text-red-500 font-bold text-sm border border-red-100 hover:bg-red-100 transition-all"
                                         >
-                                            Reject
+                                            Từ chối
                                         </button>
                                     </div>
                                     {selectedApp.status !== 'Under Review' && (
@@ -456,7 +573,7 @@ const EmployerApplicantReview = () => {
                                             onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Under Review')}
                                             className="w-full h-11 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-200 transition-all"
                                         >
-                                            Mark as Under Review
+                                            Đánh dấu đang xem xét
                                         </button>
                                     )}
                                 </>
@@ -466,9 +583,9 @@ const EmployerApplicantReview = () => {
                                 <button
                                     onClick={() => handleOpenChat()}
                                     className="w-full h-11 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
-                                >
+                               >
                                     <span className="material-symbols-outlined !text-[20px]">forum</span>
-                                    Open Chat
+                                    Mở phòng chat
                                 </button>
                             )}
 
@@ -478,29 +595,45 @@ const EmployerApplicantReview = () => {
                                     className="w-full h-11 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-center gap-2"
                                 >
                                     <span className="material-symbols-outlined !text-[20px]">event</span>
-                                    Schedule Interview
+                                    Hẹn lịch phỏng vấn
                                 </button>
                             )}
 
-                            {canScheduleInterview && !isOffered && !isHired && (
+                            {canSendOfficialOffer && (
                                 <button
                                     onClick={openOfferModal}
                                     className="w-full h-11 rounded-xl bg-emerald-500 text-white font-bold text-sm shadow-md shadow-emerald-200 hover:shadow-lg transition-all flex items-center justify-center gap-2"
                                 >
                                     <span className="material-symbols-outlined !text-[20px]">contract</span>
-                                    Send Official Offer
+                                    Gửi lời mời nhận việc
                                 </button>
                             )}
 
                             {isOffered && (
-                                <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-sm text-violet-700 font-semibold">
-                                    Offer sent. The applicant must accept it from their Offers page before they become an employee.
+                                <div className="space-y-3">
+                                    <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-sm text-violet-700 font-semibold space-y-1">
+                                        <p>Đã gửi lời mời nhận việc.</p>
+                                        {selectedApp.expectedShifts && (
+                                            <p className="text-xs text-violet-600 font-bold">
+                                                Ca dự kiến: {selectedApp.expectedShifts}
+                                            </p>
+                                        )}
+                                        <p className="text-[11px] opacity-80 pt-1">Ứng viên phải chấp nhận từ trang Lời mời của họ để trở thành nhân viên chính thức.</p>
+                                    </div>
+                                    <button
+                                        onClick={handleCancelOffer}
+                                        disabled={cancelingOffer}
+                                        className="w-full h-11 rounded-xl bg-rose-50 text-rose-600 font-bold text-sm border border-rose-100 hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined !text-[20px]">cancel</span>
+                                        {cancelingOffer ? 'Đang hủy...' : 'Hủy / Rút lại lời mời'}
+                                    </button>
                                 </div>
                             )}
 
                             {isHired && (
                                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700 font-semibold">
-                                    This applicant accepted the offer and is now a real employee record.
+                                    Ứng viên này đã chấp nhận lời mời và đã trở thành nhân viên chính thức.
                                 </div>
                             )}
 
@@ -510,7 +643,7 @@ const EmployerApplicantReview = () => {
                                     className="w-full h-11 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-center gap-2"
                                 >
                                     <span className="material-symbols-outlined filled">star</span>
-                                    Rate Applicant
+                                    Đánh giá ứng viên
                                 </button>
                             )}
 
@@ -519,7 +652,7 @@ const EmployerApplicantReview = () => {
                                 className="w-full flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 hover:text-rose-500 transition-colors uppercase tracking-[0.2em] pt-4"
                             >
                                 <span className="material-symbols-outlined !text-sm">flag</span>
-                                Report Applicant
+                                Báo cáo ứng viên
                             </button>
                         </div>
 
@@ -542,8 +675,8 @@ const EmployerApplicantReview = () => {
                                 <form onSubmit={scheduleInterview} className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
                                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-800">Schedule Offline Interview</h3>
-                                            <p className="text-sm text-slate-500">Applicant can accept or reject from chat.</p>
+                                            <h3 className="text-xl font-bold text-slate-800">Lên lịch phỏng vấn trực tiếp</h3>
+                                            <p className="text-sm text-slate-500">Ứng viên có thể chấp nhận hoặc từ chối từ phòng chat.</p>
                                         </div>
                                         <button type="button" onClick={() => setShowInterviewModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
                                             <span className="material-symbols-outlined">close</span>
@@ -551,10 +684,22 @@ const EmployerApplicantReview = () => {
                                     </div>
                                     <div className="p-6 space-y-4">
                                         <input type="datetime-local" value={interviewForm.scheduledAt} onChange={(e) => setInterviewForm(prev => ({ ...prev, scheduledAt: e.target.value }))} className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                                        <input value={interviewForm.location} onChange={(e) => setInterviewForm(prev => ({ ...prev, location: e.target.value }))} placeholder="Offline location" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                                        <textarea value={interviewForm.note} onChange={(e) => setInterviewForm(prev => ({ ...prev, note: e.target.value }))} placeholder="Note" className="w-full min-h-24 px-4 py-3 rounded-xl border border-slate-200 text-sm resize-none" />
+                                        <GoongAddressPicker
+                                            value={{
+                                                address: parsedInterviewLocation.address,
+                                                ward: parsedInterviewLocation.ward,
+                                                district: parsedInterviewLocation.district,
+                                                city: parsedInterviewLocation.city || parsedInterviewLocation.province
+                                            }}
+                                            onChange={(next, meta) => setInterviewForm(prev => ({ ...prev, location: meta.fullAddress || next.address }))}
+                                            label="Địa điểm phỏng vấn"
+                                            placeholder="Gõ địa điểm phỏng vấn và chọn từ Goong..."
+                                            showMapLink={false}
+                                            compact
+                                        />
+                                        <textarea value={interviewForm.note} onChange={(e) => setInterviewForm(prev => ({ ...prev, note: e.target.value }))} placeholder="Ghi chú" className="w-full min-h-24 px-4 py-3 rounded-xl border border-slate-200 text-sm resize-none" />
                                         <button disabled={schedulingInterview} className="w-full h-11 rounded-xl bg-primary text-white font-bold text-sm disabled:opacity-60">
-                                            {schedulingInterview ? 'Sending...' : 'Send Interview Invitation'}
+                                            {schedulingInterview ? 'Đang gửi...' : 'Gửi lời mời phỏng vấn'}
                                         </button>
                                     </div>
                                 </form>
@@ -566,23 +711,71 @@ const EmployerApplicantReview = () => {
                                 <form onSubmit={sendOffer} className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
                                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-800">Send Official Offer</h3>
-                                            <p className="text-sm text-slate-500">Creates employment only after applicant accepts.</p>
+                                            <h3 className="text-xl font-bold text-slate-800">Gửi lời mời nhận việc chính thức</h3>
+                                            <p className="text-sm text-slate-500">Hợp đồng lao động chỉ được tạo sau khi ứng viên chấp nhận.</p>
                                         </div>
                                         <button type="button" onClick={() => setShowOfferModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
                                             <span className="material-symbols-outlined">close</span>
                                         </button>
                                     </div>
                                     <div className="p-6 space-y-4">
+                                        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-2 text-xs text-amber-800 leading-relaxed shadow-sm">
+                                            <div className="flex items-center gap-1.5 font-bold text-amber-900 mb-0.5">
+                                                <span className="material-symbols-outlined !text-[18px]">info</span>
+                                                Quy chế & Lưu ý quan trọng
+                                            </div>
+                                            <p>• <strong>Bản chất lời mời:</strong> Đây là lời mời nhận việc, không phải hợp đồng lao động chính thức. Hợp đồng giấy sẽ được ký trực tiếp bên ngoài nếu cần thiết (công việc part-time đa số không cần ký).</p>
+                                            <p>• <strong>Quy định thôi việc:</strong> Theo quy định hệ thống, nhân viên muốn nghỉ việc <strong>phải báo trước ít nhất 15 ngày (nửa tháng)</strong> để quản lý có thời gian sắp xếp nhân sự.</p>
+                                        </div>
                                         <select value={offerForm.branchId} onChange={(e) => setOfferForm(prev => ({ ...prev, branchId: e.target.value }))} className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm">
                                             {branches.map(branch => <option key={branch.branchId} value={branch.branchId}>{branch.name}</option>)}
                                         </select>
-                                        <input value={offerForm.position} onChange={(e) => setOfferForm(prev => ({ ...prev, position: e.target.value }))} placeholder="Position" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                                        <input type="number" value={offerForm.hourlyRate} onChange={(e) => setOfferForm(prev => ({ ...prev, hourlyRate: e.target.value }))} placeholder="Hourly rate" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
+                                        <input value={offerForm.position} onChange={(e) => setOfferForm(prev => ({ ...prev, position: e.target.value }))} placeholder="Chức vụ / Vị trí" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
+                                        <input type="text" value={formatVND(offerForm.hourlyRate)} onChange={(e) => setOfferForm(prev => ({ ...prev, hourlyRate: formatVND(e.target.value) }))} placeholder="Mức lương theo giờ (VNĐ)" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
                                         <input type="date" value={offerForm.startDate} onChange={(e) => setOfferForm(prev => ({ ...prev, startDate: e.target.value }))} className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                                        <input type="number" min="1" max="28" value={offerForm.paydayOfMonth} onChange={(e) => setOfferForm(prev => ({ ...prev, paydayOfMonth: e.target.value }))} placeholder="Payday of month" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
+                                        <input type="number" min="1" max="28" value={offerForm.paydayOfMonth} onChange={(e) => setOfferForm(prev => ({ ...prev, paydayOfMonth: e.target.value }))} placeholder="Ngày nhận lương trong tháng (1 - 28)" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                                                Ca làm việc dự kiến
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-slate-50 rounded-2xl border border-slate-100">
+                                                {shiftTemplates.map((t, idx) => {
+                                                    const val = `${t.shiftName} (${t.startTime}-${t.endTime})`;
+                                                    const isChecked = selectedShifts.includes(val);
+                                                    return (
+                                                        <label
+                                                            key={idx}
+                                                            className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                                                                isChecked
+                                                                    ? 'bg-primary/5 border-primary/20 text-primary'
+                                                                    : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'
+                                                            }`}
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isChecked}
+                                                                onChange={() => {
+                                                                    if (isChecked) {
+                                                                        setSelectedShifts(prev => prev.filter(s => s !== val));
+                                                                    } else {
+                                                                        setSelectedShifts(prev => [...prev, val]);
+                                                                    }
+                                                                }}
+                                                                className="rounded text-primary focus:ring-primary border-slate-300 w-3.5 h-3.5"
+                                                            />
+                                                            <span className="truncate">
+                                                                {t.shiftName}
+                                                                <span className="text-[10px] opacity-70 block font-normal">{t.startTime} - {t.endTime}</span>
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
                                         <button disabled={sendingOffer} className="w-full h-11 rounded-xl bg-primary text-white font-bold text-sm disabled:opacity-60">
-                                            {sendingOffer ? 'Sending...' : 'Send Offer'}
+                                            {sendingOffer ? 'Đang gửi...' : 'Gửi lời mời'}
                                         </button>
                                     </div>
                                 </form>
@@ -592,7 +785,7 @@ const EmployerApplicantReview = () => {
                 ) : (
                     <div className="h-96 flex flex-col items-center justify-center text-center opacity-50">
                         <span className="material-symbols-outlined !text-6xl text-slate-300 mb-4 font-thin">contact_page</span>
-                        <p className="font-bold text-slate-400">Select an applicant to view profile details</p>
+                        <p className="font-bold text-slate-400">Chọn một ứng viên để xem chi tiết hồ sơ</p>
                     </div>
                 )}
             </aside>

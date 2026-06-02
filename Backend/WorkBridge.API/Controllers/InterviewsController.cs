@@ -75,6 +75,15 @@ namespace WorkBridge.API.Controllers
             return Ok(interview);
         }
 
+        [HttpPatch("{id}/schedule")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> UpdateSchedule(int id, [FromBody] CreateInterviewRequest request)
+        {
+            var (interview, error) = await _interviewService.UpdateInterviewScheduleAsync(GetUserId(), id, request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(interview);
+        }
+
         private int GetUserId()
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

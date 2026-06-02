@@ -11,5 +11,7 @@ namespace WorkBridge.Application.Services
         Task<AuthResponse?> RegisterAsync(RegisterRequest request);
         Task<AuthResponse?> LoginWithGoogleAsync(ExternalAuthRequest request);
         Task<AuthResponse?> LoginWithFacebookAsync(FacebookAuthRequest request);
+        Task RequestPasswordResetAsync(ForgotPasswordRequest request);
+        Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request);
     }
 }

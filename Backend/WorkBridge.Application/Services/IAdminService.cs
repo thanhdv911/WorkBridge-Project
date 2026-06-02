@@ -12,6 +12,7 @@ namespace WorkBridge.Application.Services
         // User Management
         Task<IEnumerable<AdminUserResponse>> GetUsersAsync();
         Task<bool> UpdateUserStatusAsync(int userId, string status);
+        Task<bool> UpdateUserReputationAsync(int userId, int reputationScore);
 
         // Job Moderation
         Task<IEnumerable<AdminJobResponse>> GetJobsByStatusAsync(string? status);

@@ -43,6 +43,22 @@ namespace WorkBridge.API.Controllers
             return Ok(branch);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBranch(int id)
+        {
+            var employerId = GetUserId();
+            try
+            {
+                var result = await _branchService.DeleteBranchAsync(employerId, id);
+                if (!result) return NotFound(new { message = "Branch not found." });
+                return Ok(new { message = "Branch deleted successfully." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         private int GetUserId()
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

@@ -33,6 +33,19 @@ namespace WorkBridge.API.Controllers
             return Ok(new { message = "User status updated successfully." });
         }
 
+        [HttpPatch("users/{id}/reputation")]
+        public async Task<IActionResult> UpdateUserReputation(int id, [FromBody] AdminUpdateReputationRequest request)
+        {
+            if (request.ReputationScore < 0 || request.ReputationScore > 100)
+            {
+                return BadRequest(new { message = "Reputation score must be between 0 and 100." });
+            }
+
+            var result = await _adminService.UpdateUserReputationAsync(id, request.ReputationScore);
+            if (!result) return NotFound("User profile not found.");
+            return Ok(new { message = "User reputation updated successfully.", reputationScore = request.ReputationScore });
+        }
+
         // Jobs
         [HttpGet("jobs")]
         public async Task<IActionResult> GetJobs([FromQuery] string? status)

@@ -14,6 +14,10 @@ public partial class ShiftAssignment
 
     public string Status { get; set; } = null!;
 
+    public bool IsFixed { get; set; }
+
+    public string AssignmentSource { get; set; } = null!;
+
     public DateTime AssignedAt { get; set; }
 
     public int? TransferredFromAssignmentId { get; set; }

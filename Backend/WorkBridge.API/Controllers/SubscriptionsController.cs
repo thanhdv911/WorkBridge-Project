@@ -1,0 +1,411 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WorkBridge.Application.Services;
+using WorkBridge.Domain.Entities;
+using WorkBridge.Infrastructure.Data;
+
+namespace WorkBridge.API.Controllers
+{
+    [ApiController]
+    [Route("api/subscriptions")]
+    [Authorize]
+    public class SubscriptionsController : ControllerBase
+    {
+        private static readonly HashSet<int> AllowedDurations = new() { 7, 30, 365 };
+        private static readonly HashSet<string> AllowedAudiences = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Applicant",
+            "Employer"
+        };
+
+        private readonly WorkBridgeContext _context;
+        private readonly ISubscriptionPaymentService _paymentService;
+
+        public SubscriptionsController(WorkBridgeContext context, ISubscriptionPaymentService paymentService)
+        {
+            _context = context;
+            _paymentService = paymentService;
+        }
+
+        [HttpGet("plans")]
+        public async Task<IActionResult> GetPlans([FromQuery] string? audience = null)
+        {
+            var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
+            if (normalizedAudience == null)
+            {
+                return BadRequest(new { message = "Khong xac dinh duoc loai goi VIP." });
+            }
+
+            var plans = await _context.SubscriptionPlans
+                .Where(p => p.Audience == normalizedAudience && p.IsActive && AllowedDurations.Contains(p.DurationDays))
+                .OrderBy(p => p.SortOrder)
+                .ThenBy(p => p.Price)
+                .Select(p => ToPlanResponse(p))
+                .ToListAsync();
+
+            return Ok(plans);
+        }
+
+        [HttpPost("buy")]
+        [Authorize(Roles = "Employer,Applicant")]
+        public async Task<IActionResult> BuyPremiumPlan([FromBody] BuyPlanRequest request)
+        {
+            var audience = GetCurrentAudience();
+            if (audience == null)
+            {
+                return BadRequest(new { message = "Tai khoan nay khong the mua goi VIP." });
+            }
+
+            try
+            {
+                var result = await _paymentService.BuyAsync(GetUserId(), audience, new BuyPaymentRequest
+                {
+                    PlanId = request.PlanId,
+                    DurationDays = request.DurationDays
+                });
+                return Ok(result);
+            }
+            catch (PaymentBusyException ex)
+            {
+                return StatusCode(429, new { message = ex.Message });
+            }
+            catch (PaymentGatewayException ex)
+            {
+                return StatusCode(502, new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("confirm/{subscriptionId:int}")]
+        public async Task<IActionResult> ConfirmPayment(int subscriptionId)
+        {
+            var result = await _paymentService.ConfirmAsync(GetUserId(), subscriptionId);
+            if (result == null)
+            {
+                return NotFound(new { message = "Khong tim thay giao dich dang ky." });
+            }
+
+            return result.Paid ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("confirm-latest")]
+        public async Task<IActionResult> ConfirmLatestPayment([FromQuery] string? audience = null, [FromQuery] int? subscriptionId = null)
+        {
+            var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
+            var result = await _paymentService.ConfirmLatestAsync(GetUserId(), normalizedAudience, subscriptionId);
+            if (result == null)
+            {
+                return NotFound(new
+                {
+                    message = subscriptionId.HasValue
+                        ? "Khong tim thay giao dich VIP hien tai dang cho thanh toan."
+                        : "Khong tim thay giao dich VIP dang cho thanh toan.",
+                    paid = false
+                });
+            }
+
+            return result.Paid ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("payment-status")]
+        public async Task<IActionResult> GetPaymentStatus([FromQuery] string? audience = null, [FromQuery] int? subscriptionId = null, [FromQuery] long? orderCode = null)
+        {
+            if (!subscriptionId.HasValue && !orderCode.HasValue)
+            {
+                return BadRequest(new { message = "Can subscriptionId hoac orderCode de kiem tra thanh toan.", paid = false });
+            }
+
+            var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
+            var result = await _paymentService.GetPaymentStatusAsync(GetUserId(), normalizedAudience, subscriptionId, orderCode);
+            if (result == null)
+            {
+                return NotFound(new { message = "Khong tim thay giao dich VIP.", paid = false });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("payos/webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRequest request)
+        {
+            try
+            {
+                var result = await _paymentService.HandlePayOSWebhookAsync(request);
+                return Ok(new { success = true, result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("status")]
+        public async Task<IActionResult> GetVipStatus()
+        {
+            var userId = GetUserId();
+            var audience = GetCurrentAudience();
+            if (audience == null)
+            {
+                return Ok(new { isVip = false });
+            }
+
+            var now = DateTime.UtcNow;
+            var activeVip = await ActiveSubscriptionQuery(userId, audience)
+                .Include(s => s.SubscriptionPlan)
+                .OrderByDescending(s => s.EndDate)
+                .FirstOrDefaultAsync();
+
+            if (activeVip != null)
+            {
+                var durationDays = activeVip.SubscriptionPlan?.DurationDays ?? ParseDurationDays(activeVip.PlanName);
+                return Ok(new
+                {
+                    isVip = true,
+                    audience,
+                    subscriptionId = activeVip.SubscriptionId,
+                    planId = activeVip.SubscriptionPlanId,
+                    planName = activeVip.SubscriptionPlan?.Name ?? activeVip.PlanName,
+                    planCode = activeVip.PlanName,
+                    durationDays,
+                    autoApproveJobPosts = audience == "Employer" && durationDays >= 365,
+                    price = activeVip.Price,
+                    startDate = activeVip.StartDate,
+                    endDate = activeVip.EndDate,
+                    daysRemaining = (int)Math.Ceiling((activeVip.EndDate - now).TotalDays)
+                });
+            }
+
+            return Ok(new { isVip = false, audience });
+        }
+
+        [HttpGet("admin/plans")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminPlans([FromQuery] string? audience = null)
+        {
+            var normalizedAudience = NormalizeAudience(audience);
+            var query = _context.SubscriptionPlans.AsQueryable();
+            if (normalizedAudience != null)
+            {
+                query = query.Where(p => p.Audience == normalizedAudience);
+            }
+
+            var plans = await query
+                .OrderBy(p => p.Audience)
+                .ThenBy(p => p.SortOrder)
+                .ThenBy(p => p.DurationDays)
+                .Select(p => ToPlanResponse(p))
+                .ToListAsync();
+
+            return Ok(plans);
+        }
+
+        [HttpPost("admin/plans")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateAdminPlan([FromBody] SubscriptionPlanRequest request)
+        {
+            var validation = ValidatePlanRequest(request);
+            if (validation != null) return BadRequest(new { message = validation });
+
+            var audience = NormalizeAudience(request.Audience)!;
+            var code = NormalizeCode(request.Code);
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                code = $"{audience.ToLowerInvariant()}_{request.DurationDays}d_{Guid.NewGuid():N}"[..28];
+            }
+
+            var exists = await _context.SubscriptionPlans.AnyAsync(p => p.Audience == audience && p.Code == code);
+            if (exists)
+            {
+                return BadRequest(new { message = "Ma goi da ton tai trong nhom tai khoan nay." });
+            }
+
+            var plan = new SubscriptionPlan
+            {
+                Audience = audience,
+                Code = code,
+                Name = request.Name.Trim(),
+                Description = request.Description?.Trim(),
+                DurationDays = request.DurationDays,
+                Price = request.Price,
+                Currency = string.IsNullOrWhiteSpace(request.Currency) ? "VND" : request.Currency.Trim().ToUpperInvariant(),
+                IsActive = request.IsActive,
+                SortOrder = request.SortOrder,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.SubscriptionPlans.AddAsync(plan);
+            await _context.SaveChangesAsync();
+
+            return Ok(ToPlanResponse(plan));
+        }
+
+        [HttpPut("admin/plans/{planId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAdminPlan(int planId, [FromBody] SubscriptionPlanRequest request)
+        {
+            var plan = await _context.SubscriptionPlans.FirstOrDefaultAsync(p => p.SubscriptionPlanId == planId);
+            if (plan == null)
+            {
+                return NotFound(new { message = "Khong tim thay goi VIP." });
+            }
+
+            var validation = ValidatePlanRequest(request);
+            if (validation != null) return BadRequest(new { message = validation });
+
+            var audience = NormalizeAudience(request.Audience)!;
+            var code = NormalizeCode(request.Code);
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                code = plan.Code;
+            }
+
+            var exists = await _context.SubscriptionPlans
+                .AnyAsync(p => p.SubscriptionPlanId != planId && p.Audience == audience && p.Code == code);
+            if (exists)
+            {
+                return BadRequest(new { message = "Ma goi da ton tai trong nhom tai khoan nay." });
+            }
+
+            plan.Audience = audience;
+            plan.Code = code;
+            plan.Name = request.Name.Trim();
+            plan.Description = request.Description?.Trim();
+            plan.DurationDays = request.DurationDays;
+            plan.Price = request.Price;
+            plan.Currency = string.IsNullOrWhiteSpace(request.Currency) ? "VND" : request.Currency.Trim().ToUpperInvariant();
+            plan.IsActive = request.IsActive;
+            plan.SortOrder = request.SortOrder;
+            plan.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(ToPlanResponse(plan));
+        }
+
+        private IQueryable<Subscription> ActiveSubscriptionQuery(int userId, string audience)
+        {
+            var now = DateTime.UtcNow;
+            var query = _context.Subscriptions
+                .Where(s => s.Status == "Active" && s.EndDate >= now);
+
+            if (audience == "Employer")
+            {
+                return query.Where(s =>
+                    (s.UserId == userId && s.Audience == "Employer") ||
+                    s.EmployerId == userId);
+            }
+
+            return query.Where(s => s.UserId == userId && s.Audience == "Applicant");
+        }
+
+        private string? GetCurrentAudience()
+        {
+            if (User.IsInRole("Employer")) return "Employer";
+            if (User.IsInRole("Applicant")) return "Applicant";
+            return null;
+        }
+
+        private static string? NormalizeAudience(string? audience)
+        {
+            if (string.IsNullOrWhiteSpace(audience)) return null;
+            return AllowedAudiences.FirstOrDefault(a => string.Equals(a, audience.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string? NormalizeCode(string? code)
+        {
+            if (string.IsNullOrWhiteSpace(code)) return null;
+            var normalized = Regex.Replace(code.Trim().ToLowerInvariant(), "[^a-z0-9_-]+", "_").Trim('_');
+            return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+        }
+
+        private static string? ValidatePlanRequest(SubscriptionPlanRequest request)
+        {
+            if (request == null) return "Du lieu goi VIP khong hop le.";
+            if (NormalizeAudience(request.Audience) == null) return "Loai tai khoan phai la Applicant hoac Employer.";
+            if (string.IsNullOrWhiteSpace(request.Name)) return "Ten goi khong duoc de trong.";
+            if (!AllowedDurations.Contains(request.DurationDays)) return "Chi duoc tao goi 7 ngay, 1 thang hoac 1 nam.";
+            if (request.Price <= 0) return "Gia goi phai lon hon 0.";
+            return null;
+        }
+
+        private static int ParseDurationDays(string planName)
+        {
+            var match = Regex.Match(planName ?? "", @"(\d+)");
+            return match.Success && int.TryParse(match.Groups[1].Value, out var days) ? days : 30;
+        }
+
+        private static SubscriptionPlanResponse ToPlanResponse(SubscriptionPlan plan)
+        {
+            return new SubscriptionPlanResponse
+            {
+                SubscriptionPlanId = plan.SubscriptionPlanId,
+                Audience = plan.Audience,
+                Code = plan.Code,
+                Name = plan.Name,
+                Description = plan.Description,
+                DurationDays = plan.DurationDays,
+                Price = plan.Price,
+                Currency = plan.Currency,
+                IsActive = plan.IsActive,
+                SortOrder = plan.SortOrder,
+                CreatedAt = plan.CreatedAt,
+                UpdatedAt = plan.UpdatedAt
+            };
+        }
+
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        }
+    }
+
+    public class BuyPlanRequest
+    {
+        public int? PlanId { get; set; }
+        public int? DurationDays { get; set; }
+    }
+
+    public class SubscriptionPlanRequest
+    {
+        public string Audience { get; set; } = "";
+        public string? Code { get; set; }
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public int DurationDays { get; set; }
+        public decimal Price { get; set; }
+        public string? Currency { get; set; }
+        public bool IsActive { get; set; } = true;
+        public int SortOrder { get; set; }
+    }
+
+    public class SubscriptionPlanResponse
+    {
+        public int SubscriptionPlanId { get; set; }
+        public string Audience { get; set; } = "";
+        public string Code { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public int DurationDays { get; set; }
+        public decimal Price { get; set; }
+        public string Currency { get; set; } = "VND";
+        public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+}

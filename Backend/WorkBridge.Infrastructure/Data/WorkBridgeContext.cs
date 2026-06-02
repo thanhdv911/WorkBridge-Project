@@ -54,6 +54,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<PayrollPeriod> PayrollPeriods { get; set; }
 
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
     public virtual DbSet<Report> Reports { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
@@ -66,11 +68,17 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<ShiftPassRequest> ShiftPassRequests { get; set; }
 
+    public virtual DbSet<ShiftRegistrationWindow> ShiftRegistrationWindows { get; set; }
+
     public virtual DbSet<Subscription> Subscriptions { get; set; }
+
+    public virtual DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<WorkShift> WorkShifts { get; set; }
+
+    public virtual DbSet<EmployerShiftTiming> EmployerShiftTimings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -179,6 +187,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasKey(e => e.EmploymentId);
             entity.Property(e => e.Position).HasMaxLength(150);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.ExpectedShifts).HasMaxLength(100);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
@@ -232,6 +241,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.CompanyName).HasMaxLength(255);
             entity.Property(e => e.ContactEmail).HasMaxLength(255);
             entity.Property(e => e.ContactPhone).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
 
             entity.HasOne(d => d.Employer).WithOne(p => p.EmployerProfile)
                 .HasForeignKey<EmployerProfile>(d => d.EmployerId)
@@ -279,6 +289,9 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasDefaultValue("Draft");
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsFeatured).HasDefaultValue(false);
+            entity.Property(e => e.Position).HasMaxLength(150);
+            entity.Property(e => e.Vacancies);
 
             entity.HasOne(d => d.Category).WithMany(p => p.JobPosts)
                 .HasForeignKey(d => d.CategoryId)
@@ -289,6 +302,11 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.EmployerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__JobPosts__Employ__5629CD9C");
+
+            entity.HasOne(d => d.Branch).WithMany()
+                .HasForeignKey(d => d.BranchId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_JobPosts_Branches");
 
             entity.HasMany(d => d.Shifts).WithMany(p => p.JobPosts)
                 .UsingEntity<Dictionary<string, object>>(
@@ -399,6 +417,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.PaydayOfMonth).HasDefaultValue(5);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Sent");
+            entity.Property(e => e.ExpectedShifts).HasMaxLength(100);
             entity.Property(e => e.ExpiredAt).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
             entity.Property(e => e.AcceptedAt).HasColumnType("datetime");
@@ -472,6 +491,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
+            entity.Property(e => e.AiAnalysis).HasColumnType("nvarchar(max)");
 
             entity.HasOne(d => d.Reporter).WithMany(p => p.Reports)
                 .HasForeignKey(d => d.ReporterId)
@@ -538,7 +558,10 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
         {
             entity.HasKey(e => e.ShiftAssignmentId);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Assigned");
+            entity.Property(e => e.IsFixed).HasDefaultValue(false);
+            entity.Property(e => e.AssignmentSource).HasMaxLength(30).HasDefaultValue("EmployerAssign");
             entity.Property(e => e.AssignedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasIndex(e => new { e.WorkShiftId, e.EmployeeUserId, e.Status });
             entity.HasOne<WorkShift>()
                 .WithMany()
                 .HasForeignKey(e => e.WorkShiftId)
@@ -551,6 +574,41 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .WithMany()
                 .HasForeignKey(e => e.EmployeeUserId)
                 .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<ShiftRegistrationWindow>(entity =>
+        {
+            entity.HasKey(e => e.ShiftRegistrationWindowId);
+            entity.Property(e => e.WeekStartDate).HasColumnType("datetime");
+            entity.Property(e => e.OpenAt).HasColumnType("datetime");
+            entity.Property(e => e.CloseAt).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Open");
+            entity.Property(e => e.MinFixedShifts).HasDefaultValue(3);
+            entity.Property(e => e.PublishedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.FinalizedAt).HasColumnType("datetime");
+            entity.HasIndex(e => new { e.EmployerId, e.BranchId, e.WeekStartDate }).IsUnique();
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<Branch>()
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<EmployerShiftTiming>(entity =>
+        {
+            entity.HasKey(e => e.EmployerShiftTimingId);
+            entity.Property(e => e.ShiftName).HasMaxLength(50);
+            entity.Property(e => e.StartTime).HasMaxLength(5);
+            entity.Property(e => e.EndTime).HasMaxLength(5);
+            entity.Property(e => e.RequiredPeople).HasDefaultValue(1);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.HasOne<EmployerProfile>()
+                .WithMany()
+                .HasForeignKey(e => e.EmployerId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ShiftPassRequest>(entity =>
@@ -582,10 +640,36 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
+        modelBuilder.Entity<SubscriptionPlan>(entity =>
+        {
+            entity.HasKey(e => e.SubscriptionPlanId);
+
+            entity.HasIndex(e => new { e.Audience, e.Code })
+                .IsUnique()
+                .HasDatabaseName("UQ_SubscriptionPlans_Audience_Code");
+
+            entity.Property(e => e.Audience).HasMaxLength(20);
+            entity.Property(e => e.Code).HasMaxLength(50);
+            entity.Property(e => e.Currency)
+                .HasMaxLength(10)
+                .HasDefaultValue("VND");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Name).HasMaxLength(120);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<Subscription>(entity =>
         {
             entity.HasKey(e => e.SubscriptionId).HasName("PK__Subscrip__9A2B249DA23168A5");
 
+            entity.Property(e => e.Audience)
+                .HasMaxLength(20)
+                .HasDefaultValue("Employer");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.PlanName).HasMaxLength(100);
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
@@ -600,6 +684,33 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .HasForeignKey(d => d.EmployerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Subscript__Emplo__7E37BEF6");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Subscriptions_Users_UserId");
+
+            entity.HasOne(d => d.SubscriptionPlan)
+                .WithMany(p => p.Subscriptions)
+                .HasForeignKey(d => d.SubscriptionPlanId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Subscriptions_SubscriptionPlans_SubscriptionPlanId");
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.PasswordResetTokenId);
+            entity.Property(e => e.TokenHash).HasMaxLength(128);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.UsedAt).HasColumnType("datetime");
+            entity.HasIndex(e => e.TokenHash);
+            entity.HasIndex(e => new { e.UserId, e.UsedAt, e.ExpiresAt });
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -635,6 +746,7 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.RequiredPeople).HasDefaultValue(1);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Published");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.HasIndex(e => e.RegistrationWindowId);
             entity.HasOne<EmployerProfile>()
                 .WithMany()
                 .HasForeignKey(e => e.EmployerId)
@@ -642,6 +754,10 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.HasOne<Branch>()
                 .WithMany()
                 .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<ShiftRegistrationWindow>()
+                .WithMany()
+                .HasForeignKey(e => e.RegistrationWindowId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
 

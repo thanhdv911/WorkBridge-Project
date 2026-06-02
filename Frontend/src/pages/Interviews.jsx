@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { signalRService } from '../services/signalrService';
+import Pagination from '../components/shared/Pagination';
+
+const ITEMS_PER_PAGE = 5;
 
 const statusClass = (status) => {
     switch (status) {
@@ -14,9 +17,29 @@ const statusClass = (status) => {
     }
 };
 
+const translateStatus = (status) => {
+    switch (status) {
+        case 'Scheduled': return 'Đang chờ';
+        case 'Confirmed': return 'Đã xác nhận';
+        case 'ChangeRequested': return 'Yêu cầu đổi lịch';
+        case 'Declined': return 'Từ chối';
+        case 'Completed': return 'Hoàn thành';
+        default: return status;
+    }
+};
+
+const translateResult = (result) => {
+    switch (result) {
+        case 'Passed': return 'Đạt';
+        case 'Failed': return 'Không đạt';
+        default: return result;
+    }
+};
+
 const Interviews = () => {
     const navigate = useNavigate();
     const [interviews, setInterviews] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem('token');
 
@@ -33,12 +56,17 @@ const Interviews = () => {
         return () => signalRService.off('InterviewStatusChanged', onInterviewChanged);
     }, [token, navigate]);
 
+    useEffect(() => {
+        const totalPages = Math.max(1, Math.ceil(interviews.length / ITEMS_PER_PAGE));
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [interviews.length, currentPage]);
+
     const fetchInterviews = async () => {
         try {
             const response = await api.get('/interviews/my');
             setInterviews(response.data || []);
-        } catch (error) {
-            toast.error('Could not load interviews.');
+        } catch {
+            toast.error('Không thể tải lịch phỏng vấn.');
         } finally {
             setLoading(false);
         }
@@ -47,10 +75,10 @@ const Interviews = () => {
     const updateStatus = async (interviewId, status) => {
         try {
             await api.patch(`/interviews/${interviewId}/status`, { status });
-            toast.success(`Interview ${status}.`);
+            toast.success(`Đã cập nhật trạng thái phỏng vấn.`);
             fetchInterviews();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Could not update interview.');
+            toast.error(error.response?.data?.message || 'Không thể cập nhật phỏng vấn.');
         }
     };
 
@@ -62,39 +90,44 @@ const Interviews = () => {
         );
     }
 
+    const paginatedInterviews = interviews.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
     return (
         <div className="bg-bg-light min-h-screen pb-20 font-display overflow-x-hidden">
             <div className="bg-white border-b border-slate-200/60 pb-10 pt-8">
-                <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10">
-                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">Interviews</h1>
-                    <p className="text-slate-500 mt-2">Accept or reject offline interview invitations from employers.</p>
+                <div className="w-full mx-auto px-4 sm:px-4 sm:px-6 lg:px-8">
+                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">Phỏng vấn</h1>
+                    <p className="text-slate-500 mt-2">Chấp nhận hoặc từ chối lời mời phỏng vấn từ nhà tuyển dụng.</p>
                 </div>
             </div>
 
-            <main className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 mt-8">
+            <main className="w-full mx-auto px-4 sm:px-4 sm:px-6 lg:px-8 mt-8">
                 {interviews.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-12 text-center text-slate-500">
-                        No interviews yet.
+                        Chưa có lịch phỏng vấn.
                     </div>
                 ) : (
                     <div className="grid gap-4">
-                        {interviews.map(interview => (
+                        {paginatedInterviews.map(interview => (
                             <div key={interview.interviewId} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6 grid lg:grid-cols-[minmax(0,1fr)_auto] gap-4 lg:items-center">
                                 <div className="min-w-0">
                                     <div className="flex flex-wrap gap-2 mb-3">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusClass(interview.status)}`}>
-                                            {interview.status}
+                                            {translateStatus(interview.status)}
                                         </span>
                                         {interview.result && (
                                             <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-slate-50 text-slate-600 border-slate-100">
-                                                {interview.result}
+                                                {translateResult(interview.result)}
                                             </span>
                                         )}
                                     </div>
                                     <h2 className="font-black text-slate-800 truncate">{interview.jobTitle}</h2>
                                     <p className="text-sm text-slate-500 truncate">{interview.companyName}</p>
                                     <p className="text-sm text-slate-600 mt-2">
-                                        {new Date(interview.scheduledAt).toLocaleString()} at {interview.location}
+                                        {new Date(interview.scheduledAt).toLocaleString('vi-VN')} tại {interview.location}
                                     </p>
                                     {interview.note && <p className="text-sm text-slate-500 mt-2 break-words">{interview.note}</p>}
                                 </div>
@@ -102,15 +135,23 @@ const Interviews = () => {
                                 {interview.status === 'Scheduled' && (
                                     <div className="flex flex-wrap gap-2 lg:justify-end">
                                         <button onClick={() => updateStatus(interview.interviewId, 'Confirmed')} className="h-10 px-4 rounded-xl bg-emerald-500 text-white text-sm font-bold">
-                                            Accept
+                                            Chấp nhận
                                         </button>
                                         <button onClick={() => updateStatus(interview.interviewId, 'Declined')} className="h-10 px-4 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm font-bold">
-                                            Reject
+                                            Từ chối
                                         </button>
                                     </div>
                                 )}
                             </div>
                         ))}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={interviews.length}
+                            itemsPerPage={ITEMS_PER_PAGE}
+                            onPageChange={setCurrentPage}
+                            label="phỏng vấn"
+                            className="rounded-2xl border border-slate-200/60 shadow-sm"
+                        />
                     </div>
                 )}
             </main>

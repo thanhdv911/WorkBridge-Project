@@ -14,10 +14,12 @@ namespace WorkBridge.Application.Services
     public class AdminService : IAdminService
     {
         private readonly IWorkBridgeContext _context;
+        private readonly INotificationService _notificationService;
 
-        public AdminService(IWorkBridgeContext context)
+        public AdminService(IWorkBridgeContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         // User Management
@@ -25,6 +27,8 @@ namespace WorkBridge.Application.Services
         {
             return await _context.Users
                 .Include(u => u.Role)
+                .Include(u => u.ApplicantProfile)
+                .Include(u => u.EmployerProfile)
                 .OrderByDescending(u => u.CreatedAt)
                 .Select(u => new AdminUserResponse
                 {
@@ -33,6 +37,16 @@ namespace WorkBridge.Application.Services
                     FullName = u.FullName,
                     RoleName = u.Role.RoleName,
                     Status = u.Status,
+                    ReputationScore = u.Role.RoleName == "Employer"
+                        ? u.EmployerProfile != null ? u.EmployerProfile.ReputationScore : null
+                        : u.Role.RoleName == "Applicant"
+                            ? u.ApplicantProfile != null ? u.ApplicantProfile.ReputationScore : null
+                            : null,
+                    ReportCount = u.Role.RoleName == "Employer"
+                        ? u.EmployerProfile != null ? u.EmployerProfile.ReportCount : null
+                        : u.Role.RoleName == "Applicant"
+                            ? u.ApplicantProfile != null ? u.ApplicantProfile.ReportCount : null
+                            : null,
                     CreatedAt = u.CreatedAt
                 })
                 .ToListAsync();
@@ -44,6 +58,39 @@ namespace WorkBridge.Application.Services
             if (user == null) return false;
 
             user.Status = status;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateUserReputationAsync(int userId, int reputationScore)
+        {
+            var score = Math.Clamp(reputationScore, 0, 100);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.ApplicantProfile)
+                .Include(u => u.EmployerProfile)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null) return false;
+
+            if (user.Role.RoleName == "Employer")
+            {
+                if (user.EmployerProfile == null) return false;
+
+                user.EmployerProfile.ReputationScore = score;
+            }
+            else if (user.Role.RoleName == "Applicant")
+            {
+                if (user.ApplicantProfile == null) return false;
+
+                user.ApplicantProfile.ReputationScore = score;
+            }
+            else
+            {
+                return false;
+            }
+
             user.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
@@ -81,9 +128,40 @@ namespace WorkBridge.Application.Services
             var job = await _context.JobPosts.FindAsync(jobId);
             if (job == null) return false;
 
+            string oldStatus = job.Status;
             job.Status = status;
             job.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            if (oldStatus != status)
+            {
+                try
+                {
+                    string title = "";
+                    string message = "";
+
+                    if (status.Equals("Published", StringComparison.OrdinalIgnoreCase))
+                    {
+                        title = "Tin tuyển dụng đã được phê duyệt";
+                        message = $"Tin tuyển dụng '{job.Title}' của bạn đã được kiểm duyệt và đăng tải thành công trên WorkBridge.";
+                    }
+                    else if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+                    {
+                        title = "Tin tuyển dụng không được phê duyệt";
+                        message = $"Tin tuyển dụng '{job.Title}' của bạn không được phê duyệt do chưa đáp ứng đủ tiêu chuẩn kiểm duyệt của hệ thống.";
+                    }
+
+                    if (!string.IsNullOrEmpty(title))
+                    {
+                        await _notificationService.CreateNotificationAsync(job.EmployerId, title, message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending job status update notification: {ex.Message}");
+                }
+            }
+
             return true;
         }
 
@@ -151,19 +229,22 @@ namespace WorkBridge.Application.Services
             var startOfMonth = new DateTime(now.Year, now.Month, 1);
             var last30Days = now.AddDays(-30);
 
-            var totalUsers = await _context.Users.CountAsync();
-            var totalJobs = await _context.JobPosts.CountAsync();
-            var totalApplications = await _context.Applications.CountAsync();
+            // Fetch actual counts: RoleId 3 = Applicant/Student, RoleId 2 = Employer, Job Status Published & !IsDeleted
+            var totalUsersAll = await _context.Users.CountAsync(u => !u.IsDeleted);
+            var totalApplicants = await _context.Users.CountAsync(u => u.RoleId == 3 && !u.IsDeleted);
+            var totalEmployers = await _context.Users.CountAsync(u => u.RoleId == 2 && !u.IsDeleted);
+            var totalJobs = await _context.JobPosts.CountAsync(j => j.Status == "Published" && !j.IsDeleted);
+            var totalApplications = await _context.Applications.CountAsync(a => !a.IsDeleted);
 
-            var acceptedApps = await _context.Applications.CountAsync(a => a.Status == "Accepted");
-            var successRate = totalApplications > 0 ? (double)acceptedApps / totalApplications * 100 : 0;
+            var totalHired = await _context.Applications.CountAsync(a => (a.Status == "Hired" || a.Status == "Accepted") && !a.IsDeleted);
+            var successRate = totalApplications > 0 ? (double)totalHired / totalApplications * 100 : 0;
 
-            var newUsersThisMonth = await _context.Users.CountAsync(u => u.CreatedAt >= startOfMonth);
-            var newJobsThisMonth = await _context.JobPosts.CountAsync(j => j.CreatedAt >= startOfMonth);
+            var newUsersThisMonth = await _context.Users.CountAsync(u => u.CreatedAt >= startOfMonth && !u.IsDeleted);
+            var newJobsThisMonth = await _context.JobPosts.CountAsync(j => j.CreatedAt >= startOfMonth && !j.IsDeleted);
 
             // Growth data for last 30 days
             var jobGrowthRaw = await _context.JobPosts
-                .Where(j => j.CreatedAt >= last30Days)
+                .Where(j => j.CreatedAt >= last30Days && !j.IsDeleted)
                 .Select(j => j.CreatedAt!.Value.Date)
                 .ToListAsync();
 
@@ -178,7 +259,7 @@ namespace WorkBridge.Application.Services
                 .ToList();
 
             var appGrowthRaw = await _context.Applications
-                .Where(a => a.AppliedAt >= last30Days)
+                .Where(a => a.AppliedAt >= last30Days && !a.IsDeleted)
                 .Select(a => a.AppliedAt!.Value.Date)
                 .ToListAsync();
 
@@ -194,7 +275,10 @@ namespace WorkBridge.Application.Services
 
             return new AdminStatsResponse
             {
-                TotalUsers = totalUsers,
+                TotalUsers = totalUsersAll,
+                TotalEmployers = totalEmployers,
+                TotalApplicants = totalApplicants,
+                TotalHired = totalHired,
                 TotalJobs = totalJobs,
                 TotalApplications = totalApplications,
                 ApplicationSuccessRate = Math.Round(successRate, 1),

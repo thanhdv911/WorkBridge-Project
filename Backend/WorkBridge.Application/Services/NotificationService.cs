@@ -15,11 +15,13 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly IHubNotifier _hubNotifier;
+        private readonly IEmailQueue _emailQueue;
 
-        public NotificationService(IWorkBridgeContext context, IHubNotifier hubNotifier)
+        public NotificationService(IWorkBridgeContext context, IHubNotifier hubNotifier, IEmailQueue emailQueue)
         {
             _context = context;
             _hubNotifier = hubNotifier;
+            _emailQueue = emailQueue;
         }
 
         public async Task CreateNotificationAsync(int userId, string title, string message)
@@ -45,19 +47,37 @@ namespace WorkBridge.Application.Services
                 CreatedAt = notification.CreatedAt
             };
 
-            // Push real-time to the target user (fire-and-forget)
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _hubNotifier.SendNotificationAsync(userId, response);
+            // Query unread count synchronously on the request thread before launching the fire-and-forget task
+            var unreadCount = await _context.Notifications
+                .CountAsync(n => n.UserId == userId && !n.IsRead);
 
-                    var unreadCount = await _context.Notifications
-                        .CountAsync(n => n.UserId == userId && !n.IsRead);
-                    await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+            // Push real-time to the target user safely on the request thread
+            try
+            {
+                await _hubNotifier.SendNotificationAsync(userId, response);
+                await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR Notification Error]: {ex.Message}");
+            }
+
+            try
+            {
+                var user = await _context.Users
+                    .Where(u => u.UserId == userId && !u.IsDeleted && u.Status == "Active")
+                    .Select(u => new { u.Email, u.FullName })
+                    .FirstOrDefaultAsync();
+
+                if (user != null)
+                {
+                    _emailQueue.QueueNotificationEmail(user.Email, user.FullName, title, message);
                 }
-                catch { /* Hub errors must never break notification creation */ }
-            });
+            }
+            catch
+            {
+                // Email queueing must never block in-app notifications or the main business flow.
+            }
         }
 
         public async Task<IEnumerable<NotificationResponse>> GetNotificationsAsync(int userId)
@@ -86,17 +106,40 @@ namespace WorkBridge.Application.Services
             notification.IsRead = true;
             await _context.SaveChangesAsync();
 
-            // Update the badge count in real-time
-            _ = Task.Run(async () =>
+            // Query unread count synchronously on the request thread before launching the fire-and-forget task
+            var unreadCount = await _context.Notifications
+                .CountAsync(n => n.UserId == userId && !n.IsRead);
+
+            // Update the badge count in real-time safely on the request thread
+            try
             {
-                try
-                {
-                    var unreadCount = await _context.Notifications
-                        .CountAsync(n => n.UserId == userId && !n.IsRead);
-                    await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
-                }
-                catch { }
-            });
+                await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+            }
+            catch { }
+
+            return true;
+        }
+
+        public async Task<bool> MarkAllAsReadAsync(int userId)
+        {
+            var unreadNotifications = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            if (!unreadNotifications.Any()) return true;
+
+            foreach (var n in unreadNotifications)
+            {
+                n.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _hubNotifier.SendNotificationCountAsync(userId, 0);
+            }
+            catch { }
 
             return true;
         }
@@ -105,6 +148,43 @@ namespace WorkBridge.Application.Services
         {
             return await _context.Notifications
                 .CountAsync(n => n.UserId == userId && !n.IsRead);
+        }
+
+        public async Task<bool> DeleteNotificationAsync(int userId, int notificationId)
+        {
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.NotificationId == notificationId && n.UserId == userId);
+
+            if (notification == null) return false;
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+
+            // Push real-time unread count update
+            var unreadCount = await _context.Notifications
+                .CountAsync(n => n.UserId == userId && !n.IsRead);
+
+            try
+            {
+                await _hubNotifier.SendNotificationCountAsync(userId, unreadCount);
+            }
+            catch { }
+
+            return true;
+        }
+
+        public async Task<bool> DeleteAllReadNotificationsAsync(int userId)
+        {
+            var readNotifications = await _context.Notifications
+                .Where(n => n.UserId == userId && n.IsRead)
+                .ToListAsync();
+
+            if (!readNotifications.Any()) return true;
+
+            _context.Notifications.RemoveRange(readNotifications);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

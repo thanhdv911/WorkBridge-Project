@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using WorkBridge.Application.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using WorkBridge.Application.DTOs;
 using WorkBridge.Domain.Entities;
 
@@ -80,6 +83,232 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
 
             return relativeUrl;
+        }
+
+        public async Task<bool> DeleteCvAsync(int userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.ApplicantProfile)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null || user.IsDeleted) return false;
+
+            if (user.ApplicantProfile == null)
+            {
+                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+            }
+
+            var currentCvUrl = user.ApplicantProfile.CvUrl;
+            user.ApplicantProfile.CvUrl = null;
+            await _context.SaveChangesAsync();
+
+            TryDeleteUploadedCvFile(currentCvUrl);
+            return true;
+        }
+
+        private static void TryDeleteUploadedCvFile(string? cvUrl)
+        {
+            if (string.IsNullOrWhiteSpace(cvUrl)) return;
+
+            try
+            {
+                var uploadsFolder = System.IO.Path.GetFullPath(
+                    System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs"));
+                var cleanUrl = cvUrl.Split('?', '#')[0]
+                    .TrimStart('/', '\\')
+                    .Replace('/', System.IO.Path.DirectorySeparatorChar)
+                    .Replace('\\', System.IO.Path.DirectorySeparatorChar);
+                const string uploadsPrefix = "uploads";
+                var fileName = cleanUrl;
+
+                var cvsMarker = $"{System.IO.Path.DirectorySeparatorChar}cvs{System.IO.Path.DirectorySeparatorChar}";
+                var markerIndex = cleanUrl.IndexOf(cvsMarker, System.StringComparison.OrdinalIgnoreCase);
+                if (markerIndex >= 0)
+                {
+                    fileName = cleanUrl[(markerIndex + cvsMarker.Length)..];
+                }
+                else if (cleanUrl.StartsWith(uploadsPrefix + System.IO.Path.DirectorySeparatorChar, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    fileName = System.IO.Path.GetFileName(cleanUrl);
+                }
+
+                var fullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(uploadsFolder, fileName));
+                if (fullPath.StartsWith(uploadsFolder, System.StringComparison.OrdinalIgnoreCase) && System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+            catch
+            {
+                // DB state is the source of truth; file cleanup should not block the user's action.
+            }
+        }
+
+        public async Task<string?> SaveGeneratedCvAsync(int userId, SaveGeneratedCvRequest request)
+        {
+            var user = await _context.Users
+                .Include(u => u.ApplicantProfile)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null || user.IsDeleted) return null;
+
+            if (user.ApplicantProfile == null)
+            {
+                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+            }
+
+            var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs");
+            if (!System.IO.Directory.Exists(uploadsFolder))
+            {
+                System.IO.Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"CV_{userId}_AI_{System.DateTime.UtcNow:yyyyMMddHHmmss}_{System.Guid.NewGuid():N}.pdf";
+            var filePath = System.IO.Path.Combine(uploadsFolder, fileName);
+
+            GenerateCvPdf(filePath, request, user.FullName, user.Email);
+
+            var relativeUrl = $"/uploads/cvs/{fileName}";
+            user.ApplicantProfile.CvUrl = relativeUrl;
+            await _context.SaveChangesAsync();
+
+            return relativeUrl;
+        }
+
+        private static void GenerateCvPdf(string filePath, SaveGeneratedCvRequest request, string? fallbackName, string? fallbackEmail)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var fullName = CleanPdfText(request.FullName) ?? CleanPdfText(fallbackName) ?? "Ứng viên WorkBridge";
+            var contactLine = CleanPdfText(request.ContactLine) ?? CleanPdfText(fallbackEmail) ?? "";
+            var headline = CleanPdfText(request.Headline);
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(38);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(text => text
+                        .FontFamily("Arial")
+                        .FontSize(10)
+                        .LineHeight(1.35f)
+                        .FontColor(Colors.BlueGrey.Darken4));
+
+                    page.Content().Column(column =>
+                    {
+                        column.Spacing(10);
+
+                        column.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(header =>
+                            {
+                                header.Item().Text(fullName)
+                                    .FontSize(24)
+                                    .Bold()
+                                    .FontColor(Colors.BlueGrey.Darken4);
+
+                                if (!string.IsNullOrWhiteSpace(headline))
+                                {
+                                    header.Item().PaddingTop(4).Text(headline)
+                                        .FontSize(12)
+                                        .SemiBold()
+                                        .FontColor(Colors.Blue.Darken2);
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(contactLine))
+                                {
+                                    header.Item().PaddingTop(5).Text(contactLine)
+                                        .FontSize(9)
+                                        .FontColor(Colors.BlueGrey.Darken1);
+                                }
+                            });
+
+                            row.ConstantItem(72)
+                                .Height(72)
+                                .Background(Colors.Blue.Lighten5)
+                                .Border(1)
+                                .BorderColor(Colors.Blue.Lighten3)
+                                .AlignCenter()
+                                .AlignMiddle()
+                                .Text("WB")
+                                .Bold()
+                                .FontSize(20)
+                                .FontColor(Colors.Blue.Darken2);
+                        });
+
+                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Blue.Lighten3);
+
+                        AddCvSection(column, "Giới thiệu", request.Summary, false);
+                        AddCvSection(column, "Kỹ năng", request.Skills, true);
+                        AddCvSection(column, "Kinh nghiệm", request.Experience, true);
+                        AddCvSection(column, "Học vấn", request.Education, true);
+                        AddCvSection(column, "Dự án / Hoạt động", request.Projects, true);
+                        AddCvSection(column, "Thành tích", request.Achievements, true);
+                        AddCvSection(column, "Thời gian rảnh", request.Availability, false);
+                        AddCvSection(column, "Thông tin thêm", request.Additional, false);
+                    });
+
+                    page.Footer().AlignCenter().Text(text =>
+                    {
+                        text.Span("CV được cập nhật bằng WorkBridge AI").FontSize(8).FontColor(Colors.BlueGrey.Lighten1);
+                    });
+                });
+            }).GeneratePdf(filePath);
+        }
+
+        private static void AddCvSection(ColumnDescriptor column, string title, string? content, bool preferBullets)
+        {
+            var lines = SplitPdfLines(content).ToList();
+            if (lines.Count == 0) return;
+
+            column.Item().PaddingTop(12).Text(title.ToUpperInvariant())
+                .FontSize(9)
+                .Bold()
+                .FontColor(Colors.Blue.Darken2);
+
+            column.Item().PaddingTop(3).LineHorizontal(0.75f).LineColor(Colors.Blue.Lighten4);
+
+            if (preferBullets && lines.Count > 1)
+            {
+                foreach (var line in lines)
+                {
+                    column.Item().PaddingTop(5).Row(row =>
+                    {
+                        row.ConstantItem(12).Text("•").FontColor(Colors.Blue.Darken2);
+                        row.RelativeItem().Text(line).FontSize(9.5f);
+                    });
+                }
+            }
+            else
+            {
+                column.Item().PaddingTop(5).Text(string.Join("\n", lines)).FontSize(9.5f);
+            }
+        }
+
+        private static IEnumerable<string> SplitPdfLines(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return value
+                .Replace("\r", "\n")
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.Trim().TrimStart('-', '•', '*').Trim())
+                .Where(line => line.Length > 0);
+        }
+
+        private static string? CleanPdfText(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            return string.Join(" ", value.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Trim();
         }
 
         public async Task<bool> UpdateApplicantProfileAsync(int userId, UpdateApplicantProfileRequest request)

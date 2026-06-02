@@ -23,6 +23,10 @@ public partial class ApplicantProfile
 
     public string? CvUrl { get; set; }
 
+    public int ReputationScore { get; set; }
+
+    public int ReportCount { get; set; }
+
     public virtual User Applicant { get; set; } = null!;
 
     public virtual ICollection<ApplicantExperience> ApplicantExperiences { get; set; } = new List<ApplicantExperience>();

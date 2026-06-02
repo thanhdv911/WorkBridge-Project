@@ -1,44 +1,43 @@
+import WorkBridgeLogo from '../shared/WorkBridgeLogo';
+
 export default function Footer() {
   return (
-    <footer className="bg-white dark:bg-slate-900 border-t border-slate-200/50 dark:border-slate-800/50">
-      <div className="max-w-[1320px] mx-auto px-6 lg:px-10 py-12">
+    <footer className="bg-[#faf8f4] border-t border-[#e5e1d8]/60">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
-            <a href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="material-symbols-outlined !text-lg text-white">work</span>
-              </div>
-              <span className="font-extrabold">Work<span className="text-primary">Bridge</span></span>
+            <a href="/" className="inline-flex items-center mb-4" aria-label="WorkBridge">
+              <WorkBridgeLogo imageClassName="h-12 w-auto max-w-[198px] drop-shadow-[0_6px_14px_rgba(37,99,235,0.12)]" />
             </a>
-            <p className="text-sm text-slate-500 leading-relaxed">Connecting students with flexible work opportunities.</p>
+            <p className="text-sm text-slate-500 leading-relaxed">Kết nối sinh viên với cơ hội việc làm linh hoạt.</p>
           </div>
           <div>
-            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">For Students</h4>
+            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">Dành cho sinh viên</h4>
             <ul className="space-y-2.5 text-sm text-slate-500">
-              <li><a href="/jobs" className="hover:text-primary transition-colors">Browse Jobs</a></li>
-              <li><a href="/profile" className="hover:text-primary transition-colors">My Profile</a></li>
-              <li><a href="/my-applications" className="hover:text-primary transition-colors">Applications</a></li>
+              <li><a href="/jobs" className="hover:text-primary transition-colors">Tìm việc</a></li>
+              <li><a href="/profile" className="hover:text-primary transition-colors">Hồ sơ của tôi</a></li>
+              <li><a href="/my-applications" className="hover:text-primary transition-colors">Đơn ứng tuyển</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">For Employers</h4>
+            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">Dành cho nhà tuyển dụng</h4>
             <ul className="space-y-2.5 text-sm text-slate-500">
-              <li><a href="/post-job" className="hover:text-primary transition-colors">Post a Job</a></li>
-              <li><a href="/review-applicants" className="hover:text-primary transition-colors">Review Applicants</a></li>
-              <li><a href="/dashboard" className="hover:text-primary transition-colors">Dashboard</a></li>
+              <li><a href="/post-job" className="hover:text-primary transition-colors">Đăng tin tuyển dụng</a></li>
+              <li><a href="/review-applicants" className="hover:text-primary transition-colors">Duyệt ứng viên</a></li>
+              <li><a href="/dashboard" className="hover:text-primary transition-colors">Bảng điều khiển</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">Company</h4>
+            <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">Về chúng tôi</h4>
             <ul className="space-y-2.5 text-sm text-slate-500">
-              <li><a href="/about" className="hover:text-primary transition-colors">About</a></li>
-              <li><a href="/contact" className="hover:text-primary transition-colors">Contact</a></li>
-              <li><a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+              <li><a href="/about" className="hover:text-primary transition-colors">Giới thiệu</a></li>
+              <li><a href="/contact" className="hover:text-primary transition-colors">Liên hệ</a></li>
+              <li><a href="/privacy" className="hover:text-primary transition-colors">Chính sách bảo mật</a></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-slate-100 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-slate-400 text-sm">&copy; 2026 WorkBridge. All rights reserved.</p>
+        <div className="border-t border-[#e5e1d8]/60 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-slate-400 text-sm">&copy; 2026 WorkBridge. Bản quyền thuộc về WorkBridge.</p>
           <div className="flex gap-3">
             <a href="#" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors">
               <span className="material-symbols-outlined !text-lg">language</span>

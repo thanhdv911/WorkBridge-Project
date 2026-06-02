@@ -23,13 +23,30 @@ namespace WorkBridge.Application.DTOs
         public int UserId { get; set; }
     }
 
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+    }
+
+    public class AuthMessageResponse
+    {
+        public string Message { get; set; } = string.Empty;
+    }
+
   public class ExternalAuthRequest
   {
-      public string IdToken { get; set; }
+      public string IdToken { get; set; } = string.Empty;
   }
 
   public class FacebookAuthRequest
   {
-      public string AccessToken { get; set; }
+      public string AccessToken { get; set; } = string.Empty;
   }
 }

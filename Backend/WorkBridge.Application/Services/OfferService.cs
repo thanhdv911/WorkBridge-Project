@@ -32,68 +32,210 @@ namespace WorkBridge.Application.Services
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == request.ApplicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
             if (application == null) return (null, "Application not found.");
-            if (application.Status != "Accepted" && application.Status != "Interview Passed")
+            if (application.Status == "Rejected")
             {
-                return (null, "Only accepted or interview-passed applications can receive an offer.");
+                return (null, "This application cannot receive an offer at this stage.");
             }
 
-            var hasOpenOffer = await _context.Offers.AnyAsync(o =>
-                o.ApplicationId == request.ApplicationId &&
-                (o.Status == "Sent" || o.Status == "Accepted"));
-            if (hasOpenOffer) return (null, "This application already has an active offer.");
-
-            var offer = new Offer
+            var employerProfile = await _context.EmployerProfiles
+                .FirstOrDefaultAsync(ep => ep.EmployerId == employerId);
+            if (employerProfile != null && (employerProfile.Status == "Suspended" || employerProfile.ReputationScore < 80))
             {
-                ApplicationId = application.ApplicationId,
-                EmployerId = employerId,
-                ApplicantId = application.ApplicantId,
-                BranchId = branch.BranchId,
-                Position = request.Position.Trim(),
-                HourlyRate = request.HourlyRate,
-                StartDate = request.StartDate.Date,
-                PaydayOfMonth = request.PaydayOfMonth,
-                Status = "Sent",
-                ExpiredAt = request.ExpiredAt,
-                CreatedAt = DateTime.UtcNow
-            };
+                return (null, "Tài khoản doanh nghiệp của bạn đã bị khóa do điểm uy tín quá thấp.");
+            }
 
-            await _context.Offers.AddAsync(offer);
+            var hasActiveEmployment = await _context.Employments.AnyAsync(e =>
+                e.EmployerId == employerId &&
+                e.EmployeeUserId == application.ApplicantId &&
+                e.Status == "Active");
+            if (hasActiveEmployment)
+            {
+                return (null, "Applicant is already an active employee for this employer.");
+            }
+
+            var now = DateTime.UtcNow;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var offer = await _context.Offers
+                .Where(o => o.ApplicationId == request.ApplicationId && o.Status == "Sent")
+                .OrderByDescending(o => o.CreatedAt)
+                .FirstOrDefaultAsync();
+            var isRevision = offer != null;
+
+            if (offer == null)
+            {
+                offer = new Offer
+                {
+                    ApplicationId = application.ApplicationId,
+                    EmployerId = employerId,
+                    ApplicantId = application.ApplicantId,
+                    Status = "Sent",
+                    CreatedAt = now
+                };
+                await _context.Offers.AddAsync(offer);
+            }
+
+            ApplyOfferFields(offer, branch.BranchId, request.Position, request.HourlyRate, request.StartDate, request.PaydayOfMonth, request.ExpiredAt, request.ExpectedShifts);
             application.Status = "Offered";
-            application.RespondedAt = DateTime.UtcNow;
+            application.RespondedAt = now;
             await _context.SaveChangesAsync();
+
+            await CancelOtherPendingOffersAsync(offer.ApplicationId, offer.OfferId, now);
+
+            var offerMessage = await UpsertOfferMessageAsync(
+                employerId,
+                application.ApplicantId,
+                application.JobPostId,
+                offer.OfferId,
+                now);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             await _notificationService.CreateNotificationAsync(
                 application.ApplicantId,
-                "New Job Offer",
-                $"You received an offer for '{application.JobPost.Title}'."
+                isRevision ? "Job Offer Updated" : "New Job Offer",
+                isRevision
+                    ? $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond."
+                    : $"You received a job offer for '{application.JobPost.Title}'. Open WorkBridge to review the salary, start date, branch, and accept or decline the offer."
             );
 
             var response = await GetOfferResponseAsync(offer.OfferId);
+            var messageResponse = new MessageResponse
+            {
+                MessageId = offerMessage.MessageId,
+                SenderId = offerMessage.SenderId,
+                SenderName = (await _context.Users.FindAsync(employerId))?.FullName ?? "",
+                ReceiverId = offerMessage.ReceiverId,
+                Content = offerMessage.Content,
+                MessageType = offerMessage.MessageType,
+                Offer = response,
+                IsRead = false,
+                SentAt = offerMessage.SentAt
+            };
+
             if (response != null)
             {
                 _ = Task.Run(async () =>
                 {
-                    try { await _hubNotifier.NotifyOfferChangedAsync(employerId, application.ApplicantId, response); }
+                    try
+                    {
+                        await _hubNotifier.NotifyOfferChangedAsync(employerId, application.ApplicantId, response);
+                        await _hubNotifier.SendMessageToUsersAsync(employerId, application.ApplicantId, messageResponse);
+                        await _hubNotifier.NotifyConversationUpdatedAsync(employerId, application.ApplicantId);
+                    }
                     catch { }
                 });
             }
             return (response, null);
         }
 
+        public async Task<(OfferResponse? Offer, string? Error)> UpdateOfferAsync(int employerId, int offerId, UpdateOfferRequest request)
+        {
+            if (request.HourlyRate <= 0) return (null, "Hourly rate must be greater than 0.");
+            if (request.PaydayOfMonth < 1 || request.PaydayOfMonth > 28) return (null, "Payday must be between day 1 and 28.");
+            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Position is required.");
+
+            var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.EmployerId == employerId);
+            if (offer == null) return (null, "Offer not found.");
+            if (offer.Status != "Sent") return (null, "Only offers awaiting applicant response can be edited.");
+
+            var application = await _context.Applications
+                .Include(a => a.JobPost)
+                .FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId && !a.IsDeleted);
+            if (application == null) return (null, "Application not found.");
+
+            var branch = await _context.Branches.FirstOrDefaultAsync(b =>
+                b.BranchId == request.BranchId &&
+                b.EmployerId == employerId &&
+                b.IsActive);
+            if (branch == null) return (null, "Branch not found or inactive.");
+
+            var employerProfile = await _context.EmployerProfiles
+                .FirstOrDefaultAsync(ep => ep.EmployerId == employerId);
+            if (employerProfile != null && (employerProfile.Status == "Suspended" || employerProfile.ReputationScore < 80))
+            {
+                return (null, "Tài khoản doanh nghiệp của bạn đã bị khóa do điểm uy tín quá thấp.");
+            }
+
+            var hasActiveEmployment = await _context.Employments.AnyAsync(e =>
+                e.EmployerId == employerId &&
+                e.EmployeeUserId == offer.ApplicantId &&
+                e.Status == "Active");
+            if (hasActiveEmployment) return (null, "Applicant is already an active employee for this employer.");
+
+            var now = DateTime.UtcNow;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            ApplyOfferFields(offer, branch.BranchId, request.Position, request.HourlyRate, request.StartDate, request.PaydayOfMonth, request.ExpiredAt, request.ExpectedShifts);
+            application.Status = "Offered";
+            application.RespondedAt = now;
+            await CancelOtherPendingOffersAsync(offer.ApplicationId, offer.OfferId, now);
+
+            var offerMessage = await UpsertOfferMessageAsync(
+                employerId,
+                offer.ApplicantId,
+                application.JobPostId,
+                offer.OfferId,
+                now);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            await _notificationService.CreateNotificationAsync(
+                offer.ApplicantId,
+                "Job Offer Updated",
+                $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond."
+            );
+
+            var response = await GetOfferResponseAsync(offer.OfferId);
+            if (response != null)
+            {
+                var messageResponse = new MessageResponse
+                {
+                    MessageId = offerMessage.MessageId,
+                    SenderId = offerMessage.SenderId,
+                    SenderName = (await _context.Users.FindAsync(employerId))?.FullName ?? "",
+                    ReceiverId = offerMessage.ReceiverId,
+                    Content = offerMessage.Content,
+                    MessageType = offerMessage.MessageType,
+                    Offer = response,
+                    IsRead = false,
+                    SentAt = offerMessage.SentAt
+                };
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _hubNotifier.NotifyOfferChangedAsync(employerId, offer.ApplicantId, response);
+                        await _hubNotifier.SendMessageToUsersAsync(employerId, offer.ApplicantId, messageResponse);
+                        await _hubNotifier.NotifyConversationUpdatedAsync(employerId, offer.ApplicantId);
+                    }
+                    catch { }
+                });
+            }
+
+            return (response, null);
+        }
+
         public async Task<IEnumerable<OfferResponse>> GetEmployerOffersAsync(int employerId)
         {
-            return await BuildOfferQuery()
+            var offers = await BuildOfferQuery()
                 .Where(o => o.EmployerId == employerId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
+            await AttachHiringPlanInfoAsync(offers);
+            return offers;
         }
 
         public async Task<IEnumerable<OfferResponse>> GetMyOffersAsync(int applicantId)
         {
-            return await BuildOfferQuery()
+            var offers = await BuildOfferQuery()
                 .Where(o => o.ApplicantId == applicantId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
+            await AttachHiringPlanInfoAsync(offers);
+            return offers;
         }
 
         public async Task<(EmploymentResponse? Employment, string? Error)> AcceptOfferAsync(int applicantId, int offerId)
@@ -102,6 +244,16 @@ namespace WorkBridge.Application.Services
             if (offer == null) return (null, "Offer not found.");
             if (offer.Status != "Sent") return (null, "Only sent offers can be accepted.");
             if (offer.ExpiredAt.HasValue && offer.ExpiredAt.Value < DateTime.UtcNow) return (null, "Offer has expired.");
+
+            var activeEmploymentsCount = await _context.Employments
+                .Where(e => e.EmployeeUserId == applicantId && e.Status == "Active")
+                .Select(e => e.EmployerId)
+                .Distinct()
+                .CountAsync();
+            if (activeEmploymentsCount >= 2)
+            {
+                return (null, "Bạn đã có đủ 2 công việc đang hoạt động (làm việc tối đa tại 2 doanh nghiệp). Không thể nhận thêm công việc.");
+            }
 
             var hasActiveEmployment = await _context.Employments.AnyAsync(e =>
                 e.EmployerId == offer.EmployerId &&
@@ -114,6 +266,9 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId);
             if (application == null) return (null, "Application not found.");
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var now = DateTime.UtcNow;
             var employment = new Employment
             {
                 EmployerId = offer.EmployerId,
@@ -123,7 +278,8 @@ namespace WorkBridge.Application.Services
                 Position = offer.Position,
                 Status = "Active",
                 StartDate = offer.StartDate,
-                CreatedAt = DateTime.UtcNow
+                ExpectedShifts = offer.ExpectedShifts,
+                CreatedAt = now
             };
 
             await _context.Employments.AddAsync(employment);
@@ -134,21 +290,34 @@ namespace WorkBridge.Application.Services
                 EmploymentId = employment.EmploymentId,
                 HourlyRate = offer.HourlyRate,
                 EffectiveFrom = offer.StartDate,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = now
             };
 
             await _context.EmployeeRates.AddAsync(rate);
             offer.Status = "Accepted";
-            offer.AcceptedAt = DateTime.UtcNow;
-            offer.RespondedAt = DateTime.UtcNow;
+            offer.AcceptedAt = now;
+            offer.RespondedAt = now;
             application.Status = "Hired";
-            application.RespondedAt = DateTime.UtcNow;
+            application.RespondedAt = now;
+
+            var otherSentOffers = await _context.Offers
+                .Where(o => o.ApplicationId == offer.ApplicationId &&
+                            o.OfferId != offer.OfferId &&
+                            o.Status == "Sent")
+                .ToListAsync();
+            foreach (var otherOffer in otherSentOffers)
+            {
+                otherOffer.Status = "Cancelled";
+                otherOffer.RespondedAt = now;
+            }
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             await _notificationService.CreateNotificationAsync(
                 offer.EmployerId,
                 "Offer Accepted",
-                $"Your offer for '{application.JobPost.Title}' was accepted."
+                $"Your offer for '{application.JobPost.Title}' was accepted. Open WorkBridge to manage the new employee, shifts, and payroll."
             );
 
             var response = await GetEmploymentResponseAsync(employment.EmploymentId);
@@ -175,12 +344,20 @@ namespace WorkBridge.Application.Services
 
             offer.Status = "Declined";
             offer.RespondedAt = DateTime.UtcNow;
+
+            var application = await _context.Applications.FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId);
+            if (application != null && application.Status == "Offered")
+            {
+                application.Status = "Accepted";
+                application.RespondedAt = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
 
             await _notificationService.CreateNotificationAsync(
                 offer.EmployerId,
                 "Offer Declined",
-                "An applicant declined your offer."
+                "An applicant declined your job offer. Open WorkBridge to review the application, continue chatting, or send a revised offer later."
             );
 
             var offerResponse = await GetOfferResponseAsync(offer.OfferId);
@@ -189,6 +366,43 @@ namespace WorkBridge.Application.Services
                 _ = Task.Run(async () =>
                 {
                     try { await _hubNotifier.NotifyOfferChangedAsync(offer.EmployerId, applicantId, offerResponse); }
+                    catch { }
+                });
+            }
+
+            return null;
+        }
+
+        public async Task<string?> CancelOfferAsync(int employerId, int offerId)
+        {
+            var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.EmployerId == employerId);
+            if (offer == null) return "Offer not found.";
+            if (offer.Status != "Sent") return "Only sent offers can be cancelled.";
+
+            offer.Status = "Cancelled";
+            offer.RespondedAt = DateTime.UtcNow;
+
+            var application = await _context.Applications.FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId);
+            if (application != null && application.Status == "Offered")
+            {
+                application.Status = "Accepted";
+                application.RespondedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationAsync(
+                offer.ApplicantId,
+                "Offer Withdrawn",
+                "An employer has withdrawn/cancelled their job offer. Open WorkBridge to view the updated offer status and continue the conversation if needed."
+            );
+
+            var offerResponse = await GetOfferResponseAsync(offer.OfferId);
+            if (offerResponse != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try { await _hubNotifier.NotifyOfferChangedAsync(employerId, offer.ApplicantId, offerResponse); }
                     catch { }
                 });
             }
@@ -208,6 +422,7 @@ namespace WorkBridge.Application.Services
                    {
                        OfferId = offer.OfferId,
                        ApplicationId = offer.ApplicationId,
+                       JobPostId = job.JobPostId,
                        EmployerId = offer.EmployerId,
                        ApplicantId = offer.ApplicantId,
                        BranchId = offer.BranchId,
@@ -222,13 +437,126 @@ namespace WorkBridge.Application.Services
                        Status = offer.Status,
                        CreatedAt = offer.CreatedAt,
                        AcceptedAt = offer.AcceptedAt,
-                       ExpiredAt = offer.ExpiredAt
+                       ExpiredAt = offer.ExpiredAt,
+                       ExpectedShifts = offer.ExpectedShifts,
+                       Vacancies = job.Vacancies
                    };
         }
 
         private async Task<OfferResponse?> GetOfferResponseAsync(int offerId)
         {
-            return await BuildOfferQuery().FirstOrDefaultAsync(o => o.OfferId == offerId);
+            var offer = await BuildOfferQuery().FirstOrDefaultAsync(o => o.OfferId == offerId);
+            if (offer != null) await AttachHiringPlanInfoAsync(new List<OfferResponse> { offer });
+            return offer;
+        }
+
+        private async Task AttachHiringPlanInfoAsync(List<OfferResponse> offers)
+        {
+            var jobPostIds = offers
+                .Select(o => o.JobPostId)
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+            if (jobPostIds.Count == 0) return;
+
+            var activeCounts = await (from employment in _context.Employments
+                                      join offer in _context.Offers on employment.OfferId equals offer.OfferId
+                                      join application in _context.Applications on offer.ApplicationId equals application.ApplicationId
+                                      where jobPostIds.Contains(application.JobPostId) &&
+                                            employment.Status == "Active"
+                                      group employment by application.JobPostId into grouped
+                                      select new
+                                      {
+                                          JobPostId = grouped.Key,
+                                          Count = grouped.Count()
+                                      })
+                .ToDictionaryAsync(x => x.JobPostId, x => x.Count);
+
+            foreach (var offer in offers)
+            {
+                activeCounts.TryGetValue(offer.JobPostId, out var activeCount);
+                offer.ActiveEmploymentCount = activeCount;
+
+                if (!offer.Vacancies.HasValue || offer.Vacancies.Value <= 0)
+                {
+                    offer.IsOverHiringPlan = false;
+                    offer.HiringPlanNote = "Tin tuyển dụng chưa đặt số lượng cần tuyển; doanh nghiệp có thể tự quyết số nhân viên nhận vào.";
+                    continue;
+                }
+
+                offer.IsOverHiringPlan = activeCount > offer.Vacancies.Value;
+                offer.HiringPlanNote = offer.IsOverHiringPlan
+                    ? $"Đã có {activeCount}/{offer.Vacancies.Value} nhân viên active cho tin này. Đây là cảnh báo vượt nhu cầu dự kiến, không chặn doanh nghiệp tuyển thêm."
+                    : $"Đã có {activeCount}/{offer.Vacancies.Value} nhân viên active theo nhu cầu dự kiến.";
+            }
+        }
+
+        private static void ApplyOfferFields(
+            Offer offer,
+            int branchId,
+            string position,
+            decimal hourlyRate,
+            DateTime startDate,
+            int paydayOfMonth,
+            DateTime? expiredAt,
+            string? expectedShifts)
+        {
+            offer.BranchId = branchId;
+            offer.Position = position.Trim();
+            offer.HourlyRate = hourlyRate;
+            offer.StartDate = startDate.Date;
+            offer.PaydayOfMonth = paydayOfMonth;
+            offer.ExpiredAt = expiredAt;
+            offer.ExpectedShifts = expectedShifts;
+        }
+
+        private async Task<Message> UpsertOfferMessageAsync(
+            int employerId,
+            int applicantId,
+            int jobPostId,
+            int offerId,
+            DateTime sentAt)
+        {
+            var offerIdText = offerId.ToString();
+            var message = await _context.Messages
+                .Where(m => m.MessageType == "OfferInvite" && m.Content == offerIdText)
+                .OrderByDescending(m => m.SentAt)
+                .FirstOrDefaultAsync();
+
+            if (message == null)
+            {
+                message = new Message
+                {
+                    SenderId = employerId,
+                    ReceiverId = applicantId,
+                    JobPostId = jobPostId,
+                    MessageType = "OfferInvite",
+                    Content = offerIdText
+                };
+                await _context.Messages.AddAsync(message);
+            }
+
+            message.SenderId = employerId;
+            message.ReceiverId = applicantId;
+            message.JobPostId = jobPostId;
+            message.IsRead = false;
+            message.SentAt = sentAt;
+            return message;
+        }
+
+        private async Task CancelOtherPendingOffersAsync(int applicationId, int activeOfferId, DateTime now)
+        {
+            var duplicatePendingOffers = await _context.Offers
+                .Where(o => o.ApplicationId == applicationId &&
+                            o.OfferId != activeOfferId &&
+                            o.Status == "Sent")
+                .ToListAsync();
+
+            foreach (var duplicateOffer in duplicatePendingOffers)
+            {
+                duplicateOffer.Status = "Cancelled";
+                duplicateOffer.RespondedAt = now;
+            }
         }
 
         private async Task<EmploymentResponse?> GetEmploymentResponseAsync(int employmentId)
@@ -251,7 +579,9 @@ namespace WorkBridge.Application.Services
                               Position = employment.Position,
                               Status = employment.Status,
                               StartDate = employment.StartDate,
-                              CurrentHourlyRate = rate.HourlyRate
+                              EndDate = employment.EndDate,
+                              CurrentHourlyRate = rate.HourlyRate,
+                              ExpectedShifts = employment.ExpectedShifts
                           })
                 .FirstOrDefaultAsync();
         }

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using WorkBridge.Application.DTOs;
 using WorkBridge.Application.Interfaces;
 using WorkBridge.Domain.Entities;
@@ -7,6 +9,8 @@ namespace WorkBridge.Application.Services
 {
     public class MessageService : IMessageService
     {
+        public static readonly ConcurrentDictionary<int, HashSet<string>> OnlineUsers = new();
+        public static readonly ConcurrentDictionary<int, DateTime> LastSeenTimes = new();
         private readonly IWorkBridgeContext _context;
         private readonly IHubNotifier _hubNotifier;
         private static readonly string[] MessageableStatuses =
@@ -58,13 +62,27 @@ namespace WorkBridge.Application.Services
                 {
                     ContactId = contactId,
                     ContactName = contact.FullName,
-                    LastMessage = lastMessage?.Content ?? "",
+                    LastMessage = BuildConversationPreview(lastMessage),
                     LastMessageAt = lastMessage?.SentAt,
-                    UnreadCount = unreadCount
+                    UnreadCount = unreadCount,
+                    IsOnline = OnlineUsers.TryGetValue(contactId, out var connections) && connections.Count > 0,
+                    LastSeenAt = LastSeenTimes.TryGetValue(contactId, out var seenTime) ? seenTime : null
                 });
             }
 
             return conversations.OrderByDescending(c => c.LastMessageAt);
+        }
+
+        private static string BuildConversationPreview(Message? message)
+        {
+            if (message == null) return "";
+
+            return message.MessageType switch
+            {
+                "OfferInvite" => "Job offer sent. Awaiting response.",
+                "InterviewInvite" => "Interview invitation sent.",
+                _ => message.Content ?? ""
+            };
         }
 
         public async Task<IEnumerable<MessageResponse>> GetChatHistoryAsync(int userId, int contactId)
@@ -86,7 +104,14 @@ namespace WorkBridge.Application.Services
                 .Distinct()
                 .ToList();
 
+            var offerIds = messages
+                .Where(m => m.MessageType == "OfferInvite" && int.TryParse(m.Content, out _))
+                .Select(m => int.Parse(m.Content))
+                .Distinct()
+                .ToList();
+
             var interviewSummaries = await GetInterviewSummariesAsync(interviewIds);
+            var offerSummaries = await GetOfferSummariesAsync(offerIds);
 
             return messages.Select(m => new MessageResponse
             {
@@ -99,6 +124,9 @@ namespace WorkBridge.Application.Services
                 InterviewId = m.InterviewId,
                 Interview = m.InterviewId.HasValue && interviewSummaries.TryGetValue(m.InterviewId.Value, out var summary)
                     ? summary
+                    : null,
+                Offer = m.MessageType == "OfferInvite" && int.TryParse(m.Content, out var offerId) && offerSummaries.TryGetValue(offerId, out var offer)
+                    ? offer
                     : null,
                 IsRead = m.IsRead,
                 SentAt = m.SentAt
@@ -221,9 +249,26 @@ namespace WorkBridge.Application.Services
                               Note = interview.Note,
                               Status = interview.Status,
                               Result = interview.Result,
+                              ApplicationStatus = app.Status,
+                              OfferStatus = _context.Offers
+                                  .Where(o => o.ApplicationId == interview.ApplicationId)
+                                  .OrderByDescending(o => o.CreatedAt)
+                                  .Select(o => o.Status)
+                                  .FirstOrDefault(),
+                              HasSentOffer = _context.Offers
+                                  .Any(o => o.ApplicationId == interview.ApplicationId && o.Status == "Sent"),
+                              HasAcceptedOffer = _context.Offers
+                                  .Any(o => o.ApplicationId == interview.ApplicationId && o.Status == "Accepted"),
+                              IsEmployee = _context.Employments
+                                  .Any(e => e.EmployerId == interview.EmployerId &&
+                                            e.EmployeeUserId == interview.ApplicantId &&
+                                            e.Status == "Active"),
                               CanEmployerMarkResult = interview.Status == "Confirmed" &&
                                                       interview.Result == null &&
-                                                      interview.ScheduledAt <= DateTime.Now
+                                                      interview.ScheduledAt <= DateTime.UtcNow &&
+                                                      !_context.Employments.Any(e => e.EmployerId == interview.EmployerId &&
+                                                                                    e.EmployeeUserId == interview.ApplicantId &&
+                                                                                    e.Status == "Active")
                           })
                 .ToDictionaryAsync(i => i.InterviewId);
         }
@@ -251,6 +296,46 @@ namespace WorkBridge.Application.Services
                     MessageableStatuses.Contains(a.Status) &&
                     ((a.ApplicantId == userId && a.JobPost.EmployerId == contactId) ||
                      (a.ApplicantId == contactId && a.JobPost.EmployerId == userId)));
+        }
+
+        private async Task<Dictionary<int, OfferResponse>> GetOfferSummariesAsync(IEnumerable<int> offerIds)
+        {
+            var ids = offerIds.Distinct().ToList();
+            if (ids.Count == 0)
+            {
+                return new Dictionary<int, OfferResponse>();
+            }
+
+            return await (from offer in _context.Offers
+                           join app in _context.Applications on offer.ApplicationId equals app.ApplicationId
+                           join job in _context.JobPosts on app.JobPostId equals job.JobPostId
+                           join branch in _context.Branches on offer.BranchId equals branch.BranchId
+                           join employer in _context.EmployerProfiles on offer.EmployerId equals employer.EmployerId
+                           join applicant in _context.Users on offer.ApplicantId equals applicant.UserId
+                           where ids.Contains(offer.OfferId)
+                           select new OfferResponse
+                           {
+                               OfferId = offer.OfferId,
+                               ApplicationId = offer.ApplicationId,
+                               JobPostId = job.JobPostId,
+                               EmployerId = offer.EmployerId,
+                               ApplicantId = offer.ApplicantId,
+                               BranchId = offer.BranchId,
+                               BranchName = branch.Name,
+                               CompanyName = employer.CompanyName,
+                               ApplicantName = applicant.FullName,
+                               JobTitle = job.Title,
+                               Position = offer.Position,
+                               HourlyRate = offer.HourlyRate,
+                               StartDate = offer.StartDate,
+                               PaydayOfMonth = offer.PaydayOfMonth,
+                               Status = offer.Status,
+                               CreatedAt = offer.CreatedAt,
+                               AcceptedAt = offer.AcceptedAt,
+                               ExpiredAt = offer.ExpiredAt,
+                               Vacancies = job.Vacancies
+                           })
+                .ToDictionaryAsync(o => o.OfferId);
         }
     }
 }

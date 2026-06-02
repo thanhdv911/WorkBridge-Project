@@ -76,7 +76,10 @@ namespace WorkBridge.Application.Services
                     Benefits = s.JobPost.Benefits,
                     Status = s.JobPost.Status,
                     CreatedAt = s.JobPost.CreatedAt,
-                    ApplicationDeadline = s.JobPost.ApplicationDeadline
+                    IsFeatured = s.JobPost.IsFeatured,
+                    ApplicationDeadline = s.JobPost.ApplicationDeadline,
+                    Position = s.JobPost.Position,
+                    Vacancies = s.JobPost.Vacancies
                 })
                 .ToListAsync();
         }

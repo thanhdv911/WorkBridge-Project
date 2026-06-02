@@ -47,6 +47,11 @@ namespace WorkBridge.Application.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool CanEmployerMarkResult { get; set; }
+        public string ApplicationStatus { get; set; } = string.Empty;
+        public string? OfferStatus { get; set; }
+        public bool HasSentOffer { get; set; }
+        public bool HasAcceptedOffer { get; set; }
+        public bool IsEmployee { get; set; }
     }
 
     public class InterviewChatApplicationResponse
@@ -56,5 +61,9 @@ namespace WorkBridge.Application.DTOs
         public string JobTitle { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public DateTime AppliedAt { get; set; }
+        public string? OfferStatus { get; set; }
+        public bool HasSentOffer { get; set; }
+        public bool HasAcceptedOffer { get; set; }
+        public bool IsEmployee { get; set; }
     }
 }

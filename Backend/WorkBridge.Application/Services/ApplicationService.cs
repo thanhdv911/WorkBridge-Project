@@ -36,6 +36,20 @@ namespace WorkBridge.Application.Services
             "Offered",
             "Hired"
         };
+        private static readonly HashSet<string> ReapplyableStatuses = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Rejected",
+            "Cancelled",
+            "Canceled",
+            "Interview Failed"
+        };
+        private static readonly HashSet<string> ReapplyableClosedOfferStatuses = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Accepted",
+            "Declined",
+            "Cancelled",
+            "Canceled"
+        };
 
         public ApplicationService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
         {
@@ -57,9 +71,49 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(p => p.ApplicantId == userId);
             if (profile == null) return "Your profile is incomplete. Please complete your Applicant Profile before applying.";
 
-            // Check if already applied
-            var existingApplication = await _context.Applications.FirstOrDefaultAsync(a => a.JobPostId == request.JobPostId && a.ApplicantId == profile.ApplicantId);
-            if (existingApplication != null) return "You have already applied for this job.";
+            // Check if applicant is blocked due to reputation < 80
+            if (profile.ReputationScore < 80)
+            {
+                return "Tài khoản của bạn có điểm uy tín dưới 80. Bạn không thể tiếp tục ứng tuyển.";
+            }
+
+            // Check if applicant is already working in 2 distinct businesses (employers)
+            var activeEmploymentsCount = await _context.Employments
+                .Where(e => e.EmployeeUserId == userId && e.Status == "Active")
+                .Select(e => e.EmployerId)
+                .Distinct()
+                .CountAsync();
+            if (activeEmploymentsCount >= 2)
+            {
+                return "Bạn đã có đủ 2 công việc đang hoạt động (làm việc tối đa tại 2 doanh nghiệp). Không thể ứng tuyển thêm.";
+            }
+
+            // Check if the employer is suspended or has reputation < 80
+            var employerProfile = await _context.EmployerProfiles
+                .FirstOrDefaultAsync(ep => ep.EmployerId == job.EmployerId);
+            if (employerProfile != null && (employerProfile.Status == "Suspended" || employerProfile.ReputationScore < 80))
+            {
+                return "Doanh nghiệp này đã bị tạm ngưng hoạt động do điểm uy tín quá thấp.";
+            }
+
+            // Check if user is already an active employee of this employer
+            var isAlreadyEmployee = await _context.Employments
+                .AnyAsync(e => e.EmployeeUserId == userId && e.EmployerId == job.EmployerId && e.Status == "Active");
+            if (isAlreadyEmployee) return "You are already an active employee of this enterprise and cannot apply for this job.";
+
+            // Block only active application pipelines. Closed historical applications remain as history,
+            // and a re-apply creates a fresh application row so old offers/employments stay intact.
+            var existingApplications = await _context.Applications
+                .Where(a => a.JobPostId == request.JobPostId && a.ApplicantId == profile.ApplicantId)
+                .OrderByDescending(a => a.AppliedAt)
+                .ToListAsync();
+            foreach (var existingApplication in existingApplications)
+            {
+                if (!await CanReapplyExistingApplicationAsync(existingApplication, job.EmployerId))
+                {
+                    return $"You have already applied for this job. Current status: {existingApplication.Status}";
+                }
+            }
 
             var application = new JobApplication
             {
@@ -68,10 +122,11 @@ namespace WorkBridge.Application.Services
                 CoverMessage = request.CoverMessage,
                 CvUrl = profile.CvUrl,
                 Status = "Applied",
-                AppliedAt = System.DateTime.UtcNow
+                IsDeleted = false,
+                AppliedAt = DateTime.UtcNow
             };
-
             _context.Applications.Add(application);
+
             await _context.SaveChangesAsync();
 
             // Notify Employer
@@ -96,7 +151,7 @@ namespace WorkBridge.Application.Services
             return await _context.Applications
                 .Include(a => a.JobPost)
                     .ThenInclude(j => j.Employer)
-                .Where(a => a.ApplicantId == userId)
+                .Where(a => a.ApplicantId == userId && !a.IsDeleted)
                 .OrderByDescending(a => a.AppliedAt)
                 .Select(a => new ApplicationResponse
                 {
@@ -105,10 +160,31 @@ namespace WorkBridge.Application.Services
                     EmployerId = a.JobPost.EmployerId,
                     JobTitle = a.JobPost.Title,
                     CompanyName = a.JobPost.Employer.CompanyName,
-                    Status = a.Status,
+                    Status = _context.Employments.Any(e => e.Status == "Ended" &&
+                                                           _context.Offers.Any(o => o.OfferId == e.OfferId &&
+                                                                                    o.ApplicationId == a.ApplicationId))
+                             ? "Ended"
+                             : a.Status,
                     AppliedAt = a.AppliedAt.GetValueOrDefault(),
                     Location = (!string.IsNullOrEmpty(a.JobPost.District) ? a.JobPost.District + ", " : "") + a.JobPost.City,
-                    CanMessage = MessageableStatuses.Contains(a.Status)
+                    CanMessage = MessageableStatuses.Contains(a.Status) ||
+                                 _context.Employments.Any(e => _context.Offers.Any(o => o.OfferId == e.OfferId && o.ApplicationId == a.ApplicationId)),
+                    IsActiveEmployee = _context.Employments.Any(e => e.Status == "Active" &&
+                                                                      _context.Offers.Any(o => o.OfferId == e.OfferId &&
+                                                                                               o.ApplicationId == a.ApplicationId)),
+                    CanReapply =
+                        a.Status == "Rejected" ||
+                        a.Status == "Cancelled" ||
+                        a.Status == "Canceled" ||
+                        a.Status == "Interview Failed" ||
+                        (
+                            (a.Status == "Accepted" || a.Status == "Offered" || a.Status == "Interview Passed" || a.Status == "Hired") &&
+                            !_context.Offers.Any(o => o.ApplicationId == a.ApplicationId && o.Status == "Sent") &&
+                            _context.Offers.Any(o => o.ApplicationId == a.ApplicationId && (o.Status == "Accepted" || o.Status == "Declined" || o.Status == "Cancelled" || o.Status == "Canceled")) &&
+                            !_context.Employments.Any(e => e.EmployerId == a.JobPost.EmployerId &&
+                                                          e.EmployeeUserId == a.ApplicantId &&
+                                                          e.Status == "Active")
+                        )
                 })
                 .ToListAsync();
         }
@@ -124,6 +200,26 @@ namespace WorkBridge.Application.Services
                 .Select(a => new EmployerApplicationResponse
                 {
                     ApplicationId = a.ApplicationId,
+                    OfferId = _context.Offers
+                        .Where(o => o.ApplicationId == a.ApplicationId && o.Status == "Sent")
+                        .OrderByDescending(o => o.CreatedAt)
+                        .Select(o => o.OfferId)
+                        .FirstOrDefault(),
+                    OfferStatus = _context.Offers
+                        .Where(o => o.ApplicationId == a.ApplicationId)
+                        .OrderByDescending(o => o.CreatedAt)
+                        .Select(o => o.Status)
+                        .FirstOrDefault(),
+                    HasOffer = _context.Offers
+                        .Any(o => o.ApplicationId == a.ApplicationId && (o.Status == "Sent" || o.Status == "Accepted")),
+                    HasSentOffer = _context.Offers
+                        .Any(o => o.ApplicationId == a.ApplicationId && o.Status == "Sent"),
+                    HasAcceptedOffer = _context.Offers
+                        .Any(o => o.ApplicationId == a.ApplicationId && o.Status == "Accepted"),
+                    IsEmployee = _context.Employments
+                        .Any(e => e.EmployerId == a.JobPost.EmployerId &&
+                                  e.EmployeeUserId == a.ApplicantId &&
+                                  e.Status == "Active"),
                     JobPostId = a.JobPostId,
                     JobTitle = a.JobPost.Title,
                     ApplicantId = a.ApplicantId,
@@ -287,6 +383,39 @@ namespace WorkBridge.Application.Services
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             });
+        }
+
+        private async Task<bool> CanReapplyExistingApplicationAsync(JobApplication application, int employerId)
+        {
+            if (application.IsDeleted || ReapplyableStatuses.Contains(application.Status))
+            {
+                return true;
+            }
+
+            var hasActiveEmployment = await _context.Employments.AnyAsync(e =>
+                e.EmployerId == employerId &&
+                e.EmployeeUserId == application.ApplicantId &&
+                e.Status == "Active");
+            if (hasActiveEmployment)
+            {
+                return false;
+            }
+
+            var hasPendingOffer = await _context.Offers.AnyAsync(o =>
+                o.ApplicationId == application.ApplicationId &&
+                o.Status == "Sent");
+            if (hasPendingOffer)
+            {
+                return false;
+            }
+
+            var latestOfferStatus = await _context.Offers
+                .Where(o => o.ApplicationId == application.ApplicationId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => o.Status)
+                .FirstOrDefaultAsync();
+
+            return latestOfferStatus != null && ReapplyableClosedOfferStatuses.Contains(latestOfferStatus);
         }
     }
 }

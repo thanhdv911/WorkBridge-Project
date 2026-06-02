@@ -10,6 +10,8 @@ public partial class WorkShift
 
     public int BranchId { get; set; }
 
+    public int? RegistrationWindowId { get; set; }
+
     public string Title { get; set; } = null!;
 
     public DateTime StartTime { get; set; }

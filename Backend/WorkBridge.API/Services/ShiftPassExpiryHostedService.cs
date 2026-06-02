@@ -22,7 +22,7 @@ namespace WorkBridge.API.Services
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var context = scope.ServiceProvider.GetRequiredService<WorkBridgeContext>();
-                    var now = DateTime.Now;
+                    var now = DateTime.UtcNow;
                     var staleRequests = await context.ShiftPassRequests
                         .Where(r => r.Status == "Pending" && r.ExpiresAt <= now)
                         .ToListAsync(stoppingToken);

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import GoongAddressPicker from '../shared/GoongAddressPicker';
+import { composeGoongAddress, parseStoredGoongAddress } from '../../services/goongAddressService';
 
 export default function EmployerProfileTab() {
   const [profile, setProfile] = useState({
     companyName: '',
     contactEmail: '',
     contactPhone: '',
-    address: '',
+    province: '',
+    district: '',
+    ward: '',
+    detailAddress: '',
     description: '',
     logoUrl: ''
   });
@@ -23,18 +28,22 @@ export default function EmployerProfileTab() {
       const response = await api.get('/employer/profile', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      // Filter out nulls to prevent React controlled input warnings
       const data = response.data;
+      const parsedAddress = parseStoredGoongAddress(data.address || '');
+
       setProfile({
         companyName: data.companyName || '',
         contactEmail: data.contactEmail || '',
         contactPhone: data.contactPhone || '',
-        address: data.address || '',
+        province: parsedAddress.province || parsedAddress.city || '',
+        district: parsedAddress.district || '',
+        ward: parsedAddress.ward || '',
+        detailAddress: parsedAddress.detailAddress || parsedAddress.address || '',
         description: data.description || '',
         logoUrl: data.logoUrl || ''
       });
     } catch (error) {
-      toast.error('Failed to load profile');
+      toast.error('Không thể tải thông tin hồ sơ.');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -48,14 +57,34 @@ export default function EmployerProfileTab() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!profile.province || !profile.district || !profile.ward || !profile.detailAddress.trim()) {
+      toast.error('Vui lòng chọn địa chỉ từ Goong để đồng bộ tỉnh/thành, quận/huyện và phường/xã.');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await api.put('/employer/profile', profile, {
+      const payload = {
+        companyName: profile.companyName,
+        contactEmail: profile.contactEmail,
+        contactPhone: profile.contactPhone,
+        address: composeGoongAddress({
+          detailAddress: profile.detailAddress,
+          ward: profile.ward,
+          district: profile.district,
+          province: profile.province
+        }),
+        description: profile.description,
+        logoUrl: profile.logoUrl
+      };
+
+      await api.put('/employer/profile', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      toast.success('Company profile updated successfully!');
+      toast.success('Hồ sơ công ty đã được cập nhật thành công!');
     } catch (error) {
-      toast.error('Failed to update profile');
+      toast.error('Không thể cập nhật hồ sơ.');
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -75,29 +104,29 @@ export default function EmployerProfileTab() {
       <div className="p-6 border-b border-slate-100 bg-slate-50/50">
         <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary">domain</span>
-          Company Profile
+          Hồ sơ công ty
         </h2>
-        <p className="text-sm text-slate-500 mt-1">Update your company details to attract better candidates.</p>
+        <p className="text-sm text-slate-500 mt-1">Cập nhật thông tin công ty để thu hút các ứng viên tốt hơn.</p>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div className="grid sm:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Company Name *</label>
-            <input 
-              type="text" 
+            <label className="text-sm font-semibold text-slate-700">Tên công ty *</label>
+            <input
+              type="text"
               name="companyName"
               value={profile.companyName}
               onChange={handleChange}
               required
               className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-              placeholder="e.g. Acme Corp"
+              placeholder="Ví dụ: Acme Corp"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Contact Email *</label>
-            <input 
-              type="email" 
+            <label className="text-sm font-semibold text-slate-700">Email liên hệ *</label>
+            <input
+              type="email"
               name="contactEmail"
               value={profile.contactEmail}
               onChange={handleChange}
@@ -107,9 +136,9 @@ export default function EmployerProfileTab() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Contact Phone</label>
-            <input 
-              type="tel" 
+            <label className="text-sm font-semibold text-slate-700">Số điện thoại liên hệ</label>
+            <input
+              type="tel"
               name="contactPhone"
               value={profile.contactPhone}
               onChange={handleChange}
@@ -118,9 +147,9 @@ export default function EmployerProfileTab() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Logo Image URL</label>
-            <input 
-              type="url" 
+            <label className="text-sm font-semibold text-slate-700">Đường dẫn ảnh Logo (URL)</label>
+            <input
+              type="url"
               name="logoUrl"
               value={profile.logoUrl}
               onChange={handleChange}
@@ -130,33 +159,42 @@ export default function EmployerProfileTab() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Company Address</label>
-          <input 
-            type="text" 
-            name="address"
-            value={profile.address}
-            onChange={handleChange}
-            className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-            placeholder="Main headquarters address"
+        <div className="space-y-3">
+          <GoongAddressPicker
+            value={{
+              address: profile.detailAddress,
+              ward: profile.ward,
+              district: profile.district,
+              city: profile.province
+            }}
+            onChange={(next) => setProfile(prev => ({
+              ...prev,
+              province: next.city,
+              district: next.district,
+              ward: next.ward,
+              detailAddress: next.address
+            }))}
+            label="Địa chỉ công ty"
+            placeholder="Gõ địa chỉ công ty và chọn gợi ý từ Goong..."
+            required
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Company Description</label>
-          <textarea 
+          <label className="text-sm font-semibold text-slate-700">Mô tả công ty</label>
+          <textarea
             name="description"
             value={profile.description}
             onChange={handleChange}
             rows={5}
             className="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-y"
-            placeholder="Tell candidates about your company culture, mission, and why they should work for you..."
+            placeholder="Giới thiệu với ứng viên về văn hóa công ty, sứ mệnh, và lý do họ nên làm việc cho bạn..."
           ></textarea>
         </div>
 
         <div className="pt-4 flex justify-end">
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSaving}
             className="h-11 px-6 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
@@ -165,7 +203,7 @@ export default function EmployerProfileTab() {
             ) : (
               <span className="material-symbols-outlined !text-lg">save</span>
             )}
-            {isSaving ? 'Saving...' : 'Save Profile'}
+            {isSaving ? 'Đang lưu...' : 'Lưu hồ sơ'}
           </button>
         </div>
       </form>

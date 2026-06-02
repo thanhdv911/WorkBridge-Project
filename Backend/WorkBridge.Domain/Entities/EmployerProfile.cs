@@ -19,6 +19,12 @@ public partial class EmployerProfile
 
     public string? LogoUrl { get; set; }
 
+    public int ReputationScore { get; set; } = 100;
+
+    public int ReportCount { get; set; }
+
+    public string Status { get; set; } = "Active";
+
     public virtual User Employer { get; set; } = null!;
 
     public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();

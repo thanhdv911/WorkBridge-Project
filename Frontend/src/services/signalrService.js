@@ -1,12 +1,14 @@
 import * as signalR from '@microsoft/signalr';
+import { API_BASE_URL } from './api';
 
-const HUB_URL = 'http://localhost:5029/hubs/workbridge';
+const HUB_URL = `${API_BASE_URL}/hubs/workbridge`;
 
 class SignalRService {
   constructor() {
     this._connection = null;
-    this._isStarting = false;
-    this._pendingHandlers = []; // handlers registered before connection is ready
+    this._startPromise = null;
+    this._handlers = new Map();
+    this._reconnectCallbacks = new Set();
   }
 
   _buildConnection() {
@@ -24,20 +26,17 @@ class SignalRService {
 
   async start() {
     if (this._connection?.state === signalR.HubConnectionState.Connected) return;
-    if (this._isStarting) return;
+    if (this._startPromise) return this._startPromise;
 
-    this._isStarting = true;
-
-    try {
+    this._startPromise = (async () => {
       if (this._connection) {
         await this._connection.stop();
       }
 
       this._connection = this._buildConnection();
 
-      // Re-attach any handlers that were registered before the connection was built
-      this._pendingHandlers.forEach(({ event, callback }) => {
-        this._connection.on(event, callback);
+      this._handlers.forEach((callbacks, event) => {
+        callbacks.forEach((callback) => this._connection.on(event, callback));
       });
 
       this._connection.onreconnecting(() => {
@@ -46,6 +45,7 @@ class SignalRService {
 
       this._connection.onreconnected(() => {
         console.info('[SignalR] Reconnected.');
+        this._reconnectCallbacks.forEach((cb) => cb());
       });
 
       this._connection.onclose((err) => {
@@ -54,15 +54,21 @@ class SignalRService {
 
       await this._connection.start();
       console.info('[SignalR] Connected.');
+    })();
+
+    try {
+      await this._startPromise;
     } catch (err) {
       console.error('[SignalR] Failed to connect:', err);
     } finally {
-      this._isStarting = false;
+      this._startPromise = null;
     }
   }
 
   async stop() {
-    this._pendingHandlers = [];
+    this._handlers.clear();
+    this._reconnectCallbacks.clear();
+    this._startPromise = null;
     if (this._connection) {
       try { await this._connection.stop(); } catch { /* ignore */ }
       this._connection = null;
@@ -78,25 +84,42 @@ class SignalRService {
    * Safe to call before connection is started.
    */
   on(event, callback) {
-    // Store so we can re-attach after reconnects
-    this._pendingHandlers.push({ event, callback });
-    this._connection?.on(event, callback);
+    const callbacks = this._handlers.get(event) || new Set();
+    const alreadyRegistered = callbacks.has(callback);
+    callbacks.add(callback);
+    this._handlers.set(event, callbacks);
+    if (!alreadyRegistered) {
+      this._connection?.on(event, callback);
+    }
   }
 
   /**
    * Remove a handler.
    */
   off(event, callback) {
-    this._pendingHandlers = this._pendingHandlers.filter(
-      (h) => !(h.event === event && h.callback === callback)
-    );
+    const callbacks = this._handlers.get(event);
+    if (callbacks) {
+      callbacks.delete(callback);
+      if (callbacks.size === 0) this._handlers.delete(event);
+    }
     this._connection?.off(event, callback);
+  }
+
+  onReconnected(callback) {
+    this._reconnectCallbacks.add(callback);
+  }
+
+  offReconnected(callback) {
+    this._reconnectCallbacks.delete(callback);
   }
 
   /**
    * Invoke a server-side hub method.
    */
   async invoke(method, ...args) {
+    if (!this.isConnected) {
+      await this.start();
+    }
     if (!this.isConnected) return;
     try {
       await this._connection.invoke(method, ...args);

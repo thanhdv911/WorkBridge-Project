@@ -28,6 +28,16 @@ namespace WorkBridge.API.Controllers
             return Ok(offer);
         }
 
+        [HttpPatch("{id}")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> UpdateOffer(int id, [FromBody] UpdateOfferRequest request)
+        {
+            var employerId = GetUserId();
+            var (offer, error) = await _offerService.UpdateOfferAsync(employerId, id, request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(offer);
+        }
+
         [HttpGet("employer")]
         [Authorize(Roles = "Employer")]
         public async Task<IActionResult> GetEmployerOffers()
@@ -62,6 +72,16 @@ namespace WorkBridge.API.Controllers
             var error = await _offerService.DeclineOfferAsync(applicantId, id);
             if (error != null) return BadRequest(new { message = error });
             return Ok(new { message = "Offer declined." });
+        }
+
+        [HttpPatch("{id}/cancel")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> CancelOffer(int id)
+        {
+            var employerId = GetUserId();
+            var error = await _offerService.CancelOfferAsync(employerId, id);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(new { message = "Offer cancelled." });
         }
 
         private int GetUserId()

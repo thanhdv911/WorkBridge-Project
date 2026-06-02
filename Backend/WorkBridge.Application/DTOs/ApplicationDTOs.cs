@@ -31,6 +31,8 @@ namespace WorkBridge.Application.DTOs
         public DateTime AppliedAt { get; set; }
         public string Location { get; set; } = string.Empty;
         public bool CanMessage { get; set; }
+        public bool CanReapply { get; set; }
+        public bool IsActiveEmployee { get; set; }
     }
 
     public class EmployerApplicationResponse
@@ -58,6 +60,12 @@ namespace WorkBridge.Application.DTOs
         public List<string> Skills { get; set; } = new();
         public List<ApplicantExperienceSummary> Experiences { get; set; } = new();
         public List<ApplicantReviewSummary> RecentReviews { get; set; } = new();
+        public int OfferId { get; set; }
+        public string? OfferStatus { get; set; }
+        public bool HasOffer { get; set; }
+        public bool HasSentOffer { get; set; }
+        public bool HasAcceptedOffer { get; set; }
+        public bool IsEmployee { get; set; }
     }
 
     public class ApplicantExperienceSummary

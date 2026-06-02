@@ -27,6 +27,10 @@ public partial class JobPost
 
     public DateTime? ApplicationDeadline { get; set; }
 
+    public string? Position { get; set; }
+
+    public int? Vacancies { get; set; }
+
     public string Description { get; set; } = null!;
 
     public string? Requirements { get; set; }
@@ -35,13 +39,19 @@ public partial class JobPost
 
     public string Status { get; set; } = null!;
 
+    public int? BranchId { get; set; }
+
     public bool IsDeleted { get; set; }
+
+    public bool IsFeatured { get; set; } = false;
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<JobApplication> Applications { get; set; } = new List<JobApplication>();
+
+    public virtual Branch? Branch { get; set; }
 
     public virtual JobCategory Category { get; set; } = null!;
 

@@ -17,9 +17,8 @@ namespace WorkBridge.Application.Services
         public async Task<IEnumerable<BranchResponse>> GetBranchesAsync(int employerId)
         {
             return await _context.Branches
-                .Where(b => b.EmployerId == employerId)
-                .OrderByDescending(b => b.IsActive)
-                .ThenBy(b => b.Name)
+                .Where(b => b.EmployerId == employerId && b.IsActive)
+                .OrderBy(b => b.Name)
                 .Select(b => new BranchResponse
                 {
                     BranchId = b.BranchId,
@@ -85,6 +84,42 @@ namespace WorkBridge.Application.Services
                 Phone = branch.Phone,
                 IsActive = branch.IsActive
             };
+        }
+
+        public async Task<bool> DeleteBranchAsync(int employerId, int branchId)
+        {
+            var branch = await _context.Branches
+                .FirstOrDefaultAsync(b => b.BranchId == branchId && b.EmployerId == employerId);
+
+            if (branch == null)
+            {
+                return false;
+            }
+
+            var hasActiveEmployees = await _context.Employments.AnyAsync(e => e.BranchId == branchId && e.Status != "Ended");
+            if (hasActiveEmployees)
+            {
+                throw new InvalidOperationException("Không thể xóa chi nhánh này vì vẫn còn nhân viên đang hoạt động. Vui lòng chuyển nhân viên sang chi nhánh khác hoặc chấm dứt hợp đồng trước.");
+            }
+
+            var hasReferences = await _context.Offers.AnyAsync(o => o.BranchId == branchId)
+                || await _context.Employments.AnyAsync(e => e.BranchId == branchId)
+                || await _context.WorkShifts.AnyAsync(w => w.BranchId == branchId)
+                || await _context.ShiftRegistrationWindows.AnyAsync(s => s.BranchId == branchId)
+                || await _context.ShiftPassRequests.AnyAsync(s => s.BranchId == branchId)
+                || await _context.JobPosts.AnyAsync(j => j.BranchId == branchId);
+
+            if (hasReferences)
+            {
+                branch.IsActive = false;
+            }
+            else
+            {
+                _context.Branches.Remove(branch);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

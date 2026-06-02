@@ -32,9 +32,9 @@ export default class ErrorBoundary extends React.Component {
             <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5">
               <span className="material-symbols-outlined !text-3xl">refresh</span>
             </div>
-            <h1 className="text-2xl font-black text-slate-800">Something went wrong</h1>
+            <h1 className="text-2xl font-black text-slate-800">Đã xảy ra lỗi</h1>
             <p className="text-sm text-slate-500 mt-2">
-              The page hit a display error, but the app is still running.
+              Trang gặp lỗi hiển thị, nhưng ứng dụng vẫn đang hoạt động.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-7">
               <button
@@ -42,13 +42,13 @@ export default class ErrorBoundary extends React.Component {
                 onClick={() => window.location.reload()}
                 className="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dk transition-colors"
               >
-                Reload
+                Tải lại
               </button>
               <a
                 href="/"
                 className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors"
               >
-                Home
+                Trang chủ
               </a>
             </div>
           </div>

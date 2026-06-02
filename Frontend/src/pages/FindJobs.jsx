@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import HeroSearch from '../components/jobs/HeroSearch';
 import JobFilterSidebar from '../components/jobs/JobFilterSidebar';
 import JobCard from '../components/jobs/JobCard';
+import Pagination from '../components/shared/Pagination';
 
 export default function FindJobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,7 +37,7 @@ export default function FindJobs() {
     if (isApplicant && token) {
       fetchSavedJobIds();
     }
-  }, [token, isApplicant, page, filters]); // Re-fetch on filter change too
+  }, [token, isApplicant, page, filters]);
 
   useEffect(() => {
     const nextFilters = readFiltersFromUrl();
@@ -67,7 +68,7 @@ export default function FindJobs() {
       if (location) url += `&location=${encodeURIComponent(location)}`;
       if (minSalary) url += `&minSalary=${minSalary}`;
       if (categoryId) url += `&categoryId=${encodeURIComponent(categoryId)}`;
-      
+
       const res = await api.get(url);
       setJobs(res.data.items);
       setPaginationData({
@@ -80,7 +81,7 @@ export default function FindJobs() {
       });
     } catch (err) {
       console.error(err);
-      toast.error('Failed to load jobs');
+      toast.error('Không thể tải danh sách việc làm');
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ export default function FindJobs() {
   const handleSearch = (newFilters) => {
     const nextFilters = { ...filters, ...newFilters };
     setFilters(nextFilters);
-    setPage(1); // Reset to first page on search
+    setPage(1);
 
     const params = new URLSearchParams();
     if (nextFilters.keyword) params.set('keyword', nextFilters.keyword);
@@ -101,7 +102,7 @@ export default function FindJobs() {
 
   const handleToggleSave = async (jobId) => {
     if (!token) {
-      toast.error('Please login to save jobs');
+      toast.error('Vui lòng đăng nhập để lưu việc');
       return;
     }
 
@@ -112,49 +113,55 @@ export default function FindJobs() {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSavedJobIds(prev => prev.filter(id => id !== jobId));
-        toast.success('Job removed from saved list');
+        toast.success('Đã bỏ lưu việc làm');
       } else {
         await api.post(`/savedjobs/${jobId}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSavedJobIds(prev => [...prev, jobId]);
-        toast.success('Job saved successfully');
+        toast.success('Đã lưu việc làm');
       }
     } catch (err) {
       console.error('Error toggling save:', err);
-      toast.error('Failed to update saved jobs');
+      toast.error('Không thể cập nhật danh sách đã lưu');
     }
   };
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <HeroSearch 
-        onSearch={(keyword, location) => handleSearch({ keyword, location })} 
+      <HeroSearch
+        initialKeyword={filters.keyword}
+        initialLocation={filters.location}
+        onSearch={(keyword, location) => handleSearch({ keyword, location })}
         totalJobs={paginationData.totalCount}
       />
-      
-      <main className="max-w-[1320px] mx-auto px-6 lg:px-10 py-10 grid lg:grid-cols-[280px_1fr] gap-8">
+
+      <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-[280px_1fr] gap-8">
         <JobFilterSidebar onFilterChange={(minSalary) => handleSearch({ minSalary })} />
-        
+
         <section>
-          {/* Sort bar */}
           <div className="anim-fadeUp-d1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <p className="text-sm text-slate-500">Showing <span className="font-semibold text-slate-800">{paginationData.totalCount}</span> jobs available</p>
+            <p className="text-sm text-slate-500">
+              Hiển thị <span className="font-semibold text-slate-800">{paginationData.totalCount}</span> việc làm
+            </p>
             <div className="flex items-center gap-3">
               <select className="text-sm border border-slate-200 rounded-xl px-3 h-10 bg-white focus:ring-primary/30 focus:border-primary outline-none cursor-pointer">
-                <option>Most Recent</option>
-                <option>Highest Pay</option>
-                <option>Closest</option>
-                <option>Most Popular</option>
+                <option>Mới nhất</option>
+                <option>Lương cao nhất</option>
+                <option>Gần nhất</option>
+                <option>Phổ biến nhất</option>
               </select>
               <div className="flex border border-slate-200 rounded-xl overflow-hidden">
-                <button className="w-10 h-10 flex items-center justify-center bg-primary text-white"><span className="material-symbols-outlined !text-xl">grid_view</span></button>
-                <button className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined !text-xl">view_list</span></button>
+                <button className="w-10 h-10 flex items-center justify-center bg-primary text-white">
+                  <span className="material-symbols-outlined !text-xl">grid_view</span>
+                </button>
+                <button className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-primary transition-colors">
+                  <span className="material-symbols-outlined !text-xl">view_list</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Job Grid */}
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
@@ -162,15 +169,15 @@ export default function FindJobs() {
           ) : jobs.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
               <span className="material-symbols-outlined !text-4xl text-slate-300 mb-2">work_off</span>
-              <h3 className="text-lg font-bold text-slate-700">No jobs found</h3>
-              <p className="text-sm text-slate-500">Try adjusting your filters or search terms.</p>
+              <h3 className="text-lg font-bold text-slate-700">Không tìm thấy việc làm</h3>
+              <p className="text-sm text-slate-500">Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {jobs.map((job) => (
-                <JobCard 
-                  key={job.jobPostId} 
-                  job={job} 
+                <JobCard
+                  key={job.jobPostId}
+                  job={job}
                   isSaved={savedJobIds.includes(job.jobPostId)}
                   onToggleSave={isApplicant ? handleToggleSave : null}
                 />
@@ -178,50 +185,14 @@ export default function FindJobs() {
             </div>
           )}
 
-          {/* Pagination */}
-          {paginationData.totalPages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-2 anim-fadeUp">
-              <button 
-                disabled={!paginationData.hasPreviousPage}
-                onClick={() => setPage(page - 1)}
-                className={`w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center transition-all ${
-                  !paginationData.hasPreviousPage ? 'opacity-30 cursor-not-allowed' : 'text-slate-600 hover:bg-white hover:border-primary hover:text-primary hover:shadow-lg shadow-sm bg-white'
-                }`}
-              >
-                <span className="material-symbols-outlined !text-xl">chevron_left</span>
-              </button>
-
-              {Array.from({ length: paginationData.totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === paginationData.totalPages || (p >= page - 1 && p <= page + 1))
-                .map((p, index, array) => (
-                  <React.Fragment key={p}>
-                    {index > 0 && array[index - 1] !== p - 1 && (
-                      <span className="text-slate-400 text-sm px-1">…</span>
-                    )}
-                    <button 
-                      onClick={() => setPage(p)}
-                      className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
-                        page === p 
-                          ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110 z-10' 
-                          : 'bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary shadow-sm'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  </React.Fragment>
-                ))}
-
-              <button 
-                disabled={!paginationData.hasNextPage}
-                onClick={() => setPage(page + 1)}
-                className={`w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center transition-all ${
-                  !paginationData.hasNextPage ? 'opacity-30 cursor-not-allowed' : 'text-slate-600 hover:bg-white hover:border-primary hover:text-primary hover:shadow-lg shadow-sm bg-white'
-                }`}
-              >
-                <span className="material-symbols-outlined !text-xl">chevron_right</span>
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={page}
+            totalItems={paginationData.totalCount}
+            itemsPerPage={paginationData.pageSize || 9}
+            onPageChange={setPage}
+            label="việc làm"
+            className="mt-10 rounded-3xl border border-slate-200/70 shadow-sm anim-fadeUp"
+          />
         </section>
       </main>
     </div>

@@ -4,6 +4,7 @@ using WorkBridge.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Security.Claims;
 using System.Text;
 using System.Net.Http.Json;
@@ -16,11 +17,13 @@ namespace WorkBridge.Application.Services
     {
         private readonly IWorkBridgeContext _context;
         private readonly IConfiguration _config;
+        private readonly IEmailQueue _emailQueue;
 
-        public AuthService(IWorkBridgeContext context, IConfiguration config)
+        public AuthService(IWorkBridgeContext context, IConfiguration config, IEmailQueue emailQueue)
         {
             _context = context;
             _config = config;
+            _emailQueue = emailQueue;
         }
 
         public async Task<AuthResponse?> LoginAsync(LoginRequest request)
@@ -30,6 +33,11 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(u => u.Email == request.Email && !u.IsDeleted);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return null;
+            }
+
+            if (!IsActiveUser(user))
             {
                 return null;
             }
@@ -55,7 +63,7 @@ namespace WorkBridge.Application.Services
             }
 
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == request.Role);
-            if (role == null) 
+            if (role == null)
             {
                 return null; // Invalid role
             }
@@ -82,8 +90,8 @@ namespace WorkBridge.Application.Services
             }
             else if (role.RoleName == "Employer")
             {
-                var profile = new EmployerProfile 
-                { 
+                var profile = new EmployerProfile
+                {
                     EmployerId = user.UserId,
                     CompanyName = user.FullName + " Company", // Temporary placeholder
                     ContactEmail = user.Email
@@ -102,6 +110,110 @@ namespace WorkBridge.Application.Services
                 Role = role.RoleName,
                 UserId = user.UserId
             };
+        }
+
+        public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
+        {
+            var email = request.Email.Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return;
+            }
+
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email && !u.IsDeleted && u.Status == "Active");
+
+            if (user == null)
+            {
+                return;
+            }
+
+            var now = DateTime.UtcNow;
+            var existingTokens = await _context.PasswordResetTokens
+                .Where(t => t.UserId == user.UserId && t.UsedAt == null && t.ExpiresAt > now)
+                .ToListAsync();
+
+            foreach (var existing in existingTokens)
+            {
+                existing.UsedAt = now;
+            }
+
+            var rawToken = GenerateResetToken();
+            var resetToken = new PasswordResetToken
+            {
+                UserId = user.UserId,
+                TokenHash = HashResetToken(rawToken),
+                CreatedAt = now,
+                ExpiresAt = now.AddMinutes(30)
+            };
+
+            await _context.PasswordResetTokens.AddAsync(resetToken);
+            await _context.SaveChangesAsync();
+
+            var webAppUrl = (_config["Email:WebAppUrl"] ?? "http://127.0.0.1:5173").TrimEnd('/');
+            var resetUrl = $"{webAppUrl}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(rawToken)}";
+
+            _emailQueue.QueueNotificationEmail(
+                user.Email,
+                user.FullName,
+                "Reset your password",
+                "We received a request to reset your WorkBridge password. This link is valid for 30 minutes. If you did not request this, you can ignore this email.",
+                resetUrl,
+                "Reset password");
+        }
+
+        public async Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            var email = request.Email.Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(request.Token))
+            {
+                return (false, "Email and reset token are required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 8)
+            {
+                return (false, "Password must be at least 8 characters.");
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email && !u.IsDeleted && u.Status == "Active");
+            if (user == null)
+            {
+                return (false, "Reset link is invalid or expired.");
+            }
+
+            var tokenHash = HashResetToken(request.Token);
+            var now = DateTime.UtcNow;
+            var resetToken = await _context.PasswordResetTokens
+                .Where(t => t.UserId == user.UserId &&
+                            t.TokenHash == tokenHash &&
+                            t.UsedAt == null &&
+                            t.ExpiresAt > now)
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (resetToken == null)
+            {
+                return (false, "Reset link is invalid or expired.");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.UpdatedAt = now;
+            resetToken.UsedAt = now;
+
+            await _context.SaveChangesAsync();
+            return (true, null);
+        }
+
+        private static string GenerateResetToken()
+        {
+            return Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(32));
+        }
+
+        private static string HashResetToken(string token)
+        {
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
         }
 
         private string GenerateJwtToken(User user, string? roleName = null)
@@ -137,6 +249,11 @@ namespace WorkBridge.Application.Services
     public async Task<AuthResponse?> LoginWithGoogleAsync(ExternalAuthRequest request)
     {
         var clientId = _config["GoogleAuth:ClientId"];
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            return null;
+        }
+
         var settings = new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings()
         {
             Audience = new List<string>() { clientId }
@@ -147,7 +264,7 @@ namespace WorkBridge.Application.Services
         {
             payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
         }
-        catch (Exception ex)
+        catch
         {
             // Invalid token
             return null;
@@ -177,13 +294,17 @@ namespace WorkBridge.Application.Services
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            
+
             // Create Applicant Profile
             var profile = new ApplicantProfile { ApplicantId = user.UserId };
             await _context.ApplicantProfiles.AddAsync(profile);
             await _context.SaveChangesAsync();
-            
+
             user.Role = role; // Attach role to generate correct token claims
+        }
+        else if (!IsActiveUser(user))
+        {
+            return null;
         }
 
         var token = GenerateJwtToken(user);
@@ -201,7 +322,7 @@ namespace WorkBridge.Application.Services
     {
         using var httpClient = new HttpClient();
         var fbUrl = $"https://graph.facebook.com/me?fields=id,name,email&access_token={request.AccessToken}";
-        
+
         try
         {
             var fbResponse = await httpClient.GetAsync(fbUrl);
@@ -239,6 +360,10 @@ namespace WorkBridge.Application.Services
 
                 user.Role = role;
             }
+            else if (!IsActiveUser(user))
+            {
+                return null;
+            }
 
             var token = GenerateJwtToken(user);
 
@@ -258,9 +383,14 @@ namespace WorkBridge.Application.Services
 
     private class FacebookUserData
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private static bool IsActiveUser(User user)
+    {
+        return !user.IsDeleted && string.Equals(user.Status, "Active", StringComparison.OrdinalIgnoreCase);
     }
 }
 }

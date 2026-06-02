@@ -12,6 +12,9 @@ namespace WorkBridge.Application.Services
         Task CreateNotificationAsync(int userId, string title, string message);
         Task<IEnumerable<NotificationResponse>> GetNotificationsAsync(int userId);
         Task<bool> MarkAsReadAsync(int userId, int notificationId);
+        Task<bool> MarkAllAsReadAsync(int userId);
         Task<int> GetUnreadCountAsync(int userId);
+        Task<bool> DeleteNotificationAsync(int userId, int notificationId);
+        Task<bool> DeleteAllReadNotificationsAsync(int userId);
     }
 }

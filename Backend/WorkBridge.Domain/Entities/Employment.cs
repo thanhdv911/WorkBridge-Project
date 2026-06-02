@@ -22,5 +22,7 @@ public partial class Employment
 
     public DateTime? EndDate { get; set; }
 
+    public string? ExpectedShifts { get; set; }
+
     public DateTime CreatedAt { get; set; }
 }

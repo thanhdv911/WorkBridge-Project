@@ -78,6 +78,31 @@ $env:ConnectionStrings__DefaultConnection = "Server=.;Database=WorkBridgeDB;Trus
 dotnet run --project WorkBridge.API\WorkBridge.API.csproj
 ```
 
+## Email Setup
+
+Email credentials must stay outside git. The repository includes a safe template:
+
+```powershell
+Copy-Item WorkBridge.API\appsettings.Development.example.json WorkBridge.API\appsettings.Development.json
+```
+
+Then edit `WorkBridge.API\appsettings.Development.json` and fill your own Gmail address and Google App Password. This file is ignored by git through `.gitignore`, so real passwords will not be pushed.
+
+Recommended local setup with .NET user secrets:
+
+```powershell
+cd Backend\WorkBridge.API
+dotnet user-secrets set "Email:Enabled" "true"
+dotnet user-secrets set "Email:Host" "smtp.gmail.com"
+dotnet user-secrets set "Email:Port" "587"
+dotnet user-secrets set "Email:UseSsl" "true"
+dotnet user-secrets set "Email:UserName" "your-gmail-address@gmail.com"
+dotnet user-secrets set "Email:Password" "your-google-app-password"
+dotnet user-secrets set "Email:FromEmail" "your-gmail-address@gmail.com"
+dotnet user-secrets set "Email:FromName" "WorkBridge"
+dotnet user-secrets set "Email:WebAppUrl" "http://127.0.0.1:5173"
+```
+
 ## Run Frontend
 
 ```powershell

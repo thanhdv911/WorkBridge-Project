@@ -10,6 +10,8 @@ namespace WorkBridge.Application.DTOs
         public string FullName { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public int? ReputationScore { get; set; }
+        public int? ReportCount { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
 
@@ -34,9 +36,17 @@ namespace WorkBridge.Application.DTOs
         public string NewStatus { get; set; } = string.Empty;
     }
 
+    public class AdminUpdateReputationRequest
+    {
+        public int ReputationScore { get; set; }
+    }
+
     public class AdminStatsResponse
     {
         public int TotalUsers { get; set; }
+        public int TotalEmployers { get; set; }
+        public int TotalApplicants { get; set; }
+        public int TotalHired { get; set; }
         public int TotalJobs { get; set; }
         public int TotalApplications { get; set; }
         public double ApplicationSuccessRate { get; set; }

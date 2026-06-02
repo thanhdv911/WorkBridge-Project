@@ -32,6 +32,12 @@ namespace WorkBridge.API.Controllers
             return Ok(await _workforceService.GetMyEmploymentsAsync(GetUserId()));
         }
 
+        [HttpGet("applicant/{applicantId}/employments")]
+        public async Task<IActionResult> GetApplicantEmployments(int applicantId)
+        {
+            return Ok(await _workforceService.GetMyEmploymentsAsync(applicantId));
+        }
+
         [HttpPatch("employees/{employmentId}/status")]
         [Authorize(Roles = "Employer")]
         public async Task<IActionResult> UpdateEmploymentStatus(int employmentId, [FromBody] UpdateEmploymentStatusRequest request)
@@ -46,6 +52,24 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> UpdateEmployeeRate(int employmentId, [FromBody] UpdateEmployeeRateRequest request)
         {
             var (employment, error) = await _workforceService.UpdateEmployeeRateAsync(GetUserId(), employmentId, request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(employment);
+        }
+
+        [HttpPatch("employees/{employmentId}/position")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> UpdateEmployeePosition(int employmentId, [FromBody] UpdateEmployeePositionRequest request)
+        {
+            var (employment, error) = await _workforceService.UpdateEmployeePositionAsync(GetUserId(), employmentId, request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(employment);
+        }
+
+        [HttpPatch("employees/{employmentId}/branch")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> UpdateEmployeeBranch(int employmentId, [FromBody] UpdateEmployeeBranchRequest request)
+        {
+            var (employment, error) = await _workforceService.UpdateEmployeeBranchAsync(GetUserId(), employmentId, request);
             if (error != null) return BadRequest(new { message = error });
             return Ok(employment);
         }
@@ -73,6 +97,20 @@ namespace WorkBridge.API.Controllers
             return Ok(await _workforceService.GetMyShiftsAsync(GetUserId()));
         }
 
+        [HttpGet("my-branch-shifts")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> GetMyBranchShifts()
+        {
+            return Ok(await _workforceService.GetMyBranchShiftsAsync(GetUserId()));
+        }
+
+        [HttpGet("available-shifts")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> GetAvailableShifts()
+        {
+            return Ok(await _workforceService.GetAvailableShiftsAsync(GetUserId()));
+        }
+
         [HttpPost("shifts/{id}/assign")]
         [Authorize(Roles = "Employer")]
         public async Task<IActionResult> AssignShift(int id, [FromBody] AssignShiftRequest request)
@@ -80,6 +118,71 @@ namespace WorkBridge.API.Controllers
             var (assignment, error) = await _workforceService.AssignShiftAsync(GetUserId(), id, request);
             if (error != null) return BadRequest(new { message = error });
             return Ok(assignment);
+        }
+
+        [HttpPatch("assignments/{id}/replace")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> ReplaceShiftAssignment(int id, [FromBody] ReplaceShiftAssignmentRequest request)
+        {
+            var (assignment, error) = await _workforceService.ReplaceShiftAssignmentAsync(GetUserId(), id, request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(assignment);
+        }
+
+        [HttpDelete("assignments/{id}")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> RemoveShiftAssignment(int id)
+        {
+            var (success, error) = await _workforceService.RemoveShiftAssignmentAsync(GetUserId(), id);
+            if (!success) return BadRequest(new { message = error });
+            return Ok(new { message = "Shift assignment removed successfully." });
+        }
+
+        [HttpPost("shifts/{id}/register")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> RegisterForShift(int id)
+        {
+            var (assignment, error) = await _workforceService.RegisterForShiftAsync(GetUserId(), id);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(assignment);
+        }
+
+        [HttpPost("registration-windows/publish-next-week")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> PublishNextWeekRegistrationWindow([FromBody] PublishRegistrationWindowRequest request)
+        {
+            var (window, error) = await _workforceService.PublishNextWeekRegistrationWindowAsync(GetUserId(), request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(window);
+        }
+
+        [HttpGet("registration-windows/my-next-week")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> GetMyNextWeekRegistrationWindows()
+        {
+            return Ok(await _workforceService.GetMyNextWeekRegistrationWindowsAsync(GetUserId()));
+        }
+
+        [HttpPost("registration-windows/{id}/submit")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> SubmitShiftRegistration(int id, [FromBody] SubmitShiftRegistrationRequest request)
+        {
+            var (window, error, isConflict) = await _workforceService.SubmitShiftRegistrationAsync(GetUserId(), id, request);
+            if (error != null)
+            {
+                if (isConflict) return Conflict(new { message = error, window });
+                return BadRequest(new { message = error });
+            }
+            return Ok(window);
+        }
+
+        [HttpPost("registration-windows/{id}/finalize")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> FinalizeRegistrationWindow(int id)
+        {
+            var (window, error) = await _workforceService.FinalizeRegistrationWindowAsync(GetUserId(), id);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(window);
         }
 
         [HttpPost("attendance/{shiftAssignmentId}/check-in")]
@@ -223,6 +326,83 @@ namespace WorkBridge.API.Controllers
             var (passRequest, error) = await _workforceService.RejectShiftPassRequestAsync(GetUserId(), requestId);
             if (error != null) return BadRequest(new { message = error });
             return Ok(passRequest);
+        }
+
+        [HttpGet("shift-timings")]
+        public async Task<IActionResult> GetShiftTimings([FromQuery] int employerId)
+        {
+            int targetEmployerId = employerId;
+            if (targetEmployerId == 0)
+            {
+                var role = User.FindFirstValue(ClaimTypes.Role);
+                if (role == "Employer")
+                {
+                    targetEmployerId = GetUserId();
+                }
+                else
+                {
+                    return BadRequest(new { message = "EmployerId is required for workers." });
+                }
+            }
+            return Ok(await _workforceService.GetShiftTimingsAsync(targetEmployerId));
+        }
+
+        [HttpPost("shift-timings")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> SaveShiftTimings([FromBody] List<SaveEmployerShiftTimingRequest> request)
+        {
+            var timings = await _workforceService.SaveShiftTimingsAsync(GetUserId(), request);
+            return Ok(timings);
+        }
+
+        [HttpPatch("assignments/{id}/toggle-fixed")]
+        [Authorize(Roles = "Applicant")]
+        public async Task<IActionResult> ToggleAssignmentFixed(int id)
+        {
+            var (assignment, error) = await _workforceService.ToggleAssignmentFixedStatusAsync(GetUserId(), id);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(assignment);
+        }
+
+        [HttpPost("auto-assign-unregistered")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> AutoAssignUnregistered([FromQuery] string? date)
+        {
+            DateTime runTime = DateTime.UtcNow;
+            if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out var parsedDate))
+            {
+                runTime = parsedDate;
+            }
+            var (success, message) = await _workforceService.AutoAssignUnregisteredWorkersAsync(GetUserId(), runTime);
+            if (!success) return BadRequest(new { message });
+            return Ok(new { message });
+        }
+
+        [HttpDelete("shifts/{id}")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> DeleteShift(int id)
+        {
+            var (success, error) = await _workforceService.DeleteShiftAsync(GetUserId(), id);
+            if (!success) return BadRequest(new { message = error });
+            return Ok(new { message = "Shift deleted successfully." });
+        }
+
+        [HttpPost("shifts/delete-week")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> DeleteShiftsByWeek([FromBody] DeleteWorkShiftsByWeekRequest request)
+        {
+            var (deletedCount, error) = await _workforceService.DeleteShiftsByWeekAsync(GetUserId(), request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(new { deletedCount, message = $"Deleted {deletedCount} shifts successfully." });
+        }
+
+        [HttpPost("shifts/auto-schedule-batch")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> AutoScheduleBatch([FromBody] AutoScheduleBatchRequest request)
+        {
+            var (result, error) = await _workforceService.AutoScheduleBatchAsync(GetUserId(), request);
+            if (error != null) return BadRequest(new { message = error });
+            return Ok(result);
         }
 
         private int GetUserId()

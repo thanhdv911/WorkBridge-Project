@@ -39,9 +39,9 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             var history = await _messageService.GetChatHistoryAsync(userId, contactId);
-            
+
             await _messageService.MarkAsReadAsync(userId, contactId);
-            
+
             return Ok(history);
         }
 
@@ -59,6 +59,14 @@ namespace WorkBridge.API.Controllers
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
             var count = await _messageService.GetUnreadCountAsync(userId);
             return Ok(new { count });
+        }
+
+        [HttpPost("{contactId}/read")]
+        public async Task<IActionResult> MarkAsRead(int contactId)
+        {
+            var userId = GetUserId();
+            await _messageService.MarkAsReadAsync(userId, contactId);
+            return Ok();
         }
     }
 }

@@ -51,6 +51,33 @@ namespace WorkBridge.API.Controllers
             return Ok(response);
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                return BadRequest(new AuthMessageResponse { Message = "Email is required." });
+            }
+
+            await _authService.RequestPasswordResetAsync(request);
+            return Ok(new AuthMessageResponse
+            {
+                Message = "If that email is registered, a password reset link has been sent."
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var (success, error) = await _authService.ResetPasswordAsync(request);
+            if (!success)
+            {
+                return BadRequest(new AuthMessageResponse { Message = error ?? "Password reset failed." });
+            }
+
+            return Ok(new AuthMessageResponse { Message = "Password has been reset successfully." });
+        }
+
         [HttpPost("google")]
         public async Task<IActionResult> GoogleLogin([FromBody] ExternalAuthRequest request)
         {

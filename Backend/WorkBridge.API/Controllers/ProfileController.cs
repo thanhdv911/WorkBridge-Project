@@ -58,17 +58,68 @@ namespace WorkBridge.API.Controllers
             return Ok(new { Message = "Profile updated successfully." });
         }
 
+        [HttpGet("applicant/{id}")]
+        public async Task<IActionResult> GetApplicantProfileById(int id)
+        {
+            var profile = await _profileService.GetApplicantProfileAsync(id);
+            if (profile == null) return NotFound("User not found or not an applicant.");
+
+            return Ok(profile);
+        }
+
         [HttpPost("applicant/upload-cv")]
         public async Task<IActionResult> UploadCv(Microsoft.AspNetCore.Http.IFormFile file)
         {
+            const long maxPdfSizeBytes = 5 * 1024 * 1024;
+
             if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
-            if (System.IO.Path.GetExtension(file.FileName).ToLower() != ".pdf") 
+            if (file.Length > maxPdfSizeBytes) return BadRequest("CV PDF must be 5MB or smaller.");
+            if (System.IO.Path.GetExtension(file.FileName).ToLower() != ".pdf")
+                return BadRequest("Only PDF files are allowed.");
+            if (!string.Equals(file.ContentType, "application/pdf", System.StringComparison.OrdinalIgnoreCase))
                 return BadRequest("Only PDF files are allowed.");
 
             int userId = GetCurrentUserId();
             if (userId == 0) return Unauthorized();
 
             var cvUrl = await _profileService.UploadCvAsync(userId, file);
+            if (cvUrl == null) return NotFound("User not found.");
+
+            return Ok(new { CvUrl = cvUrl });
+        }
+
+        [HttpDelete("applicant/cv")]
+        public async Task<IActionResult> DeleteCv()
+        {
+            int userId = GetCurrentUserId();
+            if (userId == 0) return Unauthorized();
+
+            var success = await _profileService.DeleteCvAsync(userId);
+            if (!success) return NotFound("User not found.");
+
+            return Ok(new { CvUrl = (string?)null, Message = "CV deleted successfully." });
+        }
+
+        [HttpPost("applicant/save-generated-cv")]
+        public async Task<IActionResult> SaveGeneratedCv([FromBody] SaveGeneratedCvRequest request)
+        {
+            if (request == null) return BadRequest("Invalid CV data.");
+
+            int userId = GetCurrentUserId();
+            if (userId == 0) return Unauthorized();
+
+            var hasAnyContent =
+                !string.IsNullOrWhiteSpace(request.Summary) ||
+                !string.IsNullOrWhiteSpace(request.Experience) ||
+                !string.IsNullOrWhiteSpace(request.Education) ||
+                !string.IsNullOrWhiteSpace(request.Skills);
+
+            if (!hasAnyContent)
+            {
+                return BadRequest(new { message = "CV cần có ít nhất một phần nội dung để lưu thành PDF." });
+            }
+
+            var cvUrl = await _profileService.SaveGeneratedCvAsync(userId, request);
             if (cvUrl == null) return NotFound("User not found.");
 
             return Ok(new { CvUrl = cvUrl });

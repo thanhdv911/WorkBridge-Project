@@ -5,9 +5,10 @@ import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
+import WorkBridgeLogo from '../components/shared/WorkBridgeLogo';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
-  || '1076301859968-o8s7ergmtru24s9vi5j179478vhg2dqa.apps.googleusercontent.com';
+  || '336931851953-adc02j9sbgou7oga3t1uiu6abfe7av80.apps.googleusercontent.com';
 const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID || '2748475085516950';
 
 export default function Auth() {
@@ -23,6 +24,9 @@ export default function Auth() {
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState('Applicant'); // Applicant or Employer
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSubmitting, setForgotSubmitting] = useState(false);
   const hasGoogleLogin = Boolean(GOOGLE_CLIENT_ID);
   const hasFacebookLogin = Boolean(FACEBOOK_APP_ID);
 
@@ -41,23 +45,23 @@ export default function Auth() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please enter both email and password');
+      toast.error('Vui lòng nhập email và mật khẩu');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const response = await api.post('/auth/login', { email, password });
-      toast.success(`Welcome back, ${response.data.fullName}!`);
+      toast.success(`Chào mừng trở lại, ${response.data.fullName}!`);
       persistSession(response.data);
-      
+
       if (response.data.role === 'Employer') {
         navigate('/employer-dashboard');
       } else {
-        navigate('/'); 
+        navigate('/');
       }
     } catch (err) {
-      toast.error(err.response?.data || 'Login failed. Please check your credentials.');
+      toast.error(err.response?.data || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
       setIsLoading(false);
     }
@@ -66,15 +70,15 @@ export default function Auth() {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!firstName || !lastName || !email || !password) {
-      toast.error('Please fill in all required fields');
+      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Mật khẩu không khớp');
       return;
     }
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự');
       return;
     }
 
@@ -87,16 +91,16 @@ export default function Auth() {
         password,
         role
       });
-      toast.success('Account created successfully!');
+      toast.success('Tạo tài khoản thành công!');
       persistSession(response.data);
-      
+
       if (response.data.role === 'Employer') {
         navigate('/employer-dashboard');
       } else {
         navigate('/');
       }
     } catch (err) {
-      toast.error(err.response?.data || 'Registration failed. Please try again.');
+      toast.error(err.response?.data || 'Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +110,7 @@ export default function Auth() {
     setIsLoading(true);
     try {
       const response = await api.post('/auth/google', { IdToken: credentialResponse.credential });
-      toast.success(`Welcome, ${response.data.fullName}!`);
+      toast.success(`Chào mừng, ${response.data.fullName}!`);
       persistSession(response.data);
       if (response.data.role === 'Employer') {
         navigate('/employer-dashboard');
@@ -114,14 +118,38 @@ export default function Auth() {
         navigate('/');
       }
     } catch (err) {
-      toast.error(err.response?.data || 'Google Login failed.');
+      toast.error(err.response?.data || 'Đăng nhập Google thất bại.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleError = () => {
-    toast.error('Google login was interrupted or failed.');
+    toast.error('Đăng nhập Google bị gián đoạn hoặc thất bại.');
+  };
+
+  const openForgotPassword = () => {
+    setForgotEmail(email);
+    setShowForgotModal(true);
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) {
+      toast.error('Vui lòng nhập email đăng ký.');
+      return;
+    }
+
+    setForgotSubmitting(true);
+    try {
+      const response = await api.post('/auth/forgot-password', { email: forgotEmail.trim() });
+      toast.success(response.data?.message || 'Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi.');
+      setShowForgotModal(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể gửi yêu cầu đặt lại mật khẩu.');
+    } finally {
+      setForgotSubmitting(false);
+    }
   };
 
   const responseFacebook = async (response) => {
@@ -129,7 +157,7 @@ export default function Auth() {
       setIsLoading(true);
       try {
         const res = await api.post('/auth/facebook', { AccessToken: response.accessToken });
-        toast.success(`Welcome, ${res.data.fullName}!`);
+        toast.success(`Chào mừng, ${res.data.fullName}!`);
         persistSession(res.data);
         if (res.data.role === 'Employer') {
           navigate('/employer-dashboard');
@@ -137,20 +165,20 @@ export default function Auth() {
           navigate('/');
         }
       } catch (err) {
-        toast.error(err.response?.data || 'Facebook login failed.');
+        toast.error(err.response?.data || 'Đăng nhập Facebook thất bại.');
       } finally {
         setIsLoading(false);
       }
     } else {
-      toast.error('Facebook login was cancelled or failed.');
+      toast.error('Đăng nhập Facebook bị hủy hoặc thất bại.');
     }
   };
 
   // In a real app we'd just use React Router or state, but for the mockup fidelity:
-  const heading = isLogin ? 'LOGIN' : 'CREATE ACCOUNT';
-  const subHeading = isLogin 
-    ? 'Please enter your details to sign in.' 
-    : 'Join thousands of students finding their perfect job.';
+  const heading = isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ';
+  const subHeading = isLogin
+    ? 'Vui lòng nhập thông tin để đăng nhập.'
+    : 'Tham gia cùng hàng nghìn sinh viên tìm được việc làm lý tưởng.';
 
   // The panels
   const showLogin = () => {
@@ -171,24 +199,21 @@ export default function Auth() {
     <div className="bg-gradient-to-br from-indigo-50 via-slate-50 to-violet-50 font-display text-slate-900 min-h-screen flex flex-col antialiased overflow-x-hidden">
       {/* ═══════ HEADER ═══════ */}
       <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
-        <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 h-16">
+        <div className="w-full mx-auto flex items-center justify-between gap-3 px-4 sm:px-4 sm:px-6 lg:px-8 h-20">
           <div className="flex items-center min-w-0">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-                <span className="material-symbols-outlined !text-xl text-white">work</span>
-              </div>
-              <span className="text-lg font-extrabold tracking-tight">Work<span className="text-primary">Bridge</span></span>
+            <Link to="/" className="flex items-center group" aria-label="WorkBridge">
+              <WorkBridgeLogo imageClassName="h-14 w-auto max-w-[232px] drop-shadow-[0_8px_18px_rgba(37,99,235,0.18)] transition-transform duration-200 group-hover:scale-[1.02]" />
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-8">
-            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/">Home</Link>
-            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/jobs">Find Jobs</Link>
-            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/post-job">Post a Job</Link>
+            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/">Trang chủ</Link>
+            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/jobs">Tìm việc</Link>
+            <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/post-job">Đăng tin tuyển dụng</Link>
           </nav>
           <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
              {/* Same page, so basically no-op or just set state */}
-            <button onClick={showLogin} className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Login</button>
-            <button onClick={showRegister} className="inline-flex items-center h-10 px-3 sm:px-5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">Sign Up Free</button>
+            <button onClick={showLogin} className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Đăng nhập</button>
+            <button onClick={showRegister} className="inline-flex items-center h-10 px-3 sm:px-5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">Đăng ký miễn phí</button>
           </div>
         </div>
       </header>
@@ -217,22 +242,22 @@ export default function Auth() {
 
             {/* Login / Register toggle */}
             <div className="anim-fadeUp-d1 flex h-12 w-full max-w-[320px] sm:max-w-sm mx-auto items-center rounded-2xl bg-slate-100 p-1.5 gap-1 mb-6">
-              <button 
-                onClick={showLogin} 
+              <button
+                onClick={showLogin}
                 className={`flex-1 h-full rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                Sign In
+                Đăng nhập
               </button>
-              <button 
-                onClick={showRegister} 
+              <button
+                onClick={showRegister}
                 className={`flex-1 h-full rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                Create Account
+                Đăng ký
               </button>
             </div>
 
             {/* ════ LOGIN FORM ════ */}
             {isLogin && (
               <form onSubmit={handleLogin} className="flex flex-col gap-4 anim-fadeUp-d2 max-w-[320px] sm:max-w-sm mx-auto w-full flex-shrink-0">
-                
+
                 {/* Username / Email */}
                 <div className="relative">
                   <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">person</span>
@@ -242,29 +267,29 @@ export default function Auth() {
                 {/* Password */}
                 <div className="relative">
                   <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">lock</span>
-                  <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Password" type="password" required />
+                  <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Mật khẩu" type="password" required />
                 </div>
 
                 {/* Remember + Forgot */}
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input className="rounded border-slate-300 text-primary focus:ring-primary/30 w-4 h-4 cursor-pointer" type="checkbox" defaultChecked/>
-                    <span className="text-sm text-slate-500">Remember me</span>
+                    <span className="text-sm text-slate-500">Ghi nhớ đăng nhập</span>
                   </label>
-                  <button type="button" className="text-xs font-semibold text-primary hover:text-primary-dk transition-colors">Forgot password?</button>
+                  <button type="button" onClick={openForgotPassword} className="text-xs font-semibold text-primary hover:text-primary-dk transition-colors">Quên mật khẩu?</button>
                 </div>
 
                 {/* Submit */}
                 <button type="submit" disabled={isLoading} className="flex items-center justify-center rounded-xl h-12 bg-gradient-to-r from-accent to-violet-500 text-white font-bold text-sm shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-[1.02] transition-all gap-2 mt-1 disabled:opacity-70 disabled:hover:scale-100">
-                  <span>{isLoading ? 'Logging in...' : 'Login Now'}</span>
+                  <span>{isLoading ? 'Đang đăng nhập...' : 'Đăng nhập ngay'}</span>
                   {!isLoading && <span className="material-symbols-outlined !text-xl">arrow_forward</span>}
                 </button>
 
                 {(hasGoogleLogin || hasFacebookLogin) && (
-                  <ErrorBoundary fallback={<p className="text-center text-xs text-slate-400">Social login is temporarily unavailable.</p>}>
+                  <ErrorBoundary fallback={<p className="text-center text-xs text-slate-400">Đăng nhập mạng xã hội tạm thời không khả dụng.</p>}>
                     <div className="relative flex items-center py-2">
                       <div className="flex-grow border-t border-slate-200"></div>
-                      <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold">Login with Others</span>
+                      <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold">Đăng nhập bằng cách khác</span>
                       <div className="flex-grow border-t border-slate-200"></div>
                     </div>
 
@@ -292,7 +317,7 @@ export default function Auth() {
                             <svg className="w-5 h-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                             </svg>
-                            Login with <span className="font-extrabold">Facebook</span>
+                            Đăng nhập với <span className="font-extrabold">Facebook</span>
                           </button>
                         )}
                       />
@@ -302,7 +327,7 @@ export default function Auth() {
 
                 {/* Switch prompt */}
                 <p className="text-center text-sm text-slate-500 mt-2">
-                  Don't have an account? <button type="button" onClick={showRegister} className="font-bold text-accent hover:underline">Create Account</button>
+                  Chưa có tài khoản? <button type="button" onClick={showRegister} className="font-bold text-accent hover:underline">Đăng ký</button>
                 </p>
               </form>
             )}
@@ -315,13 +340,13 @@ export default function Auth() {
                   <label className="tab-toggle flex-1 h-full cursor-pointer relative">
                     <input checked={role === 'Applicant'} onChange={() => setRole('Applicant')} name="reg_role" type="radio" value="Applicant" className="peer sr-only"/>
                     <span className="flex items-center justify-center w-full h-full rounded-lg text-xs font-semibold text-slate-500 transition-all gap-1.5 peer-checked:bg-white peer-checked:text-primary peer-checked:shadow-sm">
-                      <span className="material-symbols-outlined !text-[16px]">person</span> Job Seeker
+                      <span className="material-symbols-outlined !text-[16px]">person</span> Người tìm việc
                     </span>
                   </label>
                   <label className="tab-toggle flex-1 h-full cursor-pointer relative">
                     <input checked={role === 'Employer'} onChange={() => setRole('Employer')} name="reg_role" type="radio" value="Employer" className="peer sr-only"/>
                     <span className="flex items-center justify-center w-full h-full rounded-lg text-xs font-semibold text-slate-500 transition-all gap-1.5 peer-checked:bg-white peer-checked:text-primary peer-checked:shadow-sm">
-                      <span className="material-symbols-outlined !text-[16px]">business</span> Employer
+                      <span className="material-symbols-outlined !text-[16px]">business</span> Nhà tuyển dụng
                     </span>
                   </label>
                 </div>
@@ -330,9 +355,9 @@ export default function Auth() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
                     <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">person</span>
-                    <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-3 text-sm placeholder:text-slate-400 transition-colors" placeholder="First name" type="text" required/>
+                    <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-3 text-sm placeholder:text-slate-400 transition-colors" placeholder="Họ" type="text" required/>
                   </div>
-                  <input value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 px-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Last name" type="text" required/>
+                  <input value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 px-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Tên" type="text" required/>
                 </div>
 
                 {/* Email */}
@@ -344,7 +369,7 @@ export default function Auth() {
                 {/* Password */}
                 <div className="relative">
                   <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">lock</span>
-                  <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Min. 8 characters" type="password" required minLength="8"/>
+                  <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Tối thiểu 8 ký tự" type="password" required minLength="8"/>
                 </div>
 
                 {/* Password strength (Dynamic but currently simple UI representation) */}
@@ -358,28 +383,28 @@ export default function Auth() {
                 {/* Confirm password */}
                 <div className="relative">
                   <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">lock</span>
-                  <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Re-enter your password" type="password" required/>
+                  <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors" placeholder="Nhập lại mật khẩu" type="password" required/>
                 </div>
 
                 {/* Terms */}
                 <label className="flex items-start gap-2.5 cursor-pointer select-none">
                   <input required className="rounded border-slate-300 text-accent focus:ring-accent/30 w-4 h-4 mt-0.5 cursor-pointer" type="checkbox"/>
                   <span className="text-sm text-slate-500 leading-relaxed">
-                    I agree to the <a href="#" className="text-accent font-semibold hover:underline">Terms of Service</a> and <a href="#" className="text-accent font-semibold hover:underline">Privacy Policy</a>
+                    Tôi đồng ý với <a href="#" className="text-accent font-semibold hover:underline">Điều khoản dịch vụ</a> và <a href="#" className="text-accent font-semibold hover:underline">Chính sách bảo mật</a>
                   </span>
                 </label>
 
                 {/* Submit */}
                 <button type="submit" disabled={isLoading} className="flex items-center justify-center rounded-xl h-12 bg-gradient-to-r from-accent to-violet-500 text-white font-bold text-sm shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-[1.02] transition-all gap-2 disabled:opacity-70 disabled:hover:scale-100">
-                  <span>{isLoading ? 'Creating Account...' : 'Create Account'}</span>
+                  <span>{isLoading ? 'Đang tạo tài khoản...' : 'Đăng ký'}</span>
                   {!isLoading && <span className="material-symbols-outlined !text-xl">arrow_forward</span>}
                 </button>
 
                 {(hasGoogleLogin || hasFacebookLogin) && (
-                  <ErrorBoundary fallback={<p className="text-center text-xs text-slate-400">Social signup is temporarily unavailable.</p>}>
+                  <ErrorBoundary fallback={<p className="text-center text-xs text-slate-400">Đăng ký mạng xã hội tạm thời không khả dụng.</p>}>
                     <div className="relative flex items-center py-1">
                       <div className="flex-grow border-t border-slate-200"></div>
-                      <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold">or sign up with</span>
+                      <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold">hoặc đăng ký với</span>
                       <div className="flex-grow border-t border-slate-200"></div>
                     </div>
 
@@ -407,7 +432,7 @@ export default function Auth() {
                             <svg className="w-5 h-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                             </svg>
-                            Sign up with <span className="font-extrabold">Facebook</span>
+                            Đăng ký với <span className="font-extrabold">Facebook</span>
                           </button>
                         )}
                       />
@@ -417,7 +442,7 @@ export default function Auth() {
 
                 {/* Switch prompt */}
                 <p className="text-center text-sm text-slate-500 mt-2">
-                  Already have an account? <button type="button" onClick={showLogin} className="font-bold text-accent hover:underline">Sign In</button>
+                  Đã có tài khoản? <button type="button" onClick={showLogin} className="font-bold text-accent hover:underline">Đăng nhập</button>
                 </p>
               </form>
             )}
@@ -448,8 +473,8 @@ export default function Auth() {
                   <span className="material-symbols-outlined !text-6xl text-white/90">handshake</span>
                 </div>
                 <div className="text-center">
-                  <h3 className="text-white text-xl font-black tracking-tight">Find Your Match</h3>
-                  <p className="text-white/70 text-sm mt-1.5 leading-relaxed">Connect with thousands of opportunities tailored for students.</p>
+                  <h3 className="text-white text-xl font-black tracking-tight">Tìm Việc Phù Hợp</h3>
+                  <p className="text-white/70 text-sm mt-1.5 leading-relaxed">Kết nối với hàng nghìn cơ hội dành riêng cho sinh viên.</p>
                 </div>
               </div>
 
@@ -469,7 +494,7 @@ export default function Auth() {
                 </div>
                 <div>
                   <div className="text-white font-bold text-base">5,000+</div>
-                  <div className="text-white/50 text-[11px]">Active jobs</div>
+                  <div className="text-white/50 text-[11px]">Việc đang tuyển</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-white/10 backdrop-blur rounded-xl px-4 py-3 border border-white/10">
@@ -478,7 +503,7 @@ export default function Auth() {
                 </div>
                 <div>
                   <div className="text-white font-bold text-base">12K+</div>
-                  <div className="text-white/50 text-[11px]">Students hired</div>
+                  <div className="text-white/50 text-[11px]">Sinh viên được tuyển</div>
                 </div>
               </div>
             </div>
@@ -486,6 +511,46 @@ export default function Auth() {
           </div>
         </div>
       </main>
+
+      {showForgotModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-sm">
+          <form onSubmit={handleForgotPassword} className="w-full max-w-md rounded-3xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">Đặt lại mật khẩu</h2>
+                <p className="mt-1 text-sm text-slate-500">Nhập email đã đăng ký, WorkBridge sẽ gửi link đặt lại mật khẩu nếu tài khoản tồn tại.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="relative">
+                <span className="material-symbols-outlined !text-xl text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
+                <input
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors"
+                  placeholder="email@example.com"
+                  type="email"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={forgotSubmitting}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary-dk text-white font-bold text-sm disabled:opacity-60"
+              >
+                {forgotSubmitting ? 'Đang gửi...' : 'Gửi link đặt lại mật khẩu'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

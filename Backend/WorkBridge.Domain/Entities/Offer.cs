@@ -30,5 +30,7 @@ public partial class Offer
 
     public DateTime? AcceptedAt { get; set; }
 
+    public string? ExpectedShifts { get; set; }
+
     public DateTime? RespondedAt { get; set; }
 }

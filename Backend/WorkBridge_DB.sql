@@ -33,7 +33,21 @@ CREATE TABLE Users (
     FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
 );
 
--- 3. Applicant Profiles
+-- 3. Password Reset Tokens
+CREATE TABLE PasswordResetTokens (
+    PasswordResetTokenId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    TokenHash NVARCHAR(128) NOT NULL,
+    ExpiresAt DATETIME NOT NULL,
+    UsedAt DATETIME NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+);
+
+CREATE INDEX IX_PasswordResetTokens_TokenHash ON PasswordResetTokens(TokenHash);
+CREATE INDEX IX_PasswordResetTokens_User_Used_Expires ON PasswordResetTokens(UserId, UsedAt, ExpiresAt);
+
+-- 4. Applicant Profiles
 CREATE TABLE ApplicantProfiles (
     ApplicantId INT PRIMARY KEY,
     University NVARCHAR(255) NULL,
@@ -44,11 +58,11 @@ CREATE TABLE ApplicantProfiles (
     AboutMe NVARCHAR(MAX) NULL,
     Availability NVARCHAR(MAX) NULL, -- Can store as JSON array "['Mon_AM', 'Tue_PM']"
     CvUrl NVARCHAR(MAX) NULL,
-    FOREIGN KEY (ApplicantId) REFERENCES Users(UserId) 
+    FOREIGN KEY (ApplicantId) REFERENCES Users(UserId)
     -- Removed ON DELETE CASCADE to enforce soft delete
 );
 
--- 4. Applicant Experiences
+-- 5. Applicant Experiences
 CREATE TABLE ApplicantExperiences (
     ExperienceId INT IDENTITY(1,1) PRIMARY KEY,
     ApplicantId INT NOT NULL,
@@ -59,7 +73,7 @@ CREATE TABLE ApplicantExperiences (
     FOREIGN KEY (ApplicantId) REFERENCES ApplicantProfiles(ApplicantId)
 );
 
--- 5. Applicant Skills
+-- 6. Applicant Skills
 CREATE TABLE ApplicantSkills (
     SkillId INT IDENTITY(1,1) PRIMARY KEY,
     ApplicantId INT NOT NULL,
@@ -101,16 +115,16 @@ CREATE TABLE JobPosts (
     CategoryId INT NOT NULL,
     Title NVARCHAR(200) NOT NULL,
     JobType NVARCHAR(50) NOT NULL, -- e.g., 'Part-time', 'Freelance', 'Internship'
-    
+
     -- Tiền lương được cải tiến
     PayRate DECIMAL(18,2) NULL, -- Cho phép NULL nếu là Thỏa thuận
     PayUnit NVARCHAR(50) NOT NULL DEFAULT 'PerHour', -- 'PerHour', 'PerDay', 'PerMonth', 'Negotiable'
-    
+
     -- Địa lý được chia nhỏ để dễ Filter
     City NVARCHAR(100) NULL,
     District NVARCHAR(100) NULL,
     Address NVARCHAR(255) NOT NULL, -- Số nhà, tên đường cụ thể
-    
+
     ApplicationDeadline DATETIME NULL,
     Description NVARCHAR(MAX) NOT NULL,
     Requirements NVARCHAR(MAX) NULL,
@@ -151,9 +165,9 @@ CREATE TABLE Applications (
 -- 12. Reviews
 CREATE TABLE Reviews (
     ReviewId INT IDENTITY(1,1) PRIMARY KEY,
-    ReviewerId INT NOT NULL, 
-    RevieweeId INT NOT NULL, 
-    JobPostId INT NOT NULL, 
+    ReviewerId INT NOT NULL,
+    RevieweeId INT NOT NULL,
+    JobPostId INT NOT NULL,
     Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
     Comment NVARCHAR(MAX) NULL,
     IsDeleted BIT NOT NULL DEFAULT 0,
@@ -161,7 +175,7 @@ CREATE TABLE Reviews (
     FOREIGN KEY (ReviewerId) REFERENCES Users(UserId),
     FOREIGN KEY (RevieweeId) REFERENCES Users(UserId),
     -- Tạm bỏ FK với JobPosts hoặc để NO ACTION để tránh lỗi vòng lặp xóa
-    FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId) 
+    FOREIGN KEY (JobPostId) REFERENCES JobPosts(JobPostId)
 );
 
 -- 13. Saved Jobs (Bookmarks)
@@ -190,7 +204,7 @@ CREATE TABLE Messages (
     MessageId INT IDENTITY(1,1) PRIMARY KEY,
     SenderId INT NOT NULL,
     ReceiverId INT NOT NULL,
-    JobPostId INT NULL, 
+    JobPostId INT NULL,
     InterviewId INT NULL,
     MessageType NVARCHAR(30) NOT NULL DEFAULT 'Text',
     Content NVARCHAR(MAX) NOT NULL,
@@ -217,7 +231,7 @@ CREATE TABLE Subscriptions (
 CREATE TABLE Reports (
     ReportId INT IDENTITY(1,1) PRIMARY KEY,
     ReporterId INT NOT NULL,
-    ReportedEntityId INT NOT NULL, 
+    ReportedEntityId INT NOT NULL,
     EntityType NVARCHAR(50) NOT NULL, -- 'JobPost', 'User'
     Reason NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX) NULL,
@@ -304,6 +318,7 @@ BEGIN
         WorkShiftId INT IDENTITY(1,1) PRIMARY KEY,
         EmployerId INT NOT NULL,
         BranchId INT NOT NULL,
+        RegistrationWindowId INT NULL,
         Title NVARCHAR(150) NOT NULL,
         StartTime DATETIME NOT NULL,
         EndTime DATETIME NOT NULL,
@@ -317,6 +332,57 @@ BEGIN
     );
 END;
 
+IF OBJECT_ID('dbo.ShiftRegistrationWindows', 'U') IS NULL
+BEGIN
+    CREATE TABLE ShiftRegistrationWindows (
+        ShiftRegistrationWindowId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        BranchId INT NOT NULL,
+        WeekStartDate DATETIME NOT NULL,
+        OpenAt DATETIME NOT NULL,
+        CloseAt DATETIME NOT NULL,
+        Status NVARCHAR(20) NOT NULL DEFAULT 'Open',
+        MinFixedShifts INT NOT NULL DEFAULT 3,
+        PublishedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FinalizedAt DATETIME NULL,
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId),
+        FOREIGN KEY (BranchId) REFERENCES Branches(BranchId),
+        CONSTRAINT UQ_ShiftRegistrationWindows_Employer_Branch_Week UNIQUE (EmployerId, BranchId, WeekStartDate)
+    );
+END;
+
+IF COL_LENGTH('dbo.WorkShifts', 'RegistrationWindowId') IS NULL
+BEGIN
+    ALTER TABLE dbo.WorkShifts ADD RegistrationWindowId INT NULL;
+END;
+
+IF OBJECT_ID('dbo.WorkShifts', 'U') IS NOT NULL
+   AND OBJECT_ID('dbo.ShiftRegistrationWindows', 'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1 FROM sys.foreign_keys
+        WHERE name = 'FK_WorkShifts_ShiftRegistrationWindows_RegistrationWindowId'
+          AND parent_object_id = OBJECT_ID('dbo.WorkShifts')
+   )
+BEGIN
+    ALTER TABLE dbo.WorkShifts
+    ADD CONSTRAINT FK_WorkShifts_ShiftRegistrationWindows_RegistrationWindowId
+    FOREIGN KEY (RegistrationWindowId) REFERENCES dbo.ShiftRegistrationWindows(ShiftRegistrationWindowId);
+END;
+
+IF OBJECT_ID('dbo.EmployerShiftTimings', 'U') IS NULL
+BEGIN
+    CREATE TABLE EmployerShiftTimings (
+        EmployerShiftTimingId INT IDENTITY(1,1) PRIMARY KEY,
+        EmployerId INT NOT NULL,
+        ShiftName NVARCHAR(50) NOT NULL,
+        StartTime NVARCHAR(5) NOT NULL,
+        EndTime NVARCHAR(5) NOT NULL,
+        RequiredPeople INT NOT NULL DEFAULT 1,
+        IsActive BIT NOT NULL DEFAULT 1,
+        FOREIGN KEY (EmployerId) REFERENCES EmployerProfiles(EmployerId) ON DELETE CASCADE
+    );
+END;
+
 IF OBJECT_ID('dbo.ShiftAssignments', 'U') IS NULL
 BEGIN
     CREATE TABLE ShiftAssignments (
@@ -325,12 +391,48 @@ BEGIN
         EmploymentId INT NOT NULL,
         EmployeeUserId INT NOT NULL,
         Status NVARCHAR(20) NOT NULL DEFAULT 'Assigned',
+        IsFixed BIT NOT NULL DEFAULT 0,
+        AssignmentSource NVARCHAR(30) NOT NULL DEFAULT 'EmployerAssign',
         AssignedAt DATETIME NOT NULL DEFAULT GETDATE(),
         TransferredFromAssignmentId INT NULL,
         FOREIGN KEY (WorkShiftId) REFERENCES WorkShifts(WorkShiftId),
         FOREIGN KEY (EmploymentId) REFERENCES Employments(EmploymentId),
         FOREIGN KEY (EmployeeUserId) REFERENCES Users(UserId)
     );
+END;
+
+IF COL_LENGTH('dbo.ShiftAssignments', 'AssignmentSource') IS NULL
+BEGIN
+    ALTER TABLE dbo.ShiftAssignments
+    ADD AssignmentSource NVARCHAR(30) NOT NULL
+        CONSTRAINT DF_ShiftAssignments_AssignmentSource DEFAULT 'EmployerAssign';
+END;
+
+IF COL_LENGTH('dbo.ShiftAssignments', 'IsFixed') IS NULL
+BEGIN
+    ALTER TABLE dbo.ShiftAssignments
+    ADD IsFixed BIT NOT NULL
+        CONSTRAINT DF_ShiftAssignments_IsFixed DEFAULT 0;
+END;
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_ShiftAssignments_WorkShiftId_EmployeeUserId_Status'
+      AND object_id = OBJECT_ID('dbo.ShiftAssignments')
+)
+BEGIN
+    CREATE INDEX IX_ShiftAssignments_WorkShiftId_EmployeeUserId_Status
+    ON dbo.ShiftAssignments (WorkShiftId, EmployeeUserId, Status);
+END;
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_WorkShifts_RegistrationWindowId'
+      AND object_id = OBJECT_ID('dbo.WorkShifts')
+)
+BEGIN
+    CREATE INDEX IX_WorkShifts_RegistrationWindowId
+    ON dbo.WorkShifts (RegistrationWindowId);
 END;
 
 IF OBJECT_ID('dbo.Interviews', 'U') IS NULL
@@ -457,13 +559,44 @@ BEGIN
     );
 END;
 
+IF OBJECT_ID('dbo.PasswordResetTokens', 'U') IS NULL
+BEGIN
+    CREATE TABLE PasswordResetTokens (
+        PasswordResetTokenId INT IDENTITY(1,1) PRIMARY KEY,
+        UserId INT NOT NULL,
+        TokenHash NVARCHAR(128) NOT NULL,
+        ExpiresAt DATETIME NOT NULL,
+        UsedAt DATETIME NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+        FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_PasswordResetTokens_TokenHash'
+      AND object_id = OBJECT_ID('dbo.PasswordResetTokens')
+)
+BEGIN
+    CREATE INDEX IX_PasswordResetTokens_TokenHash ON PasswordResetTokens(TokenHash);
+END;
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_PasswordResetTokens_User_Used_Expires'
+      AND object_id = OBJECT_ID('dbo.PasswordResetTokens')
+)
+BEGIN
+    CREATE INDEX IX_PasswordResetTokens_User_Used_Expires ON PasswordResetTokens(UserId, UsedAt, ExpiresAt);
+END;
+
 -- =========================================================================================
 -- INITIAL DATA SEEDING (OPTIONAL QUICK START)
 -- =========================================================================================
 
 INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Employer'), ('Applicant');
 
-INSERT INTO JobCategories (Name, Description) VALUES 
+INSERT INTO JobCategories (Name, Description) VALUES
 ('Food & Beverage', 'Cafe, restaurants, bars'),
 ('Tutoring', 'Academic and skill tutoring'),
 ('Delivery', 'Food and parcel delivery services'),

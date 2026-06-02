@@ -11,15 +11,27 @@ namespace WorkBridge.Application.DTOs
         public string CompanyName { get; set; } = null!;
         public string? CompanyLogoUrl { get; set; }
         public string JobType { get; set; } = null!;
-        public string Location { get; set; } = null!; 
+        public string Location { get; set; } = null!;
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? District { get; set; }
         public decimal? PayRate { get; set; }
         public string PayUnit { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string? Requirements { get; set; }
         public string? Benefits { get; set; }
         public DateTime? ApplicationDeadline { get; set; }
+        public string? Position { get; set; }
+        public int? Vacancies { get; set; }
         public string Status { get; set; } = null!;
         public DateTime? CreatedAt { get; set; }
+        public bool IsFeatured { get; set; }
+        public bool IsVipEmployer { get; set; }
+        public int? BranchId { get; set; }
+        public string? BranchName { get; set; }
+        public int EmployerReputationScore { get; set; } = 100;
+        public int EmployerReportCount { get; set; }
+        public string EmployerStatus { get; set; } = "Active";
         public List<ShiftResponse> Shifts { get; set; } = new();
     }
 

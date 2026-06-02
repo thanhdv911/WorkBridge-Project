@@ -89,6 +89,21 @@ namespace WorkBridge.API.Controllers
             }
         }
 
+        [HttpPut("jobs/{id}")]
+        public async Task<IActionResult> UpdateJob(int id, [FromBody] CreateJobRequest request)
+        {
+            try
+            {
+                var userId = GetUserId();
+                var updatedJob = await _employerService.UpdateJobAsync(userId, id, request);
+                return Ok(updatedJob);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         [HttpPatch("jobs/{id}/status")]
         public async Task<IActionResult> UpdateJobStatus(int id, [FromBody] string status)
         {
@@ -98,6 +113,21 @@ namespace WorkBridge.API.Controllers
                 var success = await _employerService.UpdateJobStatusAsync(userId, id, status);
                 if (!success) return NotFound(new { Message = "Job not found or access denied." });
                 return Ok(new { Message = "Job status updated successfully." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("dashboard/stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            try
+            {
+                var userId = GetUserId();
+                var stats = await _employerService.GetDashboardStatsAsync(userId);
+                return Ok(stats);
             }
             catch (System.Exception ex)
             {

@@ -5,6 +5,7 @@ import AdminJobs from '../components/admin/AdminJobs';
 import AdminCategories from '../components/admin/AdminCategories';
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminReports from '../components/admin/AdminReports';
+import AdminVipPlans from '../components/admin/AdminVipPlans';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
@@ -25,11 +26,12 @@ const AdminDashboard = () => {
     }
 
     const tabs = [
-        { id: 'overview', label: 'Overview', icon: 'dashboard' },
-        { id: 'users', label: 'User Management', icon: 'groups' },
-        { id: 'jobs', label: 'Job Moderation', icon: 'fact_check' },
-        { id: 'categories', label: 'Categories', icon: 'category' },
-        { id: 'reports', label: 'System Reports', icon: 'report_problem' }
+        { id: 'overview', label: 'Tổng quan', icon: 'dashboard' },
+        { id: 'users', label: 'Quản lý người dùng', icon: 'groups' },
+        { id: 'jobs', label: 'Kiểm duyệt việc làm', icon: 'fact_check' },
+        { id: 'categories', label: 'Danh mục', icon: 'category' },
+        { id: 'vip-plans', label: 'Gói VIP', icon: 'workspace_premium' },
+        { id: 'reports', label: 'Báo cáo hệ thống', icon: 'report_problem' }
     ];
 
     return (
@@ -37,8 +39,8 @@ const AdminDashboard = () => {
             {/* Sidebar */}
             <aside className="w-full md:w-72 bg-white border-r border-slate-200/60 p-6 flex flex-col gap-2">
                 <div className="mb-8 px-2">
-                    <h1 className="text-2xl font-black text-slate-800 tracking-tight">Admin <span className="text-primary">Panel</span></h1>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Management Console</p>
+                    <h1 className="text-2xl font-black text-slate-800 tracking-tight">Quản trị <span className="text-primary">Hệ thống</span></h1>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Bảng điều khiển quản trị</p>
                 </div>
 
                 {tabs.map((tab) => (
@@ -46,8 +48,8 @@ const AdminDashboard = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                            activeTab === tab.id 
-                            ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                            activeTab === tab.id
+                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
                             : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
                         }`}
                     >
@@ -64,6 +66,7 @@ const AdminDashboard = () => {
                     {activeTab === 'users' && <AdminUsers />}
                     {activeTab === 'jobs' && <AdminJobs />}
                     {activeTab === 'categories' && <AdminCategories />}
+                    {activeTab === 'vip-plans' && <AdminVipPlans />}
                     {activeTab === 'reports' && <AdminReports />}
                 </div>
             </main>

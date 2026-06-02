@@ -298,6 +298,49 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.ToTable("EmployerProfiles");
                 });
 
+            modelBuilder.Entity("WorkBridge.Domain.Entities.EmployerShiftTiming", b =>
+                {
+                    b.Property<int>("EmployerShiftTimingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployerShiftTimingId"));
+
+                    b.Property<int>("EmployerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("RequiredPeople")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("ShiftName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.HasKey("EmployerShiftTimingId");
+
+                    b.HasIndex("EmployerId");
+
+                    b.ToTable("EmployerShiftTimings");
+                });
+
             modelBuilder.Entity("WorkBridge.Domain.Entities.Employment", b =>
                 {
                     b.Property<int>("EmploymentId")
@@ -552,6 +595,9 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.Property<string>("Benefits")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -578,6 +624,11 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsFeatured")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("JobType")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -592,6 +643,10 @@ namespace WorkBridge.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("PerHour");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Requirements")
                         .HasColumnType("nvarchar(max)");
@@ -611,8 +666,13 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
 
+                    b.Property<int?>("Vacancies")
+                        .HasColumnType("int");
+
                     b.HasKey("JobPostId")
                         .HasName("PK__JobPosts__57689C3A02B54011");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("CategoryId");
 
@@ -836,6 +896,42 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.HasIndex("EmployerId");
 
                     b.ToTable("Offers");
+                });
+
+            modelBuilder.Entity("WorkBridge.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<int>("PasswordResetTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PasswordResetTokenId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PasswordResetTokenId");
+
+                    b.HasIndex("TokenHash");
+
+                    b.HasIndex("UserId", "UsedAt", "ExpiresAt");
+
+                    b.ToTable("PasswordResetTokens");
                 });
 
             modelBuilder.Entity("WorkBridge.Domain.Entities.PayrollItem", b =>
@@ -1111,11 +1207,23 @@ namespace WorkBridge.Infrastructure.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
+                    b.Property<string>("AssignmentSource")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("EmployerAssign");
+
                     b.Property<int>("EmployeeUserId")
                         .HasColumnType("int");
 
                     b.Property<int>("EmploymentId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsFixed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1136,7 +1244,7 @@ namespace WorkBridge.Infrastructure.Migrations
 
                     b.HasIndex("EmploymentId");
 
-                    b.HasIndex("WorkShiftId");
+                    b.HasIndex("WorkShiftId", "EmployeeUserId", "Status");
 
                     b.ToTable("ShiftAssignments");
                 });
@@ -1198,6 +1306,59 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.HasIndex("WorkShiftId");
 
                     b.ToTable("ShiftPassRequests");
+                });
+
+            modelBuilder.Entity("WorkBridge.Domain.Entities.ShiftRegistrationWindow", b =>
+                {
+                    b.Property<int>("ShiftRegistrationWindowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShiftRegistrationWindowId"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CloseAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("EmployerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FinalizedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("MinFixedShifts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(3);
+
+                    b.Property<DateTime>("OpenAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("PublishedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Open");
+
+                    b.Property<DateTime>("WeekStartDate")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("ShiftRegistrationWindowId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("EmployerId", "BranchId", "WeekStartDate")
+                        .IsUnique();
+
+                    b.ToTable("ShiftRegistrationWindows");
                 });
 
             modelBuilder.Entity("WorkBridge.Domain.Entities.Subscription", b =>
@@ -1322,6 +1483,9 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime");
 
+                    b.Property<int?>("RegistrationWindowId")
+                        .HasColumnType("int");
+
                     b.Property<int>("RequiredPeople")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -1351,6 +1515,8 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("EmployerId");
+
+                    b.HasIndex("RegistrationWindowId");
 
                     b.ToTable("WorkShifts");
                 });
@@ -1449,6 +1615,15 @@ namespace WorkBridge.Infrastructure.Migrations
                     b.Navigation("Employer");
                 });
 
+            modelBuilder.Entity("WorkBridge.Domain.Entities.EmployerShiftTiming", b =>
+                {
+                    b.HasOne("WorkBridge.Domain.Entities.EmployerProfile", null)
+                        .WithMany()
+                        .HasForeignKey("EmployerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WorkBridge.Domain.Entities.Employment", b =>
                 {
                     b.HasOne("WorkBridge.Domain.Entities.Branch", null)
@@ -1518,6 +1693,12 @@ namespace WorkBridge.Infrastructure.Migrations
 
             modelBuilder.Entity("WorkBridge.Domain.Entities.JobPost", b =>
                 {
+                    b.HasOne("WorkBridge.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_JobPosts_Branches");
+
                     b.HasOne("WorkBridge.Domain.Entities.JobCategory", "Category")
                         .WithMany("JobPosts")
                         .HasForeignKey("CategoryId")
@@ -1529,6 +1710,8 @@ namespace WorkBridge.Infrastructure.Migrations
                         .HasForeignKey("EmployerId")
                         .IsRequired()
                         .HasConstraintName("FK__JobPosts__Employ__5629CD9C");
+
+                    b.Navigation("Branch");
 
                     b.Navigation("Category");
 
@@ -1604,6 +1787,15 @@ namespace WorkBridge.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("EmployerId")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WorkBridge.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("WorkBridge.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -1750,6 +1942,21 @@ namespace WorkBridge.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WorkBridge.Domain.Entities.ShiftRegistrationWindow", b =>
+                {
+                    b.HasOne("WorkBridge.Domain.Entities.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("WorkBridge.Domain.Entities.EmployerProfile", null)
+                        .WithMany()
+                        .HasForeignKey("EmployerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WorkBridge.Domain.Entities.Subscription", b =>
                 {
                     b.HasOne("WorkBridge.Domain.Entities.EmployerProfile", "Employer")
@@ -1785,6 +1992,11 @@ namespace WorkBridge.Infrastructure.Migrations
                         .HasForeignKey("EmployerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("WorkBridge.Domain.Entities.ShiftRegistrationWindow", null)
+                        .WithMany()
+                        .HasForeignKey("RegistrationWindowId")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("WorkBridge.Domain.Entities.ApplicantProfile", b =>

@@ -11,5 +11,6 @@ namespace WorkBridge.Application.Services
         Task<IEnumerable<InterviewResponse>> GetMyInterviewsAsync(int applicantId);
         Task<(InterviewResponse? Interview, string? Error)> UpdateStatusAsync(int userId, string role, int interviewId, UpdateInterviewStatusRequest request);
         Task<(InterviewResponse? Interview, string? Error)> UpdateResultAsync(int employerId, int interviewId, UpdateInterviewResultRequest request);
+        Task<(InterviewResponse? Interview, string? Error)> UpdateInterviewScheduleAsync(int employerId, int interviewId, CreateInterviewRequest request);
     }
 }

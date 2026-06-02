@@ -25,15 +25,19 @@ namespace WorkBridge.Application.Interfaces
         DbSet<Offer> Offers { get; set; }
         DbSet<PayrollItem> PayrollItems { get; set; }
         DbSet<PayrollPeriod> PayrollPeriods { get; set; }
+        DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         DbSet<Report> Reports { get; set; }
         DbSet<Review> Reviews { get; set; }
         DbSet<Role> Roles { get; set; }
         DbSet<SavedJob> SavedJobs { get; set; }
         DbSet<ShiftAssignment> ShiftAssignments { get; set; }
         DbSet<ShiftPassRequest> ShiftPassRequests { get; set; }
+        DbSet<ShiftRegistrationWindow> ShiftRegistrationWindows { get; set; }
         DbSet<Subscription> Subscriptions { get; set; }
+        DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         DbSet<User> Users { get; set; }
         DbSet<WorkShift> WorkShifts { get; set; }
+        DbSet<EmployerShiftTiming> EmployerShiftTimings { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

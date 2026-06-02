@@ -21,5 +21,7 @@ public partial class Report
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? AiAnalysis { get; set; }
+
     public virtual User Reporter { get; set; } = null!;
 }
