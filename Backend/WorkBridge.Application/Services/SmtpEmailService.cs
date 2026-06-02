@@ -80,11 +80,11 @@ namespace WorkBridge.Application.Services
 
         private static string BuildHtmlBody(string toName, string title, string message, string webAppUrl, string? actionUrl, string? actionText)
         {
-            var safeName = WebUtility.HtmlEncode(string.IsNullOrWhiteSpace(toName) ? "bạn" : toName);
+            var safeName = WebUtility.HtmlEncode(string.IsNullOrWhiteSpace(toName) ? "\u0062\u1ea1\u006e" : toName);
             var safeTitle = WebUtility.HtmlEncode(title);
             var safeMessage = WebUtility.HtmlEncode(message);
             var finalUrl = string.IsNullOrWhiteSpace(actionUrl) ? webAppUrl : actionUrl;
-            var finalText = string.IsNullOrWhiteSpace(actionText) ? "Mở WorkBridge" : actionText;
+            var finalText = string.IsNullOrWhiteSpace(actionText) ? "M\u1edf WorkBridge" : actionText;
             var safeUrl = WebUtility.HtmlEncode(finalUrl);
             var safeActionText = WebUtility.HtmlEncode(finalText);
 
@@ -99,16 +99,16 @@ namespace WorkBridge.Application.Services
         <h1 style=""margin:8px 0 0;font-size:22px;line-height:1.3;"">{safeTitle}</h1>
       </div>
       <div style=""padding:24px;"">
-        <p style=""margin:0 0 14px;font-size:15px;line-height:1.6;"">Xin chào {safeName},</p>
+        <p style=""margin:0 0 14px;font-size:15px;line-height:1.6;"">Xin ch&#224;o {safeName},</p>
         <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;"">{safeMessage}</p>
         <div style=""margin:18px 0;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;color:#1d4ed8;font-size:14px;line-height:1.5;"">
-          Bạn nhận email này vì có cập nhật quan trọng trên WorkBridge. Hãy vào website để xem chi tiết và thực hiện hành động cần thiết.
+          B&#7841;n nh&#7853;n email n&#224;y v&#236; c&#243; c&#7853;p nh&#7853;t quan tr&#7885;ng tr&#234;n WorkBridge. H&#227;y v&#224;o website &#273;&#7875; xem chi ti&#7871;t v&#224; th&#7921;c hi&#7879;n h&#224;nh &#273;&#7897;ng c&#7847;n thi&#7871;t.
         </div>
         <a href=""{safeUrl}"" style=""display:inline-block;margin-top:8px;padding:12px 18px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;"">
           {safeActionText}
         </a>
         <p style=""margin:22px 0 0;color:#64748b;font-size:12px;line-height:1.5;"">
-          Nếu nút trên không mở được, hãy truy cập: <a href=""{safeUrl}"" style=""color:#2563eb;"">{safeUrl}</a>
+          N&#7871;u n&#250;t tr&#234;n kh&#244;ng m&#7903; &#273;&#432;&#7907;c, h&#227;y truy c&#7853;p: <a href=""{safeUrl}"" style=""color:#2563eb;"">{safeUrl}</a>
         </p>
       </div>
     </div>
