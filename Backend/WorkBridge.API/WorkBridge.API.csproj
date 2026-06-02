@@ -27,6 +27,7 @@
   <ItemGroup>
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
     <Content Update="appsettings.Development.example.json" CopyToPublishDirectory="Never" />
+    <Content Update="wwwroot\uploads\**\*" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>
