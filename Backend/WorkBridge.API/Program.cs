@@ -97,6 +97,7 @@ builder.Services.AddScoped<WorkBridge.Application.Interfaces.IWorkBridgeContext>
     provider.GetRequiredService<WorkBridgeContext>());
 builder.Services.AddHostedService<ShiftPassExpiryHostedService>();
 builder.Services.AddHostedService<EmailDispatchHostedService>();
+builder.Services.AddHostedService<SubscriptionPaymentExpiryHostedService>();
 builder.Services.AddHostedService<ShiftRegistrationAutoPublishHostedService>();
 builder.Services.AddHostedService<ShiftRegistrationFinalizeHostedService>();
 
@@ -618,6 +619,10 @@ using (var scope = app.Services.CreateScope())
 
             IF COL_LENGTH('dbo.ApplicantProfiles', 'ReportCount') IS NULL
                 ALTER TABLE dbo.ApplicantProfiles ADD ReportCount INT NOT NULL CONSTRAINT DF_ApplicantProfiles_ReportCount DEFAULT 0;
+
+            UPDATE dbo.ApplicantProfiles
+            SET ReputationScore = 100
+            WHERE ReputationScore = 0 AND ReportCount = 0;
         END
     ");
 

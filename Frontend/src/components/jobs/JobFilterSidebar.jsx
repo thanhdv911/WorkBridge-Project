@@ -1,100 +1,106 @@
 import React, { useState } from 'react';
 
+const categories = [
+  ['Đồ ăn & Đồ uống', 48, true],
+  ['Gia sư', 32],
+  ['Giao hàng', 27],
+  ['Bán lẻ', 21],
+  ['Marketing', 14]
+];
+
+const distances = ['Trong vòng 5 km', 'Trong vòng 10 km', 'Trong vòng 20 km', 'Bất kỳ khoảng cách'];
+const shifts = ['Sáng', 'Chiều', 'Tối', 'Cuối tuần'];
+
 export default function JobFilterSidebar({ onFilterChange }) {
   const [salary, setSalary] = useState(20000);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <aside className="anim-fadeUp space-y-6">
-      <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5">
-        <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined !text-lg text-primary">tune</span>Bộ lọc
-        </h3>
+    <aside className={`jobs-filter anim-fadeUp ${isOpen ? 'is-open' : ''}`}>
+      <div className={`jobs-filter-card ${isOpen ? 'is-open' : ''}`}>
+        <div className="jobs-filter-head">
+          <div>
+            <p>Bộ lọc</p>
+            <h3>Tinh chỉnh kết quả</h3>
+          </div>
+          <span className="material-symbols-outlined">tune</span>
+          <button
+            type="button"
+            className="jobs-filter-toggle"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((current) => !current)}
+          >
+            <span className="material-symbols-outlined">
+              {isOpen ? 'expand_less' : 'tune'}
+            </span>
+            <span className="jobs-filter-toggle-label">
+              {isOpen ? 'Đóng' : 'Mở lọc'}
+            </span>
+          </button>
+        </div>
 
-        {/* Category */}
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Danh mục</label>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" defaultChecked />
-              Đồ ăn & Đồ uống <span className="ml-auto text-xs text-slate-400">48</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Gia sư <span className="ml-auto text-xs text-slate-400">32</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Giao hàng <span className="ml-auto text-xs text-slate-400">27</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Bán lẻ <span className="ml-auto text-xs text-slate-400">21</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary/30" />
-              Marketing <span className="ml-auto text-xs text-slate-400">14</span>
-            </label>
+        <div className="jobs-filter-section">
+          <label>Danh mục</label>
+          <div className="jobs-filter-list">
+            {categories.map(([name, count, checked]) => (
+              <label key={name} className="jobs-filter-option">
+                <input type="checkbox" defaultChecked={checked} />
+                <span>{name}</span>
+                <small>{count}</small>
+              </label>
+            ))}
           </div>
         </div>
 
-        {/* Salary */}
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Mức lương</label>
-          <div className="space-y-2">
+        <div className="jobs-filter-section">
+          <label>Mức lương</label>
+          <div className="jobs-salary-box">
             <input
               type="range"
-              min="20000" max="200000" step="5000"
+              min="20000"
+              max="200000"
+              step="5000"
               value={salary}
               onChange={(e) => setSalary(Number(e.target.value))}
-              className="w-full h-1.5 rounded-full bg-slate-200 appearance-none outline-none focus:ring-2 focus:ring-primary/20 accent-primary"
             />
-            <div className="flex justify-between text-xs text-slate-400">
+            <div className="jobs-salary-row">
               <span>20.000đ/giờ</span>
-              <span className="font-semibold text-primary">{salary.toLocaleString()}đ/giờ</span>
+              <strong>{salary.toLocaleString()}đ/giờ</strong>
             </div>
           </div>
         </div>
 
-        {/* Distance */}
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Khoảng cách</label>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="radio" name="dist" className="text-primary focus:ring-primary/30" defaultChecked />
-              Trong vòng 5 km
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="radio" name="dist" className="text-primary focus:ring-primary/30" />
-              Trong vòng 10 km
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="radio" name="dist" className="text-primary focus:ring-primary/30" />
-              Trong vòng 20 km
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="radio" name="dist" className="text-primary focus:ring-primary/30" />
-              Bất kỳ khoảng cách
-            </label>
+        <div className="jobs-filter-section">
+          <label>Khoảng cách</label>
+          <div className="jobs-filter-list">
+            {distances.map((distance, index) => (
+              <label key={distance} className="jobs-filter-option">
+                <input type="radio" name="dist" defaultChecked={index === 0} />
+                <span>{distance}</span>
+              </label>
+            ))}
           </div>
         </div>
 
-        {/* Shift */}
-        <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Ca làm việc</label>
-          <div className="flex flex-wrap gap-2">
-            <button className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20">Sáng</button>
-            <button className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-colors">Chiều</button>
-            <button className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-colors">Tối</button>
-            <button className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-colors">Cuối tuần</button>
+        <div className="jobs-filter-section">
+          <label>Ca làm việc</label>
+          <div className="jobs-shift-pills">
+            {shifts.map((shift, index) => (
+              <button key={shift} type="button" className={index === 0 ? 'is-active' : ''}>
+                {shift}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       <button
+        type="button"
         onClick={() => onFilterChange(salary)}
-        className="w-full h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2"
+        className="jobs-filter-submit"
       >
-        <span className="material-symbols-outlined !text-lg">filter_list</span>Áp dụng bộ lọc
+        <span className="material-symbols-outlined !text-lg">filter_list</span>
+        Áp dụng bộ lọc
       </button>
     </aside>
   );

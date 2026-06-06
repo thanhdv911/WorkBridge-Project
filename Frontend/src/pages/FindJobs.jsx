@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../services/api';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 import HeroSearch from '../components/jobs/HeroSearch';
 import JobFilterSidebar from '../components/jobs/JobFilterSidebar';
 import JobCard from '../components/jobs/JobCard';
 import Pagination from '../components/shared/Pagination';
+
+const readFiltersFromSearchParams = (searchParams) => ({
+  keyword: searchParams.get('keyword') || '',
+  location: searchParams.get('location') || '',
+  minSalary: searchParams.get('minSalary') || '',
+  categoryId: searchParams.get('categoryId') || searchParams.get('category') || ''
+});
 
 export default function FindJobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,13 +26,7 @@ export default function FindJobs() {
     hasNextPage: false
   });
   const [page, setPage] = useState(1);
-  const readFiltersFromUrl = () => ({
-    keyword: searchParams.get('keyword') || '',
-    location: searchParams.get('location') || '',
-    minSalary: searchParams.get('minSalary') || '',
-    categoryId: searchParams.get('categoryId') || searchParams.get('category') || ''
-  });
-  const [filters, setFilters] = useState(readFiltersFromUrl);
+  const [filters, setFilters] = useState(() => readFiltersFromSearchParams(searchParams));
   const [savedJobIds, setSavedJobIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
@@ -33,22 +34,15 @@ export default function FindJobs() {
   const isApplicant = role && role.toLowerCase() === 'applicant';
 
   useEffect(() => {
-    fetchJobs();
-    if (isApplicant && token) {
-      fetchSavedJobIds();
-    }
-  }, [token, isApplicant, page, filters]);
-
-  useEffect(() => {
-    const nextFilters = readFiltersFromUrl();
-    setFilters(prev => {
-      const isSame = Object.keys(nextFilters).every(key => prev[key] === nextFilters[key]);
+    const nextFilters = readFiltersFromSearchParams(searchParams);
+    setFilters((prev) => {
+      const isSame = Object.keys(nextFilters).every((key) => prev[key] === nextFilters[key]);
       return isSame ? prev : nextFilters;
     });
     setPage(1);
   }, [searchParams]);
 
-  const fetchSavedJobIds = async () => {
+  const fetchSavedJobIds = useCallback(async () => {
     try {
       const res = await api.get('/savedjobs/ids', {
         headers: { Authorization: `Bearer ${token}` }
@@ -57,9 +51,9 @@ export default function FindJobs() {
     } catch (err) {
       console.error('Error fetching saved job IDs:', err);
     }
-  };
+  }, [token]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       const { keyword, location, minSalary, categoryId } = filters;
@@ -85,7 +79,14 @@ export default function FindJobs() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page]);
+
+  useEffect(() => {
+    fetchJobs();
+    if (isApplicant && token) {
+      fetchSavedJobIds();
+    }
+  }, [fetchJobs, fetchSavedJobIds, isApplicant, token]);
 
   const handleSearch = (newFilters) => {
     const nextFilters = { ...filters, ...newFilters };
@@ -112,13 +113,13 @@ export default function FindJobs() {
         await api.delete(`/savedjobs/${jobId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setSavedJobIds(prev => prev.filter(id => id !== jobId));
+        setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
         toast.success('Đã bỏ lưu việc làm');
       } else {
         await api.post(`/savedjobs/${jobId}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setSavedJobIds(prev => [...prev, jobId]);
+        setSavedJobIds((prev) => [...prev, jobId]);
         toast.success('Đã lưu việc làm');
       }
     } catch (err) {
@@ -128,7 +129,7 @@ export default function FindJobs() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="jobs-page">
       <HeroSearch
         initialKeyword={filters.keyword}
         initialLocation={filters.location}
@@ -136,26 +137,28 @@ export default function FindJobs() {
         totalJobs={paginationData.totalCount}
       />
 
-      <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-[280px_1fr] gap-8">
+      <main className="jobs-main">
         <JobFilterSidebar onFilterChange={(minSalary) => handleSearch({ minSalary })} />
 
-        <section>
-          <div className="anim-fadeUp-d1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <p className="text-sm text-slate-500">
-              Hiển thị <span className="font-semibold text-slate-800">{paginationData.totalCount}</span> việc làm
+        <section className="jobs-results">
+          <div className="jobs-results-toolbar anim-fadeUp-d1">
+            <p className="jobs-count-pill">
+              Hiển thị <span>{paginationData.totalCount}</span> việc làm
             </p>
-            <div className="flex items-center gap-3">
-              <select className="text-sm border border-slate-200 rounded-xl px-3 h-10 bg-white focus:ring-primary/30 focus:border-primary outline-none cursor-pointer">
+
+            <div className="jobs-results-controls">
+              <select className="jobs-sort-select" aria-label="Sắp xếp việc làm">
                 <option>Mới nhất</option>
                 <option>Lương cao nhất</option>
                 <option>Gần nhất</option>
                 <option>Phổ biến nhất</option>
               </select>
-              <div className="flex border border-slate-200 rounded-xl overflow-hidden">
-                <button className="w-10 h-10 flex items-center justify-center bg-primary text-white">
+
+              <div className="jobs-view-toggle" aria-label="Kiểu hiển thị">
+                <button type="button" className="is-active" aria-label="Hiển thị dạng lưới">
                   <span className="material-symbols-outlined !text-xl">grid_view</span>
                 </button>
-                <button className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-primary transition-colors">
+                <button type="button" aria-label="Hiển thị dạng danh sách">
                   <span className="material-symbols-outlined !text-xl">view_list</span>
                 </button>
               </div>
@@ -163,17 +166,18 @@ export default function FindJobs() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <div className="jobs-loading-panel">
+              <div className="jobs-loader" />
+              <p>Đang tải cơ hội phù hợp...</p>
             </div>
           ) : jobs.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
-              <span className="material-symbols-outlined !text-4xl text-slate-300 mb-2">work_off</span>
-              <h3 className="text-lg font-bold text-slate-700">Không tìm thấy việc làm</h3>
-              <p className="text-sm text-slate-500">Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.</p>
+            <div className="jobs-empty-panel">
+              <span className="material-symbols-outlined">work_off</span>
+              <h3>Không tìm thấy việc làm</h3>
+              <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="jobs-grid">
               {jobs.map((job) => (
                 <JobCard
                   key={job.jobPostId}
@@ -191,7 +195,7 @@ export default function FindJobs() {
             itemsPerPage={paginationData.pageSize || 9}
             onPageChange={setPage}
             label="việc làm"
-            className="mt-10 rounded-3xl border border-slate-200/70 shadow-sm anim-fadeUp"
+            className="jobs-pagination anim-fadeUp"
           />
         </section>
       </main>

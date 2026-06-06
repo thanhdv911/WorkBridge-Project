@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -12,10 +13,12 @@ namespace WorkBridge.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly ISubscriptionPaymentService _subscriptionPaymentService;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, ISubscriptionPaymentService subscriptionPaymentService)
         {
             _adminService = adminService;
+            _subscriptionPaymentService = subscriptionPaymentService;
         }
 
         // Users
@@ -44,6 +47,20 @@ namespace WorkBridge.API.Controllers
             var result = await _adminService.UpdateUserReputationAsync(id, request.ReputationScore);
             if (!result) return NotFound("User profile not found.");
             return Ok(new { message = "User reputation updated successfully.", reputationScore = request.ReputationScore });
+        }
+
+        [HttpPost("users/{id}/vip")]
+        public async Task<IActionResult> GrantUserVip(int id, [FromBody] AdminGrantVipRequest request)
+        {
+            try
+            {
+                var result = await _subscriptionPaymentService.GrantByAdminAsync(id, request);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // Jobs

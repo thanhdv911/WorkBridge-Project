@@ -23,7 +23,7 @@ public partial class ApplicantProfile
 
     public string? CvUrl { get; set; }
 
-    public int ReputationScore { get; set; }
+    public int ReputationScore { get; set; } = 100;
 
     public int ReportCount { get; set; }
 

@@ -135,6 +135,37 @@ namespace WorkBridge.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("cancel")]
+        [Authorize(Roles = "Employer,Applicant")]
+        public async Task<IActionResult> CancelPayment([FromBody] CancelPaymentRequest request)
+        {
+            var audience = NormalizeAudience(request?.Audience) ?? GetCurrentAudience();
+            var result = await _paymentService.CancelAsync(
+                GetUserId(),
+                audience,
+                request?.SubscriptionId,
+                request?.OrderCode,
+                request?.Reason);
+
+            if (result == null)
+            {
+                return NotFound(new { message = "Khong tim thay giao dich VIP dang cho de huy." });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("history")]
+        [Authorize(Roles = "Employer,Applicant")]
+        public async Task<IActionResult> GetTransactionHistory(
+            [FromQuery] string? audience = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 5)
+        {
+            var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
+            return Ok(await _paymentService.GetHistoryAsync(GetUserId(), normalizedAudience, page, pageSize));
+        }
+
         [HttpPost("payos/webhook")]
         [AllowAnonymous]
         public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRequest request)
@@ -212,6 +243,17 @@ namespace WorkBridge.API.Controllers
                 .ToListAsync();
 
             return Ok(plans);
+        }
+
+        [HttpGet("admin/transactions")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminTransactions(
+            [FromQuery] string? audience = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 12)
+        {
+            return Ok(await _paymentService.GetAdminHistoryAsync(audience, status, page, pageSize));
         }
 
         [HttpPost("admin/plans")]

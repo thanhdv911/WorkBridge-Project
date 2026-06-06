@@ -118,6 +118,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.StudyYear).HasMaxLength(50);
             entity.Property(e => e.University).HasMaxLength(255);
             entity.Property(e => e.CvUrl).IsUnicode(true);
+            entity.Property(e => e.ReputationScore).HasDefaultValue(100);
+            entity.Property(e => e.ReportCount).HasDefaultValue(0);
 
             entity.HasOne(d => d.Applicant).WithOne(p => p.ApplicantProfile)
                 .HasForeignKey<ApplicantProfile>(d => d.ApplicantId)

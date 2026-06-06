@@ -85,7 +85,12 @@ namespace WorkBridge.Application.Services
             // Insert into specific profile table
             if (role.RoleName == "Applicant")
             {
-                var profile = new ApplicantProfile { ApplicantId = user.UserId };
+                var profile = new ApplicantProfile
+                {
+                    ApplicantId = user.UserId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
                 await _context.ApplicantProfiles.AddAsync(profile);
             }
             else if (role.RoleName == "Employer")
@@ -296,7 +301,12 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
 
             // Create Applicant Profile
-            var profile = new ApplicantProfile { ApplicantId = user.UserId };
+            var profile = new ApplicantProfile
+            {
+                ApplicantId = user.UserId,
+                ReputationScore = 100,
+                ReportCount = 0
+            };
             await _context.ApplicantProfiles.AddAsync(profile);
             await _context.SaveChangesAsync();
 
@@ -354,7 +364,12 @@ namespace WorkBridge.Application.Services
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
 
-                var profile = new ApplicantProfile { ApplicantId = user.UserId };
+                var profile = new ApplicantProfile
+                {
+                    ApplicantId = user.UserId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
                 await _context.ApplicantProfiles.AddAsync(profile);
                 await _context.SaveChangesAsync();
 

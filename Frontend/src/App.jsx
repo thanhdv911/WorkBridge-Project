@@ -65,6 +65,7 @@ function App() {
   const location = useLocation();
   const isAuthPage = ['/login', '/signup', '/auth', '/reset-password'].includes(location.pathname);
   const appShellRoutes = ['/messages', '/employer-dashboard', '/admin-dashboard'];
+  const hideHeader = isAuthPage;
   const hideFooter = isAuthPage || appShellRoutes.includes(location.pathname);
   const hideAiWidget = isAuthPage || location.pathname === '/messages';
   const hideVipPromo = isAuthPage || location.pathname === '/admin-dashboard';
@@ -73,7 +74,7 @@ function App() {
     <>
       <Toaster position="top-right" />
       <PresenceHeartbeat />
-      {!isAuthPage && <Header />}
+      {!hideHeader && <Header />}
       {!hideAiWidget && <AiChatWidget />}
       <VipPromoBanner disabled={hideVipPromo} />
       <main className={location.pathname === '/messages' ? 'overflow-hidden' : undefined}>

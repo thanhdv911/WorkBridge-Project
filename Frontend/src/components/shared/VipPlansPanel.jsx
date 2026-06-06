@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import api from '../../services/api';
+import api, { API_BASE_URL } from '../../services/api';
+import Pagination from './Pagination';
 
 const AUDIENCE_COPY = {
   Applicant: {
@@ -50,6 +51,41 @@ const AUDIENCE_COPY = {
 };
 
 const formatCurrency = (value) => Number(value || 0).toLocaleString('vi-VN');
+const TRANSACTION_PAGE_SIZE = 5;
+
+const formatDateTime = (value) => {
+  if (!value) return '--';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '--';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
+const formatCountdown = (seconds) => {
+  const safeSeconds = Math.max(0, Number(seconds || 0));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainder = safeSeconds % 60;
+  return `${minutes}:${String(remainder).padStart(2, '0')}`;
+};
+
+const transactionStatusLabel = (status) => {
+  if (status === 'Active') return 'Thành công';
+  if (status === 'Pending') return 'Đang chờ';
+  if (status === 'Cancelled' || status === 'Expired') return 'Đã hủy';
+  return status || '--';
+};
+
+const transactionStatusClass = (status) => {
+  if (status === 'Active') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
+  if (status === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-100';
+  if (status === 'Cancelled' || status === 'Expired') return 'bg-rose-50 text-rose-700 ring-rose-100';
+  return 'bg-slate-100 text-slate-600 ring-slate-200';
+};
 
 const formatDuration = (days) => {
   if (days === 7) return '7 ngày';
@@ -134,11 +170,25 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
   const [paymentRequest, setPaymentRequest] = useState(null);
   const [payingSubscriptionId, setPayingSubscriptionId] = useState(null);
   const [payingOrderCode, setPayingOrderCode] = useState(null);
+  const [paymentExpiresAt, setPaymentExpiresAt] = useState(null);
+  const [paymentCountdown, setPaymentCountdown] = useState(0);
+  const [cancelingPayment, setCancelingPayment] = useState(false);
+  const [transactionSummary, setTransactionSummary] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [transactionPage, setTransactionPage] = useState(1);
+  const [transactionMeta, setTransactionMeta] = useState({
+    page: 1,
+    pageSize: TRANSACTION_PAGE_SIZE,
+    totalItems: 0,
+    totalPages: 1
+  });
   const [returnConfirming, setReturnConfirming] = useState(false);
   const [paymentCheckLoading, setPaymentCheckLoading] = useState(false);
   const [paymentCheckNote, setPaymentCheckNote] = useState('Đang tự động kiểm tra thanh toán...');
   const [paymentSuccessView, setPaymentSuccessView] = useState(null);
   const buyInFlightRef = useRef(false);
+  const activePaymentRef = useRef({ paymentRequest: null, subscriptionId: null, orderCode: null, expiresAt: null });
+  const cancelInFlightRef = useRef(false);
   const paymentSuccessHandledRef = useRef(false);
   const successTimerRef = useRef(null);
 
@@ -173,8 +223,73 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     }
   };
 
-  const persistPendingPayment = (payment, subscriptionId, orderCode) => {
+  const readStoredPayment = () => {
+    try {
+      const raw = localStorage.getItem(paymentStorageKey);
+      if (!raw) return null;
+
+      return JSON.parse(raw);
+    } catch {
+      clearStoredPayment();
+      return null;
+    }
+  };
+
+  const getActivePaymentIds = () => {
+    const active = activePaymentRef.current || {};
+    const saved = readStoredPayment();
+    const savedOrderCode = saved?.payment
+      ? getOrderCodeFromPayment(saved.payment, saved.orderCode)
+      : saved?.orderCode;
+
+    return {
+      subscriptionId: payingSubscriptionId || active.subscriptionId || saved?.subscriptionId || null,
+      orderCode: payingOrderCode ||
+        active.orderCode ||
+        getOrderCodeFromPayment(active.paymentRequest, savedOrderCode) ||
+        savedOrderCode ||
+        null
+    };
+  };
+
+  const resetPaymentState = () => {
+    paymentSuccessHandledRef.current = false;
+    setPaymentRequest(null);
+    setPayingSubscriptionId(null);
+    setPayingOrderCode(null);
+    setPaymentExpiresAt(null);
+    setPaymentCountdown(0);
+    clearStoredPayment();
+  };
+
+  const cancelPaymentWithFetch = (ids, reason) => {
+    if (!ids?.subscriptionId && !ids?.orderCode) return false;
+
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    fetch(`${API_BASE_URL}/api/subscriptions/cancel`, {
+      method: 'POST',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        subscriptionId: ids.subscriptionId,
+        orderCode: ids.orderCode,
+        audience,
+        reason
+      })
+    }).catch(() => {});
+
+    return true;
+  };
+
+  const persistPendingPayment = (payment, subscriptionId, orderCode, expiresAt) => {
     if (!payment || (!subscriptionId && !orderCode)) return;
+
+    const expiresAtMs = expiresAt ? new Date(expiresAt).getTime() : Date.now() + 5 * 60 * 1000;
 
     try {
       localStorage.setItem(paymentStorageKey, JSON.stringify({
@@ -182,7 +297,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
         subscriptionId: subscriptionId || null,
         orderCode: getOrderCodeFromPayment(payment, orderCode),
         createdAt: Date.now(),
-        expiresAt: Date.now() + 2 * 60 * 60 * 1000
+        expiresAt: Number.isFinite(expiresAtMs) ? expiresAtMs : Date.now() + 5 * 60 * 1000
       }));
     } catch {
       // The in-memory state still keeps the current QR flow usable.
@@ -202,16 +317,31 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     return api.get(`/subscriptions/payment-status?${params.toString()}`);
   };
 
-  const fetchAll = async ({ showLoading = true } = {}) => {
+  const fetchAll = async ({ showLoading = true, pageOverride = null } = {}) => {
     if (showLoading) setLoading(true);
+    const historyPage = Math.max(1, Number(pageOverride || transactionPage) || 1);
     try {
-      const [statusRes, plansRes] = await Promise.all([
+      const [statusRes, plansRes, historyRes] = await Promise.all([
         api.get('/subscriptions/status'),
-        api.get(`/subscriptions/plans?audience=${audience}`)
+        api.get(`/subscriptions/plans?audience=${audience}`),
+        api.get(`/subscriptions/history?audience=${audience}&page=${historyPage}&pageSize=${TRANSACTION_PAGE_SIZE}`)
       ]);
       const nextVipInfo = statusRes.data || null;
+      const history = historyRes.data || {};
+      const nextPage = Number(history.page || historyPage) || 1;
       setVipInfo(nextVipInfo);
       setPlans(Array.isArray(plansRes.data) ? plansRes.data : []);
+      setTransactionSummary(history.summary || null);
+      setTransactions(Array.isArray(history.transactions) ? history.transactions : []);
+      setTransactionMeta({
+        page: nextPage,
+        pageSize: Number(history.pageSize || TRANSACTION_PAGE_SIZE) || TRANSACTION_PAGE_SIZE,
+        totalItems: Number(history.totalItems || 0) || 0,
+        totalPages: Number(history.totalPages || 1) || 1
+      });
+      if (nextPage !== transactionPage) {
+        setTransactionPage(nextPage);
+      }
     } catch (error) {
       console.error('Error loading VIP data:', error);
       toast.error('Không thể tải thông tin gói VIP.');
@@ -245,10 +375,63 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     setPaymentCheckNote('Thanh toán đã được xác nhận.');
     clearStoredPayment();
     toast.success(message);
-    await fetchAll({ showLoading: false });
+    setTransactionPage(1);
+    await fetchAll({ showLoading: false, pageOverride: 1 });
     successTimerRef.current = window.setTimeout(() => {
       setPaymentSuccessView(null);
     }, 4200);
+  };
+
+  const cancelCurrentPayment = async ({ silent = false, reason = 'Nguoi dung roi khoi trang thanh toan QR.' } = {}) => {
+    if (cancelInFlightRef.current) return false;
+    const ids = getActivePaymentIds();
+
+    if (!ids.subscriptionId && !ids.orderCode) {
+      resetPaymentState();
+      if (!silent) {
+        toast.error('Khong tim thay ma giao dich VIP de huy.');
+      }
+      return false;
+    }
+
+    cancelInFlightRef.current = true;
+    setCancelingPayment(true);
+    try {
+      await api.post('/subscriptions/cancel', {
+        subscriptionId: ids.subscriptionId,
+        orderCode: ids.orderCode,
+        audience,
+        reason
+      });
+
+      resetPaymentState();
+      setTransactionPage(1);
+      await fetchAll({ showLoading: false, pageOverride: 1 });
+
+      if (!silent) {
+        toast.success('Đã hủy giao dịch VIP.');
+      }
+
+      return true;
+    } catch (error) {
+      if ([404, 409].includes(error.response?.status)) {
+        resetPaymentState();
+        setTransactionPage(1);
+        await fetchAll({ showLoading: false, pageOverride: 1 });
+        if (!silent) {
+          toast.success('Da dong giao dich VIP dang cho.');
+        }
+        return true;
+      }
+
+      if (!silent) {
+        toast.error(error.response?.data?.message || 'Không thể hủy giao dịch VIP.');
+      }
+      return false;
+    } finally {
+      cancelInFlightRef.current = false;
+      setCancelingPayment(false);
+    }
   };
 
   const checkCurrentPayment = async ({ silent = false } = {}) => {
@@ -269,13 +452,21 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           return true;
         }
 
+        if (response.data?.expiresAt) {
+          setPaymentExpiresAt(response.data.expiresAt);
+        }
+
         const statusText = String(response.data?.payOSStatus || response.data?.state || '').toUpperCase();
         if (['CANCELLED', 'CANCELED', 'EXPIRED'].includes(statusText)) {
           paymentSuccessHandledRef.current = false;
           setPaymentRequest(null);
           setPayingSubscriptionId(null);
           setPayingOrderCode(null);
+          setPaymentExpiresAt(null);
+          setPaymentCountdown(0);
           clearStoredPayment();
+          setTransactionPage(1);
+          await fetchAll({ showLoading: false, pageOverride: 1 });
           if (!silent) {
             toast.error(response.data?.message || 'Giao dich da huy hoac het han. Vui long tao thanh toan moi.');
           }
@@ -335,7 +526,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
 
   useEffect(() => {
     fetchAll();
-  }, [audience]);
+  }, [audience, transactionPage]);
 
   useEffect(() => () => {
     if (successTimerRef.current) {
@@ -349,14 +540,26 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
       if (!raw) return;
 
       const saved = JSON.parse(raw);
-      if (!saved?.payment || (saved.expiresAt && saved.expiresAt < Date.now())) {
+      if (!saved?.payment) {
         clearStoredPayment();
+        return;
+      }
+
+      if (saved.expiresAt && saved.expiresAt < Date.now()) {
+        clearStoredPayment();
+        api.post('/subscriptions/cancel', {
+          subscriptionId: saved.subscriptionId || null,
+          orderCode: saved.orderCode || null,
+          audience,
+          reason: 'Tu dong huy do qua 5 phut chua thanh toan.'
+        }).catch(() => {});
         return;
       }
 
       setPaymentRequest(saved.payment);
       setPayingSubscriptionId(saved.subscriptionId || null);
       setPayingOrderCode(getOrderCodeFromPayment(saved.payment, saved.orderCode));
+      setPaymentExpiresAt(saved.expiresAt ? new Date(saved.expiresAt).toISOString() : null);
       setPaymentCheckNote('Dang tiep tuc kiem tra giao dich VIP dang cho...');
     } catch {
       clearStoredPayment();
@@ -369,6 +572,8 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     setPaymentRequest(null);
     setPayingSubscriptionId(null);
     setPayingOrderCode(null);
+    setPaymentExpiresAt(null);
+    setPaymentCountdown(0);
     clearStoredPayment();
     toast.error('Thanh toán đã bị hủy.');
     clearPaymentQuery();
@@ -486,6 +691,65 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     };
   }, [payingSubscriptionId, payingOrderCode, copy.success, audience]);
 
+  useEffect(() => {
+    activePaymentRef.current = {
+      paymentRequest,
+      subscriptionId: payingSubscriptionId,
+      orderCode: payingOrderCode,
+      expiresAt: paymentExpiresAt
+    };
+  }, [paymentRequest, payingSubscriptionId, payingOrderCode, paymentExpiresAt]);
+
+  useEffect(() => {
+    if (!paymentRequest || !paymentExpiresAt) {
+      setPaymentCountdown(0);
+      return undefined;
+    }
+
+    const updateCountdown = () => {
+      const expiresAtMs = new Date(paymentExpiresAt).getTime();
+      if (!Number.isFinite(expiresAtMs)) {
+        setPaymentCountdown(0);
+        return;
+      }
+
+      const nextSeconds = Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 1000));
+      setPaymentCountdown(nextSeconds);
+      if (nextSeconds <= 0) {
+        cancelCurrentPayment({
+          reason: 'Tu dong huy do qua 5 phut chua thanh toan.'
+        });
+      }
+    };
+
+    updateCountdown();
+    const timerId = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(timerId);
+  }, [paymentRequest, paymentExpiresAt]);
+
+  useEffect(() => {
+    const cancelPendingOnLeave = () => {
+      if (paymentSuccessHandledRef.current) return;
+
+      const ids = getActivePaymentIds();
+      const hasVisiblePayment = Boolean(activePaymentRef.current?.paymentRequest);
+      const hasStoredPayment = Boolean(readStoredPayment()?.payment);
+      if (!hasVisiblePayment && !hasStoredPayment && !ids.subscriptionId && !ids.orderCode) {
+        return;
+      }
+
+      clearStoredPayment();
+      cancelPaymentWithFetch(ids, 'Nguoi dung roi khoi trang thanh toan QR.');
+    };
+
+    window.addEventListener('pagehide', cancelPendingOnLeave);
+
+    return () => {
+      window.removeEventListener('pagehide', cancelPendingOnLeave);
+      cancelPendingOnLeave();
+    };
+  }, [audience, paymentStorageKey]);
+
   const handleBuyPlan = async (planId) => {
     if (buyInFlightRef.current || actionLoading || paymentRequest) return;
 
@@ -504,10 +768,12 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
       const payment = response.data?.payment || null;
       const subscriptionId = response.data?.subscriptionId || null;
       const orderCode = getOrderCodeFromPayment(payment, response.data?.orderCode);
+      const expiresAt = response.data?.expiresAt || null;
       setPaymentRequest(payment);
       setPayingSubscriptionId(subscriptionId);
       setPayingOrderCode(orderCode);
-      persistPendingPayment(payment, subscriptionId, orderCode);
+      setPaymentExpiresAt(expiresAt);
+      persistPendingPayment(payment, subscriptionId, orderCode, expiresAt);
       setPaymentCheckNote('Đang tự động kiểm tra thanh toán...');
       toast.success('Đã tạo mã thanh toán VIP.');
     } catch (error) {
@@ -586,17 +852,12 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           </div>
           <button
             type="button"
-            onClick={() => {
-              paymentSuccessHandledRef.current = false;
-              setPaymentRequest(null);
-              setPayingSubscriptionId(null);
-              setPayingOrderCode(null);
-              clearStoredPayment();
-            }}
+            onClick={() => cancelCurrentPayment({ reason: 'Nguoi dung bam huy tren man hinh QR.' })}
+            disabled={cancelingPayment}
             className="flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
           >
-            <span className="material-symbols-outlined !text-base">close</span>
-            Hủy
+            <span className="material-symbols-outlined !text-base">{cancelingPayment ? 'progress_activity' : 'close'}</span>
+            {cancelingPayment ? 'Đang hủy' : 'Hủy'}
           </button>
         </div>
 
@@ -604,6 +865,10 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5 text-center">
             <img src={qrCodeImageUrl} alt="VietQR PayOS" className="mx-auto h-[230px] w-[230px] rounded-xl bg-white p-2 shadow-sm" />
             <p className="mt-3 text-xs font-bold text-slate-500">Quét mã bằng ứng dụng ngân hàng</p>
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
+              <p className="text-[11px] font-black uppercase tracking-wide">Tự hủy sau</p>
+              <p className="mt-0.5 text-2xl font-black tabular-nums">{formatCountdown(paymentCountdown)}</p>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -645,7 +910,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
                 <div>
                   <p>{paymentCheckNote}</p>
                   <p className="mt-1 text-[11px] font-semibold leading-relaxed text-blue-700/80">
-                    WorkBridge chi xac nhan giao dich QR hien tai. Khi dung orderCode nay tra PAID, khung nay se tu dong dong.
+                    WorkBridge chỉ xác nhận giao dịch QR hiện tại. Nếu rời khỏi trang quét mã hoặc quá 5 phút chưa thanh toán, giao dịch sẽ tự hủy.
                   </p>
                 </div>
               </div>
@@ -825,6 +1090,91 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           );
         })}
       </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#1687d9]">Lịch sử giao dịch</p>
+            <h3 className="mt-1 text-xl font-black text-slate-950">Thanh toán VIP của bạn</h3>
+            <p className="mt-1 text-sm font-semibold text-slate-500">Theo dõi giao dịch PayOS, giao dịch đã hủy và VIP được admin cấp.</p>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-4">
+            {[
+              ['Đã trả', `${formatCurrency(transactionSummary?.totalRevenue)} VND`],
+              ['Thành công', transactionSummary?.paidTransactions ?? 0],
+              ['Đang chờ', transactionSummary?.pendingTransactions ?? 0],
+              ['Đã hủy', transactionSummary?.cancelledTransactions ?? 0]
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 overflow-hidden rounded-2xl border border-slate-100">
+          {transactions.length === 0 ? (
+            <div className="px-5 py-10 text-center">
+              <span className="material-symbols-outlined !text-[38px] text-slate-300">receipt_long</span>
+              <p className="mt-2 text-sm font-black text-slate-700">Chưa có giao dịch VIP</p>
+              <p className="mt-1 text-xs font-semibold text-slate-400">Khi mua VIP hoặc được admin nâng VIP, giao dịch sẽ xuất hiện ở đây.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Gói</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Nguồn</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Số tiền</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Trạng thái</th>
+                    <th className="px-4 py-3 text-right text-[11px] font-black text-slate-500">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {transactions.map((transaction) => (
+                    <tr key={transaction.subscriptionId} className="hover:bg-slate-50/70">
+                      <td className="px-4 py-4">
+                        <p className="text-sm font-black text-slate-900">{transaction.planName}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-slate-400">
+                          {formatDuration(transaction.durationDays)} {transaction.orderCode ? `• #${transaction.orderCode}` : ''}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700 ring-1 ring-blue-100">
+                          {transaction.isAdminGrant ? 'Admin cấp' : 'PayOS'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm font-black text-slate-800">
+                        {formatCurrency(transaction.price)} {transaction.currency || 'VND'}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ${transactionStatusClass(transaction.status)}`}>
+                          {transactionStatusLabel(transaction.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right text-xs font-bold text-slate-500">
+                        {formatDateTime(transaction.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <Pagination
+          currentPage={transactionMeta.page}
+          totalItems={transactionMeta.totalItems}
+          itemsPerPage={transactionMeta.pageSize || TRANSACTION_PAGE_SIZE}
+          onPageChange={setTransactionPage}
+          label="giao dịch"
+          className="rounded-b-2xl"
+        />
+      </section>
     </div>
   );
 }

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory, translateJobType } from '../../utils/translate';
 
 const formatVND = (value) => {
     if (value === undefined || value === null || value === '') return 'Thỏa thuận';
-    return parseInt(value, 10).toLocaleString('vi-VN') + ' ₫';
+    return `${parseInt(value, 10).toLocaleString('vi-VN')} đ`;
 };
 
 const translatePayUnitLocal = (unit) => {
@@ -22,33 +22,48 @@ const AdminJobs = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedJob, setSelectedJob] = useState(null);
-    const [modalLoading, setModalLoading] = useState(false);
+    const [previewingJobId, setPreviewingJobId] = useState(null);
+    const [query, setQuery] = useState('');
     const token = localStorage.getItem('token');
 
-    useEffect(() => {
-        fetchJobs();
-    }, []);
-
-    const fetchJobs = async () => {
+    const fetchJobs = useCallback(async () => {
+        setLoading(true);
         try {
-            // Fetch jobs with status 'Pending' by default for moderation
             const res = await api.get('/admin/jobs?status=Pending', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setJobs(res.data);
+            setJobs(Array.isArray(res.data) ? res.data : []);
         } catch {
             toast.error('Không thể tải danh sách công việc chờ duyệt');
         } finally {
             setLoading(false);
         }
-    };
+    }, [token]);
+
+    useEffect(() => {
+        fetchJobs();
+    }, [fetchJobs]);
+
+    const filteredJobs = useMemo(() => {
+        const keyword = query.trim().toLowerCase();
+        if (!keyword) return jobs;
+
+        return jobs.filter((job) => [
+            job.title,
+            job.companyName,
+            job.categoryName,
+            job.position,
+            job.city,
+            job.district
+        ].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword)));
+    }, [jobs, query]);
 
     const handleUpdateStatus = async (jobId, newStatus) => {
         try {
             await api.patch(`/admin/jobs/${jobId}/status`, { newStatus }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success(newStatus === 'Published' ? 'Phê duyệt công việc thành công' : 'Đã từ chối công việc');
+            toast.success(newStatus === 'Published' ? 'Đã phê duyệt công việc' : 'Đã từ chối công việc');
             fetchJobs();
         } catch {
             toast.error('Không thể cập nhật trạng thái công việc');
@@ -56,249 +71,240 @@ const AdminJobs = () => {
     };
 
     const handleViewJob = async (jobId) => {
-        setModalLoading(true);
+        setPreviewingJobId(jobId);
         try {
             const res = await api.get(`/jobs/${jobId}`);
             setSelectedJob(res.data);
         } catch {
             toast.error('Không thể tải chi tiết công việc');
         } finally {
-            setModalLoading(false);
+            setPreviewingJobId(null);
         }
     };
 
-    if (loading) return <div className="space-y-4">
-        {[1,2,3].map(i => <div key={i} className="h-24 bg-slate-100 rounded-2xl w-full"></div>)}
-    </div>;
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                {[1, 2, 3].map((item) => (
+                    <div key={item} className="h-28 w-full animate-pulse rounded-[24px] border border-white/80 bg-white/80 shadow-sm" />
+                ))}
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-6 animate-fadeInUp">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black text-slate-800 tracking-tight">Kiểm duyệt công việc</h2>
-                <div className="text-xs font-bold text-primary bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10 uppercase tracking-widest">
-                    Chờ kiểm duyệt: {jobs.length}
+        <div className="space-y-5 anim-fadeUp">
+            <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h2 className="text-xl font-black tracking-tight text-slate-950">Kiểm duyệt việc làm</h2>
+                        <p className="mt-1 text-sm font-medium text-slate-500">
+                            Đọc nhanh nội dung tin, duyệt hoặc từ chối trước khi xuất bản.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <label className="relative block min-w-0 sm:w-[300px]">
+                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-400">search</span>
+                            <input
+                                value={query}
+                                onChange={(event) => setQuery(event.target.value)}
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+                                placeholder="Tìm theo tin, công ty, địa điểm"
+                            />
+                        </label>
+                        <div className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary/10 px-4 text-xs font-black text-primary ring-1 ring-primary/15">
+                            <span className="material-symbols-outlined !text-[18px]">pending_actions</span>
+                            Chờ duyệt: {jobs.length}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             {jobs.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-20 text-center">
-                    <span className="material-symbols-outlined !text-4xl text-slate-300 mb-4">check_circle</span>
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Đã hoàn thành duyệt!</h3>
-                    <p className="text-slate-400 text-xs mt-1">Hiện tại không có tin tuyển dụng nào đang chờ duyệt.</p>
+                <div className="rounded-[28px] border border-white/80 bg-white px-6 py-16 text-center shadow-sm">
+                    <span className="material-symbols-outlined !text-[46px] text-emerald-500">check_circle</span>
+                    <h3 className="mt-4 text-base font-black text-slate-800">Không còn tin nào chờ duyệt</h3>
+                    <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+                        Hàng đợi kiểm duyệt đang sạch. Tin tuyển dụng mới sẽ xuất hiện tại đây.
+                    </p>
+                </div>
+            ) : filteredJobs.length === 0 ? (
+                <div className="rounded-[28px] border border-white/80 bg-white px-6 py-14 text-center shadow-sm">
+                    <span className="material-symbols-outlined !text-[42px] text-slate-300">search_off</span>
+                    <h3 className="mt-3 text-sm font-black text-slate-700">Không tìm thấy tin phù hợp</h3>
+                    <p className="mt-1 text-xs font-semibold text-slate-400">Thử đổi từ khóa hoặc xóa bộ lọc tìm kiếm.</p>
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {jobs.map((job) => (
-                        <div key={job.jobPostId} className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 flex items-center justify-between hover:border-primary/20 transition-all group">
-                            <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined !text-3xl">work</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-slate-800 group-hover:text-primary transition-colors">{job.title}</h3>
-                                    <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 font-medium">
-                                        <span className="flex items-center gap-1">
-                                            <span className="material-symbols-outlined !text-[14px]">business</span>
-                                            {job.companyName}
-                                        </span>
-                                        <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                                        <span className="flex items-center gap-1">
-                                            <span className="material-symbols-outlined !text-[14px]">category</span>
-                                            {translateCategory(job.categoryName)}
-                                        </span>
-                                        <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                                        <span>Đăng ngày {new Date(job.createdAt).toLocaleDateString('vi-VN')}</span>
+                    {filteredJobs.map((job) => (
+                        <article key={job.jobPostId} className="group rounded-[24px] border border-white/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_24px_70px_rgba(15,23,42,0.10)] sm:p-5">
+                            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                                <div className="flex min-w-0 gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 ring-1 ring-slate-100 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                        <span className="material-symbols-outlined !text-[29px]">work</span>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3 className="truncate text-base font-black text-slate-900 transition-colors group-hover:text-primary">
+                                                {job.title}
+                                            </h3>
+                                            <span className="rounded-lg bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700 ring-1 ring-amber-100">
+                                                Chờ duyệt
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-400">
+                                            <span className="inline-flex items-center gap-1">
+                                                <span className="material-symbols-outlined !text-[14px]">business</span>
+                                                {job.companyName}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1">
+                                                <span className="material-symbols-outlined !text-[14px]">category</span>
+                                                {translateCategory(job.categoryName)}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1">
+                                                <span className="material-symbols-outlined !text-[14px]">schedule</span>
+                                                {job.createdAt ? new Date(job.createdAt).toLocaleDateString('vi-VN') : 'Chưa rõ ngày'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleUpdateStatus(job.jobPostId, 'Published')}
-                                    className="h-10 px-5 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined !text-[18px]">verified</span>
-                                    Phê duyệt
-                                </button>
-                                <button
-                                    onClick={() => handleUpdateStatus(job.jobPostId, 'Rejected')}
-                                    className="h-10 px-5 rounded-xl bg-rose-50 text-rose-500 font-bold text-xs border border-rose-100 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined !text-[18px]">block</span>
-                                    Từ chối
-                                </button>
-                                <button
-                                    onClick={() => handleViewJob(job.jobPostId)}
-                                    disabled={modalLoading}
-                                    className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors disabled:opacity-50"
-                                >
-                                    <span className="material-symbols-outlined !text-[20px]">visibility</span>
-                                </button>
+                                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleViewJob(job.jobPostId)}
+                                        disabled={previewingJobId === job.jobPostId}
+                                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-600 transition-all hover:border-primary/30 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        <span className="material-symbols-outlined !text-[18px]">
+                                            {previewingJobId === job.jobPostId ? 'progress_activity' : 'visibility'}
+                                        </span>
+                                        Xem
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(job.jobPostId, 'Rejected')}
+                                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-rose-50 px-4 text-xs font-black text-rose-600 ring-1 ring-rose-100 transition-all hover:bg-rose-600 hover:text-white"
+                                    >
+                                        <span className="material-symbols-outlined !text-[18px]">block</span>
+                                        Từ chối
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(job.jobPostId, 'Published')}
+                                        className="col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-700 active:translate-y-0 sm:col-span-1"
+                                    >
+                                        <span className="material-symbols-outlined !text-[18px]">verified</span>
+                                        Phê duyệt
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        </article>
                     ))}
                 </div>
             )}
-            {/* Modal preview */}
+
             {selectedJob && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-                    <div className="bg-white rounded-[32px] max-w-2xl w-full border border-slate-200/50 shadow-2xl overflow-hidden anim-scaleUp max-h-[90vh] flex flex-col">
-                        {/* Header */}
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                            <div>
-                                <h3 className="text-lg font-black text-slate-800 tracking-tight">{selectedJob.title}</h3>
-                                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1 font-semibold">
-                                    <span className="material-symbols-outlined !text-sm">business</span>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm">
+                    <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-2xl anim-scaleUp">
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-slate-50 px-5 py-5 sm:px-6">
+                            <div className="min-w-0">
+                                <p className="text-xs font-black text-primary">Chi tiết tin tuyển dụng</p>
+                                <h3 className="mt-1 text-xl font-black tracking-tight text-slate-950">{selectedJob.title}</h3>
+                                <p className="mt-1 flex items-center gap-1 text-xs font-bold text-slate-500">
+                                    <span className="material-symbols-outlined !text-[15px]">business</span>
                                     {selectedJob.companyName}
                                 </p>
                             </div>
                             <button
+                                type="button"
                                 onClick={() => setSelectedJob(null)}
-                                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center text-slate-400 hover:text-slate-600"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-800"
+                                aria-label="Đóng chi tiết tin tuyển dụng"
                             >
-                                <span className="material-symbols-outlined !text-[20px]">close</span>
+                                <span className="material-symbols-outlined !text-[21px]">close</span>
                             </button>
                         </div>
 
-                        {/* Content */}
-                        <div className="p-8 space-y-6 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-slate-200">
-                            {/* Key specifications (Position & Vacancies) */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100/50 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                                        <span className="material-symbols-outlined !text-[20px]">person_pin</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Vị trí cần tuyển</p>
-                                        <p className="text-sm font-bold text-slate-800 mt-0.5">{selectedJob.position || 'Chưa cập nhật'}</p>
-                                    </div>
+                        <div className="flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div className="rounded-2xl bg-sky-50 p-4 ring-1 ring-sky-100">
+                                    <p className="text-[11px] font-black text-sky-600">Vị trí cần tuyển</p>
+                                    <p className="mt-1 text-sm font-black text-slate-900">{selectedJob.position || 'Chưa cập nhật'}</p>
                                 </div>
-
-                                <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-100/50 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center flex-shrink-0">
-                                        <span className="material-symbols-outlined !text-[20px]">group</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-rose-400 font-bold uppercase tracking-wider">Số lượng tuyển</p>
-                                        <p className="text-sm font-bold text-slate-800 mt-0.5">{selectedJob.vacancies ? `${selectedJob.vacancies} người` : 'Chưa cập nhật'}</p>
-                                    </div>
+                                <div className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+                                    <p className="text-[11px] font-black text-emerald-600">Số lượng tuyển</p>
+                                    <p className="mt-1 text-sm font-black text-slate-900">
+                                        {selectedJob.vacancies ? `${selectedJob.vacancies} người` : 'Chưa cập nhật'}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Job info grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 rounded-2xl p-5 border border-slate-100">
-                                <div className="flex items-start gap-2.5">
-                                    <span className="material-symbols-outlined text-primary !text-[18px]">payments</span>
-                                    <div>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Mức lương</p>
-                                        <p className="text-sm font-bold text-slate-800 mt-0.5">
-                                            {formatVND(selectedJob.payRate)} / {translatePayUnitLocal(selectedJob.payUnit)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-2.5">
-                                    <span className="material-symbols-outlined text-primary !text-[18px]">work</span>
-                                    <div>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Hình thức làm việc</p>
-                                        <p className="text-sm font-bold text-slate-800 mt-0.5">
-                                            {translateJobType(selectedJob.jobType)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-2.5 sm:col-span-2 pt-2 border-t border-slate-200/50">
-                                    <span className="material-symbols-outlined text-primary !text-[18px]">location_on</span>
-                                    <div>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Địa điểm làm việc</p>
-                                        <p className="text-sm font-bold text-slate-800 mt-0.5">
-                                            {selectedJob.branchName && (
-                                                <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-md mr-2 font-semibold">
-                                                    <span className="material-symbols-outlined !text-[14px]">store</span>
-                                                    {selectedJob.branchName}
-                                                </span>
-                                            )}
-                                            {selectedJob.address}, {selectedJob.district}, {selectedJob.city}
-                                        </p>
-                                    </div>
-                                </div>
+                            <div className="grid grid-cols-1 gap-4 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100 sm:grid-cols-2">
+                                <InfoItem icon="payments" label="Mức lương" value={`${formatVND(selectedJob.payRate)} / ${translatePayUnitLocal(selectedJob.payUnit)}`} />
+                                <InfoItem icon="work" label="Hình thức làm việc" value={translateJobType(selectedJob.jobType)} />
+                                <InfoItem
+                                    icon="location_on"
+                                    label="Địa điểm làm việc"
+                                    value={`${selectedJob.branchName ? `${selectedJob.branchName}, ` : ''}${selectedJob.address || ''}${selectedJob.district ? `, ${selectedJob.district}` : ''}${selectedJob.city ? `, ${selectedJob.city}` : ''}`}
+                                    wide
+                                />
                             </div>
 
-                            {/* Shifts */}
                             {selectedJob.shifts && selectedJob.shifts.length > 0 && (
-                                <div className="space-y-2">
-                                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                        <span className="material-symbols-outlined !text-[16px] text-slate-400">calendar_month</span>
-                                        Ca làm việc dự kiến
-                                    </h4>
+                                <section className="space-y-3">
+                                    <h4 className="text-xs font-black text-slate-500">Ca làm việc dự kiến</h4>
                                     <div className="flex flex-wrap gap-2">
-                                        {selectedJob.shifts.map(shift => (
-                                            <div key={shift.shiftId} className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                        {selectedJob.shifts.map((shift) => (
+                                            <span key={shift.shiftId} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm">
+                                                <span className="h-2 w-2 rounded-full bg-primary" />
                                                 {shift.shiftName} {shift.startTime && `(${shift.startTime} - ${shift.endTime})`}
-                                            </div>
+                                            </span>
                                         ))}
                                     </div>
-                                </div>
+                                </section>
                             )}
 
-                            {/* Description, Requirements, Benefits */}
-                            <div className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Mô tả công việc</h4>
-                                    <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/30 p-4 rounded-2xl border border-slate-100 whitespace-pre-line">{selectedJob.description}</p>
-                                </div>
+                            <TextBlock title="Mô tả công việc" content={selectedJob.description} />
+                            {selectedJob.requirements && <TextBlock title="Yêu cầu tuyển dụng" content={selectedJob.requirements} />}
+                            {selectedJob.benefits && <TextBlock title="Quyền lợi được hưởng" content={selectedJob.benefits} />}
 
-                                {selectedJob.requirements && (
-                                    <div className="space-y-1.5">
-                                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Yêu cầu tuyển dụng</h4>
-                                        <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/30 p-4 rounded-2xl border border-slate-100 whitespace-pre-line">{selectedJob.requirements}</p>
-                                    </div>
-                                )}
-
-                                {selectedJob.benefits && (
-                                    <div className="space-y-1.5">
-                                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Quyền lợi được hưởng</h4>
-                                        <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/30 p-4 rounded-2xl border border-slate-100 whitespace-pre-line">{selectedJob.benefits}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Deadline */}
                             {selectedJob.applicationDeadline && (
-                                <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 text-xs font-semibold">
+                                <div className="flex items-center gap-2 rounded-2xl bg-amber-50 p-4 text-xs font-black text-amber-800 ring-1 ring-amber-100">
                                     <span className="material-symbols-outlined !text-[18px]">event</span>
-                                    <span>Hạn chót ứng tuyển: {new Date(selectedJob.applicationDeadline).toLocaleDateString('vi-VN')}</span>
+                                    Hạn chót ứng tuyển: {new Date(selectedJob.applicationDeadline).toLocaleDateString('vi-VN')}
                                 </div>
                             )}
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+                        <div className="grid gap-2 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex sm:justify-end sm:px-6">
                             <button
+                                type="button"
                                 onClick={() => setSelectedJob(null)}
-                                className="h-11 px-5 rounded-xl bg-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-300 transition-all flex items-center gap-1.5"
+                                className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-xs font-black text-slate-600 transition hover:bg-slate-100"
                             >
                                 Đóng
                             </button>
                             <button
+                                type="button"
                                 onClick={() => {
                                     handleUpdateStatus(selectedJob.jobPostId, 'Rejected');
                                     setSelectedJob(null);
                                 }}
-                                className="h-11 px-5 rounded-xl bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white font-bold text-xs transition-all flex items-center gap-1.5"
+                                className="h-11 rounded-xl bg-rose-50 px-5 text-xs font-black text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-600 hover:text-white"
                             >
-                                <span className="material-symbols-outlined !text-[16px]">block</span>
                                 Từ chối
                             </button>
                             <button
+                                type="button"
                                 onClick={() => {
                                     handleUpdateStatus(selectedJob.jobPostId, 'Published');
                                     setSelectedJob(null);
                                 }}
-                                className="h-11 px-5 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
+                                className="h-11 rounded-xl bg-emerald-600 px-5 text-xs font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-700"
                             >
-                                <span className="material-symbols-outlined !text-[16px]">verified</span>
                                 Phê duyệt
                             </button>
                         </div>
@@ -308,5 +314,28 @@ const AdminJobs = () => {
         </div>
     );
 };
+
+function InfoItem({ icon, label, value, wide = false }) {
+    return (
+        <div className={`flex items-start gap-3 ${wide ? 'sm:col-span-2' : ''}`}>
+            <span className="material-symbols-outlined !text-[20px] text-primary">{icon}</span>
+            <div className="min-w-0">
+                <p className="text-[11px] font-black text-slate-400">{label}</p>
+                <p className="mt-0.5 text-sm font-bold leading-relaxed text-slate-800">{value || 'Chưa cập nhật'}</p>
+            </div>
+        </div>
+    );
+}
+
+function TextBlock({ title, content }) {
+    return (
+        <section className="space-y-2">
+            <h4 className="text-xs font-black text-slate-500">{title}</h4>
+            <p className="whitespace-pre-line rounded-2xl bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-600 ring-1 ring-slate-100">
+                {content || 'Chưa cập nhật'}
+            </p>
+        </section>
+    );
+}
 
 export default AdminJobs;

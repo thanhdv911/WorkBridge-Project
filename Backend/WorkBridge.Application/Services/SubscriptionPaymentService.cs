@@ -21,6 +21,11 @@ namespace WorkBridge.Application.Services
         Task<PaymentStatusResult?> ConfirmLatestAsync(int userId, string? audience, int? subscriptionId);
         Task<PaymentStatusResult?> GetPaymentStatusAsync(int userId, string? audience, int? subscriptionId, long? orderCode);
         Task<PaymentStatusResult> HandlePayOSWebhookAsync(PayOSWebhookRequest request);
+        Task<PaymentStatusResult> GrantByAdminAsync(int targetUserId, AdminGrantVipRequest request);
+        Task<PaymentStatusResult?> CancelAsync(int userId, string? audience, int? subscriptionId, long? orderCode, string? reason);
+        Task<int> ExpirePendingPaymentsAsync();
+        Task<SubscriptionHistoryResult> GetHistoryAsync(int userId, string? audience, int page, int pageSize);
+        Task<AdminSubscriptionHistoryResult> GetAdminHistoryAsync(string? audience, string? status, int page, int pageSize);
     }
 
     public class SubscriptionPaymentService : ISubscriptionPaymentService
@@ -31,17 +36,24 @@ namespace WorkBridge.Application.Services
             "Applicant",
             "Employer"
         };
+        private static readonly TimeSpan PendingPaymentTimeout = TimeSpan.FromMinutes(5);
         private static readonly SemaphoreSlim PaymentCreationLock = new(1, 1);
 
         private readonly IWorkBridgeContext _context;
         private readonly IPayOSClient _payOSClient;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
 
-        public SubscriptionPaymentService(IWorkBridgeContext context, IPayOSClient payOSClient, IConfiguration configuration)
+        public SubscriptionPaymentService(
+            IWorkBridgeContext context,
+            IPayOSClient payOSClient,
+            IConfiguration configuration,
+            INotificationService notificationService)
         {
             _context = context;
             _payOSClient = payOSClient;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         public async Task<PaymentBuyResult> BuyAsync(int userId, string audience, BuyPaymentRequest request)
@@ -92,7 +104,7 @@ namespace WorkBridge.Application.Services
                     PlanName = plan.Code,
                     Price = plan.Price,
                     StartDate = now,
-                    EndDate = now.AddDays(plan.DurationDays),
+                    EndDate = now.Add(PendingPaymentTimeout),
                     Status = "Pending"
                 };
 
@@ -132,6 +144,8 @@ namespace WorkBridge.Application.Services
                     Payment = payment,
                     State = "Pending",
                     Paid = false,
+                    ExpiresAt = GetPendingExpiresAt(subscription),
+                    ExpiresInSeconds = GetPendingExpiresInSeconds(subscription),
                     Message = "Da tao ma thanh toan VIP."
                 };
             }
@@ -197,6 +211,8 @@ namespace WorkBridge.Application.Services
             var normalizedAudience = NormalizeAudience(audience);
             var query = _context.Subscriptions
                 .Include(s => s.SubscriptionPlan)
+                .Include(s => s.User)
+                .Include(s => s.Employer)
                 .Where(s => (s.UserId == userId || s.EmployerId == userId) &&
                             (normalizedAudience == null || s.Audience == normalizedAudience));
 
@@ -214,6 +230,128 @@ namespace WorkBridge.Application.Services
             return subscription == null
                 ? null
                 : await RefreshAndActivateIfPaidAsync(subscription, userId);
+        }
+
+        public async Task<PaymentStatusResult?> CancelAsync(int userId, string? audience, int? subscriptionId, long? orderCode, string? reason)
+        {
+            if (!subscriptionId.HasValue && !orderCode.HasValue)
+            {
+                return null;
+            }
+
+            var normalizedAudience = NormalizeAudience(audience);
+            var query = _context.Subscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Where(s => (s.UserId == userId || s.EmployerId == userId) &&
+                            (normalizedAudience == null || s.Audience == normalizedAudience));
+
+            if (subscriptionId.HasValue)
+            {
+                query = query.Where(s => s.SubscriptionId == subscriptionId.Value);
+            }
+
+            if (orderCode.HasValue)
+            {
+                query = query.Where(s => s.PaymentOrderCode == orderCode.Value);
+            }
+
+            var subscription = await query.OrderByDescending(s => s.SubscriptionId).FirstOrDefaultAsync();
+            if (subscription == null)
+            {
+                return null;
+            }
+
+            var refreshed = await RefreshAndActivateIfPaidAsync(subscription, userId);
+            if (refreshed.Paid || subscription.Status != "Pending")
+            {
+                return refreshed;
+            }
+
+            return await CancelPendingSubscriptionAsync(subscription, userId, reason ?? "Nguoi dung roi khoi trang thanh toan QR.");
+        }
+
+        public async Task<int> ExpirePendingPaymentsAsync()
+        {
+            return await ExpirePendingPaymentsAsync(null, null);
+        }
+
+        public async Task<SubscriptionHistoryResult> GetHistoryAsync(int userId, string? audience, int page, int pageSize)
+        {
+            var normalizedAudience = NormalizeAudience(audience);
+            await ExpirePendingPaymentsAsync(userId, normalizedAudience);
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 5, 50);
+
+            var query = _context.Subscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Where(s => (s.UserId == userId || s.EmployerId == userId) &&
+                            (normalizedAudience == null || s.Audience == normalizedAudience));
+
+            var summarySource = await query.ToListAsync();
+            var totalItems = summarySource.Count;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+            page = Math.Min(page, totalPages);
+
+            var transactions = summarySource
+                .OrderByDescending(s => s.SubscriptionId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new SubscriptionHistoryResult
+            {
+                Summary = BuildSummary(summarySource),
+                Transactions = transactions.Select(ToTransactionResponse).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+        }
+
+        public async Task<AdminSubscriptionHistoryResult> GetAdminHistoryAsync(string? audience, string? status, int page, int pageSize)
+        {
+            await ExpirePendingPaymentsAsync();
+
+            var normalizedAudience = NormalizeAudience(audience);
+            var normalizedStatus = NormalizeStatus(status);
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 5, 100);
+
+            var query = _context.Subscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Include(s => s.User)
+                .Include(s => s.Employer)
+                .AsQueryable();
+
+            if (normalizedAudience != null)
+            {
+                query = query.Where(s => s.Audience == normalizedAudience);
+            }
+
+            if (normalizedStatus != null)
+            {
+                query = query.Where(s => s.Status == normalizedStatus);
+            }
+
+            var summarySource = await query.ToListAsync();
+            var totalItems = summarySource.Count;
+            var pageItems = summarySource
+                .OrderByDescending(s => s.SubscriptionId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(ToTransactionResponse)
+                .ToList();
+
+            return new AdminSubscriptionHistoryResult
+            {
+                Summary = BuildSummary(summarySource),
+                Transactions = pageItems,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize))
+            };
         }
 
         public async Task<PaymentStatusResult> HandlePayOSWebhookAsync(PayOSWebhookRequest request)
@@ -248,12 +386,89 @@ namespace WorkBridge.Application.Services
                 throw new InvalidOperationException("So tien webhook PayOS khong khop giao dich VIP.");
             }
 
+            var webhookStatus = request.Data.TryGetProperty("status", out var statusProp) ? statusProp.GetString() : null;
+            var webhookIndicatesPaid = request.Success && request.Code == "00" && PayOSHelper.IsPaidStatus(webhookStatus);
             var accountUserId = subscription.UserId ?? subscription.EmployerId ?? 0;
-            return await RefreshAndActivateIfPaidAsync(subscription, accountUserId, request.Success && request.Code == "00");
+            return await RefreshAndActivateIfPaidAsync(subscription, accountUserId, webhookIndicatesPaid);
+        }
+
+        public async Task<PaymentStatusResult> GrantByAdminAsync(int targetUserId, AdminGrantVipRequest request)
+        {
+            request ??= new AdminGrantVipRequest();
+
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.EmployerProfile)
+                .FirstOrDefaultAsync(u => u.UserId == targetUserId && !u.IsDeleted);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Khong tim thay nguoi dung.");
+            }
+
+            if (user.Status != "Active")
+            {
+                throw new InvalidOperationException("Chi co the nang VIP cho tai khoan dang hoat dong.");
+            }
+
+            var audience = NormalizeAudience(user.Role?.RoleName);
+            if (audience == null)
+            {
+                throw new InvalidOperationException("Chi co the nang VIP cho tai khoan Ca nhan hoac Doanh nghiep.");
+            }
+
+            if (audience == "Employer" && user.EmployerProfile == null)
+            {
+                throw new InvalidOperationException("Tai khoan doanh nghiep chua co ho so doanh nghiep.");
+            }
+
+            var plan = await ResolvePlanAsync(audience, new BuyPaymentRequest
+            {
+                PlanId = request.PlanId,
+                DurationDays = request.DurationDays
+            });
+
+            if (plan == null)
+            {
+                throw new InvalidOperationException("Khong tim thay goi VIP phu hop.");
+            }
+
+            if (!plan.IsActive || !AllowedDurations.Contains(plan.DurationDays))
+            {
+                throw new InvalidOperationException("Goi VIP khong hop le hoac da tat.");
+            }
+
+            var now = DateTime.UtcNow;
+            var subscription = new Subscription
+            {
+                EmployerId = audience == "Employer" ? targetUserId : null,
+                UserId = targetUserId,
+                SubscriptionPlanId = plan.SubscriptionPlanId,
+                Audience = audience,
+                PlanName = plan.Code,
+                Price = 0,
+                StartDate = now,
+                EndDate = now.AddDays(plan.DurationDays),
+                Status = "Pending",
+                PaymentPayloadJson = JsonSerializer.Serialize(new
+                {
+                    source = "AdminGrant",
+                    grantedAt = now,
+                    planId = plan.SubscriptionPlanId,
+                    planName = plan.Name,
+                    note = request.Note
+                })
+            };
+
+            await _context.Subscriptions.AddAsync(subscription);
+
+            return await ActivateSubscriptionAsync(subscription, targetUserId, "ADMIN_GRANTED", true);
         }
 
         private async Task<PaymentBuyResult?> TryReuseOrActivatePendingAsync(int userId, string audience, SubscriptionPlan plan)
         {
+            await ExpirePendingPaymentsAsync(userId, audience);
+
             var now = DateTime.UtcNow;
             var pendingCandidates = await _context.Subscriptions
                 .Include(s => s.SubscriptionPlan)
@@ -261,7 +476,7 @@ namespace WorkBridge.Application.Services
                             s.UserId == userId &&
                             s.Audience == audience &&
                             s.SubscriptionPlanId == plan.SubscriptionPlanId &&
-                            s.StartDate >= now.AddMinutes(-30))
+                            s.StartDate >= now.Subtract(PendingPaymentTimeout))
                 .OrderByDescending(s => s.SubscriptionId)
                 .ToListAsync();
 
@@ -277,12 +492,17 @@ namespace WorkBridge.Application.Services
                         Plan = ToPlanResponse(plan),
                         State = status.State,
                         Paid = true,
+                        ExpiresAt = GetPendingExpiresAt(pending),
+                        ExpiresInSeconds = GetPendingExpiresInSeconds(pending),
                         Message = status.Message
                     };
                 }
 
                 var cachedPayment = ReadCachedPayment(pending.PaymentPayloadJson);
-                if (cachedPayment != null && pending.PaymentOrderCode.HasValue && IsReusablePayment(cachedPayment))
+                if (cachedPayment != null &&
+                    pending.PaymentOrderCode.HasValue &&
+                    IsReusablePayment(cachedPayment) &&
+                    !IsPendingExpired(pending))
                 {
                     return new PaymentBuyResult
                     {
@@ -294,16 +514,16 @@ namespace WorkBridge.Application.Services
                         Reused = true,
                         State = "Pending",
                         Paid = false,
+                        ExpiresAt = GetPendingExpiresAt(pending),
+                        ExpiresInSeconds = GetPendingExpiresInSeconds(pending),
                         Message = "Dang dung lai giao dich thanh toan VIP con hieu luc."
                     };
                 }
 
-                _context.Subscriptions.Remove(pending);
-            }
-
-            if (pendingCandidates.Count > 0)
-            {
-                await _context.SaveChangesAsync();
+                if (pending.Status == "Pending")
+                {
+                    await CancelPendingSubscriptionAsync(pending, userId, "Giao dich VIP qua han 5 phut.");
+                }
             }
 
             return null;
@@ -332,6 +552,19 @@ namespace WorkBridge.Application.Services
 
             if (!PayOSHelper.IsPaidStatus(payOSStatus) && !webhookIndicatesPaid)
             {
+                if (IsCancelledStatus(payOSStatus))
+                {
+                    subscription.Status = "Cancelled";
+                    subscription.EndDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    return ToStatus(subscription, false, payOSStatus, "Giao dich da bi huy.");
+                }
+
+                if (IsPendingExpired(subscription))
+                {
+                    return await CancelPendingSubscriptionAsync(subscription, userId, "Tu dong huy do qua 5 phut chua thanh toan.", payOSStatus);
+                }
+
                 await _context.SaveChangesAsync();
                 return ToStatus(subscription, false, payOSStatus, "PayOS chua tra trang thai thanh toan thanh cong. He thong se tiep tuc kiem tra.");
             }
@@ -339,7 +572,11 @@ namespace WorkBridge.Application.Services
             return await ActivateSubscriptionAsync(subscription, userId, payOSStatus);
         }
 
-        private async Task<PaymentStatusResult> ActivateSubscriptionAsync(Subscription subscription, int userId, string payOSStatus)
+        private async Task<PaymentStatusResult> ActivateSubscriptionAsync(
+            Subscription subscription,
+            int userId,
+            string payOSStatus,
+            bool grantedByAdmin = false)
         {
             var audience = NormalizeAudience(subscription.Audience) ??
                            (subscription.EmployerId.HasValue ? "Employer" : "Applicant");
@@ -390,15 +627,13 @@ namespace WorkBridge.Application.Services
 
             await _context.SaveChangesAsync();
 
+            await NotifyVipActivatedAsync(subscription, userId, audience, durationDays, extendedExistingVip, grantedByAdmin);
+
             return ToStatus(
                 subscription,
                 true,
                 payOSStatus,
-                extendedExistingVip
-                    ? "Thanh toan thanh cong! Goi VIP moi da duoc cong noi tiep vao so ngay con lai."
-                    : audience == "Applicant"
-                        ? "Thanh toan thanh cong! Goi VIP Ca nhan da duoc kich hoat."
-                        : "Thanh toan thanh cong! Goi VIP Doanh nghiep da duoc kich hoat.");
+                BuildActivationMessage(audience, extendedExistingVip, grantedByAdmin));
         }
 
         private IQueryable<Subscription> ActiveSubscriptionQuery(int userId, string audience)
@@ -415,6 +650,94 @@ namespace WorkBridge.Application.Services
             }
 
             return query.Where(s => s.UserId == userId && s.Audience == "Applicant");
+        }
+
+        private async Task<int> ExpirePendingPaymentsAsync(int? userId, string? audience)
+        {
+            var cutoff = DateTime.UtcNow.Subtract(PendingPaymentTimeout);
+            var query = _context.Subscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Where(s => s.Status == "Pending" && s.StartDate <= cutoff);
+
+            if (userId.HasValue)
+            {
+                query = query.Where(s => s.UserId == userId.Value || s.EmployerId == userId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(audience))
+            {
+                query = query.Where(s => s.Audience == audience);
+            }
+
+            var stalePayments = await query
+                .OrderBy(s => s.SubscriptionId)
+                .Take(50)
+                .ToListAsync();
+
+            var expired = 0;
+            foreach (var subscription in stalePayments)
+            {
+                var accountUserId = subscription.UserId ?? subscription.EmployerId ?? 0;
+                if (accountUserId <= 0) continue;
+
+                var result = await RefreshAndActivateIfPaidAsync(subscription, accountUserId);
+                if (result.State == "Cancelled")
+                {
+                    expired++;
+                }
+            }
+
+            return expired;
+        }
+
+        private async Task<PaymentStatusResult> CancelPendingSubscriptionAsync(
+            Subscription subscription,
+            int userId,
+            string reason,
+            string? knownPayOSStatus = null)
+        {
+            if (subscription.Status == "Active")
+            {
+                return ToStatus(subscription, true, "PAID", "Giao dich da thanh toan va khong the huy.");
+            }
+
+            if (subscription.Status != "Pending")
+            {
+                return ToStatus(subscription, false, knownPayOSStatus ?? "UNKNOWN", $"Trang thai giao dich khong the huy: {subscription.Status}");
+            }
+
+            PayOSPaymentResponse? payment = null;
+            var orderCode = subscription.PaymentOrderCode ?? subscription.SubscriptionId;
+
+            if (subscription.PaymentOrderCode.HasValue)
+            {
+                payment = await _payOSClient.GetPaymentRequestAsync(orderCode);
+                if (PayOSHelper.IsPaidStatus(payment?.status))
+                {
+                    if (payment != null)
+                    {
+                        subscription.PaymentPayloadJson = JsonSerializer.Serialize(payment);
+                    }
+
+                    return await ActivateSubscriptionAsync(subscription, userId, payment?.status ?? "PAID");
+                }
+
+                if (!IsCancelledStatus(payment?.status))
+                {
+                    payment = await _payOSClient.CancelPaymentRequestAsync(orderCode, reason);
+                }
+            }
+
+            subscription.Status = "Cancelled";
+            subscription.EndDate = DateTime.UtcNow;
+            if (payment != null)
+            {
+                subscription.PaymentPayloadJson = JsonSerializer.Serialize(payment);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return ToStatus(subscription, false, payment?.status ?? knownPayOSStatus ?? "CANCELLED", "Giao dich VIP da duoc huy.");
         }
 
         private async Task<SubscriptionPlan?> ResolvePlanAsync(string audience, BuyPaymentRequest request)
@@ -454,6 +777,8 @@ namespace WorkBridge.Application.Services
                 PayOSStatus = payOSStatus,
                 Audience = audience,
                 Message = message,
+                ExpiresAt = subscription.Status == "Pending" ? GetPendingExpiresAt(subscription) : null,
+                ExpiresInSeconds = GetPendingExpiresInSeconds(subscription),
                 Subscription = subscription
             };
         }
@@ -574,6 +899,164 @@ namespace WorkBridge.Application.Services
             return AllowedAudiences.FirstOrDefault(a => string.Equals(a, audience.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
+        private static string? NormalizeStatus(string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status)) return null;
+            return status.Trim().ToLowerInvariant() switch
+            {
+                "active" or "paid" => "Active",
+                "pending" => "Pending",
+                "cancelled" or "canceled" => "Cancelled",
+                "expired" => "Expired",
+                _ => null
+            };
+        }
+
+        private static bool IsCancelledStatus(string? status)
+        {
+            return string.Equals(status, "CANCELLED", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(status, "CANCELED", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(status, "EXPIRED", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsPendingExpired(Subscription subscription)
+        {
+            return subscription.Status == "Pending" && DateTime.UtcNow >= GetPendingExpiresAt(subscription);
+        }
+
+        private static DateTime GetPendingExpiresAt(Subscription subscription)
+        {
+            return subscription.StartDate.Add(PendingPaymentTimeout);
+        }
+
+        private static int GetPendingExpiresInSeconds(Subscription subscription)
+        {
+            if (subscription.Status != "Pending") return 0;
+            return Math.Max(0, (int)Math.Ceiling((GetPendingExpiresAt(subscription) - DateTime.UtcNow).TotalSeconds));
+        }
+
+        private static bool IsAdminGrant(Subscription subscription)
+        {
+            if (string.IsNullOrWhiteSpace(subscription.PaymentPayloadJson)) return false;
+
+            try
+            {
+                using var doc = JsonDocument.Parse(subscription.PaymentPayloadJson);
+                return doc.RootElement.TryGetProperty("source", out var source) &&
+                       string.Equals(source.GetString(), "AdminGrant", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static SubscriptionTransactionSummary BuildSummary(IEnumerable<Subscription> subscriptions)
+        {
+            var list = subscriptions.ToList();
+            var paid = list.Where(s => s.Status == "Active" && !IsAdminGrant(s)).ToList();
+            var adminGranted = list.Count(s => s.Status == "Active" && IsAdminGrant(s));
+
+            return new SubscriptionTransactionSummary
+            {
+                TotalTransactions = list.Count,
+                PaidTransactions = paid.Count,
+                PendingTransactions = list.Count(s => s.Status == "Pending"),
+                CancelledTransactions = list.Count(s => s.Status == "Cancelled" || s.Status == "Expired"),
+                AdminGrantedTransactions = adminGranted,
+                TotalRevenue = paid.Sum(s => s.Price)
+            };
+        }
+
+        private static SubscriptionTransactionResponse ToTransactionResponse(Subscription subscription)
+        {
+            var isAdminGrant = IsAdminGrant(subscription);
+            var audience = NormalizeAudience(subscription.Audience) ??
+                           (subscription.EmployerId.HasValue ? "Employer" : "Applicant");
+            var user = subscription.User;
+            var employer = subscription.Employer;
+            var accountName = audience == "Employer"
+                ? employer?.CompanyName ?? user?.FullName ?? ""
+                : user?.FullName ?? employer?.CompanyName ?? "";
+            var accountEmail = audience == "Employer"
+                ? employer?.ContactEmail ?? user?.Email ?? ""
+                : user?.Email ?? employer?.ContactEmail ?? "";
+
+            return new SubscriptionTransactionResponse
+            {
+                SubscriptionId = subscription.SubscriptionId,
+                UserId = subscription.UserId ?? subscription.EmployerId,
+                AccountName = string.IsNullOrWhiteSpace(accountName) ? "WorkBridge user" : accountName,
+                AccountEmail = accountEmail,
+                Audience = audience,
+                PlanId = subscription.SubscriptionPlanId,
+                PlanName = subscription.SubscriptionPlan?.Name ?? subscription.PlanName,
+                PlanCode = subscription.PlanName,
+                DurationDays = subscription.SubscriptionPlan?.DurationDays ?? ParseDurationDays(subscription.PlanName),
+                Price = subscription.Price,
+                Currency = subscription.SubscriptionPlan?.Currency ?? "VND",
+                Status = subscription.Status,
+                Source = isAdminGrant ? "AdminGrant" : "PayOS",
+                OrderCode = subscription.PaymentOrderCode,
+                CreatedAt = subscription.StartDate,
+                StartDate = subscription.Status == "Active" ? subscription.StartDate : null,
+                EndDate = subscription.Status == "Active" ? subscription.EndDate : null,
+                ExpiresAt = subscription.Status == "Pending" ? GetPendingExpiresAt(subscription) : null,
+                ExpiresInSeconds = GetPendingExpiresInSeconds(subscription),
+                IsPaid = subscription.Status == "Active",
+                IsAdminGrant = isAdminGrant
+            };
+        }
+
+        private async Task NotifyVipActivatedAsync(
+            Subscription subscription,
+            int userId,
+            string audience,
+            int durationDays,
+            bool extendedExistingVip,
+            bool grantedByAdmin)
+        {
+            try
+            {
+                var planName = subscription.SubscriptionPlan?.Name ?? subscription.PlanName;
+                var vipLabel = audience == "Employer" ? "Doanh nghiep" : "Ca nhan";
+                var title = grantedByAdmin
+                    ? $"Tai khoan cua ban da duoc nang cap VIP {vipLabel}"
+                    : $"Goi VIP {vipLabel} da duoc kich hoat";
+                var action = grantedByAdmin
+                    ? "Quan tri vien da kich hoat"
+                    : "Thanh toan thanh cong va he thong da kich hoat";
+                var message = $"{action} goi {planName} cho tai khoan cua ban. " +
+                              (extendedExistingVip
+                                  ? $"Thoi han moi duoc cong noi tiep den {subscription.EndDate:dd/MM/yyyy}."
+                                  : $"Goi co hieu luc {durationDays} ngay, den {subscription.EndDate:dd/MM/yyyy}.");
+
+                await _notificationService.CreateNotificationAsync(userId, title, message);
+            }
+            catch
+            {
+                // VIP activation must not fail because email/notification delivery is unavailable.
+            }
+        }
+
+        private static string BuildActivationMessage(string audience, bool extendedExistingVip, bool grantedByAdmin)
+        {
+            if (grantedByAdmin)
+            {
+                return extendedExistingVip
+                    ? "Da nang VIP thanh cong. Goi moi duoc cong noi tiep vao so ngay con lai."
+                    : audience == "Applicant"
+                        ? "Da nang VIP Ca nhan thanh cong."
+                        : "Da nang VIP Doanh nghiep thanh cong.";
+            }
+
+            return extendedExistingVip
+                ? "Thanh toan thanh cong! Goi VIP moi da duoc cong noi tiep vao so ngay con lai."
+                : audience == "Applicant"
+                    ? "Thanh toan thanh cong! Goi VIP Ca nhan da duoc kich hoat."
+                    : "Thanh toan thanh cong! Goi VIP Doanh nghiep da duoc kich hoat.";
+        }
+
         private static PaymentPlanResponse ToPlanResponse(SubscriptionPlan plan)
         {
             return new PaymentPlanResponse
@@ -616,6 +1099,13 @@ namespace WorkBridge.Application.Services
         public int? DurationDays { get; set; }
     }
 
+    public class AdminGrantVipRequest
+    {
+        public int? PlanId { get; set; }
+        public int? DurationDays { get; set; }
+        public string? Note { get; set; }
+    }
+
     public class PaymentBuyResult
     {
         [JsonPropertyName("checkoutUrl")]
@@ -632,6 +1122,10 @@ namespace WorkBridge.Application.Services
         public bool Reused { get; set; }
         [JsonPropertyName("paid")]
         public bool Paid { get; set; }
+        [JsonPropertyName("expiresAt")]
+        public DateTime? ExpiresAt { get; set; }
+        [JsonPropertyName("expiresInSeconds")]
+        public int ExpiresInSeconds { get; set; }
         [JsonPropertyName("state")]
         public string State { get; set; } = "";
         [JsonPropertyName("message")]
@@ -656,8 +1150,69 @@ namespace WorkBridge.Application.Services
         public string Audience { get; set; } = "";
         [JsonPropertyName("message")]
         public string Message { get; set; } = "";
+        [JsonPropertyName("expiresAt")]
+        public DateTime? ExpiresAt { get; set; }
+        [JsonPropertyName("expiresInSeconds")]
+        public int ExpiresInSeconds { get; set; }
         [JsonIgnore]
         public Subscription? Subscription { get; set; }
+    }
+
+    public class CancelPaymentRequest
+    {
+        public int? SubscriptionId { get; set; }
+        public long? OrderCode { get; set; }
+        public string? Audience { get; set; }
+        public string? Reason { get; set; }
+    }
+
+    public class SubscriptionHistoryResult
+    {
+        public SubscriptionTransactionSummary Summary { get; set; } = new();
+        public List<SubscriptionTransactionResponse> Transactions { get; set; } = new();
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int TotalItems { get; set; }
+        public int TotalPages { get; set; }
+    }
+
+    public class AdminSubscriptionHistoryResult : SubscriptionHistoryResult
+    {
+    }
+
+    public class SubscriptionTransactionSummary
+    {
+        public int TotalTransactions { get; set; }
+        public int PaidTransactions { get; set; }
+        public int PendingTransactions { get; set; }
+        public int CancelledTransactions { get; set; }
+        public int AdminGrantedTransactions { get; set; }
+        public decimal TotalRevenue { get; set; }
+    }
+
+    public class SubscriptionTransactionResponse
+    {
+        public int SubscriptionId { get; set; }
+        public int? UserId { get; set; }
+        public string AccountName { get; set; } = "";
+        public string AccountEmail { get; set; } = "";
+        public string Audience { get; set; } = "";
+        public int? PlanId { get; set; }
+        public string PlanName { get; set; } = "";
+        public string PlanCode { get; set; } = "";
+        public int DurationDays { get; set; }
+        public decimal Price { get; set; }
+        public string Currency { get; set; } = "VND";
+        public string Status { get; set; } = "";
+        public string Source { get; set; } = "";
+        public long? OrderCode { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public int ExpiresInSeconds { get; set; }
+        public bool IsPaid { get; set; }
+        public bool IsAdminGrant { get; set; }
     }
 
     public class PaymentPlanResponse

@@ -71,7 +71,7 @@ const Pagination = ({
     return (
         <nav
             className={`flex flex-col gap-3 border-t border-slate-100 bg-white/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 ${className}`}
-            aria-label="Pagination"
+            aria-label="Phân trang"
         >
             <p className="text-center text-xs font-bold text-slate-400 sm:text-left">
                 Hiển thị <span className="text-slate-700">{startItem}-{endItem}</span> trên{' '}
@@ -84,7 +84,7 @@ const Pagination = ({
                     onClick={() => goToPage(page - 1)}
                     disabled={page === 1}
                     className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-500 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:text-primary hover:shadow-md disabled:pointer-events-none disabled:opacity-40"
-                    aria-label="Previous page"
+                    aria-label="Trang trước"
                 >
                     <span className="material-symbols-outlined !text-[16px]">chevron_left</span>
                     Trước
@@ -122,7 +122,7 @@ const Pagination = ({
                     onClick={() => goToPage(page + 1)}
                     disabled={page === totalPages}
                     className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-500 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:text-primary hover:shadow-md disabled:pointer-events-none disabled:opacity-40"
-                    aria-label="Next page"
+                    aria-label="Trang sau"
                 >
                     Sau
                     <span className="material-symbols-outlined !text-[16px]">chevron_right</span>

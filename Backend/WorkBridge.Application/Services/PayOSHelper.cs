@@ -135,6 +135,47 @@ namespace WorkBridge.Application.Services
             }
         }
 
+        public async Task<PayOSPaymentResponse?> CancelPaymentRequestAsync(long orderCode, string cancellationReason)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"https://api-merchant.payos.vn/v2/payment-requests/{orderCode}/cancel")
+                {
+                    Content = JsonContent.Create(new
+                    {
+                        cancellationReason = string.IsNullOrWhiteSpace(cancellationReason)
+                            ? "WorkBridge cancelled pending payment"
+                            : cancellationReason
+                    })
+                };
+                AddPayOSHeaders(request);
+
+                var response = await _httpClient.SendAsync(request);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"PayOS error cancelling payment request: Status {response.StatusCode}, Content: {content}");
+                    return await GetPaymentRequestAsync(orderCode);
+                }
+
+                using var doc = JsonDocument.Parse(content);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("code", out var codeProp) && codeProp.GetString() == "00")
+                {
+                    return ReadPaymentResponse(root.GetProperty("data"), 0, orderCode);
+                }
+
+                Console.WriteLine($"PayOS cancel returned unexpected payload: {content}");
+                return await GetPaymentRequestAsync(orderCode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PayOS cancel exception: {ex}");
+                return await GetPaymentRequestAsync(orderCode);
+            }
+        }
+
         public async Task<bool> VerifyPaymentPaidAsync(long orderCode)
         {
             var payment = await GetPaymentRequestAsync(orderCode);

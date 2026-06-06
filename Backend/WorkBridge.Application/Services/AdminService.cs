@@ -25,31 +25,61 @@ namespace WorkBridge.Application.Services
         // User Management
         public async Task<IEnumerable<AdminUserResponse>> GetUsersAsync()
         {
-            return await _context.Users
+            var now = DateTime.UtcNow;
+            var users = await _context.Users
                 .Include(u => u.Role)
                 .Include(u => u.ApplicantProfile)
                 .Include(u => u.EmployerProfile)
                 .OrderByDescending(u => u.CreatedAt)
-                .Select(u => new AdminUserResponse
+                .ToListAsync();
+
+            var userIds = users.Select(u => u.UserId).ToList();
+            var activeSubscriptions = await _context.Subscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Where(s => s.Status == "Active" &&
+                            s.EndDate >= now &&
+                            ((s.UserId.HasValue && userIds.Contains(s.UserId.Value)) ||
+                             (s.EmployerId.HasValue && userIds.Contains(s.EmployerId.Value))))
+                .ToListAsync();
+
+            return users.Select(u =>
+            {
+                var roleName = u.Role.RoleName;
+                var activeVip = activeSubscriptions
+                    .Where(s => roleName == "Employer"
+                        ? ((s.UserId == u.UserId && s.Audience == "Employer") || s.EmployerId == u.UserId)
+                        : roleName == "Applicant" && s.UserId == u.UserId && s.Audience == "Applicant")
+                    .OrderByDescending(s => s.EndDate)
+                    .FirstOrDefault();
+
+                return new AdminUserResponse
                 {
                     UserId = u.UserId,
                     Email = u.Email,
                     FullName = u.FullName,
-                    RoleName = u.Role.RoleName,
+                    RoleName = roleName,
                     Status = u.Status,
-                    ReputationScore = u.Role.RoleName == "Employer"
+                    ReputationScore = roleName == "Employer"
                         ? u.EmployerProfile != null ? u.EmployerProfile.ReputationScore : null
-                        : u.Role.RoleName == "Applicant"
+                        : roleName == "Applicant"
                             ? u.ApplicantProfile != null ? u.ApplicantProfile.ReputationScore : null
                             : null,
-                    ReportCount = u.Role.RoleName == "Employer"
+                    ReportCount = roleName == "Employer"
                         ? u.EmployerProfile != null ? u.EmployerProfile.ReportCount : null
-                        : u.Role.RoleName == "Applicant"
+                        : roleName == "Applicant"
                             ? u.ApplicantProfile != null ? u.ApplicantProfile.ReportCount : null
                             : null,
+                    IsVip = activeVip != null,
+                    VipSubscriptionId = activeVip?.SubscriptionId,
+                    VipPlanId = activeVip?.SubscriptionPlanId,
+                    VipPlanName = activeVip?.SubscriptionPlan?.Name ?? activeVip?.PlanName,
+                    VipAudience = activeVip?.Audience,
+                    VipStartDate = activeVip?.StartDate,
+                    VipEndDate = activeVip?.EndDate,
+                    VipDaysRemaining = activeVip != null ? (int)Math.Ceiling((activeVip.EndDate - now).TotalDays) : null,
                     CreatedAt = u.CreatedAt
-                })
-                .ToListAsync();
+                };
+            }).ToList();
         }
 
         public async Task<bool> UpdateUserStatusAsync(int userId, string status)
@@ -306,6 +336,14 @@ namespace WorkBridge.Application.Services
                 {
                     entityTitle = (await _context.JobPosts.FindAsync(r.ReportedEntityId))?.Title ?? "Deleted Job";
                 }
+                else if (r.EntityType == "Employer")
+                {
+                    entityTitle = (await _context.EmployerProfiles.FindAsync(r.ReportedEntityId))?.CompanyName ?? "Deleted Employer";
+                }
+                else if (r.EntityType == "Applicant")
+                {
+                    entityTitle = (await _context.Users.FindAsync(r.ReportedEntityId))?.FullName ?? "Deleted Applicant";
+                }
                 else if (r.EntityType == "User")
                 {
                     entityTitle = (await _context.Users.FindAsync(r.ReportedEntityId))?.FullName ?? "Deleted User";
@@ -314,7 +352,7 @@ namespace WorkBridge.Application.Services
                 result.Add(new AdminReportResponse
                 {
                     ReportId = r.ReportId,
-                    ReporterName = r.Reporter.FullName,
+                    ReporterName = r.Reporter?.FullName ?? "Deleted User",
                     ReportedEntityId = r.ReportedEntityId,
                     EntityType = r.EntityType,
                     EntityTitle = entityTitle,

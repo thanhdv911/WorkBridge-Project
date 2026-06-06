@@ -1,12 +1,12 @@
 const CATEGORY_TRANSLATIONS = {
   'food & beverage': 'Ẩm thực & Đồ uống',
   'f&b': 'Ẩm thực & Đồ uống',
-  'tutoring': 'Gia sư & Dạy kèm',
-  'delivery': 'Giao hàng & Vận chuyển',
-  'retail': 'Bán lẻ & Cửa hàng',
-  'marketing': 'Tiếp thị & Quảng cáo',
-  'creative': 'Sáng tạo & Thiết kế',
-  'office': 'Văn phòng & Hành chính',
+  tutoring: 'Gia sư & Dạy kèm',
+  delivery: 'Giao hàng & Vận chuyển',
+  retail: 'Bán lẻ & Cửa hàng',
+  marketing: 'Tiếp thị & Quảng cáo',
+  creative: 'Sáng tạo & Thiết kế',
+  office: 'Văn phòng & Hành chính',
 };
 
 export const translateCategory = (name) => {
@@ -21,8 +21,9 @@ export const translateJobType = (type) => {
   const map = {
     'part-time': 'Bán thời gian',
     'full-time': 'Toàn thời gian',
-    'freelance': 'Tự do',
-    'internship': 'Thực tập',
+    freelance: 'Tự do',
+    internship: 'Thực tập',
+    flexible: 'Linh hoạt',
   };
   return map[lower] || type;
 };
@@ -31,12 +32,12 @@ export const translateShift = (shift) => {
   if (!shift) return shift;
   const lower = shift.toLowerCase().trim();
   const map = {
-    'morning': 'Sáng',
-    'afternoon': 'Chiều',
-    'evening': 'Tối',
-    'weekend': 'Cuối tuần',
-    'remote': 'Từ xa',
-    'flexible': 'Linh hoạt',
+    morning: 'Sáng',
+    afternoon: 'Chiều',
+    evening: 'Tối',
+    weekend: 'Cuối tuần',
+    remote: 'Từ xa',
+    flexible: 'Linh hoạt',
   };
   return map[lower] || shift;
 };

@@ -16,8 +16,8 @@ export default {
         "ink":        "#0f0e17",
       },
       fontFamily: {
-        display: ["Inter","sans-serif"],
-        heading: ["Syne","Inter","sans-serif"],
+        display: ["Outfit","Inter","sans-serif"],
+        heading: ["Syne","Outfit","Inter","sans-serif"],
       },
       borderRadius: { DEFAULT:".25rem", lg:".5rem", xl:".75rem", "2xl":"1rem", "3xl":"1.5rem", full:"9999px" },
     },

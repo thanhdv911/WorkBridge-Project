@@ -64,7 +64,12 @@ namespace WorkBridge.Application.Services
 
             if (user.ApplicantProfile == null)
             {
-                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+                user.ApplicantProfile = new ApplicantProfile
+                {
+                    ApplicantId = userId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
             }
 
             // Store runtime uploads outside the deployed package on App Service.
@@ -102,7 +107,12 @@ namespace WorkBridge.Application.Services
 
             if (user.ApplicantProfile == null)
             {
-                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+                user.ApplicantProfile = new ApplicantProfile
+                {
+                    ApplicantId = userId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
             }
 
             var currentCvUrl = user.ApplicantProfile.CvUrl;
@@ -162,7 +172,12 @@ namespace WorkBridge.Application.Services
 
             if (user.ApplicantProfile == null)
             {
-                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+                user.ApplicantProfile = new ApplicantProfile
+                {
+                    ApplicantId = userId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
             }
 
             var uploadsFolder = _cvUploadsRoot;
@@ -333,7 +348,12 @@ namespace WorkBridge.Application.Services
 
             if (user.ApplicantProfile == null)
             {
-                user.ApplicantProfile = new ApplicantProfile { ApplicantId = userId };
+                user.ApplicantProfile = new ApplicantProfile
+                {
+                    ApplicantId = userId,
+                    ReputationScore = 100,
+                    ReportCount = 0
+                };
             }
 
             user.ApplicantProfile.Phone = request.Phone;
