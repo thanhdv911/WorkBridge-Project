@@ -40,9 +40,28 @@ function useHeroPointerTilt() {
 
     let frameId = 0;
     let lastEvent = null;
+    let idleTimer = 0;
+
+    const resetTilt = () => {
+      hero.style.setProperty('--home-tilt-x', '0deg');
+      hero.style.setProperty('--home-tilt-y', '0deg');
+      hero.style.setProperty('--home-shift-x', '0px');
+      hero.style.setProperty('--home-shift-y', '0px');
+      hero.style.setProperty('--home-field-x', '50%');
+      hero.style.setProperty('--home-field-y', '50%');
+    };
+
+    const startIdleMotion = () => {
+      resetTilt();
+      hero.classList.add('home-idle');
+    };
+
+    startIdleMotion();
 
     const handlePointerMove = (event) => {
+      hero.classList.remove('home-idle');
       lastEvent = event;
+      window.clearTimeout(idleTimer);
       if (frameId) return;
 
       frameId = window.requestAnimationFrame(() => {
@@ -66,23 +85,23 @@ function useHeroPointerTilt() {
         hero.style.setProperty('--home-field-y', `${50 + clampedY * 8}%`);
         frameId = 0;
       });
+
+      idleTimer = window.setTimeout(startIdleMotion, 620);
     };
 
-    const resetTilt = () => {
-      hero.style.setProperty('--home-tilt-x', '0deg');
-      hero.style.setProperty('--home-tilt-y', '0deg');
-      hero.style.setProperty('--home-shift-x', '0px');
-      hero.style.setProperty('--home-shift-y', '0px');
-      hero.style.setProperty('--home-field-x', '50%');
-      hero.style.setProperty('--home-field-y', '50%');
+    const handlePointerLeave = () => {
+      window.clearTimeout(idleTimer);
+      startIdleMotion();
     };
 
     hero.addEventListener('pointermove', handlePointerMove, { passive: true });
-    hero.addEventListener('pointerleave', resetTilt);
+    hero.addEventListener('pointerleave', handlePointerLeave);
 
     return () => {
       hero.removeEventListener('pointermove', handlePointerMove);
-      hero.removeEventListener('pointerleave', resetTilt);
+      hero.removeEventListener('pointerleave', handlePointerLeave);
+      hero.classList.remove('home-idle');
+      window.clearTimeout(idleTimer);
       if (frameId) window.cancelAnimationFrame(frameId);
     };
   }, [pointerEffects]);
