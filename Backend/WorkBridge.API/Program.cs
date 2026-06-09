@@ -100,6 +100,7 @@ builder.Services.AddHostedService<EmailDispatchHostedService>();
 builder.Services.AddHostedService<SubscriptionPaymentExpiryHostedService>();
 builder.Services.AddHostedService<ShiftRegistrationAutoPublishHostedService>();
 builder.Services.AddHostedService<ShiftRegistrationFinalizeHostedService>();
+builder.Services.AddSingleton<HomePresenceService>();
 
 // Register HubNotifier — bridges Application services to SignalR Hub
 builder.Services.AddScoped<IHubNotifier, HubNotifier>();
@@ -215,11 +216,66 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (httpContext, next) =>
+{
+    var path = httpContext.Request.Path;
+    if (!path.StartsWithSegments("/api") ||
+        string.Equals(httpContext.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWithSegments("/api/platform/maintenance") ||
+        path.StartsWithSegments("/api/platform/admin") ||
+        path.StartsWithSegments("/api/auth/login") ||
+        path.StartsWithSegments("/api/auth/google") ||
+        httpContext.User.IsInRole("Admin"))
+    {
+        await next();
+        return;
+    }
+
+    var db = httpContext.RequestServices.GetRequiredService<WorkBridgeContext>();
+    var now = DateTime.UtcNow;
+    var setting = await db.PlatformMaintenanceSettings
+        .AsNoTracking()
+        .FirstOrDefaultAsync(item => item.PlatformMaintenanceSettingId == 1);
+
+    var isActive = setting?.IsEnabled == true &&
+        (!setting.EndsAtUtc.HasValue || setting.EndsAtUtc.Value > now);
+
+    if (!isActive)
+    {
+        await next();
+        return;
+    }
+
+    var remainingSeconds = setting!.EndsAtUtc.HasValue
+        ? Math.Max(0, (int)Math.Ceiling((setting.EndsAtUtc.Value - now).TotalSeconds))
+        : (int?)null;
+
+    httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+    httpContext.Response.ContentType = "application/json; charset=utf-8";
+    await httpContext.Response.WriteAsJsonAsync(new
+    {
+        message = "WorkBridge đang bảo trì. Vui lòng quay lại sau ít phút.",
+        maintenance = new
+        {
+            isActive = true,
+            isEnabled = setting.IsEnabled,
+            title = setting.Title,
+            message = setting.Message,
+            startedAtUtc = setting.StartedAtUtc,
+            endsAtUtc = setting.EndsAtUtc,
+            remainingSeconds,
+            updatedBy = setting.UpdatedBy,
+            updatedAtUtc = setting.UpdatedAtUtc
+        }
+    });
+});
+
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 // Map the SignalR hub endpoint
 app.MapHub<WorkBridgeHub>("/hubs/workbridge");
+app.MapHub<HomePresenceHub>("/hubs/presence");
 
 // Seed Admin, Employer, and Applicant users if they do not exist
 using (var scope = app.Services.CreateScope())
@@ -377,27 +433,27 @@ using (var scope = app.Services.CreateScope())
             BEGIN
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_7d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Applicant', 'applicant_7d', N'VIP Ca nhan 7 ngay', N'Mo khoa WorkBridge AI, goi y viec lam va danh gia CV trong 7 ngay.', 7, 19000, 'VND', 1, 10);
+                    VALUES ('Applicant', 'applicant_7d', N'VIP Cá nhân 7 ngày', N'Mở khóa WorkBridge AI, gợi ý việc làm và đánh giá CV trong 7 ngày.', 7, 19000, 'VND', 1, 10);
 
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_30d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Applicant', 'applicant_30d', N'VIP Ca nhan 1 thang', N'Goi de tiep can AI tim viec, CV va phong van voi chi phi thap.', 30, 49000, 'VND', 1, 20);
+                    VALUES ('Applicant', 'applicant_30d', N'VIP Cá nhân 1 tháng', N'Gói dễ tiếp cận cho AI tìm việc, CV và phỏng vấn với chi phí thấp.', 30, 49000, 'VND', 1, 20);
 
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_365d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Applicant', 'applicant_365d', N'VIP Ca nhan 1 nam', N'Tiet kiem nhat cho ung vien dung AI WorkBridge dai han.', 365, 399000, 'VND', 1, 30);
+                    VALUES ('Applicant', 'applicant_365d', N'VIP Cá nhân 1 năm', N'Tiết kiệm nhất cho ứng viên dùng AI WorkBridge dài hạn.', 365, 399000, 'VND', 1, 30);
 
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_7d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Employer', 'employer_7d', N'VIP Doanh nghiep 7 ngay', N'Trai nghiem AI tuyen dung, xep ca va tinh luong trong 7 ngay.', 7, 69000, 'VND', 1, 40);
+                    VALUES ('Employer', 'employer_7d', N'VIP Doanh nghiệp 7 ngày', N'Trải nghiệm AI tuyển dụng, xếp ca và tính lương trong 7 ngày.', 7, 69000, 'VND', 1, 40);
 
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_30d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Employer', 'employer_30d', N'VIP Doanh nghiep 1 thang', N'Goi van hanh hang thang cho tuyen dung, xep ca va bang luong AI.', 30, 149000, 'VND', 1, 50);
+                    VALUES ('Employer', 'employer_30d', N'VIP Doanh nghiệp 1 tháng', N'Gói vận hành hằng tháng cho tuyển dụng, xếp ca và bảng lương AI.', 30, 149000, 'VND', 1, 50);
 
                 IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_365d')
                     INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                    VALUES ('Employer', 'employer_365d', N'VIP Doanh nghiep 1 nam', N'Tu dong xuat ban tin tuyen dung khong can admin duyet, kem AI van hanh dai han.', 365, 1190000, 'VND', 1, 60);
+                    VALUES ('Employer', 'employer_365d', N'VIP Doanh nghiệp 1 năm', N'Tự động xuất bản tin tuyển dụng không cần admin duyệt, kèm AI vận hành dài hạn.', 365, 1190000, 'VND', 1, 60);
 
                 UPDATE dbo.SubscriptionPlans
                 SET IsActive = 0, UpdatedAt = GETDATE()
@@ -527,27 +583,27 @@ using (var scope = app.Services.CreateScope())
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_7d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Applicant', 'applicant_7d', N'VIP Ca nhan 7 ngay', N'Mo khoa WorkBridge AI, goi y viec lam va danh gia CV trong 7 ngay.', 7, 19000, 'VND', 1, 10);
+                VALUES ('Applicant', 'applicant_7d', N'VIP Cá nhân 7 ngày', N'Mở khóa WorkBridge AI, gợi ý việc làm và đánh giá CV trong 7 ngày.', 7, 19000, 'VND', 1, 10);
 
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_30d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Applicant', 'applicant_30d', N'VIP Ca nhan 1 thang', N'Goi de tiep can AI tim viec, CV va phong van voi chi phi thap.', 30, 49000, 'VND', 1, 20);
+                VALUES ('Applicant', 'applicant_30d', N'VIP Cá nhân 1 tháng', N'Gói dễ tiếp cận cho AI tìm việc, CV và phỏng vấn với chi phí thấp.', 30, 49000, 'VND', 1, 20);
 
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Applicant' AND Code = 'applicant_365d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Applicant', 'applicant_365d', N'VIP Ca nhan 1 nam', N'Tiet kiem nhat cho ung vien dung AI WorkBridge dai han.', 365, 399000, 'VND', 1, 30);
+                VALUES ('Applicant', 'applicant_365d', N'VIP Cá nhân 1 năm', N'Tiết kiệm nhất cho ứng viên dùng AI WorkBridge dài hạn.', 365, 399000, 'VND', 1, 30);
 
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_7d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Employer', 'employer_7d', N'VIP Doanh nghiep 7 ngay', N'Trai nghiem AI tuyen dung, xep ca va tinh luong trong 7 ngay.', 7, 69000, 'VND', 1, 40);
+                VALUES ('Employer', 'employer_7d', N'VIP Doanh nghiệp 7 ngày', N'Trải nghiệm AI tuyển dụng, xếp ca và tính lương trong 7 ngày.', 7, 69000, 'VND', 1, 40);
 
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_30d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Employer', 'employer_30d', N'VIP Doanh nghiep 1 thang', N'Goi van hanh hang thang cho tuyen dung, xep ca va bang luong AI.', 30, 149000, 'VND', 1, 50);
+                VALUES ('Employer', 'employer_30d', N'VIP Doanh nghiệp 1 tháng', N'Gói vận hành hằng tháng cho tuyển dụng, xếp ca và bảng lương AI.', 30, 149000, 'VND', 1, 50);
 
             IF NOT EXISTS (SELECT 1 FROM dbo.SubscriptionPlans WHERE Audience = 'Employer' AND Code = 'employer_365d')
                 INSERT INTO dbo.SubscriptionPlans (Audience, Code, Name, Description, DurationDays, Price, Currency, IsActive, SortOrder)
-                VALUES ('Employer', 'employer_365d', N'VIP Doanh nghiep 1 nam', N'Tu dong xuat ban tin tuyen dung khong can admin duyet, kem AI van hanh dai han.', 365, 1190000, 'VND', 1, 60);
+                VALUES ('Employer', 'employer_365d', N'VIP Doanh nghiệp 1 năm', N'Tự động xuất bản tin tuyển dụng không cần admin duyệt, kèm AI vận hành dài hạn.', 365, 1190000, 'VND', 1, 60);
 
             UPDATE dbo.SubscriptionPlans SET
                 Name = N'VIP Cá nhân 7 ngày',
@@ -598,10 +654,41 @@ using (var scope = app.Services.CreateScope())
     ");
 
     RunSubscriptionSchemaSql(@"
+        IF OBJECT_ID('dbo.EmailVerificationRequests', 'U') IS NULL
+        BEGIN
+            CREATE TABLE dbo.EmailVerificationRequests (
+                EmailVerificationRequestId INT IDENTITY(1,1) PRIMARY KEY,
+                Email NVARCHAR(255) NOT NULL,
+                FirstName NVARCHAR(100) NOT NULL DEFAULT '',
+                LastName NVARCHAR(100) NOT NULL DEFAULT '',
+                RoleName NVARCHAR(30) NOT NULL,
+                PasswordHash NVARCHAR(255) NOT NULL,
+                CodeHash NVARCHAR(128) NOT NULL,
+                AttemptCount INT NOT NULL DEFAULT 0,
+                Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+                CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                ExpiresAt DATETIME NOT NULL,
+                VerifiedAt DATETIME NULL
+            );
+        END
+
+        IF OBJECT_ID('dbo.EmailVerificationRequests', 'U') IS NOT NULL
+           AND NOT EXISTS (
+                SELECT 1 FROM sys.indexes
+                WHERE name = 'IX_EmailVerificationRequests_Email_Status_ExpiresAt'
+                  AND object_id = OBJECT_ID('dbo.EmailVerificationRequests')
+           )
+        BEGIN
+            CREATE INDEX IX_EmailVerificationRequests_Email_Status_ExpiresAt
+            ON dbo.EmailVerificationRequests (Email, Status, ExpiresAt);
+        END
+    ");
+
+    RunSubscriptionSchemaSql(@"
         IF OBJECT_ID('dbo.EmployerProfiles', 'U') IS NOT NULL
         BEGIN
             IF COL_LENGTH('dbo.EmployerProfiles', 'ReputationScore') IS NULL
-                ALTER TABLE dbo.EmployerProfiles ADD ReputationScore INT NOT NULL CONSTRAINT DF_EmployerProfiles_ReputationScore DEFAULT 100;
+                ALTER TABLE dbo.EmployerProfiles ADD ReputationScore INT NOT NULL CONSTRAINT DF_EmployerProfiles_ReputationScore DEFAULT 80;
 
             IF COL_LENGTH('dbo.EmployerProfiles', 'ReportCount') IS NULL
                 ALTER TABLE dbo.EmployerProfiles ADD ReportCount INT NOT NULL CONSTRAINT DF_EmployerProfiles_ReportCount DEFAULT 0;
@@ -615,13 +702,13 @@ using (var scope = app.Services.CreateScope())
         IF OBJECT_ID('dbo.ApplicantProfiles', 'U') IS NOT NULL
         BEGIN
             IF COL_LENGTH('dbo.ApplicantProfiles', 'ReputationScore') IS NULL
-                ALTER TABLE dbo.ApplicantProfiles ADD ReputationScore INT NOT NULL CONSTRAINT DF_ApplicantProfiles_ReputationScore DEFAULT 100;
+                ALTER TABLE dbo.ApplicantProfiles ADD ReputationScore INT NOT NULL CONSTRAINT DF_ApplicantProfiles_ReputationScore DEFAULT 80;
 
             IF COL_LENGTH('dbo.ApplicantProfiles', 'ReportCount') IS NULL
                 ALTER TABLE dbo.ApplicantProfiles ADD ReportCount INT NOT NULL CONSTRAINT DF_ApplicantProfiles_ReportCount DEFAULT 0;
 
             UPDATE dbo.ApplicantProfiles
-            SET ReputationScore = 100
+            SET ReputationScore = 80
             WHERE ReputationScore = 0 AND ReportCount = 0;
         END
     ");
@@ -637,6 +724,42 @@ using (var scope = app.Services.CreateScope())
         BEGIN
             IF COL_LENGTH('dbo.Employments', 'ExpectedShifts') IS NULL
                 ALTER TABLE dbo.Employments ADD ExpectedShifts NVARCHAR(100) NULL;
+        END
+    ");
+
+    RunSubscriptionSchemaSql(@"
+        IF OBJECT_ID('dbo.Reports', 'U') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH('dbo.Reports', 'AiAnalysis') IS NULL
+                ALTER TABLE dbo.Reports ADD AiAnalysis NVARCHAR(MAX) NULL;
+        END
+    ");
+
+    RunSubscriptionSchemaSql(@"
+        IF OBJECT_ID('dbo.PlatformMaintenanceSettings', 'U') IS NULL
+        BEGIN
+            CREATE TABLE dbo.PlatformMaintenanceSettings (
+                PlatformMaintenanceSettingId INT NOT NULL PRIMARY KEY,
+                IsEnabled BIT NOT NULL DEFAULT 0,
+                StartedAtUtc DATETIME2 NULL,
+                EndsAtUtc DATETIME2 NULL,
+                Title NVARCHAR(200) NOT NULL,
+                Message NVARCHAR(1000) NOT NULL,
+                UpdatedBy NVARCHAR(255) NULL,
+                UpdatedAtUtc DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+                CONSTRAINT CK_PlatformMaintenanceSettings_Singleton CHECK (PlatformMaintenanceSettingId = 1)
+            );
+        END
+
+        IF OBJECT_ID('dbo.PlatformMaintenanceSettings', 'U') IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM dbo.PlatformMaintenanceSettings WHERE PlatformMaintenanceSettingId = 1)
+        BEGIN
+            INSERT INTO dbo.PlatformMaintenanceSettings
+                (PlatformMaintenanceSettingId, IsEnabled, StartedAtUtc, EndsAtUtc, Title, Message, UpdatedBy, UpdatedAtUtc)
+            VALUES
+                (1, 0, NULL, NULL, N'WorkBridge đang bảo trì',
+                 N'Hệ thống đang được bảo trì để nâng cấp trải nghiệm. Vui lòng quay lại sau ít phút.',
+                 NULL, SYSUTCDATETIME());
         END
     ");
 

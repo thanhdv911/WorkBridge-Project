@@ -6,6 +6,15 @@ namespace WorkBridge.Application.DTOs
         public string? CoverMessage { get; set; }
     }
 
+    public class ApplyJobResult
+    {
+        public bool Success { get; set; }
+        public string? Error { get; set; }
+        public bool RequiresProfileUpdate { get; set; }
+        public List<string> MissingFields { get; set; } = new();
+        public int? ReputationScore { get; set; }
+    }
+
     public class UpdateApplicationStatusRequest
     {
         public string Status { get; set; } = string.Empty;

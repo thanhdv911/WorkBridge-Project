@@ -30,7 +30,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
   const [employments, setEmployments] = useState([]);
   const [employmentsLoading, setEmploymentsLoading] = useState(true);
 
-  // AI CV Review States
+  // Trạng thái đánh giá CV bằng AI
   const [isAnalyzingCv, setIsAnalyzingCv] = useState(false);
   const [showCvAnalysisModal, setShowCvAnalysisModal] = useState(false);
   const [cvAnalysisData, setCvAnalysisData] = useState(null);
@@ -112,7 +112,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
       return;
     }
     if (!user?.cvUrl) {
-      toast.error('Vui lòng upload CV PDF trước khi dùng AI đánh giá.');
+      toast.error('Vui lòng tải CV PDF trước khi dùng AI đánh giá.');
       return;
     }
 
@@ -129,7 +129,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
     } catch (error) {
       toast.dismiss(loadToast);
       console.error('Error analyzing CV:', error);
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi phân tích CV.');
+      toast.error(error.response?.data?.message || 'Không thể phân tích CV. Vui lòng kiểm tra file PDF và thử lại.');
     } finally {
       setIsAnalyzingCv(false);
     }
@@ -219,7 +219,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
 
   const renderEmploymentHistory = () => {
     return (
-      <div className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+      <div className="profile-panel anim-fadeUp rounded-2xl p-6 lg:p-8">
         <h2 className="text-base font-bold flex items-center gap-2 mb-6 text-slate-800">
           <span className="material-symbols-outlined text-primary !text-lg">work_history</span>Lịch sử làm việc
         </h2>
@@ -306,7 +306,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
   };
 
   const renderCvPdfSection = () => (
-    <section className="anim-fadeUp overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="profile-panel anim-fadeUp overflow-hidden rounded-2xl">
       <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -323,7 +323,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             )}
           </div>
           <p className="mt-1 truncate text-xs font-semibold text-slate-500">
-            {user?.cvUrl ? cvFileName : 'Upload file PDF có text để AI đọc, chấm điểm và gợi ý cải thiện.'}
+            {user?.cvUrl ? cvFileName : 'Tải file PDF có chữ để AI đọc, chấm điểm và gợi ý cải thiện.'}
           </p>
         </div>
 
@@ -338,7 +338,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                 disabled={cvLoading}
               />
               <span className="material-symbols-outlined !text-[16px]">{cvLoading ? 'progress_activity' : 'upload_file'}</span>
-              {user?.cvUrl ? 'Thay CV' : 'Upload CV'}
+              {user?.cvUrl ? 'Thay CV' : 'Tải CV'}
             </label>
             <button
               type="button"
@@ -388,7 +388,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                 <span className="material-symbols-outlined !text-5xl text-amber-500">draft_orders</span>
                 <h3 className="mt-4 text-lg font-black text-slate-900">Không tìm thấy file CV trên máy chủ</h3>
                 <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-slate-500">
-                  Hồ sơ vẫn còn tên CV trong dữ liệu, nhưng file PDF không còn ở storage. Hãy upload lại CV để xem và dùng AI chấm điểm.
+                  Hồ sơ vẫn còn tên CV trong dữ liệu, nhưng file PDF không còn trong kho lưu trữ. Hãy tải lại CV để xem và dùng AI chấm điểm.
                 </p>
                 {isOwnProfile && (
                   <label className="mt-5 inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1687d9] px-5 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5">
@@ -400,7 +400,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                       disabled={cvLoading}
                     />
                     <span className="material-symbols-outlined !text-[18px]">{cvLoading ? 'progress_activity' : 'upload_file'}</span>
-                    Upload lại CV
+                    Tải lại CV
                   </label>
                 )}
               </div>
@@ -424,7 +424,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-200">WorkBridge AI</p>
-                      <h3 className="mt-1 text-lg font-black">CV Coach</h3>
+                      <h3 className="mt-1 text-lg font-black">Huấn luyện CV</h3>
                     </div>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-blue-100">
                       <span className="material-symbols-outlined !text-[28px]">auto_awesome</span>
@@ -482,7 +482,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
 
               {cvAnalysisData?.readable === false && (
                 <p className="mt-3 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-800">
-                  {cvAnalysisData.pdfNote || 'PDF này chưa trích xuất được text.'}
+                  {cvAnalysisData.pdfNote || 'PDF này chưa trích xuất được chữ.'}
                 </p>
               )}
 
@@ -511,9 +511,9 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             disabled={cvLoading}
           />
           <span className="material-symbols-outlined !text-5xl text-slate-300">{cvLoading ? 'progress_activity' : 'upload_file'}</span>
-          <p className="mt-3 text-sm font-black text-slate-700">{cvLoading ? 'Đang upload CV...' : 'Upload CV PDF'}</p>
+          <p className="mt-3 text-sm font-black text-slate-700">{cvLoading ? 'Đang tải CV...' : 'Tải CV PDF'}</p>
           <p className="mt-1 max-w-sm text-xs font-semibold leading-relaxed text-slate-400">
-            Dùng file PDF dưới 5MB. File có text sẽ giúp AI đọc nội dung và chấm CV chính xác.
+            Dùng file PDF dưới 5MB. File có chữ sẽ giúp AI đọc nội dung và chấm CV chính xác.
           </p>
         </label>
       )}
@@ -525,7 +525,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
 
     return (
       <div className="space-y-6">
-        <div className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+        <div className="profile-panel anim-fadeUp rounded-2xl p-6 lg:p-8">
           <h2 className="text-lg font-bold flex items-center gap-2 mb-6 text-primary">
             <span className="material-symbols-outlined !text-xl">edit_document</span>Chỉnh sửa hồ sơ
           </h2>
@@ -637,11 +637,11 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
 
   return (
     <div className="space-y-6">
-      {/* 1. OVERVIEW TAB: About Me + CV Upload */}
+      {/* 1. OVERVIEW TAB */}
       {activeTab === 'overview' && (
         <>
           {/* About Me */}
-          <div className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+          <div className="profile-panel anim-fadeUp rounded-2xl p-6 lg:p-8">
             <h2 className="text-base font-bold flex items-center gap-2 mb-4 text-slate-800">
               <span className="material-symbols-outlined text-primary !text-lg">person</span>Giới thiệu bản thân
             </h2>
@@ -657,34 +657,10 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
         </>
       )}
 
-      {/* 2. EXPERIENCE TAB: Employment History + Availability Grid */}
+      {/* 2. EXPERIENCE TAB */}
       {activeTab === 'experience' && (
         <>
           {renderEmploymentHistory()}
-
-          {/* Availability Grid */}
-          <div className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
-            <h2 className="text-base font-bold flex items-center gap-2 mb-4 text-slate-800">
-              <span className="material-symbols-outlined text-primary !text-lg">event_available</span>Thời gian rảnh hàng tuần
-            </h2>
-            <div className="grid grid-cols-7 gap-1.5 text-center">
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T2</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T3</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T4</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T5</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T6</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">T7</div>
-              <div className="text-[10px] font-bold text-slate-400 pb-1">CN</div>
-
-              <div className="py-2.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black">Sáng</div>
-              <div className="py-2.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black">Sáng</div>
-              <div className="py-2.5 rounded-lg bg-slate-50 text-slate-300 text-[10px] font-semibold">—</div>
-              <div className="py-2.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black">Sáng</div>
-              <div className="py-2.5 rounded-lg bg-slate-50 text-slate-300 text-[10px] font-semibold">—</div>
-              <div className="py-2.5 rounded-lg bg-green-50 text-green-600 text-[10px] font-black">Cả ngày</div>
-              <div className="py-2.5 rounded-lg bg-green-50 text-green-600 text-[10px] font-black">Cả ngày</div>
-            </div>
-          </div>
         </>
       )}
       {/* AI CV Analysis Modal */}
@@ -699,7 +675,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-black">WorkBridge AI CV Review</h3>
+                      <h3 className="text-base font-black">Đánh giá CV bằng WorkBridge AI</h3>
                       <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-blue-100">
                         Đọc PDF + hồ sơ
                       </span>
@@ -741,7 +717,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                     </span>
                     {cvAnalysisData.readable === false && (
                       <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-amber-700">
-                        PDF khó đọc text
+                        PDF khó đọc chữ
                       </span>
                     )}
                   </div>
@@ -853,7 +829,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
 
             <div className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-xs font-medium text-slate-400">
-                AI chỉ đánh giá và gợi ý nội dung. Bạn cập nhật CV trong file gốc rồi upload lại bản PDF mới khi cần.
+                AI chỉ đánh giá và gợi ý nội dung. Bạn cập nhật CV trong file gốc rồi tải lại bản PDF mới khi cần.
               </span>
               <div className="flex flex-wrap gap-3">
                 <button

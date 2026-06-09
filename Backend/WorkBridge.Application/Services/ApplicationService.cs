@@ -58,23 +58,32 @@ namespace WorkBridge.Application.Services
             _hubNotifier = hubNotifier;
         }
 
-        public async Task<string?> ApplyForJobAsync(int userId, ApplyJobRequest request)
+        public async Task<ApplyJobResult> ApplyForJobAsync(int userId, ApplyJobRequest request)
         {
             // Check if job exists and is published
             var job = await _context.JobPosts.FirstOrDefaultAsync(j => j.JobPostId == request.JobPostId && !j.IsDeleted);
-            if (job == null) return "Job does not exist.";
-            if (job.Status != "Published") return $"This job is not currently open for applications (Status: {job.Status}).";
+            if (job == null) return ApplyError("Công việc không tồn tại.");
+            if (job.Status != "Published") return ApplyError($"Công việc này chưa mở ứng tuyển. Trạng thái hiện tại: {ToVietnameseStatus(job.Status)}.");
 
             // Check if user has applicant profile
             var profile = await _context.ApplicantProfiles
                 .Include(p => p.Applicant)
                 .FirstOrDefaultAsync(p => p.ApplicantId == userId);
-            if (profile == null) return "Your profile is incomplete. Please complete your Applicant Profile before applying.";
+            if (profile == null) return ApplyProfileIncomplete(new[] { "hồ sơ ứng viên", "số điện thoại", "vị trí/địa chỉ", "CV PDF" }, 80);
+
+            profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, profile.Applicant);
+            var missingProfileFields = ProfileReputationCalculator.GetMissingApplicantApplyFields(profile);
+            if (missingProfileFields.Count > 0)
+            {
+                await _context.SaveChangesAsync();
+                return ApplyProfileIncomplete(missingProfileFields, profile.ReputationScore);
+            }
 
             // Check if applicant is blocked due to reputation < 80
             if (profile.ReputationScore < 80)
             {
-                return "Tài khoản của bạn có điểm uy tín dưới 80. Bạn không thể tiếp tục ứng tuyển.";
+                await _context.SaveChangesAsync();
+                return ApplyError("Tài khoản của bạn có điểm uy tín dưới 80. Bạn không thể tiếp tục ứng tuyển.", profile.ReputationScore);
             }
 
             // Check if applicant is already working in 2 distinct businesses (employers)
@@ -85,7 +94,7 @@ namespace WorkBridge.Application.Services
                 .CountAsync();
             if (activeEmploymentsCount >= 2)
             {
-                return "Bạn đã có đủ 2 công việc đang hoạt động (làm việc tối đa tại 2 doanh nghiệp). Không thể ứng tuyển thêm.";
+                return ApplyError("Bạn đã có đủ 2 công việc đang hoạt động (làm việc tối đa tại 2 doanh nghiệp). Không thể ứng tuyển thêm.", profile.ReputationScore);
             }
 
             // Check if the employer is suspended or has reputation < 80
@@ -93,13 +102,13 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(ep => ep.EmployerId == job.EmployerId);
             if (employerProfile != null && (employerProfile.Status == "Suspended" || employerProfile.ReputationScore < 80))
             {
-                return "Doanh nghiệp này đã bị tạm ngưng hoạt động do điểm uy tín quá thấp.";
+                return ApplyError("Doanh nghiệp này đã bị tạm ngưng hoạt động do điểm uy tín quá thấp.", profile.ReputationScore);
             }
 
             // Check if user is already an active employee of this employer
             var isAlreadyEmployee = await _context.Employments
                 .AnyAsync(e => e.EmployeeUserId == userId && e.EmployerId == job.EmployerId && e.Status == "Active");
-            if (isAlreadyEmployee) return "You are already an active employee of this enterprise and cannot apply for this job.";
+            if (isAlreadyEmployee) return ApplyError("Bạn đang là nhân viên của doanh nghiệp này nên không thể ứng tuyển lại.", profile.ReputationScore);
 
             // Block only active application pipelines. Closed historical applications remain as history,
             // and a re-apply creates a fresh application row so old offers/employments stay intact.
@@ -111,7 +120,7 @@ namespace WorkBridge.Application.Services
             {
                 if (!await CanReapplyExistingApplicationAsync(existingApplication, job.EmployerId))
                 {
-                    return $"You have already applied for this job. Current status: {existingApplication.Status}";
+                    return ApplyError($"Bạn đã ứng tuyển công việc này. Trạng thái hiện tại: {ToVietnameseStatus(existingApplication.Status)}.", profile.ReputationScore);
                 }
             }
 
@@ -132,8 +141,8 @@ namespace WorkBridge.Application.Services
             // Notify Employer
             await _notificationService.CreateNotificationAsync(
                 job.EmployerId,
-                "New Job Application",
-                $"Student {profile.Applicant?.FullName ?? "Someone"} has applied for your job: {job.Title}"
+                "Đơn ứng tuyển mới",
+                $"Ứng viên {profile.Applicant?.FullName ?? "WorkBridge"} đã ứng tuyển công việc: {job.Title}"
             );
 
             // Push real-time to both employer and applicant
@@ -143,7 +152,40 @@ namespace WorkBridge.Application.Services
                 catch { }
             });
 
-            return null; // Success
+            return new ApplyJobResult
+            {
+                Success = true,
+                ReputationScore = profile.ReputationScore
+            };
+        }
+
+        private static ApplyJobResult ApplyError(string error, int? reputationScore = null)
+        {
+            return new ApplyJobResult
+            {
+                Success = false,
+                Error = error,
+                ReputationScore = reputationScore
+            };
+        }
+
+        private static ApplyJobResult ApplyProfileIncomplete(IEnumerable<string> missingFields, int? reputationScore = null)
+        {
+            var fields = missingFields
+                .Where(field => !string.IsNullOrWhiteSpace(field))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return new ApplyJobResult
+            {
+                Success = false,
+                RequiresProfileUpdate = true,
+                MissingFields = fields,
+                ReputationScore = reputationScore,
+                Error = fields.Count > 0
+                    ? $"Bạn cần cập nhật hồ sơ trước khi ứng tuyển. Còn thiếu: {string.Join(", ", fields)}."
+                    : "Bạn cần cập nhật hồ sơ trước khi ứng tuyển."
+            };
         }
 
         public async Task<IEnumerable<ApplicationResponse>> GetMyApplicationsAsync(int userId)
@@ -282,7 +324,7 @@ namespace WorkBridge.Application.Services
                 return new ApplicationStatusUpdateResult
                 {
                     Success = false,
-                    Error = "Invalid application status."
+                    Error = "Trạng thái ứng tuyển không hợp lệ."
                 };
             }
 
@@ -297,7 +339,7 @@ namespace WorkBridge.Application.Services
                 return new ApplicationStatusUpdateResult
                 {
                     Success = false,
-                    Error = "Application not found or you do not have permission to update it."
+                    Error = "Không tìm thấy hồ sơ ứng tuyển hoặc bạn không có quyền cập nhật."
                 };
             }
 
@@ -315,8 +357,8 @@ namespace WorkBridge.Application.Services
             // Notify Applicant
             await _notificationService.CreateNotificationAsync(
                 application.ApplicantId,
-                "Application Status Update",
-                $"Your application for '{application.JobPost.Title}' has been updated to: {normalizedStatus}"
+                "Cập nhật trạng thái ứng tuyển",
+                $"Đơn ứng tuyển của bạn cho '{application.JobPost.Title}' đã chuyển sang: {ToVietnameseStatus(normalizedStatus)}."
             );
 
             // Push real-time
@@ -365,6 +407,27 @@ namespace WorkBridge.Application.Services
             };
         }
 
+        private static string ToVietnameseStatus(string? status)
+        {
+            return status?.Trim().ToLowerInvariant() switch
+            {
+                "applied" => "Đã ứng tuyển",
+                "pending" => "Đang chờ",
+                "under review" => "Đang xét duyệt",
+                "accepted" => "Đã duyệt",
+                "rejected" => "Đã từ chối",
+                "interview scheduled" => "Đã hẹn phỏng vấn",
+                "interview passed" => "Phỏng vấn đạt",
+                "interview failed" => "Phỏng vấn không đạt",
+                "offered" => "Đã gửi lời mời nhận việc",
+                "hired" => "Đã nhận việc",
+                "cancelled" or "canceled" => "Đã hủy",
+                "published" => "Đang mở",
+                "draft" => "Bản nháp",
+                _ => string.IsNullOrWhiteSpace(status) ? "Không rõ" : status
+            };
+        }
+
         private async Task EnsureAcceptedConversationAsync(JobApplication application)
         {
             var alreadyHasThread = await _context.Messages.AnyAsync(m =>
@@ -379,7 +442,7 @@ namespace WorkBridge.Application.Services
                 SenderId = application.JobPost.EmployerId,
                 ReceiverId = application.ApplicantId,
                 JobPostId = application.JobPostId,
-                Content = $"Your application for \"{application.JobPost.Title}\" has been accepted. Let's discuss the interview schedule here.",
+                Content = $"Đơn ứng tuyển của bạn cho \"{application.JobPost.Title}\" đã được chấp nhận. Hai bên có thể trao đổi lịch phỏng vấn tại đây.",
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             });

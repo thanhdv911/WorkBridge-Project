@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import api from '../../services/api';
+import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory } from '../../utils/translate';
 
@@ -86,7 +86,7 @@ const AdminCategories = () => {
             toast.success('Đã xóa danh mục');
             fetchCategories();
         } catch (err) {
-            toast.error(err.response?.data || 'Không thể xóa danh mục');
+            toast.error(getApiErrorMessage(err, 'Không thể xóa danh mục vì vẫn còn tin tuyển dụng liên quan.'));
         }
     };
 

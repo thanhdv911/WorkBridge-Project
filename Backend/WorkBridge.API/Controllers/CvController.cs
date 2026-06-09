@@ -30,7 +30,7 @@ namespace WorkBridge.API.Controllers
             var userId = GetUserId();
             if (!await IsVipApplicantAsync(userId))
             {
-                return BadRequest(new { message = "AI danh gia CV chi danh cho Ca nhan VIP. Vui long nang cap VIP de su dung chuc nang nay." });
+                return BadRequest(new { message = "AI đánh giá CV chỉ dành cho Cá nhân VIP. Vui lòng nâng cấp VIP để sử dụng chức năng này." });
             }
 
             try
@@ -42,9 +42,9 @@ namespace WorkBridge.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể phân tích CV lúc này. Vui lòng thử lại sau." });
             }
         }
 

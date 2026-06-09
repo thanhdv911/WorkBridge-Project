@@ -124,7 +124,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
     } catch (error) {
       toast.dismiss(loadToast);
       console.error('Error optimizing job:', error);
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi tối ưu bài viết.');
+      toast.error(error.response?.data?.message || 'Không thể tối ưu bài viết. Vui lòng nhập tiêu đề và mô tả rõ hơn.');
     } finally {
       setIsOptimizing(false);
     }

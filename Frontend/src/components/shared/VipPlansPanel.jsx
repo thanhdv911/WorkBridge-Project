@@ -8,7 +8,7 @@ const AUDIENCE_COPY = {
   Applicant: {
     badge: 'Cá nhân VIP',
     title: 'Nâng cấp VIP để mở khóa WorkBridge AI',
-    subtitle: 'Biến WorkBridge thành trợ lý tìm việc riêng: gợi ý job thật, chỉnh CV, luyện phỏng vấn và nhắc các bước quan trọng.',
+    subtitle: 'Biến WorkBridge thành trợ lý tìm việc riêng: gợi ý việc làm thật, chỉnh CV, luyện phỏng vấn và nhắc các bước quan trọng.',
     activeTitle: 'Bạn đang là Cá nhân VIP',
     activeSubtitle: 'Các tính năng AI tìm việc, đánh giá CV và gợi ý việc làm đang được mở khóa.',
     success: 'Thanh toán thành công! Gói VIP Cá nhân đã được kích hoạt.',
@@ -382,14 +382,14 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     }, 4200);
   };
 
-  const cancelCurrentPayment = async ({ silent = false, reason = 'Nguoi dung roi khoi trang thanh toan QR.' } = {}) => {
+  const cancelCurrentPayment = async ({ silent = false, reason = 'Người dùng rời khỏi trang thanh toán QR.' } = {}) => {
     if (cancelInFlightRef.current) return false;
     const ids = getActivePaymentIds();
 
     if (!ids.subscriptionId && !ids.orderCode) {
       resetPaymentState();
       if (!silent) {
-        toast.error('Khong tim thay ma giao dich VIP de huy.');
+        toast.error('Không tìm thấy mã giao dịch VIP để hủy.');
       }
       return false;
     }
@@ -419,7 +419,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
         setTransactionPage(1);
         await fetchAll({ showLoading: false, pageOverride: 1 });
         if (!silent) {
-          toast.success('Da dong giao dich VIP dang cho.');
+          toast.success('Đã đóng giao dịch VIP đang chờ.');
         }
         return true;
       }
@@ -468,20 +468,20 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           setTransactionPage(1);
           await fetchAll({ showLoading: false, pageOverride: 1 });
           if (!silent) {
-            toast.error(response.data?.message || 'Giao dich da huy hoac het han. Vui long tao thanh toan moi.');
+            toast.error(response.data?.message || 'Giao dịch đã hủy hoặc hết hạn. Vui lòng tạo thanh toán mới.');
           }
           return false;
         }
 
         if (!silent) {
-          setPaymentCheckNote(`PayOS hien tra trang thai: ${statusText || 'PENDING'}. WorkBridge se tiep tuc kiem tra.`);
+          setPaymentCheckNote(`PayOS hiện trả trạng thái: ${statusText || 'PENDING'}. WorkBridge sẽ tiếp tục kiểm tra.`);
         }
       }
     } catch (error) {
       lastError = error;
       const payOSStatus = error.response?.data?.payOSStatus;
       if (payOSStatus && !silent) {
-        setPaymentCheckNote(`PayOS hien tra trang thai: ${payOSStatus}. WorkBridge se tiep tuc kiem tra.`);
+        setPaymentCheckNote(`PayOS hiện trả trạng thái: ${payOSStatus}. WorkBridge sẽ tiếp tục kiểm tra.`);
       }
     }
 
@@ -551,7 +551,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           subscriptionId: saved.subscriptionId || null,
           orderCode: saved.orderCode || null,
           audience,
-          reason: 'Tu dong huy do qua 5 phut chua thanh toan.'
+          reason: 'Tự động hủy do quá 5 phút chưa thanh toán.'
         }).catch(() => {});
         return;
       }
@@ -560,7 +560,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
       setPayingSubscriptionId(saved.subscriptionId || null);
       setPayingOrderCode(getOrderCodeFromPayment(saved.payment, saved.orderCode));
       setPaymentExpiresAt(saved.expiresAt ? new Date(saved.expiresAt).toISOString() : null);
-      setPaymentCheckNote('Dang tiep tuc kiem tra giao dich VIP dang cho...');
+      setPaymentCheckNote('Đang tiếp tục kiểm tra giao dịch VIP đang chờ...');
     } catch {
       clearStoredPayment();
     }
@@ -633,7 +633,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
 
     const confirmReturnedOrder = async () => {
       setReturnConfirming(true);
-      toast.loading('Dang xac nhan thanh toan PayOS...', { id: toastId });
+      toast.loading('Đang xác nhận thanh toán PayOS...', { id: toastId });
 
       for (let attempt = 1; attempt <= 12; attempt += 1) {
         try {
@@ -650,7 +650,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           if (attempt === 12) {
             if (!isActive) return;
             toast.dismiss(toastId);
-            toast.error(error.response?.data?.message || 'Chua xac nhan duoc thanh toan PayOS.');
+            toast.error(error.response?.data?.message || 'Chưa xác nhận được thanh toán PayOS. Vui lòng thử lại sau vài giây.');
             clearPaymentQuery();
             return;
           }
@@ -717,7 +717,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
       setPaymentCountdown(nextSeconds);
       if (nextSeconds <= 0) {
         cancelCurrentPayment({
-          reason: 'Tu dong huy do qua 5 phut chua thanh toan.'
+          reason: 'Tự động hủy do quá 5 phút chưa thanh toán.'
         });
       }
     };
@@ -739,7 +739,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
       }
 
       clearStoredPayment();
-      cancelPaymentWithFetch(ids, 'Nguoi dung roi khoi trang thanh toan QR.');
+      cancelPaymentWithFetch(ids, 'Người dùng rời khỏi trang thanh toán QR.');
     };
 
     window.addEventListener('pagehide', cancelPendingOnLeave);
@@ -852,7 +852,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           </div>
           <button
             type="button"
-            onClick={() => cancelCurrentPayment({ reason: 'Nguoi dung bam huy tren man hinh QR.' })}
+            onClick={() => cancelCurrentPayment({ reason: 'Người dùng bấm hủy trên màn hình QR.' })}
             disabled={cancelingPayment}
             className="flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
           >

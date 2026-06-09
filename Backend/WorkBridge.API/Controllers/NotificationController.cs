@@ -46,15 +46,15 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             var success = await _notificationService.MarkAsReadAsync(userId, id);
-            if (!success) return NotFound("Notification not found.");
-            return Ok(new { message = "Notification marked as read." });
+            if (!success) return NotFound(new { message = "Không tìm thấy thông báo." });
+            return Ok(new { message = "Đã đánh dấu thông báo là đã đọc." });
         }
         [HttpPatch("read-all")]
         public async Task<IActionResult> MarkAllAsRead()
         {
             var userId = GetUserId();
             await _notificationService.MarkAllAsReadAsync(userId);
-            return Ok(new { message = "All notifications marked as read." });
+            return Ok(new { message = "Đã đánh dấu tất cả thông báo là đã đọc." });
         }
 
         [HttpDelete("{id}")]
@@ -62,8 +62,8 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             var success = await _notificationService.DeleteNotificationAsync(userId, id);
-            if (!success) return NotFound("Notification not found.");
-            return Ok(new { message = "Notification deleted successfully." });
+            if (!success) return NotFound(new { message = "Không tìm thấy thông báo." });
+            return Ok(new { message = "Đã xóa thông báo." });
         }
 
         [HttpDelete("delete-read")]
@@ -71,7 +71,7 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             await _notificationService.DeleteAllReadNotificationsAsync(userId);
-            return Ok(new { message = "All read notifications deleted." });
+            return Ok(new { message = "Đã xóa tất cả thông báo đã đọc." });
         }
     }
 }

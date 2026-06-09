@@ -79,8 +79,8 @@ namespace WorkBridge.Application.Services
 
             return message.MessageType switch
             {
-                "OfferInvite" => "Job offer sent. Awaiting response.",
-                "InterviewInvite" => "Interview invitation sent.",
+                "OfferInvite" => "Đã gửi lời mời nhận việc. Đang chờ phản hồi.",
+                "InterviewInvite" => "Đã gửi lời mời phỏng vấn.",
                 _ => message.Content ?? ""
             };
         }
@@ -278,6 +278,19 @@ namespace WorkBridge.Application.Services
             if (userId <= 0 || contactId <= 0 || userId == contactId)
             {
                 return false;
+            }
+
+            var adminThread = await _context.Users
+                .Include(u => u.Role)
+                .AnyAsync(u =>
+                    (u.UserId == userId || u.UserId == contactId) &&
+                    u.Role.RoleName == "Admin" &&
+                    !u.IsDeleted &&
+                    u.Status == "Active");
+
+            if (adminThread)
+            {
+                return true;
             }
 
             var existingThread = await _context.Messages.AnyAsync(m =>

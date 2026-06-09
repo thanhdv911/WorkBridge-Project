@@ -18,16 +18,21 @@ namespace WorkBridge.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            if (request == null)
             {
-                return BadRequest("Email and Password are required");
+                return BadRequest("Dữ liệu đăng nhập không hợp lệ.");
             }
 
-            var response = await _authService.LoginAsync(request);
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest("Email và mật khẩu là bắt buộc.");
+            }
+
+            var (response, error) = await _authService.LoginAsync(request);
 
             if (response == null)
             {
-                return Unauthorized("Invalid email or password");
+                return Unauthorized(error ?? "Email hoặc mật khẩu không đúng.");
             }
 
             return Ok(response);
@@ -36,16 +41,39 @@ namespace WorkBridge.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            if (request == null)
             {
-                return BadRequest("Email and Password are required");
+                return BadRequest(new AuthMessageResponse { Message = "Dữ liệu đăng ký không hợp lệ." });
             }
 
-            var response = await _authService.RegisterAsync(request);
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest(new AuthMessageResponse { Message = "Email và mật khẩu là bắt buộc." });
+            }
+
+            var (response, error) = await _authService.RegisterAsync(request);
 
             if (response == null)
             {
-                return BadRequest("Registration failed. Email might already exist or role is invalid.");
+                return BadRequest(new AuthMessageResponse { Message = error ?? "Không thể gửi mã xác thực. Vui lòng thử lại." });
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("register/verify")]
+        public async Task<IActionResult> VerifyRegistration([FromBody] VerifyRegisterEmailRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new AuthMessageResponse { Message = "Vui lòng nhập email và mã xác thực." });
+            }
+
+            var (response, error) = await _authService.VerifyRegistrationAsync(request);
+
+            if (response == null)
+            {
+                return BadRequest(new AuthMessageResponse { Message = error ?? "Mã xác thực không đúng hoặc đã hết hạn." });
             }
 
             return Ok(response);
@@ -54,43 +82,48 @@ namespace WorkBridge.API.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Email))
+            if (request == null || string.IsNullOrWhiteSpace(request.Email))
             {
-                return BadRequest(new AuthMessageResponse { Message = "Email is required." });
+                return BadRequest(new AuthMessageResponse { Message = "Email là bắt buộc." });
             }
 
             await _authService.RequestPasswordResetAsync(request);
             return Ok(new AuthMessageResponse
             {
-                Message = "If that email is registered, a password reset link has been sent."
+                Message = "Nếu email này đã đăng ký, liên kết đặt lại mật khẩu đã được gửi."
             });
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest(new AuthMessageResponse { Message = "Dữ liệu đặt lại mật khẩu không hợp lệ." });
+            }
+
             var (success, error) = await _authService.ResetPasswordAsync(request);
             if (!success)
             {
-                return BadRequest(new AuthMessageResponse { Message = error ?? "Password reset failed." });
+                return BadRequest(new AuthMessageResponse { Message = error ?? "Không thể đặt lại mật khẩu. Vui lòng kiểm tra liên kết." });
             }
 
-            return Ok(new AuthMessageResponse { Message = "Password has been reset successfully." });
+            return Ok(new AuthMessageResponse { Message = "Đặt lại mật khẩu thành công." });
         }
 
         [HttpPost("google")]
         public async Task<IActionResult> GoogleLogin([FromBody] ExternalAuthRequest request)
         {
-            if (string.IsNullOrEmpty(request.IdToken))
+            if (request == null || string.IsNullOrEmpty(request.IdToken))
             {
-                return BadRequest("ID Token is required");
+                return BadRequest("Thiếu mã xác thực Google.");
             }
 
             var response = await _authService.LoginWithGoogleAsync(request);
 
             if (response == null)
             {
-                return Unauthorized("Invalid Google Token or authentication failed.");
+                return Unauthorized("Không thể xác thực Google. Vui lòng thử lại.");
             }
 
             return Ok(response);
@@ -99,16 +132,16 @@ namespace WorkBridge.API.Controllers
         [HttpPost("facebook")]
         public async Task<IActionResult> FacebookLogin([FromBody] FacebookAuthRequest request)
         {
-            if (string.IsNullOrEmpty(request.AccessToken))
+            if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {
-                return BadRequest("Access Token is required");
+                return BadRequest("Thiếu mã xác thực Facebook.");
             }
 
             var response = await _authService.LoginWithFacebookAsync(request);
 
             if (response == null)
             {
-                return Unauthorized("Invalid Facebook Token or authentication failed.");
+                return Unauthorized("Đăng nhập Facebook thất bại.");
             }
 
             return Ok(response);

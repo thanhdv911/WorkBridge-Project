@@ -59,12 +59,12 @@ namespace WorkBridge.Application.Services
         public async Task<PaymentBuyResult> BuyAsync(int userId, string audience, BuyPaymentRequest request)
         {
             var normalizedAudience = NormalizeAudience(audience)
-                ?? throw new InvalidOperationException("Tai khoan nay khong the mua goi VIP.");
+                ?? throw new InvalidOperationException("Tài khoản này không thể mua gói VIP.");
 
             var plan = await ResolvePlanAsync(normalizedAudience, request);
             if (plan == null || !AllowedDurations.Contains(plan.DurationDays))
             {
-                throw new InvalidOperationException("Goi VIP khong hop le. He thong chi ho tro goi 7 ngay, 1 thang va 1 nam.");
+                throw new InvalidOperationException("Gói VIP không hợp lệ. Hệ thống chỉ hỗ trợ gói 7 ngày, 1 tháng và 1 năm.");
             }
 
             if (normalizedAudience == "Employer")
@@ -72,7 +72,7 @@ namespace WorkBridge.Application.Services
                 var hasEmployerProfile = await _context.EmployerProfiles.AnyAsync(p => p.EmployerId == userId);
                 if (!hasEmployerProfile)
                 {
-                    throw new InvalidOperationException("Vui long tao ho so doanh nghiep truoc khi nang cap VIP.");
+                    throw new InvalidOperationException("Vui lòng tạo hồ sơ doanh nghiệp trước khi nâng cấp VIP.");
                 }
             }
 
@@ -85,7 +85,7 @@ namespace WorkBridge.Application.Services
                 dbLockAcquired = await AcquireDatabasePaymentLockAsync(lockResource);
                 if (!dbLockAcquired)
                 {
-                    throw new PaymentBusyException("He thong dang tao giao dich thanh toan. Vui long doi vai giay.");
+                    throw new PaymentBusyException("Hệ thống đang tạo giao dịch thanh toán. Vui lòng đợi vài giây.");
                 }
 
                 var reusable = await TryReuseOrActivatePendingAsync(userId, normalizedAudience, plan);
@@ -129,7 +129,7 @@ namespace WorkBridge.Application.Services
                 {
                     _context.Subscriptions.Remove(subscription);
                     await _context.SaveChangesAsync();
-                    throw new PaymentGatewayException("PayOS dang phan hoi cham. Vui long doi vai giay roi thu lai.");
+                    throw new PaymentGatewayException("PayOS đang phản hồi chậm. Vui lòng đợi vài giây rồi thử lại.");
                 }
 
                 subscription.PaymentPayloadJson = JsonSerializer.Serialize(payment);
@@ -146,7 +146,7 @@ namespace WorkBridge.Application.Services
                     Paid = false,
                     ExpiresAt = GetPendingExpiresAt(subscription),
                     ExpiresInSeconds = GetPendingExpiresInSeconds(subscription),
-                    Message = "Da tao ma thanh toan VIP."
+                    Message = "Đã tạo mã thanh toán VIP."
                 };
             }
             finally
@@ -267,7 +267,7 @@ namespace WorkBridge.Application.Services
                 return refreshed;
             }
 
-            return await CancelPendingSubscriptionAsync(subscription, userId, reason ?? "Nguoi dung roi khoi trang thanh toan QR.");
+            return await CancelPendingSubscriptionAsync(subscription, userId, reason ?? "Người dùng rời khỏi trang thanh toán QR.");
         }
 
         public async Task<int> ExpirePendingPaymentsAsync()
@@ -358,17 +358,17 @@ namespace WorkBridge.Application.Services
         {
             if (request == null || request.Data.ValueKind != JsonValueKind.Object)
             {
-                throw new InvalidOperationException("Du lieu webhook PayOS khong hop le.");
+                throw new InvalidOperationException("Dữ liệu webhook PayOS không hợp lệ.");
             }
 
             if (!_payOSClient.VerifyWebhookSignature(request.Data, request.Signature))
             {
-                throw new InvalidOperationException("Chu ky webhook PayOS khong hop le.");
+                throw new InvalidOperationException("Chữ ký webhook PayOS không hợp lệ.");
             }
 
             if (!TryGetLong(request.Data, "orderCode", out var orderCode))
             {
-                throw new InvalidOperationException("Webhook PayOS thieu orderCode.");
+                throw new InvalidOperationException("Webhook PayOS thiếu orderCode.");
             }
 
             var subscription = await _context.Subscriptions
@@ -377,13 +377,13 @@ namespace WorkBridge.Application.Services
 
             if (subscription == null)
             {
-                throw new InvalidOperationException("Khong tim thay giao dich VIP theo orderCode PayOS.");
+                throw new InvalidOperationException("Không tìm thấy giao dịch VIP theo orderCode PayOS.");
             }
 
             if (TryGetDecimal(request.Data, "amount", out var webhookAmount) &&
                 decimal.Truncate(webhookAmount) != decimal.Truncate(subscription.Price))
             {
-                throw new InvalidOperationException("So tien webhook PayOS khong khop giao dich VIP.");
+                throw new InvalidOperationException("Số tiền webhook PayOS không khớp giao dịch VIP.");
             }
 
             var webhookStatus = request.Data.TryGetProperty("status", out var statusProp) ? statusProp.GetString() : null;
@@ -403,23 +403,23 @@ namespace WorkBridge.Application.Services
 
             if (user == null)
             {
-                throw new InvalidOperationException("Khong tim thay nguoi dung.");
+                throw new InvalidOperationException("Không tìm thấy người dùng.");
             }
 
             if (user.Status != "Active")
             {
-                throw new InvalidOperationException("Chi co the nang VIP cho tai khoan dang hoat dong.");
+                throw new InvalidOperationException("Chỉ có thể nâng VIP cho tài khoản đang hoạt động.");
             }
 
             var audience = NormalizeAudience(user.Role?.RoleName);
             if (audience == null)
             {
-                throw new InvalidOperationException("Chi co the nang VIP cho tai khoan Ca nhan hoac Doanh nghiep.");
+                throw new InvalidOperationException("Chỉ có thể nâng VIP cho tài khoản Cá nhân hoặc Doanh nghiệp.");
             }
 
             if (audience == "Employer" && user.EmployerProfile == null)
             {
-                throw new InvalidOperationException("Tai khoan doanh nghiep chua co ho so doanh nghiep.");
+                throw new InvalidOperationException("Tài khoản doanh nghiệp chưa có hồ sơ doanh nghiệp.");
             }
 
             var plan = await ResolvePlanAsync(audience, new BuyPaymentRequest
@@ -430,12 +430,12 @@ namespace WorkBridge.Application.Services
 
             if (plan == null)
             {
-                throw new InvalidOperationException("Khong tim thay goi VIP phu hop.");
+                throw new InvalidOperationException("Không tìm thấy gói VIP phù hợp.");
             }
 
             if (!plan.IsActive || !AllowedDurations.Contains(plan.DurationDays))
             {
-                throw new InvalidOperationException("Goi VIP khong hop le hoac da tat.");
+                throw new InvalidOperationException("Gói VIP không hợp lệ hoặc đã tắt.");
             }
 
             var now = DateTime.UtcNow;
@@ -516,13 +516,13 @@ namespace WorkBridge.Application.Services
                         Paid = false,
                         ExpiresAt = GetPendingExpiresAt(pending),
                         ExpiresInSeconds = GetPendingExpiresInSeconds(pending),
-                        Message = "Dang dung lai giao dich thanh toan VIP con hieu luc."
+                        Message = "Đang dùng lại giao dịch thanh toán VIP còn hiệu lực."
                     };
                 }
 
                 if (pending.Status == "Pending")
                 {
-                    await CancelPendingSubscriptionAsync(pending, userId, "Giao dich VIP qua han 5 phut.");
+                    await CancelPendingSubscriptionAsync(pending, userId, "Giao dịch VIP quá hạn 5 phút.");
                 }
             }
 
@@ -533,12 +533,12 @@ namespace WorkBridge.Application.Services
         {
             if (subscription.Status == "Active")
             {
-                return ToStatus(subscription, true, "PAID", "Giao dich da duoc thanh toan va kich hoat truoc do.");
+                return ToStatus(subscription, true, "PAID", "Giao dịch đã được thanh toán và kích hoạt trước đó.");
             }
 
             if (subscription.Status != "Pending")
             {
-                return ToStatus(subscription, false, "UNKNOWN", $"Trang thai giao dich khong hop le: {subscription.Status}");
+                return ToStatus(subscription, false, "UNKNOWN", $"Trạng thái giao dịch không hợp lệ: {subscription.Status}");
             }
 
             var orderCode = subscription.PaymentOrderCode ?? subscription.SubscriptionId;
@@ -557,16 +557,16 @@ namespace WorkBridge.Application.Services
                     subscription.Status = "Cancelled";
                     subscription.EndDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-                    return ToStatus(subscription, false, payOSStatus, "Giao dich da bi huy.");
+                    return ToStatus(subscription, false, payOSStatus, "Giao dịch đã bị hủy.");
                 }
 
                 if (IsPendingExpired(subscription))
                 {
-                    return await CancelPendingSubscriptionAsync(subscription, userId, "Tu dong huy do qua 5 phut chua thanh toan.", payOSStatus);
+                    return await CancelPendingSubscriptionAsync(subscription, userId, "Tự động hủy do quá 5 phút chưa thanh toán.", payOSStatus);
                 }
 
                 await _context.SaveChangesAsync();
-                return ToStatus(subscription, false, payOSStatus, "PayOS chua tra trang thai thanh toan thanh cong. He thong se tiep tuc kiem tra.");
+                return ToStatus(subscription, false, payOSStatus, "PayOS chưa trả trạng thái thanh toán thành công. Hệ thống sẽ tiếp tục kiểm tra.");
             }
 
             return await ActivateSubscriptionAsync(subscription, userId, payOSStatus);
@@ -698,12 +698,12 @@ namespace WorkBridge.Application.Services
         {
             if (subscription.Status == "Active")
             {
-                return ToStatus(subscription, true, "PAID", "Giao dich da thanh toan va khong the huy.");
+                return ToStatus(subscription, true, "PAID", "Giao dịch đã thanh toán và không thể hủy.");
             }
 
             if (subscription.Status != "Pending")
             {
-                return ToStatus(subscription, false, knownPayOSStatus ?? "UNKNOWN", $"Trang thai giao dich khong the huy: {subscription.Status}");
+                return ToStatus(subscription, false, knownPayOSStatus ?? "UNKNOWN", $"Trạng thái giao dịch không thể hủy: {subscription.Status}");
             }
 
             PayOSPaymentResponse? payment = null;
@@ -737,7 +737,7 @@ namespace WorkBridge.Application.Services
 
             await _context.SaveChangesAsync();
 
-            return ToStatus(subscription, false, payment?.status ?? knownPayOSStatus ?? "CANCELLED", "Giao dich VIP da duoc huy.");
+            return ToStatus(subscription, false, payment?.status ?? knownPayOSStatus ?? "CANCELLED", "Giao dịch VIP đã được hủy.");
         }
 
         private async Task<SubscriptionPlan?> ResolvePlanAsync(string audience, BuyPaymentRequest request)
@@ -1019,17 +1019,17 @@ namespace WorkBridge.Application.Services
             try
             {
                 var planName = subscription.SubscriptionPlan?.Name ?? subscription.PlanName;
-                var vipLabel = audience == "Employer" ? "Doanh nghiep" : "Ca nhan";
+                var vipLabel = audience == "Employer" ? "Doanh nghiệp" : "Cá nhân";
                 var title = grantedByAdmin
-                    ? $"Tai khoan cua ban da duoc nang cap VIP {vipLabel}"
-                    : $"Goi VIP {vipLabel} da duoc kich hoat";
+                    ? $"Tài khoản của bạn đã được nâng cấp VIP {vipLabel}"
+                    : $"Gói VIP {vipLabel} đã được kích hoạt";
                 var action = grantedByAdmin
-                    ? "Quan tri vien da kich hoat"
-                    : "Thanh toan thanh cong va he thong da kich hoat";
-                var message = $"{action} goi {planName} cho tai khoan cua ban. " +
-                              (extendedExistingVip
-                                  ? $"Thoi han moi duoc cong noi tiep den {subscription.EndDate:dd/MM/yyyy}."
-                                  : $"Goi co hieu luc {durationDays} ngay, den {subscription.EndDate:dd/MM/yyyy}.");
+                    ? "Quản trị viên đã kích hoạt"
+                    : "Thanh toán thành công và hệ thống đã kích hoạt";
+                var message = $"{action} gói {planName} cho tài khoản của bạn. " +
+                               (extendedExistingVip
+                                   ? $"Thời hạn mới được cộng nối tiếp đến {subscription.EndDate:dd/MM/yyyy}."
+                                   : $"Gói có hiệu lực {durationDays} ngày, đến {subscription.EndDate:dd/MM/yyyy}.");
 
                 await _notificationService.CreateNotificationAsync(userId, title, message);
             }
@@ -1044,17 +1044,17 @@ namespace WorkBridge.Application.Services
             if (grantedByAdmin)
             {
                 return extendedExistingVip
-                    ? "Da nang VIP thanh cong. Goi moi duoc cong noi tiep vao so ngay con lai."
+                    ? "Đã nâng VIP thành công. Gói mới được cộng nối tiếp vào số ngày còn lại."
                     : audience == "Applicant"
-                        ? "Da nang VIP Ca nhan thanh cong."
-                        : "Da nang VIP Doanh nghiep thanh cong.";
+                        ? "Đã nâng VIP Cá nhân thành công."
+                        : "Đã nâng VIP Doanh nghiệp thành công.";
             }
 
             return extendedExistingVip
-                ? "Thanh toan thanh cong! Goi VIP moi da duoc cong noi tiep vao so ngay con lai."
+                ? "Thanh toán thành công! Gói VIP mới đã được cộng nối tiếp vào số ngày còn lại."
                 : audience == "Applicant"
-                    ? "Thanh toan thanh cong! Goi VIP Ca nhan da duoc kich hoat."
-                    : "Thanh toan thanh cong! Goi VIP Doanh nghiep da duoc kich hoat.";
+                    ? "Thanh toán thành công! Gói VIP Cá nhân đã được kích hoạt."
+                    : "Thanh toán thành công! Gói VIP Doanh nghiệp đã được kích hoạt.";
         }
 
         private static PaymentPlanResponse ToPlanResponse(SubscriptionPlan plan)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../../services/api';
+import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => {
@@ -36,8 +36,8 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
             });
             toast.success('Đã gửi báo cáo thành công');
             onClose();
-        } catch {
-            toast.error('Gửi báo cáo thất bại');
+        } catch (error) {
+            toast.error(getApiErrorMessage(error, 'Không thể gửi báo cáo. Vui lòng thử lại.'));
         } finally {
             setLoading(false);
         }
@@ -46,9 +46,9 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 animate-scaleUp border border-white/20">
-                <div className="flex justify-between items-start mb-6">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-slate-900/60 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+            <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-white/20 bg-white shadow-2xl animate-scaleUp sm:max-h-[calc(100dvh-4rem)]">
+                <div className="flex shrink-0 justify-between items-start border-b border-slate-100 px-5 py-5 sm:px-6">
                     <div>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">Báo cáo nội dung</h2>
                         <p className="text-sm text-slate-400 font-bold uppercase tracking-wider mt-1">
@@ -60,49 +60,53 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Chọn lý do</label>
-                        <div className="grid grid-cols-1 gap-2">
-                            {reasons.map((r) => (
-                                <button
-                                    key={r}
-                                    type="button"
-                                    onClick={() => setReason(r)}
-                                    className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all text-left border ${
-                                        reason === r
-                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
-                                        : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-primary/30'
-                                    }`}
-                                >
-                                    {r}
-                                </button>
-                            ))}
+                <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
+                        <div className="space-y-2">
+                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Chọn lý do</label>
+                            <div className="grid grid-cols-1 gap-2">
+                                {reasons.map((r) => (
+                                    <button
+                                        key={r}
+                                        type="button"
+                                        onClick={() => setReason(r)}
+                                        className={`min-h-12 rounded-2xl border px-5 py-3 text-left text-sm font-bold transition-all ${
+                                            reason === r
+                                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
+                                            : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-primary/30'
+                                        }`}
+                                    >
+                                        {r}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Chi tiết bổ sung (Tùy chọn)</label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Mô tả vấn đề..."
+                                className="max-h-40 min-h-28 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 font-medium text-slate-800 focus:border-primary/30 focus:ring-2 focus:ring-primary/20"
+                            />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Chi tiết bổ sung (Tùy chọn)</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Mô tả vấn đề..."
-                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 text-slate-800 font-medium min-h-[120px] resize-none"
-                        />
+                    <div className="shrink-0 border-t border-slate-100 bg-white px-5 py-4 sm:px-6">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 active:scale-95 disabled:opacity-50"
+                        >
+                            {loading ? 'Đang gửi...' : (
+                                <>
+                                    <span className="material-symbols-outlined !text-xl">flag</span>
+                                    Gửi báo cáo
+                                </>
+                            )}
+                        </button>
                     </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {loading ? 'Đang gửi...' : (
-                            <>
-                                <span className="material-symbols-outlined !text-xl">flag</span>
-                                Gửi báo cáo
-                            </>
-                        )}
-                    </button>
                 </form>
             </div>
         </div>

@@ -23,6 +23,19 @@ namespace WorkBridge.Application.DTOs
         public int UserId { get; set; }
     }
 
+    public class RegisterStartResponse
+    {
+        public string Message { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int ExpiresInMinutes { get; set; }
+    }
+
+    public class VerifyRegisterEmailRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
+
     public class ForgotPasswordRequest
     {
         public string Email { get; set; } = string.Empty;

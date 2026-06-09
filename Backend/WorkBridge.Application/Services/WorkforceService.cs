@@ -51,11 +51,11 @@ namespace WorkBridge.Application.Services
         {
             var allowedStatuses = new[] { "Active", "Inactive", "Ended" };
             var status = request.Status?.Trim();
-            if (!allowedStatuses.Contains(status)) return (null, "Status must be Active, Inactive or Ended.");
+            if (!allowedStatuses.Contains(status)) return (null, "Trạng thái nhân viên phải là Active, Inactive hoặc Ended.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.EmployerId == employerId);
-            if (employment == null) return (null, "Employment not found.");
+            if (employment == null) return (null, "Không tìm thấy hồ sơ nhân viên.");
 
             employment.Status = status!;
             employment.EndDate = status == "Active" ? null : DateTime.UtcNow;
@@ -63,8 +63,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 employment.EmployeeUserId,
-                "Employment Updated",
-                $"Your employment status was changed to {status}."
+                "Trạng thái nhân viên đã cập nhật",
+                $"Trạng thái làm việc của bạn đã chuyển sang: {ToVietnameseEmploymentStatus(status)}."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
@@ -74,12 +74,12 @@ namespace WorkBridge.Application.Services
 
         public async Task<(EmploymentResponse? Employment, string? Error)> UpdateEmployeeRateAsync(int employerId, int employmentId, UpdateEmployeeRateRequest request)
         {
-            if (request.HourlyRate <= 0) return (null, "Hourly rate must be greater than 0.");
+            if (request.HourlyRate <= 0) return (null, "Mức lương theo giờ phải lớn hơn 0.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.EmployerId == employerId);
-            if (employment == null) return (null, "Employment not found.");
-            if (employment.Status != "Active") return (null, "Only active employees can receive a new rate.");
+            if (employment == null) return (null, "Không tìm thấy hồ sơ nhân viên.");
+            if (employment.Status != "Active") return (null, "Chỉ nhân viên đang hoạt động mới được cập nhật lương.");
 
             var effectiveFrom = request.EffectiveFrom == default ? DateTime.Today : request.EffectiveFrom.Date;
             var currentRate = await _context.EmployeeRates
@@ -91,7 +91,7 @@ namespace WorkBridge.Application.Services
             {
                 if (effectiveFrom <= currentRate.EffectiveFrom)
                 {
-                    return (null, "New rate effective date must be after the current rate start date.");
+                    return (null, "Ngày áp dụng lương mới phải sau ngày bắt đầu mức lương hiện tại.");
                 }
 
                 currentRate.EffectiveTo = effectiveFrom.AddSeconds(-1);
@@ -108,8 +108,8 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
             await _notificationService.CreateNotificationAsync(
                 employment.EmployeeUserId,
-                "Pay Rate Updated",
-                $"Your hourly rate was updated to {request.HourlyRate:N0} VND/hour."
+                "Lương theo giờ đã cập nhật",
+                $"Lương theo giờ của bạn đã được cập nhật thành {request.HourlyRate:N0}đ/giờ."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
@@ -119,19 +119,19 @@ namespace WorkBridge.Application.Services
 
         public async Task<(EmploymentResponse? Employment, string? Error)> UpdateEmployeePositionAsync(int employerId, int employmentId, UpdateEmployeePositionRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Position is required.");
+            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Vui lòng nhập vị trí làm việc.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.EmployerId == employerId);
-            if (employment == null) return (null, "Employment not found.");
+            if (employment == null) return (null, "Không tìm thấy hồ sơ nhân viên.");
 
             employment.Position = request.Position.Trim();
             await _context.SaveChangesAsync();
 
             await _notificationService.CreateNotificationAsync(
                 employment.EmployeeUserId,
-                "Position Updated",
-                $"Your employment role/position was updated to {employment.Position}."
+                "Vị trí làm việc đã cập nhật",
+                $"Vị trí làm việc của bạn đã được cập nhật thành: {employment.Position}."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
@@ -165,13 +165,13 @@ namespace WorkBridge.Application.Services
 
         public async Task<(WorkShiftResponse? Shift, string? Error)> CreateShiftAsync(int employerId, CreateWorkShiftRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Title)) return (null, "Shift title is required.");
-            if (request.EndTime <= request.StartTime) return (null, "Shift end time must be after start time.");
-            if (request.RequiredPeople < 1) return (null, "Required people must be at least 1.");
+            if (string.IsNullOrWhiteSpace(request.Title)) return (null, "Vui lòng nhập tên ca làm.");
+            if (request.EndTime <= request.StartTime) return (null, "Giờ kết thúc ca phải sau giờ bắt đầu.");
+            if (request.RequiredPeople < 1) return (null, "Số người cần cho ca phải từ 1 trở lên.");
 
             var branch = await _context.Branches
                 .FirstOrDefaultAsync(b => b.BranchId == request.BranchId && b.EmployerId == employerId && b.IsActive);
-            if (branch == null) return (null, "Branch not found or inactive.");
+            if (branch == null) return (null, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
 
             var shift = new WorkShift
             {
@@ -283,19 +283,19 @@ namespace WorkBridge.Application.Services
         public async Task<(ShiftAssignmentResponse? Assignment, string? Error)> AssignShiftAsync(int employerId, int workShiftId, AssignShiftRequest request)
         {
             var shift = await _context.WorkShifts.FirstOrDefaultAsync(s => s.WorkShiftId == workShiftId && s.EmployerId == employerId);
-            if (shift == null) return (null, "Shift not found.");
-            if (shift.Status == "Cancelled") return (null, "Cannot assign a cancelled shift.");
+            if (shift == null) return (null, "Không tìm thấy ca làm.");
+            if (shift.Status == "Cancelled") return (null, "Không thể xếp nhân viên vào ca đã hủy.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e => e.EmploymentId == request.EmploymentId && e.EmployerId == employerId && e.Status == "Active");
-            if (employment == null) return (null, "Employment not found or inactive.");
-            if (employment.BranchId != shift.BranchId) return (null, "Employee must belong to the same branch as the shift.");
+            if (employment == null) return (null, "Không tìm thấy nhân viên đang hoạt động.");
+            if (employment.BranchId != shift.BranchId) return (null, "Nhân viên phải thuộc cùng chi nhánh với ca làm.");
 
             var alreadyAssigned = await _context.ShiftAssignments.AnyAsync(a =>
                 a.WorkShiftId == workShiftId &&
                 a.EmploymentId == employment.EmploymentId &&
                 ActiveAssignmentStatuses.Contains(a.Status));
-            if (alreadyAssigned) return (null, "Employee is already assigned to this shift.");
+            if (alreadyAssigned) return (null, "Nhân viên đã được xếp vào ca này.");
 
             var hasOverlap = await (from assignment in _context.ShiftAssignments
                                     join otherShift in _context.WorkShifts on assignment.WorkShiftId equals otherShift.WorkShiftId
@@ -307,11 +307,11 @@ namespace WorkBridge.Application.Services
                                           && shift.StartTime < otherShift.EndTime
                                     select assignment)
                 .AnyAsync();
-            if (hasOverlap) return (null, "Employee already has another shift in this time range.");
+            if (hasOverlap) return (null, "Nhân viên đã có ca khác trong khung giờ này.");
 
             var currentCount = await _context.ShiftAssignments
                 .CountAsync(a => a.WorkShiftId == workShiftId && ActiveAssignmentStatuses.Contains(a.Status));
-            if (currentCount >= shift.RequiredPeople) return (null, "Shift already has enough assigned employees.");
+            if (currentCount >= shift.RequiredPeople) return (null, "Ca này đã đủ nhân viên.");
 
             var newAssignment = new ShiftAssignment
             {
@@ -334,7 +334,7 @@ namespace WorkBridge.Application.Services
 
         public async Task<(ShiftAssignmentResponse? Assignment, string? Error)> ReplaceShiftAssignmentAsync(int employerId, int assignmentId, ReplaceShiftAssignmentRequest request)
         {
-            if (request.EmploymentId <= 0) return (null, "Replacement employee is required.");
+            if (request.EmploymentId <= 0) return (null, "Vui lòng chọn nhân viên thay thế.");
 
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
@@ -343,24 +343,24 @@ namespace WorkBridge.Application.Services
                                            where assignmentRow.ShiftAssignmentId == assignmentId && shiftRow.EmployerId == employerId
                                            select new { Assignment = assignmentRow, Shift = shiftRow })
                 .FirstOrDefaultAsync();
-            if (assignmentContext == null) return (null, "Shift assignment not found.");
+            if (assignmentContext == null) return (null, "Không tìm thấy phân công ca làm.");
 
             var assignment = assignmentContext.Assignment;
             var shift = assignmentContext.Shift;
-            if (shift.Status == "Cancelled") return (null, "Cannot edit a cancelled shift.");
+            if (shift.Status == "Cancelled") return (null, "Không thể sửa ca đã hủy.");
             if (!EditableAssignmentStatuses.Contains(assignment.Status))
             {
-                return (null, "Only assignments that have not started can be edited.");
+                return (null, "Chỉ phân công chưa bắt đầu mới có thể sửa.");
             }
 
             var hasAttendance = await _context.AttendanceRecords.AnyAsync(r => r.ShiftAssignmentId == assignmentId);
-            if (hasAttendance) return (null, "Cannot edit an assignment that already has attendance records.");
+            if (hasAttendance) return (null, "Không thể sửa phân công đã có chấm công.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e => e.EmploymentId == request.EmploymentId && e.EmployerId == employerId && e.Status == "Active");
-            if (employment == null) return (null, "Replacement employment not found or inactive.");
-            if (employment.BranchId != shift.BranchId) return (null, "Replacement employee must belong to the same branch as the shift.");
-            if (!IsRoleCompatible(shift.RequiredRole, employment.Position)) return (null, "Replacement employee position does not match the shift requirement.");
+            if (employment == null) return (null, "Không tìm thấy nhân viên thay thế đang hoạt động.");
+            if (employment.BranchId != shift.BranchId) return (null, "Nhân viên thay thế phải thuộc cùng chi nhánh với ca làm.");
+            if (!IsRoleCompatible(shift.RequiredRole, employment.Position)) return (null, "Vị trí của nhân viên thay thế không phù hợp với yêu cầu ca.");
 
             if (employment.EmploymentId == assignment.EmploymentId && employment.EmployeeUserId == assignment.EmployeeUserId)
             {
@@ -377,7 +377,7 @@ namespace WorkBridge.Application.Services
 
             if (duplicateAssignments.Any(a => ActiveAssignmentStatuses.Contains(a.Status)))
             {
-                return (null, "Replacement employee is already assigned to this shift.");
+                return (null, "Nhân viên thay thế đã được xếp vào ca này.");
             }
 
             var currentActiveCount = await _context.ShiftAssignments
@@ -386,11 +386,11 @@ namespace WorkBridge.Application.Services
                                  ActiveAssignmentStatuses.Contains(a.Status));
             if (!ActiveAssignmentStatuses.Contains(assignment.Status) && currentActiveCount >= shift.RequiredPeople)
             {
-                return (null, "Shift already has enough assigned employees.");
+                return (null, "Ca này đã đủ nhân viên.");
             }
 
             var hasOverlap = await HasEmployeeOverlapAsync(employment.EmployeeUserId, shift.StartTime, shift.EndTime, shift.WorkShiftId);
-            if (hasOverlap) return (null, "Replacement employee already has another shift in this time range.");
+            if (hasOverlap) return (null, "Nhân viên thay thế đã có ca khác trong khung giờ này.");
 
             if (duplicateAssignments.Any())
             {
@@ -426,8 +426,8 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            await _notificationService.CreateNotificationAsync(previousEmployeeUserId, "Shift Assignment Updated", $"You were removed from shift '{shift.Title}'.");
-            await _notificationService.CreateNotificationAsync(employment.EmployeeUserId, "Shift Assignment Updated", $"You were assigned to shift '{shift.Title}'.");
+            await _notificationService.CreateNotificationAsync(previousEmployeeUserId, "Ca làm đã cập nhật", $"Bạn đã được gỡ khỏi ca '{shift.Title}'.");
+            await _notificationService.CreateNotificationAsync(employment.EmployeeUserId, "Ca làm đã cập nhật", $"Bạn đã được xếp vào ca '{shift.Title}'.");
 
             _ = Task.Run(async () =>
             {
@@ -451,18 +451,18 @@ namespace WorkBridge.Application.Services
                                            where assignmentRow.ShiftAssignmentId == assignmentId && shiftRow.EmployerId == employerId
                                            select new { Assignment = assignmentRow, Shift = shiftRow })
                 .FirstOrDefaultAsync();
-            if (assignmentContext == null) return (false, "Shift assignment not found.");
+            if (assignmentContext == null) return (false, "Không tìm thấy phân công ca làm.");
 
             var assignment = assignmentContext.Assignment;
             var shift = assignmentContext.Shift;
-            if (shift.Status == "Cancelled") return (false, "Cannot edit a cancelled shift.");
+            if (shift.Status == "Cancelled") return (false, "Không thể sửa ca đã hủy.");
             if (!EditableAssignmentStatuses.Contains(assignment.Status))
             {
-                return (false, "Only assignments that have not started can be removed.");
+                return (false, "Chỉ phân công chưa bắt đầu mới có thể gỡ.");
             }
 
             var hasAttendance = await _context.AttendanceRecords.AnyAsync(r => r.ShiftAssignmentId == assignmentId);
-            if (hasAttendance) return (false, "Cannot remove an assignment that already has attendance records.");
+            if (hasAttendance) return (false, "Không thể gỡ phân công đã có chấm công.");
 
             var passRequests = await _context.ShiftPassRequests
                 .Where(r => r.ShiftAssignmentId == assignment.ShiftAssignmentId)
@@ -477,7 +477,7 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            await _notificationService.CreateNotificationAsync(employeeUserId, "Shift Assignment Updated", $"You were removed from shift '{shift.Title}'.");
+            await _notificationService.CreateNotificationAsync(employeeUserId, "Ca làm đã cập nhật", $"Bạn đã được gỡ khỏi ca '{shift.Title}'.");
 
             _ = Task.Run(async () =>
             {
@@ -495,9 +495,9 @@ namespace WorkBridge.Application.Services
         public async Task<(ShiftAssignmentResponse? Assignment, string? Error)> RegisterForShiftAsync(int employeeUserId, int workShiftId)
         {
             var shift = await _context.WorkShifts.FirstOrDefaultAsync(s => s.WorkShiftId == workShiftId);
-            if (shift == null) return (null, "Shift not found.");
-            if (shift.Status != "Published") return (null, "This shift is not open for registration.");
-            if (shift.StartTime <= DateTime.Now) return (null, "Cannot register for a shift that already started.");
+            if (shift == null) return (null, "Không tìm thấy ca làm.");
+            if (shift.Status != "Published") return (null, "Ca này chưa mở đăng ký.");
+            if (shift.StartTime <= DateTime.Now) return (null, "Không thể đăng ký ca đã bắt đầu.");
 
             var employment = await _context.Employments
                 .FirstOrDefaultAsync(e =>
@@ -505,20 +505,20 @@ namespace WorkBridge.Application.Services
                     e.EmployerId == shift.EmployerId &&
                     e.BranchId == shift.BranchId &&
                     e.Status == "Active");
-            if (employment == null) return (null, "You are not an active employee in this branch.");
+            if (employment == null) return (null, "Bạn không phải nhân viên đang hoạt động tại chi nhánh này.");
 
             var alreadyAssigned = await _context.ShiftAssignments.AnyAsync(a =>
                 a.WorkShiftId == workShiftId &&
                 a.EmployeeUserId == employeeUserId &&
                 ActiveAssignmentStatuses.Contains(a.Status));
-            if (alreadyAssigned) return (null, "You already registered for this shift.");
+            if (alreadyAssigned) return (null, "Bạn đã đăng ký ca này.");
 
             var hasOverlap = await HasEmployeeOverlapAsync(employeeUserId, shift.StartTime, shift.EndTime, shift.WorkShiftId);
-            if (hasOverlap) return (null, "You already have another shift in this time range.");
+            if (hasOverlap) return (null, "Bạn đã có ca khác trong khung giờ này.");
 
             var currentCount = await _context.ShiftAssignments
                 .CountAsync(a => a.WorkShiftId == workShiftId && ActiveAssignmentStatuses.Contains(a.Status));
-            if (currentCount >= shift.RequiredPeople) return (null, "This shift is already full.");
+            if (currentCount >= shift.RequiredPeople) return (null, "Ca này đã đủ người.");
 
             var assignment = new ShiftAssignment
             {
@@ -536,8 +536,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 shift.EmployerId,
-                "Shift Registration",
-                $"An employee registered for shift '{shift.Title}'."
+                "Có nhân viên đăng ký ca",
+                $"Một nhân viên đã đăng ký ca '{shift.Title}'."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(shift.EmployerId, employeeUserId); } catch { } });
@@ -549,7 +549,7 @@ namespace WorkBridge.Application.Services
         {
             var branch = await _context.Branches
                 .FirstOrDefaultAsync(b => b.BranchId == request.BranchId && b.EmployerId == employerId && b.IsActive);
-            if (branch == null) return (null, "Branch not found or inactive.");
+            if (branch == null) return (null, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
 
             var now = DateTime.Now;
             var currentWeekStart = GetWeekStart(now);
@@ -656,7 +656,7 @@ namespace WorkBridge.Application.Services
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
             var window = await _context.ShiftRegistrationWindows.FirstOrDefaultAsync(w => w.ShiftRegistrationWindowId == windowId);
-            if (window == null) return (null, "Registration window not found.", false);
+            if (window == null) return (null, "Không tìm thấy khung đăng ký ca.", false);
 
             var now = DateTime.Now;
             if (window.Status != "Open") return (null, "Registration is not open.", false);
@@ -668,7 +668,7 @@ namespace WorkBridge.Application.Services
                                           e.EmployerId == window.EmployerId &&
                                           e.BranchId == window.BranchId &&
                                           e.Status == "Active");
-            if (employment == null) return (null, "You are not an active employee in this branch.", false);
+            if (employment == null) return (null, "Bạn không phải nhân viên đang hoạt động tại chi nhánh này.", false);
 
             var selectedShifts = await _context.WorkShifts
                 .Where(s => selectedIds.Contains(s.WorkShiftId) &&
@@ -677,7 +677,7 @@ namespace WorkBridge.Application.Services
                 .OrderBy(s => s.StartTime)
                 .ToListAsync();
             if (selectedShifts.Count != selectedIds.Count) return (null, "Some selected shifts are invalid or unavailable.", false);
-            if (HasOverlap(selectedShifts)) return (null, "Selected shifts cannot overlap.", false);
+            if (HasOverlap(selectedShifts)) return (null, "Các ca được chọn không được trùng giờ.", false);
 
             var existingWindowAssignments = await (from assignment in _context.ShiftAssignments
                                                    join shift in _context.WorkShifts on assignment.WorkShiftId equals shift.WorkShiftId
@@ -714,7 +714,7 @@ namespace WorkBridge.Application.Services
             var existingAssignmentIds = existingWindowAssignments.Select(a => a.ShiftAssignmentId).ToList();
             var attendanceExists = await _context.AttendanceRecords
                 .AnyAsync(a => existingAssignmentIds.Contains(a.ShiftAssignmentId));
-            if (attendanceExists) return (null, "Cannot change registration after attendance has started.", false);
+            if (attendanceExists) return (null, "Không thể đổi đăng ký sau khi đã bắt đầu chấm công.", false);
 
             var assignmentsToRemove = existingWindowAssignments
                 .Where(a => a.AssignmentSource == "EmployeeRegistration" || a.Status == "Preferred")
@@ -739,7 +739,7 @@ namespace WorkBridge.Application.Services
                     x.shift.WorkShiftId != shift.WorkShiftId &&
                     x.shift.StartTime < shift.EndTime &&
                     shift.StartTime < x.shift.EndTime);
-                if (overlapsExisting) return (null, "You already have another shift in this time range.", false);
+                if (overlapsExisting) return (null, "Bạn đã có ca khác trong khung giờ này.", false);
             }
 
             foreach (var shift in selectedShifts)
@@ -782,14 +782,14 @@ namespace WorkBridge.Application.Services
 
             var window = await _context.ShiftRegistrationWindows
                 .FirstOrDefaultAsync(w => w.ShiftRegistrationWindowId == windowId && w.EmployerId == employerId);
-            if (window == null) return (null, "Registration window not found.");
+            if (window == null) return (null, "Không tìm thấy khung đăng ký ca.");
             if (window.Status == "Finalized")
             {
                 await transaction.CommitAsync();
                 return (await BuildRegistrationWindowResponseAsync(windowId, null, true), null);
             }
-            if (window.Status == "Finalizing") return (null, "Registration window is already being finalized.");
-            if (window.Status != "Open") return (null, "Only open registration windows can be finalized.");
+            if (window.Status == "Finalizing") return (null, "Khung đăng ký ca đang được chốt.");
+            if (window.Status != "Open") return (null, "Chỉ khung đăng ký đang mở mới có thể chốt.");
 
             window.Status = "Finalizing";
             await _context.SaveChangesAsync();
@@ -1004,29 +1004,29 @@ namespace WorkBridge.Application.Services
                                             && ActiveAssignmentStatuses.Contains(assignment.Status)
                                       select new { Assignment = assignment, Shift = shift })
                 .FirstOrDefaultAsync();
-            if (shiftContext == null) return (null, "Shift assignment not found.");
+            if (shiftContext == null) return (null, "Không tìm thấy phân công ca làm.");
 
             var now = DateTime.UtcNow;
             var checkInOpenAt = shiftContext.Shift.StartTime.AddMinutes(-AttendanceCheckInLeadMinutes);
             var checkInCloseAt = shiftContext.Shift.EndTime.AddMinutes(-AttendanceCheckInMinimumRemainingMinutes);
             if (now < checkInOpenAt)
             {
-                return (null, $"Bạn chỉ có thể check-in sớm tối đa {AttendanceCheckInLeadMinutes} phút trước giờ vào ca.");
+                return (null, $"Bạn chỉ có thể vào ca sớm tối đa {AttendanceCheckInLeadMinutes} phút trước giờ bắt đầu.");
             }
 
             if (now >= shiftContext.Shift.EndTime)
             {
-                return (null, "Ca làm đã kết thúc, không thể check-in. Vui lòng liên hệ quản lý để xử lý công.");
+                return (null, "Ca làm đã kết thúc, không thể vào ca. Vui lòng liên hệ quản lý để xử lý công.");
             }
 
             if (now >= checkInCloseAt)
             {
-                return (null, $"Ca chỉ còn {AttendanceCheckInMinimumRemainingMinutes} phút hoặc ít hơn, không thể check-in. Vui lòng liên hệ quản lý để xử lý công.");
+                return (null, $"Ca chỉ còn {AttendanceCheckInMinimumRemainingMinutes} phút hoặc ít hơn, không thể vào ca. Vui lòng liên hệ quản lý để xử lý công.");
             }
 
             var existing = await _context.AttendanceRecords
                 .FirstOrDefaultAsync(a => a.ShiftAssignmentId == shiftAssignmentId);
-            if (existing?.CheckInAt != null) return (null, "Bạn đã check-in ca này rồi.");
+            if (existing?.CheckInAt != null) return (null, "Bạn đã vào ca này rồi.");
 
             var attendance = existing ?? new AttendanceRecord
             {
@@ -1056,17 +1056,17 @@ namespace WorkBridge.Application.Services
                                             && ActiveAssignmentStatuses.Contains(assignment.Status)
                                       select new { Assignment = assignment, Shift = shift })
                 .FirstOrDefaultAsync();
-            if (shiftContext == null) return (null, "Shift assignment not found.");
+            if (shiftContext == null) return (null, "Không tìm thấy phân công ca làm.");
 
             var attendance = await _context.AttendanceRecords
                 .FirstOrDefaultAsync(a => a.ShiftAssignmentId == shiftAssignmentId && a.EmployeeUserId == employeeUserId);
-            if (attendance == null || attendance.CheckInAt == null) return (null, "Bạn cần check-in trước khi check-out.");
-            if (attendance.CheckOutAt != null) return (null, "Bạn đã check-out ca này rồi.");
+            if (attendance == null || attendance.CheckInAt == null) return (null, "Bạn cần vào ca trước khi ra ca.");
+            if (attendance.CheckOutAt != null) return (null, "Bạn đã ra ca này rồi.");
 
             var now = DateTime.UtcNow;
             if (now < shiftContext.Shift.EndTime)
             {
-                return (null, "Chỉ có thể check-out khi đã đến giờ kết thúc ca.");
+                return (null, "Chỉ có thể ra ca khi đã đến giờ kết thúc ca.");
             }
 
             if (now > shiftContext.Shift.EndTime.AddMinutes(AttendanceCheckOutGraceMinutes))
@@ -1096,8 +1096,8 @@ namespace WorkBridge.Application.Services
                                     select record)
                 .FirstOrDefaultAsync();
 
-            if (attendance == null) return (null, "Attendance record not found.");
-            if (attendance.CheckOutAt == null) return (null, "Cannot approve before check-out.");
+            if (attendance == null) return (null, "Không tìm thấy bản ghi chấm công.");
+            if (attendance.CheckOutAt == null) return (null, "Chưa thể duyệt vì nhân viên chưa ra ca.");
 
             attendance.Status = "Approved";
             attendance.ApprovedByEmployerId = employerId;
@@ -1112,8 +1112,8 @@ namespace WorkBridge.Application.Services
         public async Task<(AttendanceResponse? Attendance, string? Error)> RejectAttendanceAsync(int employerId, int attendanceRecordId, string? note)
         {
             var attendance = await GetEmployerAttendanceRecordAsync(employerId, attendanceRecordId);
-            if (attendance == null) return (null, "Attendance record not found.");
-            if (attendance.CheckOutAt == null) return (null, "Cannot reject before check-out.");
+            if (attendance == null) return (null, "Không tìm thấy bản ghi chấm công.");
+            if (attendance.CheckOutAt == null) return (null, "Chưa thể từ chối vì nhân viên chưa ra ca.");
 
             attendance.Status = "Rejected";
             attendance.ApprovedByEmployerId = employerId;
@@ -1123,8 +1123,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 attendance.EmployeeUserId,
-                "Attendance Rejected",
-                "Your attendance record was rejected by the employer."
+                "Chấm công bị từ chối",
+                "Bản ghi chấm công của bạn đã bị nhà tuyển dụng từ chối."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, attendance.EmployeeUserId); } catch { } });
@@ -1135,8 +1135,8 @@ namespace WorkBridge.Application.Services
         public async Task<(AttendanceResponse? Attendance, string? Error)> AdjustAttendanceAsync(int employerId, int attendanceRecordId, AdjustAttendanceRequest request)
         {
             var attendance = await GetEmployerAttendanceRecordAsync(employerId, attendanceRecordId);
-            if (attendance == null) return (null, "Attendance record not found.");
-            if (request.CheckOutAt <= request.CheckInAt) return (null, "Check-out must be after check-in.");
+            if (attendance == null) return (null, "Không tìm thấy bản ghi chấm công.");
+            if (request.CheckOutAt <= request.CheckInAt) return (null, "Giờ ra ca phải sau giờ vào ca.");
 
             attendance.CheckInAt = request.CheckInAt;
             attendance.CheckOutAt = request.CheckOutAt;
@@ -1150,8 +1150,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 attendance.EmployeeUserId,
-                "Attendance Adjusted",
-                "Your attendance record was adjusted by the employer."
+                "Chấm công đã điều chỉnh",
+                "Bản ghi chấm công của bạn đã được nhà tuyển dụng điều chỉnh."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, attendance.EmployeeUserId); } catch { } });
@@ -1166,13 +1166,13 @@ namespace WorkBridge.Application.Services
                 return (null, "Bạn cần đăng ký gói VIP Doanh nghiệp để sử dụng chức năng AI và Tính lương này.");
             }
 
-            if (month < 1 || month > 12) return (null, "Month must be between 1 and 12.");
+            if (month < 1 || month > 12) return (null, "Tháng phải nằm trong khoảng 1 - 12.");
 
             var existing = await _context.PayrollPeriods
                 .FirstOrDefaultAsync(p => p.EmployerId == employerId && p.Month == month && p.Year == year);
             if (existing?.Status == "Locked" || existing?.Status == "Paid")
             {
-                return (null, "Payroll is locked or paid and cannot be regenerated.");
+                return (null, "Bảng lương đã chốt hoặc đã thanh toán nên không thể tạo lại.");
             }
 
             if (existing != null)
@@ -1343,8 +1343,8 @@ namespace WorkBridge.Application.Services
 
             var period = await _context.PayrollPeriods
                 .FirstOrDefaultAsync(p => p.PayrollPeriodId == payrollPeriodId && p.EmployerId == employerId);
-            if (period == null) return (null, "Payroll period not found.");
-            if (period.Status == "Paid") return (null, "Paid payroll cannot be changed.");
+            if (period == null) return (null, "Không tìm thấy kỳ lương.");
+            if (period.Status == "Paid") return (null, "Bảng lương đã thanh toán nên không thể chỉnh sửa.");
             if (period.Status == "Locked") return (await GetPayrollPeriodResponseAsync(period.PayrollPeriodId), null);
 
             period.Status = "Locked";
@@ -1366,8 +1366,8 @@ namespace WorkBridge.Application.Services
 
             var period = await _context.PayrollPeriods
                 .FirstOrDefaultAsync(p => p.PayrollPeriodId == payrollPeriodId && p.EmployerId == employerId);
-            if (period == null) return (null, "Payroll period not found.");
-            if (period.Status != "Locked" && period.Status != "Paid") return (null, "Payroll must be locked before marking it paid.");
+            if (period == null) return (null, "Không tìm thấy kỳ lương.");
+            if (period.Status != "Locked" && period.Status != "Paid") return (null, "Cần chốt bảng lương trước khi đánh dấu đã thanh toán.");
             if (period.Status == "Paid") return (await GetPayrollPeriodResponseAsync(period.PayrollPeriodId), null);
 
             period.Status = "Paid";
@@ -1389,7 +1389,7 @@ namespace WorkBridge.Application.Services
 
             if (request.Bonus < 0 || request.Penalty < 0 || request.Deduction < 0)
             {
-                return (null, "Bonus, penalty and deduction cannot be negative.");
+                return (null, "Tiền thưởng, tiền phạt và khấu trừ không được âm.");
             }
 
             var payrollItem = await (from item in _context.PayrollItems
@@ -1398,8 +1398,8 @@ namespace WorkBridge.Application.Services
                                      select new { item, period })
                 .FirstOrDefaultAsync();
 
-            if (payrollItem == null) return (null, "Payroll item not found.");
-            if (payrollItem.period.Status != "Draft") return (null, "Only draft payroll can be adjusted.");
+            if (payrollItem == null) return (null, "Không tìm thấy mục lương.");
+            if (payrollItem.period.Status != "Draft") return (null, "Chỉ bảng lương nháp mới có thể điều chỉnh.");
 
             payrollItem.item.Bonus = request.Bonus;
             payrollItem.item.Penalty = request.Penalty;
@@ -1430,19 +1430,19 @@ namespace WorkBridge.Application.Services
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
             var data = await GetPassContextAsync(employeeUserId, request.ShiftAssignmentId);
-            if (data == null) return (null, "Shift assignment not found.");
-            if (data.Assignment.Status != "Assigned") return (null, "Only assigned shifts can be passed.");
-            if (DateTime.UtcNow >= data.Shift.StartTime.AddHours(-2)) return (null, "Shift pass requests must be created at least 2 hours before the shift starts.");
-            if (request.ToEmployeeUserId == employeeUserId) return (null, "You cannot pass a shift to yourself.");
+            if (data == null) return (null, "Không tìm thấy phân công ca làm.");
+            if (data.Assignment.Status != "Assigned") return (null, "Chỉ ca đã được phân công mới có thể nhường.");
+            if (DateTime.UtcNow >= data.Shift.StartTime.AddHours(-2)) return (null, "Yêu cầu nhường ca phải tạo trước giờ bắt đầu ít nhất 2 giờ.");
+            if (request.ToEmployeeUserId == employeeUserId) return (null, "Bạn không thể nhường ca cho chính mình.");
 
             var hasPending = await _context.ShiftPassRequests.AnyAsync(r =>
                 r.ShiftAssignmentId == request.ShiftAssignmentId &&
                 r.Status == "Pending");
-            if (hasPending) return (null, "This shift already has a pending pass request.");
+            if (hasPending) return (null, "Ca này đã có yêu cầu nhường ca đang chờ xử lý.");
 
             var candidateExists = await BuildPassCandidatesQuery(data.Employment.EmployerId, data.Shift.BranchId, employeeUserId, data.Shift.StartTime, data.Shift.EndTime)
                 .AnyAsync(c => c.EmployeeUserId == request.ToEmployeeUserId);
-            if (!candidateExists) return (null, "Selected employee is not eligible for this shift.");
+            if (!candidateExists) return (null, "Nhân viên được chọn không phù hợp với ca này.");
 
             var passRequest = new ShiftPassRequest
             {
@@ -1463,8 +1463,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 request.ToEmployeeUserId,
-                "Shift Pass Request",
-                $"A coworker wants to pass shift '{data.Shift.Title}' to you."
+                "Yêu cầu nhường ca",
+                $"Một đồng nghiệp muốn nhường ca '{data.Shift.Title}' cho bạn."
             );
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(data.Employment.EmployerId, request.ToEmployeeUserId); } catch { } });
@@ -1502,16 +1502,16 @@ namespace WorkBridge.Application.Services
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
             var request = await _context.ShiftPassRequests.FirstOrDefaultAsync(r => r.ShiftPassRequestId == requestId && r.ToEmployeeUserId == employeeUserId);
-            if (request == null) return (null, "Shift pass request not found.");
-            if (request.Status != "Pending") return (null, "Only pending requests can be accepted.");
+            if (request == null) return (null, "Không tìm thấy yêu cầu nhường ca.");
+            if (request.Status != "Pending") return (null, "Chỉ yêu cầu đang chờ mới có thể chấp nhận.");
 
             var assignment = await _context.ShiftAssignments.FirstOrDefaultAsync(a => a.ShiftAssignmentId == request.ShiftAssignmentId);
             var shift = await _context.WorkShifts.FirstOrDefaultAsync(s => s.WorkShiftId == request.WorkShiftId);
-            if (assignment == null || shift == null) return (null, "Shift assignment not found.");
-            if (DateTime.UtcNow >= shift.StartTime.AddHours(-2)) return (null, "This request expired because the shift starts in less than 2 hours.");
+            if (assignment == null || shift == null) return (null, "Không tìm thấy phân công ca làm.");
+            if (DateTime.UtcNow >= shift.StartTime.AddHours(-2)) return (null, "Yêu cầu đã hết hạn vì ca sắp bắt đầu trong dưới 2 giờ.");
             if (assignment.EmployeeUserId != request.FromEmployeeUserId || assignment.Status != "Assigned")
             {
-                return (null, "The original shift owner changed, so this request cannot be accepted.");
+                return (null, "Người phụ trách ca đã thay đổi nên không thể nhận yêu cầu này.");
             }
 
             var toEmployment = await _context.Employments.FirstOrDefaultAsync(e =>
@@ -1519,10 +1519,10 @@ namespace WorkBridge.Application.Services
                 e.BranchId == shift.BranchId &&
                 e.EmployeeUserId == employeeUserId &&
                 e.Status == "Active");
-            if (toEmployment == null) return (null, "You are not an active employee in this branch.");
+            if (toEmployment == null) return (null, "Bạn không phải nhân viên đang hoạt động tại chi nhánh này.");
 
             var hasOverlap = await HasEmployeeOverlapAsync(employeeUserId, shift.StartTime, shift.EndTime, shift.WorkShiftId);
-            if (hasOverlap) return (null, "You already have another shift in this time range.");
+            if (hasOverlap) return (null, "Bạn đã có ca khác trong khung giờ này.");
 
             assignment.Status = "Transferred";
             var newAssignment = new ShiftAssignment
@@ -1553,8 +1553,8 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Shift Passed", $"Your shift '{shift.Title}' was accepted by a coworker.");
-            await _notificationService.CreateNotificationAsync(shift.EmployerId, "Shift Passed", $"Shift '{shift.Title}' was transferred between employees.");
+            await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Ca đã được nhường", $"Ca '{shift.Title}' của bạn đã được đồng nghiệp nhận.");
+            await _notificationService.CreateNotificationAsync(shift.EmployerId, "Ca đã được chuyển", $"Ca '{shift.Title}' đã được chuyển giữa hai nhân viên.");
 
             _ = Task.Run(async () =>
             {
@@ -1574,14 +1574,14 @@ namespace WorkBridge.Application.Services
             await ExpireStaleShiftPassRequestsAsync();
 
             var request = await _context.ShiftPassRequests.FirstOrDefaultAsync(r => r.ShiftPassRequestId == requestId && r.ToEmployeeUserId == employeeUserId);
-            if (request == null) return (null, "Shift pass request not found.");
-            if (request.Status != "Pending") return (null, "Only pending requests can be rejected.");
+            if (request == null) return (null, "Không tìm thấy yêu cầu nhường ca.");
+            if (request.Status != "Pending") return (null, "Chỉ yêu cầu đang chờ mới có thể từ chối.");
 
             request.Status = "Rejected";
             request.RespondedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Shift Pass Rejected", "Your coworker rejected the shift pass request.");
+            await _notificationService.CreateNotificationAsync(request.FromEmployeeUserId, "Yêu cầu nhường ca bị từ chối", "Đồng nghiệp đã từ chối yêu cầu nhường ca của bạn.");
 
             var rejShift = await _context.WorkShifts.FirstOrDefaultAsync(s => s.WorkShiftId == request.WorkShiftId);
             if (rejShift != null) _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(rejShift.EmployerId, request.FromEmployeeUserId); } catch { } });
@@ -2107,7 +2107,7 @@ namespace WorkBridge.Application.Services
                         Title = title,
                         StartTime = startAt,
                         EndTime = endAtStored,
-                        RequiredRole = "Staff",
+                RequiredRole = "Nhân viên",
                         RequiredPeople = Math.Max(1, timing.RequiredPeople),
                         Status = "Published",
                         CreatedAt = DateTime.UtcNow
@@ -2235,9 +2235,9 @@ namespace WorkBridge.Application.Services
         {
             return shiftName switch
             {
-                "Morning" or "Ca Sang" or "Ca Sáng" => "Morning Shift",
-                "Afternoon" or "Ca Chieu" or "Ca Chiều" => "Afternoon Shift",
-                "Evening" or "Ca Toi" or "Ca Tối" => "Evening Shift",
+                "Morning" or "Ca Sang" or "Ca Sáng" => "Ca sáng",
+                "Afternoon" or "Ca Chieu" or "Ca Chiều" => "Ca chiều",
+                "Evening" or "Ca Toi" or "Ca Tối" => "Ca tối",
                 _ => shiftName
             };
         }
@@ -2373,9 +2373,9 @@ namespace WorkBridge.Application.Services
             {
                 return new List<EmployerShiftTimingResponse>
                 {
-                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Morning", StartTime = "08:00", EndTime = "12:00", IsActive = true, RequiredPeople = 1 },
-                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Afternoon", StartTime = "13:00", EndTime = "18:00", IsActive = true, RequiredPeople = 1 },
-                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Evening", StartTime = "18:00", EndTime = "22:00", IsActive = true, RequiredPeople = 1 }
+                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Ca sáng", StartTime = "08:00", EndTime = "12:00", IsActive = true, RequiredPeople = 1 },
+                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Ca chiều", StartTime = "13:00", EndTime = "18:00", IsActive = true, RequiredPeople = 1 },
+                    new EmployerShiftTimingResponse { EmployerId = employerId, ShiftName = "Ca tối", StartTime = "18:00", EndTime = "22:00", IsActive = true, RequiredPeople = 1 }
                 };
             }
 
@@ -2427,7 +2427,7 @@ namespace WorkBridge.Application.Services
 
             if (assignment == null)
             {
-                return (null, "Shift assignment not found or does not belong to you.");
+                return (null, "Không tìm thấy ca làm của bạn.");
             }
 
             assignment.IsFixed = !assignment.IsFixed;
@@ -2473,7 +2473,7 @@ namespace WorkBridge.Application.Services
 
             if (!activeEmployments.Any())
             {
-                return (false, "No active employees found for this employer.");
+                return (false, "Doanh nghiệp chưa có nhân viên đang hoạt động.");
             }
 
             int totalAssigned = 0;
@@ -2563,8 +2563,8 @@ namespace WorkBridge.Application.Services
                     {
                         await _notificationService.CreateNotificationAsync(
                             emp.EmployeeUserId,
-                            "Auto Shift Assignment",
-                            $"You were auto-assigned to {assignedThisWorker} shifts for the week starting {targetWeekStart:yyyy-MM-dd} because you did not register your minimum 3 fixed shifts."
+                            "Tự động xếp ca",
+                            $"Bạn đã được tự động xếp {assignedThisWorker} ca cho tuần bắt đầu {targetWeekStart:dd/MM/yyyy} vì chưa đăng ký đủ số ca cố định tối thiểu."
                         );
 
                         _ = Task.Run(async () =>
@@ -2593,7 +2593,7 @@ namespace WorkBridge.Application.Services
                 });
             }
 
-            return (true, $"Processed {workersProcessed} unregistered workers. Auto-assigned {totalAssigned} shifts for the week starting {targetWeekStart:yyyy-MM-dd}.");
+            return (true, $"Đã xử lý {workersProcessed} nhân viên chưa đăng ký và tự xếp {totalAssigned} ca cho tuần bắt đầu {targetWeekStart:dd/MM/yyyy}.");
         }
 
         public async Task<(bool Success, string? Error)> DeleteShiftAsync(int employerId, int workShiftId)
@@ -2602,7 +2602,7 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(s => s.WorkShiftId == workShiftId && s.EmployerId == employerId);
             if (shift == null)
             {
-                return (false, "Shift not found or does not belong to you.");
+                return (false, "Không tìm thấy ca làm hoặc bạn không có quyền thao tác.");
             }
 
             var passRequests = await _context.ShiftPassRequests
@@ -2659,7 +2659,7 @@ namespace WorkBridge.Application.Services
                     .AnyAsync(b => b.BranchId == requestedBranchId && b.EmployerId == employerId && b.IsActive);
                 if (!branchExists)
                 {
-                    return (0, "Branch not found or inactive.");
+                    return (0, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
                 }
             }
 
@@ -2944,11 +2944,22 @@ namespace WorkBridge.Application.Services
 
                 return (response, null);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
-                return (null, "Lỗi xảy ra trong quá trình tự động xếp ca: " + ex.Message);
+                return (null, "Không thể tự động xếp ca. Vui lòng kiểm tra ca làm, chi nhánh và nhân viên rồi thử lại.");
             }
+        }
+
+        private static string ToVietnameseEmploymentStatus(string? status)
+        {
+            return status?.Trim().ToLowerInvariant() switch
+            {
+                "active" => "Đang hoạt động",
+                "inactive" => "Tạm ngưng",
+                "ended" => "Đã kết thúc",
+                _ => string.IsNullOrWhiteSpace(status) ? "Không rõ" : status
+            };
         }
 
         private sealed class PassContext

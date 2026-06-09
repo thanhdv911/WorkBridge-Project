@@ -6,6 +6,7 @@ import AdminCategories from '../components/admin/AdminCategories';
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminReports from '../components/admin/AdminReports';
 import AdminVipPlans from '../components/admin/AdminVipPlans';
+import AdminOperations from '../components/admin/AdminOperations';
 
 const tabs = [
     {
@@ -47,6 +48,14 @@ const tabs = [
         icon: 'workspace_premium',
         description: 'Thiết lập gói nâng cấp, giao dịch và quyền VIP.',
         metric: 'Doanh thu'
+    },
+    {
+        id: 'operations',
+        label: 'Vận hành hệ thống',
+        shortLabel: 'Vận hành',
+        icon: 'settings_heart',
+        description: 'Bật bảo trì, gửi email nâng cấp và thông báo vận hành đến người dùng.',
+        metric: 'Bảo trì'
     },
     {
         id: 'reports',
@@ -173,6 +182,7 @@ const AdminDashboard = () => {
                         {activeTab === 'jobs' && <AdminJobs />}
                         {activeTab === 'categories' && <AdminCategories />}
                         {activeTab === 'vip-plans' && <AdminVipPlans />}
+                        {activeTab === 'operations' && <AdminOperations />}
                         {activeTab === 'reports' && <AdminReports />}
                     </main>
                 </div>

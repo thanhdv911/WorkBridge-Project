@@ -20,6 +20,7 @@ const JobDetails = () => {
     const [applying, setApplying] = useState(false);
     const [applicationStatus, setApplicationStatus] = useState(null);
     const [canReapply, setCanReapply] = useState(false);
+    const [profileUpdatePrompt, setProfileUpdatePrompt] = useState(null);
 
     const userRole = localStorage.getItem('role');
     const token = localStorage.getItem('token');
@@ -100,14 +101,27 @@ const JobDetails = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success('Nộp đơn ứng tuyển thành công!');
+            toast.success('Nộp đơn ứng tuyển thành công.');
             setShowApplyModal(false);
             setCoverMessage('');
             setApplicationStatus('Applied');
             setCanReapply(false);
         } catch (error) {
-            const msg = error.response?.data || 'Nộp đơn ứng tuyển thất bại.';
-            toast.error(typeof msg === 'string' ? msg : 'Có lỗi xảy ra.');
+            const data = error.response?.data;
+            if (data?.requiresProfileUpdate) {
+                setShowApplyModal(false);
+                setProfileUpdatePrompt({
+                    message: data.message || 'Bạn cần cập nhật hồ sơ trước khi ứng tuyển.',
+                    missingFields: data.missingFields || [],
+                    reputationScore: data.reputationScore
+                });
+                toast.error('Vui lòng cập nhật hồ sơ trước khi ứng tuyển.');
+            } else {
+                const msg = typeof data === 'string'
+                    ? data
+                    : data?.message || 'Không thể nộp đơn. Vui lòng kiểm tra hồ sơ và thử lại.';
+                toast.error(msg);
+            }
         } finally {
             setApplying(false);
         }
@@ -135,13 +149,13 @@ const JobDetails = () => {
             }
         } catch (err) {
             console.error('Error toggling save status:', err);
-            toast.error('Cập nhật trạng thái lưu thất bại.');
+            toast.error('Không thể cập nhật lưu việc. Vui lòng thử lại.');
         }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="applicant-shell flex min-h-screen items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
@@ -149,17 +163,20 @@ const JobDetails = () => {
 
     if (!job) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
+            <div className="applicant-shell flex min-h-screen flex-col items-center justify-center space-y-4">
                 <h2 className="text-2xl font-bold text-slate-800">Không tìm thấy công việc</h2>
                 <Link to="/jobs" className="text-primary hover:underline">Quay lại tìm việc</Link>
             </div>
         );
     }
 
+    const employerReportCount = Number(job.employerReportCount ?? 0);
+    const showEmployerReportWarning = employerReportCount >= 3;
+
     return (
-        <div className="bg-bg-light font-display text-slate-900 min-h-screen antialiased pb-20">
+        <div className="applicant-shell min-h-screen pb-16 font-display text-slate-900 antialiased">
             {/* Breadcrumb */}
-            <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div className="mx-auto w-full max-w-[1440px] px-4 pt-6 sm:px-6 lg:px-8">
                 <nav className="flex items-center gap-2 text-sm text-slate-400">
                     <Link to="/" className="hover:text-primary transition-colors">Trang chủ</Link>
                     <span className="material-symbols-outlined !text-[16px]">chevron_right</span>
@@ -169,13 +186,17 @@ const JobDetails = () => {
                 </nav>
             </div>
 
-            <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[1fr_360px] gap-8">
+            <main className="mx-auto grid w-full max-w-[1440px] gap-6 px-4 py-8 sm:px-6 lg:px-8 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
                 {/* LEFT: JOB DETAILS */}
                 <div className="space-y-6">
                     {/* Header card */}
-                    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp">
-                        <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+                    <div className="profile-panel overflow-hidden rounded-[28px] p-6 lg:p-8 animate-fadeInUp">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white/80 px-3 py-1.5 text-xs font-black text-primary shadow-sm">
+                            <span className="material-symbols-outlined !text-[16px]">work</span>
+                            Chi tiết việc làm
+                        </div>
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-sky-400 shadow-lg shadow-sky-200/70">
                                 {job.companyLogoUrl ? (
                                     <img src={job.companyLogoUrl} alt={job.companyName} className="w-full h-full object-cover rounded-2xl" />
                                 ) : (
@@ -183,11 +204,12 @@ const JobDetails = () => {
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h1 className="text-2xl font-black tracking-tight flex items-center gap-2 flex-wrap">
+                                <h1 className="flex flex-wrap items-center gap-2 text-3xl font-black leading-tight tracking-tight text-slate-950 lg:text-4xl">
                                     {job.title}
                                     {job.isFeatured && (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[11px] font-black uppercase tracking-wider">
-                                            🔥 VIP
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-sky-700">
+                                            <span className="material-symbols-outlined !text-[15px]">workspace_premium</span>
+                                            VIP
                                         </span>
                                     )}
                                 </h1>
@@ -224,31 +246,31 @@ const JobDetails = () => {
                             </div>
                         </div>
                         {/* Quick stats */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-                            <div className="text-center">
-                                <p className="text-xs text-slate-400 mb-1">Mức lương</p>
-                                <p className="text-lg font-bold text-primary">
+                        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-sky-100/70 pt-5 sm:grid-cols-4">
+                            <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
+                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Mức lương</p>
+                                <p className="text-lg font-black text-primary">
                                     {job.payRate?.toLocaleString()}₫
                                     <span className="text-xs font-normal text-slate-400">/{(() => { const u = translatePayUnit(job.payUnit); return u.startsWith('đ/') ? u.slice(2) : u; })()}</span>
                                 </p>
                             </div>
-                            <div className="text-center">
-                                <p className="text-xs text-slate-400 mb-1">Đăng tuyển</p>
-                                <p className="text-sm font-semibold text-slate-700">{new Date(job.createdAt).toLocaleDateString()}</p>
+                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
+                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Đăng tuyển</p>
+                                <p className="text-sm font-bold text-slate-700">{new Date(job.createdAt).toLocaleDateString('vi-VN')}</p>
                             </div>
-                            <div className="text-center">
-                                <p className="text-xs text-slate-400 mb-1">Hạn chót</p>
-                                <p className="text-sm font-semibold text-slate-700">{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString() : 'Không giới hạn'}</p>
+                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
+                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Hạn chót</p>
+                                <p className="text-sm font-bold text-slate-700">{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}</p>
                             </div>
-                            <div className="text-center">
-                                <p className="text-xs text-slate-400 mb-1">Lượt xem</p>
-                                <p className="text-sm font-semibold text-slate-700">Gần đây</p>
+                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
+                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Trạng thái</p>
+                                <p className="text-sm font-bold text-emerald-600">Đang nhận hồ sơ</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Description */}
-                    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-100">
+                    <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-100">
                         <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                             <span className="material-symbols-outlined text-primary !text-xl">description</span>
                             Mô tả công việc
@@ -259,7 +281,7 @@ const JobDetails = () => {
                     </div>
 
                     {/* Detailed address card */}
-                    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-100">
+                    <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-100">
                         <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                             <span className="material-symbols-outlined text-primary !text-xl">location_on</span>
                             Địa điểm làm việc cụ thể
@@ -294,7 +316,7 @@ const JobDetails = () => {
 
                     {/* Shifts */}
                     {job.shifts && job.shifts.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-150">
+                        <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-150">
                             <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-primary !text-xl">schedule</span>
                                 Ca làm việc
@@ -319,7 +341,7 @@ const JobDetails = () => {
 
                     {/* Requirements */}
                     {job.requirements && (
-                        <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-200">
+                        <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-200">
                             <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-primary !text-xl">checklist</span>
                                 Yêu cầu công việc
@@ -332,7 +354,7 @@ const JobDetails = () => {
 
                     {/* Benefits */}
                     {job.benefits && (
-                        <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8 animate-fadeInUp delay-300">
+                        <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-300">
                             <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-primary !text-xl">redeem</span>
                                 Quyền lợi
@@ -347,7 +369,7 @@ const JobDetails = () => {
                 {/* RIGHT SIDEBAR */}
                 <aside className="space-y-5">
                     {/* Apply card */}
-                    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 sticky top-24 animate-fadeInUp">
+                    <div className="profile-sidebar-card sticky top-24 rounded-2xl p-6 animate-fadeInUp">
                         <div className="text-center mb-5">
                             <p className="text-xs text-slate-400 mb-1">Mức lương</p>
                             <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
@@ -393,7 +415,7 @@ const JobDetails = () => {
                     </div>
 
                     {/* Employer Reputation & Trust Card */}
-                    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 animate-fadeInUp delay-75">
+                    <div className="profile-sidebar-card rounded-2xl p-6 animate-fadeInUp delay-75">
                         <h3 className="text-xs font-bold text-slate-450 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined !text-[18px] text-primary">verified_user</span>
                             Độ uy tín tuyển dụng
@@ -441,13 +463,13 @@ const JobDetails = () => {
                             </div>
 
                             {/* Report count warning */}
-                            {(job.employerReportCount ?? 0) > 0 && (
+                            {showEmployerReportWarning && (
                                 <div className="p-3.5 rounded-xl bg-rose-50/50 border border-rose-100/50 flex items-start gap-2.5 mt-2">
                                     <span className="material-symbols-outlined text-rose-500 !text-[18px] mt-0.5 animate-bounce">warning</span>
                                     <div className="text-xs">
-                                        <p className="font-bold text-rose-700">Đã bị báo cáo {job.employerReportCount} lần</p>
+                                        <p className="font-bold text-rose-700">Có nhiều báo cáo cần lưu ý</p>
                                         <p className="text-slate-500 mt-1 leading-relaxed">
-                                            Doanh nghiệp này đã nhận các khiếu nại từ người lao động. Vui lòng xem xét cẩn thận trước khi hợp tác.
+                                            Doanh nghiệp này đã nhận nhiều phản ánh đáng tin cậy từ người lao động. Vui lòng xem xét kỹ trước khi hợp tác.
                                         </p>
                                     </div>
                                 </div>
@@ -468,25 +490,27 @@ const JobDetails = () => {
 
             {/* Apply Modal */}
             {showApplyModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-                    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-scaleIn">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-slate-900/40 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+                    <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl animate-scaleIn sm:max-h-[calc(100dvh-4rem)]">
+                        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 p-5 sm:p-6">
                             <h3 className="text-xl font-bold text-slate-800">Nộp đơn ứng tuyển</h3>
                             <button onClick={() => setShowApplyModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
-                        <form onSubmit={submitApplication} className="p-6 space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700">Thư giới thiệu (Không bắt buộc)</label>
-                                <textarea
-                                    className="w-full h-32 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-sm"
-                                    placeholder="Hãy giới thiệu lý do bạn là ứng viên phù hợp cho công việc này..."
-                                    value={coverMessage}
-                                    onChange={(e) => setCoverMessage(e.target.value)}
-                                ></textarea>
+                        <form onSubmit={submitApplication} className="flex min-h-0 flex-1 flex-col">
+                            <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Thư giới thiệu (Không bắt buộc)</label>
+                                    <textarea
+                                        className="w-full h-32 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-sm"
+                                        placeholder="Hãy giới thiệu lý do bạn là ứng viên phù hợp cho công việc này..."
+                                        value={coverMessage}
+                                        onChange={(e) => setCoverMessage(e.target.value)}
+                                    ></textarea>
+                                </div>
                             </div>
-                            <div className="pt-2">
+                            <div className="shrink-0 border-t border-slate-100 bg-white p-5 sm:p-6">
                                 <button
                                     disabled={applying}
                                     type="submit"
@@ -506,6 +530,75 @@ const JobDetails = () => {
                                 </p>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {profileUpdatePrompt && (
+                <div className="fixed inset-0 z-[110] flex items-start justify-center overflow-y-auto bg-slate-950/45 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+                    <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-sky-100 bg-white shadow-2xl animate-scaleIn sm:max-h-[calc(100dvh-4rem)]">
+                        <div className="shrink-0 bg-gradient-to-br from-slate-950 via-sky-900 to-primary px-6 py-5 text-white">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+                                        <span className="material-symbols-outlined">manage_account</span>
+                                    </div>
+                                    <h3 className="mt-3 text-xl font-black">Hoàn thiện hồ sơ trước</h3>
+                                    <p className="mt-1 text-sm font-medium text-sky-100">
+                                        WorkBridge cần đủ thông tin để gửi hồ sơ đáng tin cậy cho nhà tuyển dụng.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setProfileUpdatePrompt(null)}
+                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/80 transition hover:bg-white/15 hover:text-white"
+                                    aria-label="Đóng"
+                                >
+                                    <span className="material-symbols-outlined !text-lg">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
+                            <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
+                                <div className="flex items-center justify-between gap-4">
+                                    <p className="text-sm font-bold text-slate-700">Điểm uy tín hiện tại</p>
+                                    <span className="text-2xl font-black text-primary">{profileUpdatePrompt.reputationScore ?? 80}/100</span>
+                                </div>
+                                <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-500">
+                                    {profileUpdatePrompt.message}
+                                </p>
+                            </div>
+
+                            {profileUpdatePrompt.missingFields?.length > 0 && (
+                                <div>
+                                    <p className="mb-2 text-xs font-black uppercase text-slate-400">Còn thiếu</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {profileUpdatePrompt.missingFields.map((field) => (
+                                            <span key={field} className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">
+                                                {field}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex flex-col gap-3 sm:flex-row">
+                                <button
+                                    type="button"
+                                    onClick={() => setProfileUpdatePrompt(null)}
+                                    className="h-11 flex-1 rounded-xl bg-slate-100 text-sm font-bold text-slate-600 transition hover:bg-slate-200"
+                                >
+                                    Để sau
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/profile')}
+                                    className="h-11 flex-1 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:bg-primary-dk"
+                                >
+                                    Cập nhật hồ sơ
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

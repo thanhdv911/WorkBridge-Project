@@ -92,8 +92,8 @@ namespace WorkBridge.API.Controllers
                 "ứng tuyển", "tuyển dụng", "nhà tuyển dụng", "ứng viên", "việc làm", "công việc",
                 "part-time", "bán thời gian", "full-time", "làm việc", "xin việc", "nghề nghiệp",
                 "phỏng vấn", "interview", "offer", "lời mời", "nhận việc", "thư xin việc", "đơn xin việc",
-                "ca làm", "ca", "lịch làm", "xếp ca", "đăng ký ca", "chấm công", "check-in", "check out",
-                "check-out", "lương", "bảng lương", "payroll", "salary", "nhân viên", "employee",
+                "ca làm", "ca", "lịch làm", "xếp ca", "đăng ký ca", "chấm công", "vào ca", "ra ca",
+                "check-in", "check-out", "lương", "bảng lương", "payroll", "salary", "nhân viên", "employee",
                 "doanh nghiệp", "employer", "chi nhánh", "tin tuyển", "mức lương", "kỹ năng",
                 "kinh nghiệm", "cover letter", "nghỉ việc", "xin nghỉ", "sếp", "quản lý", "đồng nghiệp",
                 "nơi làm", "công ty", "cửa hàng", "job", "career", "recruit", "shift"
@@ -272,12 +272,12 @@ Quản lý chi nhánh và ca làm:
 - Doanh nghiệp cấu hình ca mẫu theo buổi/khung giờ, ví dụ Ca Sáng, Ca Chiều, Ca Tối; khi mở đăng ký tuần tới, hệ thống sinh ca cho từng ngày Thứ Hai đến Chủ Nhật của tuần kế tiếp.
 - Doanh nghiệp có thể tự bấm mở đăng ký tuần tới. Nếu đến Thứ Ba mà chủ chưa mở, hệ thống/AI tự mở khung đăng ký cho tuần sau ở các chi nhánh đang hoạt động và có nhân viên active.
 - Khung đăng ký mặc định đóng lúc 00:00 Thứ Bảy của tuần hiện tại, hiểu là hết ngày Thứ Sáu nhân viên không nên sửa nữa.
-- Hosted service tự quét mỗi phút; khi khung đăng ký quá hạn CloseAt, hệ thống tự chốt/xếp ca bằng thuật toán Auto-Scheduler.
+- Dịch vụ nền tự quét mỗi phút; khi khung đăng ký quá hạn CloseAt, hệ thống tự chốt/xếp ca bằng thuật toán tự động xếp lịch.
 - Nhân viên đăng ký lịch rảnh bằng cách bấm trực tiếp vào thẻ ca muốn làm; bấm lại cùng thẻ là hủy chọn trong lúc còn được sửa.
 - Nhân viên phải chọn tối thiểu 3 ca theo cấu hình hiện tại. Lần gửi đầu tiên không tính là sửa; sau khi đã gửi, nhân viên chỉ được chỉnh sửa tối đa 2 lần trước khi hệ thống tự chốt.
-- Giao diện đăng ký mới không còn phân biệt ca cố định và ca thêm; backend vẫn lưu lựa chọn với AssignmentSource EmployeeRegistration và trạng thái Preferred để Auto-Scheduler xử lý.
+- Giao diện đăng ký mới không còn phân biệt ca cố định và ca thêm; backend vẫn lưu lựa chọn với AssignmentSource EmployeeRegistration và trạng thái Preferred để bộ tự động xếp lịch xử lý.
 - Khi chốt lịch, hệ thống ưu tiên người đăng ký sớm, cùng chi nhánh, không trùng giờ, phù hợp vị trí và cân bằng số ca giữa nhân viên.
-- AI Auto-Scheduler phải tự đọc branchId/branchName để không xếp nhầm người sang chi nhánh khác.
+- AI tự động xếp lịch phải tự đọc branchId/branchName để không xếp nhầm người sang chi nhánh khác.
 - Nếu ca thiếu người, AI có thể đề xuất phân công nhân viên phù hợp hoặc đề xuất doanh nghiệp đăng tin tuyển thêm.
 - Khi mở đăng ký, hệ thống gửi thông báo trong app và đưa email vào hàng đợi cho nhân viên. Email thật chỉ gửi được khi SMTP đã bật/cấu hình đúng; nếu không, môi trường dev chỉ ghi log/mock email.
 
@@ -288,20 +288,20 @@ Rule xếp ca:
 - Nếu thiếu dữ liệu hoặc không có người phù hợp thì phải nói rõ, không bịa người/ca.
 
 Rule chấm công:
-- Nhân viên chỉ check-in khi ca còn hơn 30 phút mới kết thúc.
+- Nhân viên chỉ được vào ca khi ca còn hơn 30 phút mới kết thúc.
 - Check-in mở sớm tối đa 30 phút trước giờ bắt đầu ca.
-- Nếu ca còn đúng 30 phút hoặc ít hơn, không cho check-in; nhân viên phải liên hệ quản lý để xử lý công.
+- Nếu ca còn đúng 30 phút hoặc ít hơn, không cho vào ca; nhân viên phải liên hệ quản lý để xử lý công.
 - Check-out chỉ mở khi đã đến giờ kết thúc ca và còn trong khung cho phép sau ca.
-- Công sau check-out cần doanh nghiệp duyệt trước khi đưa vào tính lương.
+- Công sau khi ra ca cần doanh nghiệp duyệt trước khi đưa vào tính lương.
 
 Rule lương:
 - Lương dựa trên công đã duyệt, số phút làm thực tế và lương giờ hiện hành.
 - Doanh nghiệp VIP được dùng tính lương; doanh nghiệp thường bị khóa chức năng này.
-- Quản lý có thể điều chỉnh công khi nhân viên quên check-out hoặc có tình huống đặc biệt.
+- Quản lý có thể điều chỉnh công khi nhân viên quên ra ca hoặc có tình huống đặc biệt.
 
 Khi người dùng hỏi về cách dùng hệ thống, hãy trả lời theo vai trò của họ:
 - Với doanh nghiệp: hướng dẫn tạo chi nhánh, tạo ca, mở đăng ký lịch rảnh, chốt lịch, dùng AI, duyệt công, tính lương.
-- Với ứng viên/nhân viên: hướng dẫn ứng tuyển, nhận offer, đăng ký lịch rảnh, xem ca, check-in/check-out, nhường ca và xem lịch sử công.
+- Với ứng viên/nhân viên: hướng dẫn ứng tuyển, nhận lời mời, đăng ký lịch rảnh, xem ca, vào ca/ra ca, nhường ca và xem lịch sử công.
 """;
         }
 
@@ -438,8 +438,8 @@ Bắt buộc trả về JSON hợp lệ, không markdown, không giải thích n
                 return BadRequest(new
                 {
                     message = isEmployer
-                        ? "Tro ly AI WorkBridge chi danh cho Doanh nghiep VIP. Vui long nang cap VIP de mo khoa AI tuyen dung, xep ca va tinh luong."
-                        : "Tro ly AI WorkBridge chi danh cho Ca nhan VIP. Vui long nang cap VIP de mo khoa AI tim viec, goi y viec lam, danh gia CV va phong van."
+                        ? "Trợ lý AI WorkBridge chỉ dành cho Doanh nghiệp VIP. Vui lòng nâng cấp VIP để mở khóa AI tuyển dụng, xếp ca và tính lương."
+                        : "Trợ lý AI WorkBridge chỉ dành cho Cá nhân VIP. Vui lòng nâng cấp VIP để mở khóa AI tìm việc, gợi ý việc làm, đánh giá CV và phỏng vấn."
                 });
             }
 
@@ -482,7 +482,7 @@ Dữ liệu doanh nghiệp của người dùng, chỉ dùng khi câu hỏi liê
 - Nhân viên hoạt động: {activeEmployees.Count} người ({string.Join(", ", activeEmployees)})
 - Chi nhánh hoạt động: {branchNames.Count} chi nhánh ({string.Join(", ", branchNames)})
 - Tổng số ca làm việc đã tạo: {shiftCount} ca
-- Luật lịch tuần: nếu chủ chưa mở đăng ký tuần sau trước Thứ Ba, hệ thống tự mở; khung đăng ký mặc định đóng 00:00 Thứ Bảy, sau đó Auto-Scheduler tự chốt/xếp ca.
+- Luật lịch tuần: nếu chủ chưa mở đăng ký tuần sau trước Thứ Ba, hệ thống tự mở; khung đăng ký mặc định đóng 00:00 Thứ Bảy, sau đó bộ tự động xếp lịch tự chốt/xếp ca.
 """;
                 }
                 catch (Exception ex)
@@ -510,19 +510,19 @@ Dữ liệu doanh nghiệp của người dùng, chỉ dùng khi câu hỏi liê
 
                     var profile = user?.ApplicantProfile;
                     contextText = $"""
-Applicant data from WorkBridge, only use when relevant:
-- Full name: {user?.FullName ?? "Not updated"}
-- Email: {user?.Email ?? "Not updated"}
-- University/major/year: {profile?.University ?? "Not updated"} - {profile?.Major ?? "Not updated"} - {profile?.StudyYear ?? "Not updated"}
-- Availability: {profile?.Availability ?? "Not updated"}
-- Uploaded CV PDF: {(string.IsNullOrWhiteSpace(profile?.CvUrl) ? "No" : "Yes")}
-- Skills: {(skills.Count > 0 ? string.Join(", ", skills) : "Not updated")}
-- Applications submitted: {applicationCount}
+Dữ liệu ứng viên từ WorkBridge, chỉ dùng khi câu hỏi liên quan trực tiếp:
+- Họ tên: {user?.FullName ?? "Chưa cập nhật"}
+- Email: {user?.Email ?? "Chưa cập nhật"}
+- Trường/ngành/năm học: {profile?.University ?? "Chưa cập nhật"} - {profile?.Major ?? "Chưa cập nhật"} - {profile?.StudyYear ?? "Chưa cập nhật"}
+- Thời gian rảnh: {profile?.Availability ?? "Chưa cập nhật"}
+- CV PDF: {(string.IsNullOrWhiteSpace(profile?.CvUrl) ? "Chưa tải" : "Đã tải")}
+- Kỹ năng: {(skills.Count > 0 ? string.Join(", ", skills) : "Chưa cập nhật")}
+- Số đơn đã ứng tuyển: {applicationCount}
 """;
                 }
                 catch (Exception ex)
                 {
-                    contextText = $"Could not load applicant context because: {ex.Message}";
+                    contextText = $"Không thể truy xuất dữ liệu ứng viên thời gian thực do lỗi: {ex.Message}";
                 }
             }
 
@@ -531,9 +531,9 @@ Applicant data from WorkBridge, only use when relevant:
                 var response = await _geminiService.SendPromptAsync(BuildChatPrompt(isEmployer, contextText), userMessage);
                 return Ok(new { response });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Trợ lý AI đang gián đoạn. Vui lòng thử lại sau." });
             }
         }
 
@@ -543,7 +543,7 @@ Applicant data from WorkBridge, only use when relevant:
             var userId = GetUserId();
             if (!User.IsInRole("Applicant") || !await IsVipApplicantAsync(userId))
             {
-                return BadRequest(new { message = "AI danh gia CV chi danh cho Ca nhan VIP. Vui long nang cap VIP de su dung chuc nang nay." });
+                return BadRequest(new { message = "AI đánh giá CV chỉ dành cho Cá nhân VIP. Vui lòng nâng cấp VIP để sử dụng chức năng này." });
             }
 
             try
@@ -555,9 +555,9 @@ Applicant data from WorkBridge, only use when relevant:
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể phân tích CV lúc này. Vui lòng thử lại sau." });
             }
         }
 
@@ -567,12 +567,12 @@ Applicant data from WorkBridge, only use when relevant:
             var userId = GetUserId();
             if (!User.IsInRole("Applicant") || !await IsVipApplicantAsync(userId))
             {
-                return BadRequest(new { message = "Chat AI CV chi danh cho Ca nhan VIP." });
+                return BadRequest(new { message = "Chat AI CV chỉ dành cho Cá nhân VIP." });
             }
 
             if (request == null || string.IsNullOrWhiteSpace(request.Message))
             {
-                return BadRequest(new { message = "Tin nhan khong duoc de trong." });
+                return BadRequest(new { message = "Tin nhắn không được để trống." });
             }
 
             try
@@ -594,9 +594,9 @@ Applicant data from WorkBridge, only use when relevant:
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể chat với AI CV lúc này. Vui lòng thử lại sau." });
             }
         }
         [HttpPost("optimize-job")]
@@ -626,9 +626,9 @@ Yêu cầu công việc:
                 var jsonResult = await _geminiService.SendPromptAsync(JobOptimizationPrompt(), userMessage, "application/json");
                 return Content(jsonResult, "application/json");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể tối ưu tin tuyển dụng lúc này. Vui lòng thử lại sau." });
             }
         }
 
@@ -793,9 +793,9 @@ Return JSON only.
                     var jsonResult = await _geminiService.SendPromptAsync(ScheduleAdvicePrompt(), serverUserMessage, "application/json");
                     return Content(jsonResult, "application/json");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    return StatusCode(500, new { message = ex.Message });
+                    return StatusCode(500, new { message = "Không thể tạo tư vấn xếp ca lúc này. Vui lòng thử lại sau." });
                 }
             }
 
@@ -830,9 +830,9 @@ Danh sách nhân sự hiện có:
                 var jsonResult = await _geminiService.SendPromptAsync(ScheduleAdvicePrompt(), userMessage, "application/json");
                 return Content(jsonResult, "application/json");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể tạo tư vấn xếp ca lúc này. Vui lòng thử lại sau." });
             }
         }
 
@@ -869,9 +869,9 @@ Dữ liệu chuyên cần của nhân viên:
                 var jsonResult = await _geminiService.SendPromptAsync(EmployeeReportPrompt(), userMessage, "application/json");
                 return Content(jsonResult, "application/json");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Không thể tạo báo cáo nhân sự lúc này. Vui lòng thử lại sau." });
             }
         }
     }

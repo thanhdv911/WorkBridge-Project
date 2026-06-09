@@ -30,7 +30,7 @@ namespace WorkBridge.API.Controllers
         {
             var employerId = GetUserId();
             var branch = await _branchService.CreateBranchAsync(employerId, request);
-            if (branch == null) return BadRequest(new { message = "Name and address are required." });
+            if (branch == null) return BadRequest(new { message = "Vui lòng nhập tên chi nhánh và địa chỉ." });
             return Ok(branch);
         }
 
@@ -39,7 +39,7 @@ namespace WorkBridge.API.Controllers
         {
             var employerId = GetUserId();
             var branch = await _branchService.UpdateBranchAsync(employerId, id, request);
-            if (branch == null) return NotFound(new { message = "Branch not found or invalid data." });
+            if (branch == null) return NotFound(new { message = "Không tìm thấy chi nhánh hoặc dữ liệu không hợp lệ." });
             return Ok(branch);
         }
 
@@ -50,8 +50,8 @@ namespace WorkBridge.API.Controllers
             try
             {
                 var result = await _branchService.DeleteBranchAsync(employerId, id);
-                if (!result) return NotFound(new { message = "Branch not found." });
-                return Ok(new { message = "Branch deleted successfully." });
+                if (!result) return NotFound(new { message = "Không tìm thấy chi nhánh." });
+                return Ok(new { message = "Đã xóa chi nhánh." });
             }
             catch (InvalidOperationException ex)
             {

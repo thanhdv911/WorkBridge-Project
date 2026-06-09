@@ -126,7 +126,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="profile-shell pb-20">
       <ProfileCover
         user={user}
         onEditClick={handleEditClick}
@@ -134,48 +134,35 @@ export default function Profile() {
         ratingStats={ratingStats}
       />
 
-      <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[320px_1fr] gap-8">
+      <main className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[320px_1fr] lg:px-8">
         <ProfileSidebar user={user} isOwnProfile={isOwnProfile} />
 
         <div className="space-y-6">
-          {/* Elegant Modern Tab Bar */}
           {!isEditing && (
-            <div className="flex border-b border-slate-200/80 gap-6 mb-2 overflow-x-auto no-scrollbar">
+            <div className="profile-tabs mb-2">
               <button
                 onClick={() => handleTabChange('overview')}
-                className={`pb-3.5 text-sm font-bold flex items-center gap-2 border-b-2 transition-all shrink-0 ${
-                  activeTab === 'overview'
-                    ? 'border-primary text-primary font-extrabold'
-                    : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'overview' ? 'is-active' : ''}`}
               >
                 <span className="material-symbols-outlined !text-lg">person</span>
                 Tổng quan
               </button>
               <button
                 onClick={() => handleTabChange('experience')}
-                className={`pb-3.5 text-sm font-bold flex items-center gap-2 border-b-2 transition-all shrink-0 ${
-                  activeTab === 'experience'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'experience' ? 'is-active' : ''}`}
               >
                 <span className="material-symbols-outlined !text-lg">work_history</span>
-                Kinh nghiệm & Lịch rảnh
+                Kinh nghiệm làm việc
               </button>
               <button
                 onClick={() => handleTabChange('reviews')}
-                className={`pb-3.5 text-sm font-bold flex items-center gap-2 border-b-2 transition-all shrink-0 ${
-                  activeTab === 'reviews'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'reviews' ? 'is-active' : ''}`}
               >
                 <span className="material-symbols-outlined !text-lg">star</span>
                 Đánh giá
                 {ratingStats?.totalReviews > 0 && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                    activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'
+                    activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {ratingStats.totalReviews}
                   </span>
@@ -184,11 +171,7 @@ export default function Profile() {
               {isOwnProfile && (
                 <button
                   onClick={() => handleTabChange('vip')}
-                  className={`pb-3.5 text-sm font-bold flex items-center gap-2 border-b-2 transition-all shrink-0 ${
-                    activeTab === 'vip'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'vip' ? 'is-active' : ''}`}
                 >
                   <span className="material-symbols-outlined !text-lg">workspace_premium</span>
                   Cá nhân VIP
@@ -227,7 +210,7 @@ export default function Profile() {
           )}
 
           {!isEditing && activeTab === 'reviews' && (
-            <div className="anim-fadeUp bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 lg:p-8">
+            <div className="profile-panel anim-fadeUp rounded-2xl p-6 lg:p-8">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-500 filled">star</span>
@@ -263,11 +246,11 @@ export default function Profile() {
                         </div>
                       </div>
                       <p className="text-sm text-slate-600 leading-relaxed italic">
-                        "{review.comment || (review.rating >= 4 ? "Tuyệt vời!" : "Không có nhận xét.")}"
+                        "{review.comment || (review.rating >= 4 ? "Tuyệt vời" : "Không có nhận xét.")}"
                       </p>
                       <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
                         <div className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
-                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Unknown Date'}
+                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString('vi-VN') : 'Không rõ ngày'}
                         </div>
                       </div>
                     </div>

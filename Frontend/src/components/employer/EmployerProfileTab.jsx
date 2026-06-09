@@ -14,7 +14,8 @@ export default function EmployerProfileTab() {
     ward: '',
     detailAddress: '',
     description: '',
-    logoUrl: ''
+    logoUrl: '',
+    reputationScore: 80
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,7 +41,8 @@ export default function EmployerProfileTab() {
         ward: parsedAddress.ward || '',
         detailAddress: parsedAddress.detailAddress || parsedAddress.address || '',
         description: data.description || '',
-        logoUrl: data.logoUrl || ''
+        logoUrl: data.logoUrl || '',
+        reputationScore: data.reputationScore ?? 80
       });
     } catch (error) {
       toast.error('Không thể tải thông tin hồ sơ.');
@@ -79,12 +81,13 @@ export default function EmployerProfileTab() {
         logoUrl: profile.logoUrl
       };
 
-      await api.put('/employer/profile', payload, {
+      const response = await api.put('/employer/profile', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      toast.success('Hồ sơ công ty đã được cập nhật thành công!');
+      setProfile((prev) => ({ ...prev, reputationScore: response.data?.reputationScore ?? prev.reputationScore }));
+      toast.success('Hồ sơ công ty đã được cập nhật thành công.');
     } catch (error) {
-      toast.error('Không thể cập nhật hồ sơ.');
+      toast.error('Không thể cập nhật hồ sơ doanh nghiệp. Vui lòng kiểm tra các trường bắt buộc.');
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -93,20 +96,28 @@ export default function EmployerProfileTab() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/70 p-8 flex justify-center">
+      <div className="profile-panel rounded-2xl p-8 flex justify-center">
         <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-primary animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden anim-fadeUp">
+    <div className="profile-panel overflow-hidden rounded-2xl anim-fadeUp">
       <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary">domain</span>
-          Hồ sơ công ty
-        </h2>
-        <p className="text-sm text-slate-500 mt-1">Cập nhật thông tin công ty để thu hút các ứng viên tốt hơn.</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">domain</span>
+              Hồ sơ công ty
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">Cập nhật đầy đủ thông tin để điểm uy tín đạt 100 và thu hút ứng viên tốt hơn.</p>
+          </div>
+          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-right">
+            <p className="text-[10px] font-black uppercase text-slate-400">Điểm uy tín</p>
+            <p className="text-2xl font-black text-primary">{profile.reputationScore}/100</p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -120,7 +131,7 @@ export default function EmployerProfileTab() {
               onChange={handleChange}
               required
               className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-              placeholder="Ví dụ: Acme Corp"
+              placeholder="Ví dụ: WorkBridge Cafe"
             />
           </div>
           <div className="space-y-2">
@@ -132,7 +143,7 @@ export default function EmployerProfileTab() {
               onChange={handleChange}
               required
               className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-              placeholder="hr@example.com"
+              placeholder="hr@congty.vn"
             />
           </div>
           <div className="space-y-2">

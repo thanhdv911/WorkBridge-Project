@@ -1,4 +1,5 @@
 const VISITOR_ID_KEY = 'workbridge_visitor_id';
+export const PRESENCE_REFRESH_MS = 5000;
 
 export const getVisitorId = () => {
   if (typeof window === 'undefined') return '';

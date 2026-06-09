@@ -32,6 +32,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
 
     public virtual DbSet<Employment> Employments { get; set; }
 
+    public virtual DbSet<EmailVerificationRequest> EmailVerificationRequests { get; set; }
+
     public virtual DbSet<JobApplication> Applications { get; set; }
 
     public virtual DbSet<EmployerProfile> EmployerProfiles { get; set; }
@@ -55,6 +57,8 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
     public virtual DbSet<PayrollPeriod> PayrollPeriods { get; set; }
 
     public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
+    public virtual DbSet<PlatformMaintenanceSetting> PlatformMaintenanceSettings { get; set; }
 
     public virtual DbSet<Report> Reports { get; set; }
 
@@ -182,6 +186,22 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .WithMany()
                 .HasForeignKey(e => e.EmploymentId)
                 .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<EmailVerificationRequest>(entity =>
+        {
+            entity.HasKey(e => e.EmailVerificationRequestId);
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
+            entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.RoleName).HasMaxLength(30);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.CodeHash).HasMaxLength(128);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.VerifiedAt).HasColumnType("datetime");
+            entity.HasIndex(e => new { e.Email, e.Status, e.ExpiresAt });
         });
 
         modelBuilder.Entity<Employment>(entity =>
@@ -713,6 +733,19 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PlatformMaintenanceSetting>(entity =>
+        {
+            entity.HasKey(e => e.PlatformMaintenanceSettingId);
+            entity.ToTable("PlatformMaintenanceSettings");
+            entity.Property(e => e.PlatformMaintenanceSettingId).ValueGeneratedNever();
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Message).HasMaxLength(1000);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(255);
+            entity.Property(e => e.StartedAtUtc).HasColumnType("datetime2");
+            entity.Property(e => e.EndsAtUtc).HasColumnType("datetime2");
+            entity.Property(e => e.UpdatedAtUtc).HasColumnType("datetime2");
         });
 
         modelBuilder.Entity<User>(entity =>

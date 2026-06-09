@@ -299,175 +299,196 @@ const AdminUsers = () => {
                         <p className="mt-1 text-xs font-semibold text-slate-400">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[1320px] text-left">
-                            <thead className="bg-slate-50">
-                                <tr>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Người dùng</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Vai trò</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Điểm uy tín</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Quyền VIP</th>
-                                    <th className="px-6 py-4 text-center text-[11px] font-black text-slate-500">Trạng thái</th>
-                                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {paginatedUsers.map((user) => {
-                                    const canEditReputation = user.roleName !== 'Admin' && user.reputationScore !== null && user.reputationScore !== undefined;
-                                    const canGrantVip = canGrantVipForRole(user.roleName);
-                                    const userVipPlans = vipPlansByAudience[user.roleName] || [];
-                                    const selectedVipPlanId = getSelectedVipPlanId(user);
-                                    const score = Number(user.reputationScore ?? 0);
-                                    const tone = getReputationTone(score);
+                    <div className="divide-y divide-slate-100">
+                        <div className="hidden bg-slate-50/80 px-5 py-3 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.62fr)_minmax(0,0.95fr)_minmax(0,1.28fr)_minmax(0,0.82fr)] lg:gap-3">
+                            {['Người dùng', 'Vai trò', 'Điểm uy tín', 'Quyền VIP', 'Trạng thái'].map((label, index) => (
+                                <div
+                                    key={label}
+                                    className={`text-[11px] font-black text-slate-500 ${index === 4 ? 'text-right' : ''}`}
+                                >
+                                    {label}
+                                </div>
+                            ))}
+                        </div>
 
-                                    return (
-                                        <tr key={user.userId} className="transition-colors hover:bg-slate-50/70">
-                                            <td className="px-6 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-sm font-black text-slate-600">
-                                                        {(user.fullName || user.email || '?').slice(0, 2).toUpperCase()}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <div className="truncate font-black text-slate-900">{user.fullName || 'Chưa cập nhật tên'}</div>
-                                                        <div className="mt-0.5 truncate text-xs font-semibold text-slate-400">{user.email}</div>
-                                                    </div>
+                        {paginatedUsers.map((user) => {
+                            const canEditReputation = user.roleName !== 'Admin' && user.reputationScore !== null && user.reputationScore !== undefined;
+                            const canGrantVip = canGrantVipForRole(user.roleName);
+                            const userVipPlans = vipPlansByAudience[user.roleName] || [];
+                            const selectedVipPlanId = getSelectedVipPlanId(user);
+                            const score = Number(user.reputationScore ?? 0);
+                            const tone = getReputationTone(score);
+                            const statusLabel = user.status === 'Active' ? 'Đang hoạt động' : 'Đã khóa';
+
+                            return (
+                                <article
+                                    key={user.userId}
+                                    className="grid gap-4 p-4 transition-colors hover:bg-slate-50/70 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.62fr)_minmax(0,0.95fr)_minmax(0,1.28fr)_minmax(0,0.82fr)] lg:items-center lg:gap-3"
+                                >
+                                    <section className="min-w-0">
+                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Người dùng</span>
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-sm font-black text-slate-600">
+                                                {(user.fullName || user.email || '?').slice(0, 2).toUpperCase()}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="truncate font-black text-slate-900" title={user.fullName || 'Chưa cập nhật tên'}>
+                                                    {user.fullName || 'Chưa cập nhật tên'}
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <span className={`rounded-xl px-2.5 py-1 text-[11px] font-black ring-1 ${getRoleClass(user.roleName)}`}>
-                                                    {roleLabel(user.roleName)}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                {canEditReputation ? (
-                                                    <div className={`max-w-[275px] rounded-2xl p-3 ring-1 ${tone.soft}`}>
-                                                        <div className="flex items-center gap-2">
-                                                            <input
-                                                                type="number"
-                                                                min="0"
-                                                                max="100"
-                                                                value={scoreDrafts[user.userId] ?? ''}
-                                                                onChange={(event) => handleScoreChange(user.userId, event.target.value)}
-                                                                onKeyDown={(event) => {
-                                                                    if (event.key === 'Enter') handleUpdateReputation(user.userId);
-                                                                }}
-                                                                className="h-9 w-20 rounded-xl border border-white bg-white px-3 text-sm font-black text-slate-800 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                                                            />
-                                                            <span className={`text-sm font-black ${tone.text}`}>/100</span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleUpdateReputation(user.userId)}
-                                                                disabled={savingScoreId === user.userId}
-                                                                className="ml-auto inline-flex h-9 items-center justify-center gap-1 rounded-xl bg-slate-950 px-3 text-xs font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                                            >
-                                                                <span className="material-symbols-outlined !text-[15px]">{savingScoreId === user.userId ? 'progress_activity' : 'save'}</span>
-                                                                Lưu
-                                                            </button>
-                                                        </div>
-                                                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/80">
-                                                            <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${Math.max(0, Math.min(100, score))}%` }} />
-                                                        </div>
-                                                        <div className="mt-2 text-[10px] font-bold text-slate-400">
-                                                            Báo cáo: {user.reportCount ?? 0}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-xs font-bold text-slate-300">Không áp dụng</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                {canGrantVip ? (
-                                                    <div className="max-w-[260px] space-y-2">
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ${
-                                                                user.isVip
-                                                                    ? 'bg-amber-50 text-amber-700 ring-amber-100'
-                                                                    : 'bg-slate-50 text-slate-500 ring-slate-100'
-                                                            }`}>
-                                                                <span className="material-symbols-outlined !text-[14px]">
-                                                                    {user.isVip ? 'workspace_premium' : 'workspace_premium'}
-                                                                </span>
-                                                                {user.isVip ? 'Đang VIP' : 'Chưa VIP'}
-                                                            </span>
-                                                            {user.isVip && (
-                                                                <span className="text-[11px] font-bold text-slate-400">
-                                                                    Còn {Math.max(0, user.vipDaysRemaining ?? 0)} ngày
-                                                                </span>
-                                                            )}
-                                                        </div>
+                                                <div className="mt-0.5 truncate text-xs font-semibold text-slate-400" title={user.email}>
+                                                    {user.email}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
 
-                                                        {user.isVip && (
-                                                            <p className="text-[11px] font-semibold text-slate-500">
-                                                                {user.vipPlanName || 'Gói VIP'} đến {formatVipDate(user.vipEndDate)}
-                                                            </p>
-                                                        )}
+                                    <section className="min-w-0">
+                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Vai trò</span>
+                                        <span className={`inline-flex max-w-full rounded-xl px-2.5 py-1 text-[11px] font-black ring-1 ${getRoleClass(user.roleName)}`}>
+                                            <span className="truncate">{roleLabel(user.roleName)}</span>
+                                        </span>
+                                    </section>
 
-                                                        <div className="flex items-center gap-2">
-                                                            <select
-                                                                value={selectedVipPlanId}
-                                                                onChange={(event) => handleVipPlanChange(user.userId, event.target.value)}
-                                                                disabled={grantingVipId === user.userId || userVipPlans.length === 0}
-                                                                className="h-9 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-2 text-[11px] font-bold text-slate-700 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-                                                            >
-                                                                {userVipPlans.length === 0 ? (
-                                                                    <option value="">Chưa có gói</option>
-                                                                ) : userVipPlans.map((plan) => (
-                                                                    <option key={plan.subscriptionPlanId} value={plan.subscriptionPlanId}>
-                                                                        {formatPlanOption(plan)}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleGrantVip(user)}
-                                                                disabled={grantingVipId === user.userId || userVipPlans.length === 0 || user.status !== 'Active'}
-                                                                className="inline-flex h-9 items-center justify-center gap-1 rounded-xl bg-amber-500 px-3 text-[11px] font-black text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                                            >
-                                                                <span className="material-symbols-outlined !text-[15px]">
-                                                                    {grantingVipId === user.userId ? 'progress_activity' : 'workspace_premium'}
-                                                                </span>
-                                                                {user.isVip ? 'Gia hạn' : 'Nâng'}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-xs font-bold text-slate-300">Không áp dụng</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-5 text-center">
-                                                <span className={`rounded-full px-3 py-1 text-[11px] font-black ring-1 ${
-                                                    user.status === 'Active'
-                                                        ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
-                                                        : 'bg-rose-50 text-rose-700 ring-rose-100'
-                                                }`}>
-                                                    {user.status === 'Active' ? 'Đang hoạt động' : 'Đã khóa'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-5 text-right">
-                                                {user.roleName !== 'Admin' && (
+                                    <section className="min-w-0">
+                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Điểm uy tín</span>
+                                        {canEditReputation ? (
+                                            <div className={`w-full rounded-2xl p-2.5 ring-1 ${tone.soft}`}>
+                                                <div className="flex min-w-0 items-center gap-1.5">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="100"
+                                                        value={scoreDrafts[user.userId] ?? ''}
+                                                        onChange={(event) => handleScoreChange(user.userId, event.target.value)}
+                                                        onKeyDown={(event) => {
+                                                            if (event.key === 'Enter') handleUpdateReputation(user.userId);
+                                                        }}
+                                                        className="h-8 w-[4.25rem] shrink-0 rounded-xl border border-white bg-white px-2 text-sm font-black text-slate-800 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                                                    />
+                                                    <span className={`shrink-0 text-xs font-black ${tone.text}`}>/100</span>
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleUpdateStatus(user.userId, user.status)}
-                                                        disabled={updatingStatusId === user.userId}
-                                                        className={`h-10 rounded-xl px-4 text-xs font-black transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
-                                                            user.status === 'Active'
-                                                                ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-100 hover:bg-rose-600 hover:text-white'
-                                                                : 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 hover:bg-emerald-600 hover:text-white'
-                                                        }`}
+                                                        onClick={() => handleUpdateReputation(user.userId)}
+                                                        disabled={savingScoreId === user.userId}
+                                                        title="Lưu điểm uy tín"
+                                                        aria-label="Lưu điểm uy tín"
+                                                        className="ml-auto inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-xl bg-slate-950 px-2 text-[11px] font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                                                     >
-                                                        {updatingStatusId === user.userId
-                                                            ? 'Đang lưu'
-                                                            : user.status === 'Active'
-                                                                ? 'Khóa tài khoản'
-                                                                : 'Mở khóa'}
+                                                        <span className="material-symbols-outlined !text-[15px]">{savingScoreId === user.userId ? 'progress_activity' : 'save'}</span>
+                                                        <span className="hidden xl:inline">Lưu</span>
                                                     </button>
+                                                </div>
+                                                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/80">
+                                                    <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${Math.max(0, Math.min(100, score))}%` }} />
+                                                </div>
+                                                <div className="mt-2 text-[10px] font-bold text-slate-400">
+                                                    Báo cáo: {user.reportCount ?? 0}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs font-bold text-slate-300">Không áp dụng</span>
+                                        )}
+                                    </section>
+
+                                    <section className="min-w-0">
+                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Quyền VIP</span>
+                                        {canGrantVip ? (
+                                            <div className="min-w-0 rounded-2xl bg-slate-50/70 p-2.5 ring-1 ring-slate-100">
+                                                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                                                    <span className={`inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ${
+                                                        user.isVip
+                                                            ? 'bg-amber-50 text-amber-700 ring-amber-100'
+                                                            : 'bg-white text-slate-500 ring-slate-100'
+                                                    }`}>
+                                                        <span className="material-symbols-outlined !text-[14px]">workspace_premium</span>
+                                                        <span className="truncate">{user.isVip ? 'Đang VIP' : 'Chưa VIP'}</span>
+                                                    </span>
+                                                    {user.isVip && (
+                                                        <span className="text-[11px] font-bold text-slate-400">
+                                                            Còn {Math.max(0, user.vipDaysRemaining ?? 0)} ngày
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {user.isVip && (
+                                                    <p className="mt-1 truncate text-[11px] font-semibold text-slate-500" title={`${user.vipPlanName || 'Gói VIP'} đến ${formatVipDate(user.vipEndDate)}`}>
+                                                        {user.vipPlanName || 'Gói VIP'} đến {formatVipDate(user.vipEndDate)}
+                                                    </p>
                                                 )}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+
+                                                <div className="mt-2 flex min-w-0 items-center gap-2">
+                                                    <select
+                                                        value={selectedVipPlanId}
+                                                        onChange={(event) => handleVipPlanChange(user.userId, event.target.value)}
+                                                        disabled={grantingVipId === user.userId || userVipPlans.length === 0}
+                                                        className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-2 text-[11px] font-bold text-slate-700 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                                                    >
+                                                        {userVipPlans.length === 0 ? (
+                                                            <option value="">Chưa có gói</option>
+                                                        ) : userVipPlans.map((plan) => (
+                                                            <option key={plan.subscriptionPlanId} value={plan.subscriptionPlanId}>
+                                                                {formatPlanOption(plan)}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleGrantVip(user)}
+                                                        disabled={grantingVipId === user.userId || userVipPlans.length === 0 || user.status !== 'Active'}
+                                                        className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-xl bg-amber-500 px-2.5 text-[11px] font-black text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    >
+                                                        <span className="material-symbols-outlined !text-[15px]">
+                                                            {grantingVipId === user.userId ? 'progress_activity' : 'workspace_premium'}
+                                                        </span>
+                                                        <span>{user.isVip ? 'Gia hạn' : 'Nâng'}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs font-bold text-slate-300">Không áp dụng</span>
+                                        )}
+                                    </section>
+
+                                    <section className="min-w-0">
+                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Trạng thái</span>
+                                        <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                                            <span className={`inline-flex max-w-full items-center rounded-full px-3 py-1 text-[11px] font-black ring-1 ${
+                                                user.status === 'Active'
+                                                    ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+                                                    : 'bg-rose-50 text-rose-700 ring-rose-100'
+                                            }`}>
+                                                <span className="truncate">{statusLabel}</span>
+                                            </span>
+                                            {user.roleName !== 'Admin' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleUpdateStatus(user.userId, user.status)}
+                                                    disabled={updatingStatusId === user.userId}
+                                                    className={`inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-xl px-2.5 text-[11px] font-black transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
+                                                        user.status === 'Active'
+                                                            ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-100 hover:bg-rose-600 hover:text-white'
+                                                            : 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 hover:bg-emerald-600 hover:text-white'
+                                                    }`}
+                                                >
+                                                    <span className="material-symbols-outlined !text-[15px]">
+                                                        {updatingStatusId === user.userId
+                                                            ? 'progress_activity'
+                                                            : user.status === 'Active'
+                                                                ? 'lock'
+                                                                : 'lock_open'}
+                                                    </span>
+                                                    {updatingStatusId === user.userId
+                                                        ? 'Lưu'
+                                                        : user.status === 'Active'
+                                                            ? 'Khóa'
+                                                            : 'Mở'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </section>
+                                </article>
+                            );
+                        })}
                     </div>
                 )}
                 <Pagination

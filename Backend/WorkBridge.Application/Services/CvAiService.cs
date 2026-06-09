@@ -31,13 +31,13 @@ namespace WorkBridge.Application.Services
 
             if (user == null)
             {
-                throw new InvalidOperationException("Khong tim thay ho so ung vien.");
+                throw new InvalidOperationException("Không tìm thấy hồ sơ ứng viên.");
             }
 
             var cvPdf = await _cvPdfService.ReadCurrentCvAsync(userId);
             if (!cvPdf.HasFile)
             {
-                throw new InvalidOperationException("Ban can upload CV PDF truoc khi dung AI danh gia CV.");
+                throw new InvalidOperationException("Bạn cần tải CV PDF lên trước khi dùng AI đánh giá CV.");
             }
 
             if (!cvPdf.Readable || string.IsNullOrWhiteSpace(cvPdf.Text))
@@ -57,16 +57,16 @@ namespace WorkBridge.Application.Services
             }
 
             var userMessage = $"""
-Thong tin nguoi dung:
-- Ho ten tai khoan: {user.FullName}
+Thông tin người dùng:
+- Họ tên tài khoản: {user.FullName}
 - Email: {user.Email}
 
-Trang thai doc PDF:
+Trạng thái đọc PDF:
 - readable: {cvPdf.Readable}
 - pdfNote: {cvPdf.Note}
 - pagesRead: {cvPdf.PagesRead}
 
-Noi dung CV PDF trich xuat duoc:
+Nội dung CV PDF trích xuất được:
 <<<CV_PDF_TEXT
 {cvPdf.Text}
 CV_PDF_TEXT
@@ -81,7 +81,7 @@ CV_PDF_TEXT
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Message))
             {
-                throw new InvalidOperationException("Tin nhan khong duoc de trong.");
+                throw new InvalidOperationException("Tin nhắn không được để trống.");
             }
 
             var user = await _context.Users
@@ -91,13 +91,13 @@ CV_PDF_TEXT
 
             if (user == null)
             {
-                throw new InvalidOperationException("Khong tim thay ho so ung vien.");
+                throw new InvalidOperationException("Không tìm thấy hồ sơ ứng viên.");
             }
 
             var cvPdf = await _cvPdfService.ReadCurrentCvAsync(userId);
             if (!cvPdf.HasFile)
             {
-                throw new InvalidOperationException("Ban can upload CV PDF truoc khi chat voi AI CV.");
+                throw new InvalidOperationException("Bạn cần tải CV PDF lên trước khi chat với AI CV.");
             }
 
             var history = (request.History ?? new())
@@ -106,21 +106,21 @@ CV_PDF_TEXT
                 .ToList();
 
             var userMessage = $"""
-Ngu canh bat buoc:
-- Ho ten tai khoan: {user.FullName}
+Ngữ cảnh bắt buộc:
+- Họ tên tài khoản: {user.FullName}
 - Email: {user.Email}
-- Trang thai doc PDF: {cvPdf.Note}
+- Trạng thái đọc PDF: {cvPdf.Note}
 
-Noi dung CV PDF:
+Nội dung CV PDF:
 <<<CV_PDF_TEXT
-{(string.IsNullOrWhiteSpace(cvPdf.Text) ? "PDF khong doc duoc text. Hay noi ro can upload PDF co text neu can cham noi dung." : cvPdf.Text)}
+{(string.IsNullOrWhiteSpace(cvPdf.Text) ? "PDF không đọc được text. Hãy nói rõ cần upload PDF có text nếu muốn chấm nội dung." : cvPdf.Text)}
 CV_PDF_TEXT
 >>>
 
-Lich su chat gan day:
-{(history.Count > 0 ? string.Join("\n", history) : "Chua co.")}
+Lịch sử chat gần đây:
+{(history.Count > 0 ? string.Join("\n", history) : "Chưa có.")}
 
-Cau hoi moi cua nguoi dung:
+Câu hỏi mới của người dùng:
 {request.Message.Trim()}
 """;
 

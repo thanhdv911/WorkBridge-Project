@@ -83,7 +83,7 @@ namespace WorkBridge.Application.Services
                     a.ApplicantId == request.ContactId &&
                     !a.IsDeleted);
 
-            if (application == null) return (null, "Application not found for this chat.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển trong cuộc trò chuyện này.");
 
             return await CreateInterviewCoreAsync(employerId, request, createChatMessage: true);
         }
@@ -107,10 +107,10 @@ namespace WorkBridge.Application.Services
         public async Task<(InterviewResponse? Interview, string? Error)> UpdateStatusAsync(int userId, string role, int interviewId, UpdateInterviewStatusRequest request)
         {
             var status = request.Status?.Trim();
-            if (string.IsNullOrWhiteSpace(status)) return (null, "Status is required.");
+            if (string.IsNullOrWhiteSpace(status)) return (null, "Vui lòng chọn trạng thái phỏng vấn.");
 
             var interview = await _context.Interviews.FirstOrDefaultAsync(i => i.InterviewId == interviewId);
-            if (interview == null) return (null, "Interview not found.");
+            if (interview == null) return (null, "Không tìm thấy lịch phỏng vấn.");
 
             // Idempotency: if the interview is already in the requested status, return early with success
             if (interview.Status == status)
@@ -120,28 +120,28 @@ namespace WorkBridge.Application.Services
 
             if (interview.Result != null || interview.Status == "Completed")
             {
-                return (null, "Completed interviews cannot be updated.");
+                return (null, "Không thể cập nhật phỏng vấn đã hoàn tất.");
             }
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == interview.ApplicationId);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
 
             if (role == "Employer")
             {
-                if (interview.EmployerId != userId) return (null, "Interview not found.");
-                if (!EmployerStatuses.Contains(status)) return (null, "Invalid employer interview status.");
+                if (interview.EmployerId != userId) return (null, "Không tìm thấy lịch phỏng vấn.");
+                if (!EmployerStatuses.Contains(status)) return (null, "Trạng thái phỏng vấn không hợp lệ với nhà tuyển dụng.");
             }
             else if (role == "Applicant")
             {
-                if (interview.ApplicantId != userId) return (null, "Interview not found.");
-                if (!ApplicantStatuses.Contains(status)) return (null, "Invalid applicant interview status.");
-                if (interview.Status != "Scheduled") return (null, "Only scheduled interviews can be answered.");
+                if (interview.ApplicantId != userId) return (null, "Không tìm thấy lịch phỏng vấn.");
+                if (!ApplicantStatuses.Contains(status)) return (null, "Trạng thái phỏng vấn không hợp lệ với ứng viên.");
+                if (interview.Status != "Scheduled") return (null, "Chỉ lịch phỏng vấn đang chờ mới có thể phản hồi.");
             }
             else
             {
-                return (null, "Invalid role.");
+                return (null, "Vai trò tài khoản không hợp lệ.");
             }
 
             interview.Status = status;
@@ -172,19 +172,19 @@ namespace WorkBridge.Application.Services
             var notifyUserId = role == "Employer" ? interview.ApplicantId : interview.EmployerId;
             var notificationTitle = status switch
             {
-                "Confirmed" => "Interview Accepted",
-                "Declined" => "Interview Declined",
-                "Cancelled" => "Interview Cancelled",
-                "ChangeRequested" => "Interview Change Requested",
-                _ => "Interview Updated"
+                "Confirmed" => "Ứng viên đã xác nhận phỏng vấn",
+                "Declined" => "Ứng viên đã từ chối phỏng vấn",
+                "Cancelled" => "Lịch phỏng vấn đã hủy",
+                "ChangeRequested" => "Ứng viên muốn đổi lịch",
+                _ => "Lịch phỏng vấn đã cập nhật"
             };
             var notificationMessage = status switch
             {
-                "Confirmed" => $"Applicant accepted the offline interview for '{application.JobPost.Title}'. Open WorkBridge to continue the chat and prepare for the interview.",
-                "Declined" => $"Applicant declined the offline interview for '{application.JobPost.Title}'. Open WorkBridge to reschedule or continue reviewing the application.",
-                "Cancelled" => $"Your offline interview for '{application.JobPost.Title}' was cancelled by the employer. Open WorkBridge to view the updated interview status.",
-                "ChangeRequested" => $"Applicant requested a change for the offline interview for '{application.JobPost.Title}'. Open WorkBridge to review and reschedule.",
-                _ => $"Interview status for '{application.JobPost.Title}' changed to {status}. Open WorkBridge to view details."
+                "Confirmed" => $"Ứng viên đã xác nhận lịch phỏng vấn cho '{application.JobPost.Title}'.",
+                "Declined" => $"Ứng viên đã từ chối lịch phỏng vấn cho '{application.JobPost.Title}'. Bạn có thể hẹn lại hoặc tiếp tục xét hồ sơ.",
+                "Cancelled" => $"Nhà tuyển dụng đã hủy lịch phỏng vấn cho '{application.JobPost.Title}'.",
+                "ChangeRequested" => $"Ứng viên muốn đổi lịch phỏng vấn cho '{application.JobPost.Title}'. Vui lòng xem lại và hẹn lịch mới.",
+                _ => $"Trạng thái phỏng vấn cho '{application.JobPost.Title}' đã chuyển sang: {ToVietnameseInterviewStatus(status)}."
             };
 
             await _notificationService.CreateNotificationAsync(
@@ -261,25 +261,25 @@ namespace WorkBridge.Application.Services
         public async Task<(InterviewResponse? Interview, string? Error)> UpdateResultAsync(int employerId, int interviewId, UpdateInterviewResultRequest request)
         {
             var result = request.Result?.Trim();
-            if (result != "Passed" && result != "Failed") return (null, "Result must be Passed or Failed.");
+            if (result != "Passed" && result != "Failed") return (null, "Kết quả phỏng vấn phải là Đạt hoặc Không đạt.");
 
             var interview = await _context.Interviews.FirstOrDefaultAsync(i => i.InterviewId == interviewId && i.EmployerId == employerId);
-            if (interview == null) return (null, "Interview not found.");
-            if (interview.Result != null || interview.Status == "Completed") return (null, "Interview already has a result.");
+            if (interview == null) return (null, "Không tìm thấy lịch phỏng vấn.");
+            if (interview.Result != null || interview.Status == "Completed") return (null, "Lịch phỏng vấn này đã có kết quả.");
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == interview.ApplicationId);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
 
             var hasActiveEmploymentBeforeResult = await _context.Employments.AnyAsync(e =>
                 e.EmployerId == employerId &&
                 e.EmployeeUserId == interview.ApplicantId &&
                 e.Status == "Active");
-            if (hasActiveEmploymentBeforeResult) return (null, "Applicant is already an active employee for this employer.");
+            if (hasActiveEmploymentBeforeResult) return (null, "Ứng viên đã là nhân viên đang hoạt động của doanh nghiệp này.");
 
-            if (interview.Status != "Confirmed") return (null, "Applicant must accept the interview before you can mark a result.");
-            if (interview.ScheduledAt > DateTime.UtcNow) return (null, "Interview result is available after the scheduled time.");
+            if (interview.Status != "Confirmed") return (null, "Ứng viên cần xác nhận lịch phỏng vấn trước khi chấm kết quả.");
+            if (interview.ScheduledAt > DateTime.UtcNow) return (null, "Chỉ được cập nhật kết quả sau thời gian phỏng vấn.");
 
             if (result == "Failed")
             {
@@ -297,8 +297,8 @@ namespace WorkBridge.Application.Services
 
                 await _notificationService.CreateNotificationAsync(
                     interview.ApplicantId,
-                    "Interview Result",
-                    $"Your interview for '{application.JobPost.Title}' was marked as Not Passed. Open WorkBridge to view the result and continue applying for other jobs."
+                    "Kết quả phỏng vấn",
+                    $"Phỏng vấn cho '{application.JobPost.Title}' được đánh dấu Không đạt. Bạn có thể tiếp tục ứng tuyển công việc khác."
                 );
 
                 var failedInterview = await GetInterviewResponseAsync(interview.InterviewId);
@@ -322,7 +322,7 @@ namespace WorkBridge.Application.Services
                 b.BranchId == request.BranchId!.Value &&
                 b.EmployerId == employerId &&
                 b.IsActive);
-            if (branch == null) return (null, "Branch not found or inactive.");
+            if (branch == null) return (null, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
 
             // Cancel any existing pending ("Sent") offers to allow sending a new/revised one
             var pendingOffers = await _context.Offers
@@ -383,8 +383,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 interview.ApplicantId,
-                "Job Offer Received",
-                $"You passed the interview and received a job offer for '{application.JobPost.Title}'. Open WorkBridge to review the offer and choose Accept or Decline."
+                "Bạn đã nhận được lời mời nhận việc",
+                $"Bạn đã đạt phỏng vấn và nhận được lời mời cho '{application.JobPost.Title}'. Vui lòng mở WorkBridge để xem chi tiết và phản hồi."
             );
 
             var passedInterview = await GetInterviewResponseAsync(interview.InterviewId);
@@ -453,16 +453,16 @@ namespace WorkBridge.Application.Services
 
         private async Task<(InterviewResponse? Interview, string? Error)> CreateInterviewCoreAsync(int employerId, CreateInterviewRequest request, bool createChatMessage)
         {
-            if (request.ScheduledAt <= DateTime.UtcNow.AddMinutes(115)) return (null, "Interview time must be scheduled at least 2 hours in advance.");
-            if (string.IsNullOrWhiteSpace(request.Location)) return (null, "Offline interview location is required.");
+            if (request.ScheduledAt <= DateTime.UtcNow.AddMinutes(115)) return (null, "Lịch phỏng vấn phải được hẹn trước ít nhất 2 giờ.");
+            if (string.IsNullOrWhiteSpace(request.Location)) return (null, "Vui lòng nhập địa điểm phỏng vấn.");
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == request.ApplicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
             if (!SchedulableApplicationStatuses.Contains(application.Status))
             {
-                return (null, "Only accepted or under-review applications can be scheduled.");
+                return (null, "Chỉ hồ sơ đã duyệt hoặc đang xem xét mới được hẹn phỏng vấn.");
             }
 
             // Cancel any existing future interviews for the same application that haven't happened yet
@@ -514,8 +514,8 @@ namespace WorkBridge.Application.Services
             {
                 await _notificationService.CreateNotificationAsync(
                     oldInterview.ApplicantId,
-                    "Interview Cancelled",
-                    $"A previous offline interview for '{application.JobPost.Title}' on {oldInterview.ScheduledAt:g} was cancelled because a new interview was scheduled. Open WorkBridge to view the new invitation."
+                    "Lịch phỏng vấn cũ đã hủy",
+                    $"Lịch phỏng vấn cũ cho '{application.JobPost.Title}' vào {oldInterview.ScheduledAt:g} đã bị hủy vì có lịch mới."
                 );
             }
 
@@ -528,7 +528,7 @@ namespace WorkBridge.Application.Services
                     JobPostId = application.JobPostId,
                     InterviewId = interview.InterviewId,
                     MessageType = "InterviewInvite",
-                    Content = $"Interview invitation: {application.JobPost.Title} on {interview.ScheduledAt:g} at {interview.Location}.",
+                    Content = $"Lời mời phỏng vấn: {application.JobPost.Title} vào {interview.ScheduledAt:g} tại {interview.Location}.",
                     IsRead = false,
                     SentAt = DateTime.UtcNow
                 };
@@ -536,13 +536,13 @@ namespace WorkBridge.Application.Services
                 await _context.SaveChangesAsync();
 
                 var sender = await _context.Users.FindAsync(employerId);
-                var senderName = sender?.FullName ?? "Employer";
+                var senderName = sender?.FullName ?? "Nhà tuyển dụng";
 
                 var applicant = await _context.Users.FindAsync(application.ApplicantId);
-                var applicantName = applicant?.FullName ?? "Applicant";
+                var applicantName = applicant?.FullName ?? "Ứng viên";
 
                 var employerProfile = await _context.EmployerProfiles.FirstOrDefaultAsync(ep => ep.EmployerId == employerId);
-                var companyName = employerProfile?.CompanyName ?? "Company";
+                var companyName = employerProfile?.CompanyName ?? "Doanh nghiệp";
 
                 var interviewSummary = new InterviewMessageSummary
                 {
@@ -594,8 +594,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 application.ApplicantId,
-                "Interview Scheduled",
-                $"You have an offline interview for '{application.JobPost.Title}' on {interview.ScheduledAt:g} at {interview.Location}. Open WorkBridge to accept or reject this invitation."
+                "Bạn có lịch phỏng vấn mới",
+                $"Bạn có lịch phỏng vấn cho '{application.JobPost.Title}' vào {interview.ScheduledAt:g} tại {interview.Location}. Vui lòng phản hồi lời mời."
             );
 
             return (await GetInterviewResponseAsync(interview.InterviewId), null);
@@ -603,16 +603,30 @@ namespace WorkBridge.Application.Services
 
         private static string? ValidateHireRequest(UpdateInterviewResultRequest request)
         {
-            if (!request.BranchId.HasValue || request.BranchId.Value <= 0) return "Branch is required when passing an applicant.";
-            if (string.IsNullOrWhiteSpace(request.Position)) return "Position is required when passing an applicant.";
-            if (!request.HourlyRate.HasValue || request.HourlyRate.Value <= 0) return "Hourly rate must be greater than 0.";
-            if (!request.StartDate.HasValue) return "Start date is required when passing an applicant.";
+            if (!request.BranchId.HasValue || request.BranchId.Value <= 0) return "Vui lòng chọn chi nhánh làm việc.";
+            if (string.IsNullOrWhiteSpace(request.Position)) return "Vui lòng nhập vị trí làm việc.";
+            if (!request.HourlyRate.HasValue || request.HourlyRate.Value <= 0) return "Mức lương theo giờ phải lớn hơn 0.";
+            if (!request.StartDate.HasValue) return "Vui lòng chọn ngày bắt đầu làm việc.";
             if (!request.PaydayOfMonth.HasValue || request.PaydayOfMonth.Value < 1 || request.PaydayOfMonth.Value > 28)
             {
-                return "Payday must be between day 1 and 28.";
+                return "Ngày trả lương phải nằm trong khoảng 1 - 28.";
             }
 
             return null;
+        }
+
+        private static string ToVietnameseInterviewStatus(string? status)
+        {
+            return status?.Trim().ToLowerInvariant() switch
+            {
+                "scheduled" => "Đang chờ phản hồi",
+                "confirmed" => "Đã xác nhận",
+                "declined" => "Đã từ chối",
+                "cancelled" or "canceled" => "Đã hủy",
+                "changerequested" => "Yêu cầu đổi lịch",
+                "completed" => "Đã hoàn tất",
+                _ => string.IsNullOrWhiteSpace(status) ? "Không rõ" : status
+            };
         }
 
         private IQueryable<InterviewResponse> BuildInterviewQuery()

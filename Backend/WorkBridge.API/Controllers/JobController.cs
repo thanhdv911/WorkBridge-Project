@@ -38,7 +38,7 @@ namespace WorkBridge.API.Controllers
             var job = await _jobService.GetJobByIdAsync(id);
             if (job == null)
             {
-                return NotFound("Job not found or not available.");
+                return NotFound(new { message = "Không tìm thấy tin tuyển dụng hoặc tin chưa được mở." });
             }
             return Ok(job);
         }

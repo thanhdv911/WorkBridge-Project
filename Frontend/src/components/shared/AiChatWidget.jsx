@@ -173,7 +173,7 @@ const AiChatWidget = () => {
   const showAiGate = isAiVipRole && (checkingVip || !isVip);
   const aiLockMessage = role === 'Employer'
     ? 'AI tuyển dụng, xếp ca và tính lương chỉ mở cho Doanh nghiệp VIP.'
-    : 'WorkBridge AI tìm việc, gợi ý job và đánh giá CV chỉ mở cho Cá nhân VIP.';
+    : 'WorkBridge AI tìm việc, gợi ý việc làm và đánh giá CV chỉ mở cho Cá nhân VIP.';
   const aiLockTitle = role === 'Employer'
     ? 'Mở khóa AI vận hành tuyển dụng'
     : 'Mở khóa WorkBridge AI cá nhân';
@@ -421,7 +421,7 @@ const AiChatWidget = () => {
         time: new Date()
       }]);
     } catch (error) {
-      const errMsg = error.response?.data?.message || 'Có lỗi xảy ra khi kết nối tới dịch vụ AI.';
+      const errMsg = error.response?.data?.message || 'Không kết nối được trợ lý AI. Vui lòng thử lại sau.';
       setAiMessages(prev => [...prev, { id: `${Date.now()}-error`, sender: 'ai', text: errMsg, time: new Date() }]);
     } finally {
       setAiLoading(false);
@@ -431,7 +431,7 @@ const AiChatWidget = () => {
   const aiChips = role === 'Employer'
     ? [
         { label: 'Mở/chốt lịch', text: 'AI tự mở đăng ký ca tuần sau và tự chốt ca vào thời điểm nào trong WorkBridge?' },
-        { label: 'Xếp ca', text: 'Làm thế nào để dùng AI Auto-Scheduler xếp ca hiệu quả?' },
+        { label: 'Xếp ca', text: 'Làm thế nào để dùng AI tự động xếp lịch hiệu quả?' },
         { label: 'VIP', text: 'Gói VIP Doanh nghiệp có những tính năng gì nổi bật?' }
       ]
     : [

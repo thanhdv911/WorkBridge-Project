@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api, { getApiErrorMessage } from '../services/api';
 import toast from 'react-hot-toast';
 import ReportModal from '../components/shared/ReportModal';
 import { signalRService } from '../services/signalrService';
@@ -26,13 +26,6 @@ const parseVND = (value) => {
     if (!value) return 0;
     return Number(String(value).replace(/\D/g, ''));
 };
-
-const getApiErrorMessage = (error, fallback) => (
-    error.response?.data?.message ||
-    error.response?.data?.title ||
-    error.message ||
-    fallback
-);
 
 const FILTERS = [
     { id: 'all', label: 'Tất cả', icon: 'inbox' },
@@ -975,7 +968,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             <span className="material-symbols-outlined !text-[20px] text-[#1687d9]">contract</span>
                             <div>
                                 <p className="font-black text-slate-800">Lời mời nhận việc</p>
-                                <p className="text-xs text-slate-500">Nhà tuyển dụng đã gửi lời mời. Mở mục Offer để xem chi tiết.</p>
+                                <p className="text-xs text-slate-500">Nhà tuyển dụng đã gửi lời mời. Mở mục Lời mời để xem chi tiết.</p>
                             </div>
                         </div>
                         <button type="button" onClick={() => navigate('/offers')} className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50">

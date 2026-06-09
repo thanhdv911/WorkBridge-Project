@@ -26,7 +26,7 @@ namespace WorkBridge.API.Controllers
             {
                 return userId;
             }
-            throw new System.UnauthorizedAccessException("User ID not found in token.");
+            throw new System.UnauthorizedAccessException("Không tìm thấy mã người dùng trong phiên đăng nhập.");
         }
 
         [HttpGet("profile")]
@@ -111,8 +111,8 @@ namespace WorkBridge.API.Controllers
             {
                 var userId = GetUserId();
                 var success = await _employerService.UpdateJobStatusAsync(userId, id, status);
-                if (!success) return NotFound(new { Message = "Job not found or access denied." });
-                return Ok(new { Message = "Job status updated successfully." });
+                if (!success) return NotFound(new { Message = "Không tìm thấy tin tuyển dụng hoặc bạn không có quyền thao tác." });
+                return Ok(new { Message = "Đã cập nhật trạng thái tin tuyển dụng." });
             }
             catch (System.Exception ex)
             {

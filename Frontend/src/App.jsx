@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -19,29 +19,39 @@ import Interviews from './pages/Interviews';
 import Payslips from './pages/Payslips';
 import AdminDashboard from './pages/AdminDashboard';
 import ResetPassword from './pages/ResetPassword';
+import Maintenance from './pages/Maintenance';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import AiChatWidget from './components/shared/AiChatWidget';
 import VipPromoBanner from './components/shared/VipPromoBanner';
 import api from './services/api';
-import { getVisitorId } from './utils/presence';
+import { presenceRealtimeService } from './services/presenceRealtimeService';
+import { getVisitorId, PRESENCE_REFRESH_MS } from './utils/presence';
 import './index.css';
 
 function PresenceHeartbeat() {
+  const location = useLocation();
+
   useEffect(() => {
+    if (location.pathname === '/') return undefined;
+
     let cancelled = false;
     const visitorId = getVisitorId();
 
     const sendHeartbeat = async () => {
       try {
-        await api.post('/home/presence', { visitorId });
+        await api.post('/home/presence', { visitorId, pageSize: 5 });
       } catch {
         // Presence is decorative; never interrupt the app if it fails.
       }
     };
 
     sendHeartbeat();
-    const interval = window.setInterval(sendHeartbeat, 25000);
+    const interval = window.setInterval(sendHeartbeat, PRESENCE_REFRESH_MS);
 
     const handleVisibilityChange = () => {
       if (!cancelled && document.visibilityState === 'visible') {
@@ -50,13 +60,70 @@ function PresenceHeartbeat() {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', sendHeartbeat);
+    window.addEventListener('online', sendHeartbeat);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', sendHeartbeat);
+      window.removeEventListener('online', sendHeartbeat);
     };
-  }, []);
+  }, [location.pathname]);
+
+  return null;
+}
+
+function PresenceRealtime() {
+  const location = useLocation();
+  const token = localStorage.getItem('token') || '';
+
+  useEffect(() => {
+    presenceRealtimeService.start();
+  }, [location.pathname, token]);
+
+  return null;
+}
+
+function MaintenanceGate() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkMaintenance = async () => {
+      try {
+        const res = await api.get('/platform/maintenance');
+        const maintenance = res.data;
+        const isAdmin = localStorage.getItem('role') === 'Admin';
+
+        if (maintenance?.isActive) {
+          sessionStorage.setItem('workbridge_maintenance', JSON.stringify(maintenance));
+          if (!isAdmin && location.pathname !== '/maintenance') {
+            navigate('/maintenance', { replace: true });
+          }
+          return;
+        }
+
+        sessionStorage.removeItem('workbridge_maintenance');
+        if (!cancelled && location.pathname === '/maintenance') {
+          navigate('/', { replace: true });
+        }
+      } catch {
+        // API failures are handled by the page-level requests and the 503 interceptor.
+      }
+    };
+
+    checkMaintenance();
+    const interval = window.setInterval(checkMaintenance, 60000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [location.pathname, navigate]);
 
   return null;
 }
@@ -64,15 +131,18 @@ function PresenceHeartbeat() {
 function App() {
   const location = useLocation();
   const isAuthPage = ['/login', '/signup', '/auth', '/reset-password'].includes(location.pathname);
+  const isSystemPage = location.pathname === '/maintenance';
   const appShellRoutes = ['/messages', '/employer-dashboard', '/admin-dashboard'];
-  const hideHeader = isAuthPage;
-  const hideFooter = isAuthPage || appShellRoutes.includes(location.pathname);
-  const hideAiWidget = isAuthPage || location.pathname === '/messages';
-  const hideVipPromo = isAuthPage || location.pathname === '/admin-dashboard';
+  const hideHeader = isAuthPage || isSystemPage;
+  const hideFooter = isAuthPage || isSystemPage || appShellRoutes.includes(location.pathname);
+  const hideAiWidget = isAuthPage || isSystemPage || location.pathname === '/messages';
+  const hideVipPromo = isAuthPage || isSystemPage || location.pathname === '/admin-dashboard';
 
   return (
     <>
       <Toaster position="top-right" />
+      <MaintenanceGate />
+      <PresenceRealtime />
       <PresenceHeartbeat />
       {!hideHeader && <Header />}
       {!hideAiWidget && <AiChatWidget />}
@@ -94,6 +164,11 @@ function App() {
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/payslips" element={<Payslips />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/signup" element={<Auth />} />

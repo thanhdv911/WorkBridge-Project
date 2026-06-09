@@ -135,7 +135,7 @@ namespace WorkBridge.API.Controllers
         {
             var (success, error) = await _workforceService.RemoveShiftAssignmentAsync(GetUserId(), id);
             if (!success) return BadRequest(new { message = error });
-            return Ok(new { message = "Shift assignment removed successfully." });
+            return Ok(new { message = "Đã gỡ nhân viên khỏi ca." });
         }
 
         [HttpPost("shifts/{id}/register")]
@@ -341,7 +341,7 @@ namespace WorkBridge.API.Controllers
                 }
                 else
                 {
-                    return BadRequest(new { message = "EmployerId is required for workers." });
+                    return BadRequest(new { message = "Vui lòng chọn doanh nghiệp để xem cấu hình ca." });
                 }
             }
             return Ok(await _workforceService.GetShiftTimingsAsync(targetEmployerId));
@@ -384,7 +384,7 @@ namespace WorkBridge.API.Controllers
         {
             var (success, error) = await _workforceService.DeleteShiftAsync(GetUserId(), id);
             if (!success) return BadRequest(new { message = error });
-            return Ok(new { message = "Shift deleted successfully." });
+            return Ok(new { message = "Đã xóa ca làm." });
         }
 
         [HttpPost("shifts/delete-week")]
@@ -393,7 +393,7 @@ namespace WorkBridge.API.Controllers
         {
             var (deletedCount, error) = await _workforceService.DeleteShiftsByWeekAsync(GetUserId(), request);
             if (error != null) return BadRequest(new { message = error });
-            return Ok(new { deletedCount, message = $"Deleted {deletedCount} shifts successfully." });
+            return Ok(new { deletedCount, message = $"Đã xóa {deletedCount} ca làm." });
         }
 
         [HttpPost("shifts/auto-schedule-batch")]

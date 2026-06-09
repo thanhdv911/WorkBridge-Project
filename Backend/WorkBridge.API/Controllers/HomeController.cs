@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using WorkBridge.API.Hubs;
 using WorkBridge.Infrastructure.Data;
 using WorkBridge.Application.Services;
+using WorkBridge.API.Services;
 
 namespace WorkBridge.API.Controllers
 {
@@ -18,17 +20,24 @@ namespace WorkBridge.API.Controllers
     [AllowAnonymous]
     public class HomeController : ControllerBase
     {
-        private static readonly ConcurrentDictionary<string, ActiveVisitorPresence> ActiveVisitors = new();
-        private static readonly TimeSpan ActiveVisitorWindow = TimeSpan.FromSeconds(75);
         private readonly IAdminService _adminService;
         private readonly IJobService _jobService;
         private readonly WorkBridgeContext _context;
+        private readonly HomePresenceService _presence;
+        private readonly IHubContext<HomePresenceHub> _presenceHub;
 
-        public HomeController(IAdminService adminService, IJobService jobService, WorkBridgeContext context)
+        public HomeController(
+            IAdminService adminService,
+            IJobService jobService,
+            WorkBridgeContext context,
+            HomePresenceService presence,
+            IHubContext<HomePresenceHub> presenceHub)
         {
             _adminService = adminService;
             _jobService = jobService;
             _context = context;
+            _presence = presence;
+            _presenceHub = presenceHub;
         }
 
         /// <summary>GET platform-wide stats (public)</summary>
@@ -57,30 +66,23 @@ namespace WorkBridge.API.Controllers
 
         /// <summary>POST a lightweight public heartbeat and return current active visitors.</summary>
         [HttpPost("presence")]
-        public IActionResult TrackPresence([FromBody] PresenceHeartbeatRequest? request)
+        public async Task<IActionResult> TrackPresence([FromBody] PresenceHeartbeatRequest? request)
         {
-            var now = DateTime.UtcNow;
             var visitorId = NormalizeVisitorId(request?.VisitorId);
             var currentUserId = GetCurrentUserId();
             var page = Math.Max(1, request?.Page ?? 1);
             var pageSize = Math.Clamp(request?.PageSize ?? 4, 1, 8);
 
-            ActiveVisitors[visitorId] = new ActiveVisitorPresence(visitorId, currentUserId, now);
-            PruneInactiveVisitors(now);
+            var presenceChanged = _presence.TrackPresence($"visitor:{visitorId}", currentUserId);
+            var snapshot = _presence.GetSnapshot(page, pageSize);
 
-            var lastSeenByUserId = ActiveVisitors.Values
-                .Where(visitor => visitor.UserId.HasValue)
-                .GroupBy(visitor => visitor.UserId!.Value)
-                .ToDictionary(group => group.Key, group => group.Max(visitor => visitor.LastSeenAt));
-
-            var onlineUserIds = lastSeenByUserId.Keys.ToList();
-            var onlineUsers = onlineUserIds.Count == 0
+            var onlineUsers = snapshot.OnlineUserIds.Count == 0
                 ? new List<OnlineUserSummary>()
                 : _context.Users
                     .AsNoTracking()
                     .Include(user => user.Role)
                     .Where(user =>
-                        onlineUserIds.Contains(user.UserId) &&
+                        snapshot.OnlineUserIds.Contains(user.UserId) &&
                         !user.IsDeleted &&
                         user.Status == "Active" &&
                         user.Role.RoleName != "Admin")
@@ -98,29 +100,34 @@ namespace WorkBridge.API.Controllers
                         FullName = user.FullName,
                         AvatarUrl = user.AvatarUrl,
                         RoleName = user.RoleName,
-                        LastSeenAt = lastSeenByUserId[user.UserId]
+                        LastSeenAt = snapshot.LastSeenByUserId[user.UserId]
                     })
                     .OrderByDescending(user => user.LastSeenAt)
                     .ThenBy(user => user.FullName)
                     .ToList();
 
             var totalUsers = onlineUsers.Count;
-            var totalPages = Math.Max(1, (int)Math.Ceiling(totalUsers / (double)pageSize));
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalUsers / (double)snapshot.PageSize));
             page = Math.Min(page, totalPages);
+
+            if (presenceChanged)
+            {
+                await _presenceHub.Clients.All.SendAsync(HomePresenceHub.PresenceChangedEvent);
+            }
 
             return Ok(new
             {
                 onlineCount = totalUsers,
-                activeVisitorCount = ActiveVisitors.Count,
+                activeVisitorCount = snapshot.ActiveVisitorCount,
                 users = onlineUsers
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
+                    .Skip((page - 1) * snapshot.PageSize)
+                    .Take(snapshot.PageSize)
                     .ToList(),
                 page,
-                pageSize,
+                pageSize = snapshot.PageSize,
                 totalPages,
-                activeWindowSeconds = (int)ActiveVisitorWindow.TotalSeconds,
-                updatedAt = now
+                activeWindowSeconds = snapshot.ActiveWindowSeconds,
+                updatedAt = snapshot.UpdatedAt
             });
         }
 
@@ -133,17 +140,6 @@ namespace WorkBridge.API.Controllers
             }
 
             return Guid.NewGuid().ToString("N");
-        }
-
-        private static void PruneInactiveVisitors(DateTime now)
-        {
-            foreach (var item in ActiveVisitors)
-            {
-                if (now - item.Value.LastSeenAt > ActiveVisitorWindow)
-                {
-                    ActiveVisitors.TryRemove(item.Key, out _);
-                }
-            }
         }
 
         private int? GetCurrentUserId()
@@ -161,8 +157,6 @@ namespace WorkBridge.API.Controllers
         public int? Page { get; set; }
         public int? PageSize { get; set; }
     }
-
-    public sealed record ActiveVisitorPresence(string VisitorId, int? UserId, DateTime LastSeenAt);
 
     public class OnlineUserSummary
     {

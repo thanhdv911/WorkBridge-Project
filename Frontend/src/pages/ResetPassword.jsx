@@ -17,7 +17,7 @@ export default function ResetPassword() {
     e.preventDefault();
 
     if (!email || !token) {
-      toast.error('Link đặt lại mật khẩu không hợp lệ.');
+      toast.error('Liên kết đặt lại mật khẩu không hợp lệ.');
       return;
     }
 
@@ -41,7 +41,7 @@ export default function ResetPassword() {
       toast.success(response.data?.message || 'Đã đặt lại mật khẩu.');
       navigate('/login');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể đặt lại mật khẩu. Link có thể đã hết hạn.');
+      toast.error(error.response?.data?.message || 'Không thể đặt lại mật khẩu. Liên kết có thể đã hết hạn.');
     } finally {
       setSubmitting(false);
     }
@@ -57,13 +57,13 @@ export default function ResetPassword() {
             <WorkBridgeLogo imageClassName="h-[52px] w-auto max-w-[210px] drop-shadow-[0_6px_14px_rgba(37,99,235,0.14)]" />
           </Link>
           <h1 className="mt-6 text-2xl font-black text-slate-900">Tạo mật khẩu mới</h1>
-          <p className="mt-2 text-sm text-slate-500">Link đặt lại mật khẩu chỉ dùng được một lần và sẽ hết hạn sau 30 phút.</p>
+          <p className="mt-2 text-sm text-slate-500">Liên kết đặt lại mật khẩu chỉ dùng được một lần và sẽ hết hạn sau 30 phút.</p>
         </div>
 
         {invalidLink ? (
           <div className="p-6">
             <div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-sm text-red-700">
-              Link đặt lại mật khẩu không hợp lệ hoặc thiếu thông tin.
+              Liên kết đặt lại mật khẩu không hợp lệ hoặc thiếu thông tin.
             </div>
             <Link to="/login" className="mt-5 flex h-11 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm">
               Quay lại đăng nhập

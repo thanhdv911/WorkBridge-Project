@@ -31,7 +31,7 @@ namespace WorkBridge.API.Controllers
             var error = await _reviewService.CreateReviewAsync(userId, request);
             if (error != null) return BadRequest(new { message = error });
 
-            return Ok(new { message = "Review submitted successfully" });
+            return Ok(new { message = "Đã gửi đánh giá." });
         }
 
         [HttpGet("user/{id}")]

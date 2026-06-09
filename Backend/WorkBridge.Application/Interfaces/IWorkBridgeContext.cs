@@ -14,6 +14,7 @@ namespace WorkBridge.Application.Interfaces
         DbSet<Branch> Branches { get; set; }
         DbSet<EmployeeRate> EmployeeRates { get; set; }
         DbSet<Employment> Employments { get; set; }
+        DbSet<EmailVerificationRequest> EmailVerificationRequests { get; set; }
         DbSet<JobApplication> Applications { get; set; }
         DbSet<EmployerProfile> EmployerProfiles { get; set; }
         DbSet<JobCategory> JobCategories { get; set; }
@@ -26,6 +27,7 @@ namespace WorkBridge.Application.Interfaces
         DbSet<PayrollItem> PayrollItems { get; set; }
         DbSet<PayrollPeriod> PayrollPeriods { get; set; }
         DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        DbSet<PlatformMaintenanceSetting> PlatformMaintenanceSettings { get; set; }
         DbSet<Report> Reports { get; set; }
         DbSet<Review> Reviews { get; set; }
         DbSet<Role> Roles { get; set; }

@@ -31,11 +31,11 @@ namespace WorkBridge.Application.Services
                                      && r.JobPostId == request.JobPostId 
                                      && !r.IsDeleted);
 
-            if (existingReview != null) return "You have already reviewed this person for this job.";
+            if (existingReview != null) return "Bạn đã đánh giá người này cho công việc này rồi.";
 
             // Verify if the JobPost exists
             var job = await _context.JobPosts.FindAsync(request.JobPostId);
-            if (job == null) return "Job post not found.";
+            if (job == null) return "Không tìm thấy tin tuyển dụng.";
 
             var review = new Review
             {
@@ -55,8 +55,8 @@ namespace WorkBridge.Application.Services
             var reviewer = await _context.Users.FindAsync(reviewerId);
             await _notificationService.CreateNotificationAsync(
                 request.RevieweeId,
-                "New Review Received",
-                $"{reviewer?.FullName ?? "Someone"} has given you a {request.Rating}-star rating for the job: {job.Title}"
+                "Bạn có đánh giá mới",
+                $"{reviewer?.FullName ?? "Một người dùng"} đã đánh giá bạn {request.Rating} sao cho công việc: {job.Title}"
             );
 
             return null; // Success

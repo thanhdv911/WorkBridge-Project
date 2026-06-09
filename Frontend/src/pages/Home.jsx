@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { presenceRealtimeService } from '../services/presenceRealtimeService';
 import GoongAddressPicker from '../components/shared/GoongAddressPicker';
 import { translateCategory, translatePayUnit } from '../utils/translate';
+import { getVisitorId, PRESENCE_REFRESH_MS } from '../utils/presence';
 
 const compactLocationLabel = (label = '') => {
   const parts = String(label || '').split(',').map(part => part.trim()).filter(Boolean);
@@ -20,6 +22,19 @@ const compactLocationLabel = (label = '') => {
 const formatPayRate = (value) => {
   const numeric = Number(value || 0);
   return Number.isFinite(numeric) ? numeric.toLocaleString('vi-VN') : value;
+};
+
+const normalizePresence = (payload = {}) => ({
+  users: Array.isArray(payload.users) ? payload.users : [],
+  page: Math.max(1, Number(payload.page || 1)),
+  totalPages: Math.max(1, Number(payload.totalPages || 1)),
+  updatedAt: payload.updatedAt || null
+});
+
+const presenceRoleLabel = (roleName = '') => {
+  if (roleName === 'Employer') return 'Doanh nghiệp';
+  if (roleName === 'Applicant') return 'Ứng viên';
+  return 'Thành viên';
 };
 
 const canUseHeroPointerTilt = () => (
@@ -107,6 +122,52 @@ function useHeroPointerTilt() {
   }, [pointerEffects]);
 
   return { heroRef, pointerEffects };
+}
+
+function usePresenceSnapshot(page = 1, pageSize = 5) {
+  const [presence, setPresence] = useState(() => normalizePresence());
+
+  useEffect(() => {
+    let cancelled = false;
+    const visitorId = getVisitorId();
+
+    const refreshPresence = async () => {
+      try {
+        const res = await api.post('/home/presence', { visitorId, page, pageSize });
+        if (!cancelled) setPresence(normalizePresence(res.data));
+      } catch {
+        if (!cancelled) {
+          setPresence((current) => current || normalizePresence());
+        }
+      }
+    };
+
+    refreshPresence();
+    const intervalId = window.setInterval(refreshPresence, PRESENCE_REFRESH_MS);
+
+    const handleVisibilityChange = () => {
+      if (!cancelled && document.visibilityState === 'visible') {
+        refreshPresence();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', refreshPresence);
+    window.addEventListener('online', refreshPresence);
+    presenceRealtimeService.on('HomePresenceChanged', refreshPresence);
+    presenceRealtimeService.start();
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', refreshPresence);
+      window.removeEventListener('online', refreshPresence);
+      presenceRealtimeService.off('HomePresenceChanged', refreshPresence);
+    };
+  }, [page, pageSize]);
+
+  return presence;
 }
 
 export default function Home() {
@@ -305,6 +366,8 @@ function Hero({ heroRef }) {
             ))}
           </div>
 
+          <OnlinePresencePanel />
+
         </div>
 
         <div className="home-scene relative hidden min-h-[430px] xl:block" aria-label="Minh họa WorkBridge">
@@ -365,6 +428,63 @@ function Hero({ heroRef }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function OnlinePresencePanel() {
+  const [page, setPage] = useState(1);
+  const presence = usePresenceSnapshot(page, 5);
+  const onlineUsers = presence.users || [];
+  const totalPages = Math.max(1, presence.totalPages || 1);
+  const currentPage = Math.min(page, totalPages);
+  const hasPages = totalPages > 1;
+
+  const goToPreviousPage = () => setPage(Math.max(1, currentPage - 1));
+  const goToNextPage = () => setPage(Math.min(totalPages, currentPage + 1));
+
+  return (
+    <aside className="home-presence-card" aria-label="Người dùng đang online">
+      <div className="home-presence-head">
+        <div className="flex items-center gap-2">
+          <span className="home-presence-dot" aria-hidden="true" />
+          <p className="text-[11px] font-black text-emerald-700">Đang online</p>
+        </div>
+      </div>
+
+      <div className="home-presence-users">
+        {onlineUsers.length > 0 ? onlineUsers.map((user) => (
+          <article key={user.userId} className="home-presence-user">
+            <div className="min-w-0">
+              <p className="home-presence-name">{user.fullName || 'Người dùng WorkBridge'}</p>
+              <p className="home-presence-role">{presenceRoleLabel(user.roleName)}</p>
+            </div>
+          </article>
+        )) : (
+          <p className="home-presence-empty">Chưa có thành viên đăng nhập đang online</p>
+        )}
+      </div>
+
+      {hasPages && (
+        <div className="home-presence-pages" aria-label="Phân trang người online">
+          <button
+            type="button"
+            onClick={goToPreviousPage}
+            disabled={currentPage <= 1}
+            aria-label="Xem nhóm online trước"
+          >
+            <span className="material-symbols-outlined !text-[17px]">chevron_left</span>
+          </button>
+          <button
+            type="button"
+            onClick={goToNextPage}
+            disabled={currentPage >= totalPages}
+            aria-label="Xem nhóm online sau"
+          >
+            <span className="material-symbols-outlined !text-[17px]">chevron_right</span>
+          </button>
+        </div>
+      )}
+    </aside>
   );
 }
 

@@ -64,7 +64,7 @@ const EmployerOffers = () => {
     );
 
     return (
-        <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden min-w-0">
+        <section className="profile-panel min-w-0 overflow-hidden rounded-2xl">
             <div className="px-5 sm:px-6 py-5 border-b border-slate-100">
                 <h2 className="text-xl font-bold text-slate-800">Lời mời nhận việc</h2>
                 <p className="text-slate-500 text-sm mt-1">Theo dõi trạng thái các lời mời nhận việc chính thức đã gửi cho ứng viên.</p>
@@ -74,8 +74,8 @@ const EmployerOffers = () => {
                 <div className="p-10 text-center text-slate-400">Đang tải danh sách lời mời...</div>
             ) : offers.length === 0 ? (
                 <div className="p-10 text-center">
-                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
-                        <span className="material-symbols-outlined text-slate-300">contract</span>
+                    <div className="w-16 h-16 rounded-2xl bg-sky-50 flex items-center justify-center mx-auto mb-4">
+                        <span className="material-symbols-outlined text-primary">contract</span>
                     </div>
                     <h3 className="text-lg font-bold text-slate-700">Chưa có lời mời nào được gửi</h3>
                     <p className="text-slate-500 mt-1">Phê duyệt ứng viên tại trang Đánh giá ứng viên, sau đó gửi lời mời nhận việc.</p>
@@ -99,8 +99,8 @@ const EmployerOffers = () => {
                                 )}
                             </div>
                             <div className="text-sm text-slate-600">
-                                <p className="font-bold">{Number(offer.hourlyRate).toLocaleString()} VNĐ/giờ</p>
-                                <p className="text-xs text-slate-400">Bắt đầu: {new Date(offer.startDate).toLocaleDateString()}</p>
+                                <p className="font-bold">{Number(offer.hourlyRate).toLocaleString('vi-VN')} đ/giờ</p>
+                                <p className="text-xs text-slate-400">Bắt đầu: {new Date(offer.startDate).toLocaleDateString('vi-VN')}</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusClass(offer.status)} self-start lg:self-center`}>
                                 {getStatusText(offer.status)}

@@ -7,8 +7,9 @@ namespace WorkBridge.Application.Services
 {
     public interface IAuthService
     {
-        Task<AuthResponse?> LoginAsync(LoginRequest request);
-        Task<AuthResponse?> RegisterAsync(RegisterRequest request);
+        Task<(AuthResponse? Response, string? Error)> LoginAsync(LoginRequest request);
+        Task<(RegisterStartResponse? Response, string? Error)> RegisterAsync(RegisterRequest request);
+        Task<(AuthResponse? Response, string? Error)> VerifyRegistrationAsync(VerifyRegisterEmailRequest request);
         Task<AuthResponse?> LoginWithGoogleAsync(ExternalAuthRequest request);
         Task<AuthResponse?> LoginWithFacebookAsync(FacebookAuthRequest request);
         Task RequestPasswordResetAsync(ForgotPasswordRequest request);

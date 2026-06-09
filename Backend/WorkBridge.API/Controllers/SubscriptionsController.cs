@@ -40,7 +40,7 @@ namespace WorkBridge.API.Controllers
             var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
             if (normalizedAudience == null)
             {
-                return BadRequest(new { message = "Khong xac dinh duoc loai goi VIP." });
+                return BadRequest(new { message = "Không xác định được loại gói VIP." });
             }
 
             var plans = await _context.SubscriptionPlans
@@ -60,7 +60,7 @@ namespace WorkBridge.API.Controllers
             var audience = GetCurrentAudience();
             if (audience == null)
             {
-                return BadRequest(new { message = "Tai khoan nay khong the mua goi VIP." });
+                return BadRequest(new { message = "Tài khoản này không thể mua gói VIP." });
             }
 
             try
@@ -92,7 +92,7 @@ namespace WorkBridge.API.Controllers
             var result = await _paymentService.ConfirmAsync(GetUserId(), subscriptionId);
             if (result == null)
             {
-                return NotFound(new { message = "Khong tim thay giao dich dang ky." });
+                return NotFound(new { message = "Không tìm thấy giao dịch đăng ký." });
             }
 
             return result.Paid ? Ok(result) : BadRequest(result);
@@ -108,8 +108,8 @@ namespace WorkBridge.API.Controllers
                 return NotFound(new
                 {
                     message = subscriptionId.HasValue
-                        ? "Khong tim thay giao dich VIP hien tai dang cho thanh toan."
-                        : "Khong tim thay giao dich VIP dang cho thanh toan.",
+                        ? "Không tìm thấy giao dịch VIP hiện tại đang chờ thanh toán."
+                        : "Không tìm thấy giao dịch VIP đang chờ thanh toán.",
                     paid = false
                 });
             }
@@ -122,14 +122,14 @@ namespace WorkBridge.API.Controllers
         {
             if (!subscriptionId.HasValue && !orderCode.HasValue)
             {
-                return BadRequest(new { message = "Can subscriptionId hoac orderCode de kiem tra thanh toan.", paid = false });
+                return BadRequest(new { message = "Cần subscriptionId hoặc orderCode để kiểm tra thanh toán.", paid = false });
             }
 
             var normalizedAudience = NormalizeAudience(audience) ?? GetCurrentAudience();
             var result = await _paymentService.GetPaymentStatusAsync(GetUserId(), normalizedAudience, subscriptionId, orderCode);
             if (result == null)
             {
-                return NotFound(new { message = "Khong tim thay giao dich VIP.", paid = false });
+                return NotFound(new { message = "Không tìm thấy giao dịch VIP.", paid = false });
             }
 
             return Ok(result);
@@ -149,7 +149,7 @@ namespace WorkBridge.API.Controllers
 
             if (result == null)
             {
-                return NotFound(new { message = "Khong tim thay giao dich VIP dang cho de huy." });
+                return NotFound(new { message = "Không tìm thấy giao dịch VIP đang chờ để hủy." });
             }
 
             return Ok(result);
@@ -179,9 +179,9 @@ namespace WorkBridge.API.Controllers
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                return StatusCode(500, new { success = false, message = "Không thể xử lý webhook PayOS lúc này." });
             }
         }
 
@@ -273,7 +273,7 @@ namespace WorkBridge.API.Controllers
             var exists = await _context.SubscriptionPlans.AnyAsync(p => p.Audience == audience && p.Code == code);
             if (exists)
             {
-                return BadRequest(new { message = "Ma goi da ton tai trong nhom tai khoan nay." });
+                return BadRequest(new { message = "Mã gói đã tồn tại trong nhóm tài khoản này." });
             }
 
             var plan = new SubscriptionPlan
@@ -303,7 +303,7 @@ namespace WorkBridge.API.Controllers
             var plan = await _context.SubscriptionPlans.FirstOrDefaultAsync(p => p.SubscriptionPlanId == planId);
             if (plan == null)
             {
-                return NotFound(new { message = "Khong tim thay goi VIP." });
+                return NotFound(new { message = "Không tìm thấy gói VIP." });
             }
 
             var validation = ValidatePlanRequest(request);
@@ -320,7 +320,7 @@ namespace WorkBridge.API.Controllers
                 .AnyAsync(p => p.SubscriptionPlanId != planId && p.Audience == audience && p.Code == code);
             if (exists)
             {
-                return BadRequest(new { message = "Ma goi da ton tai trong nhom tai khoan nay." });
+                return BadRequest(new { message = "Mã gói đã tồn tại trong nhóm tài khoản này." });
             }
 
             plan.Audience = audience;
@@ -377,11 +377,11 @@ namespace WorkBridge.API.Controllers
 
         private static string? ValidatePlanRequest(SubscriptionPlanRequest request)
         {
-            if (request == null) return "Du lieu goi VIP khong hop le.";
-            if (NormalizeAudience(request.Audience) == null) return "Loai tai khoan phai la Applicant hoac Employer.";
-            if (string.IsNullOrWhiteSpace(request.Name)) return "Ten goi khong duoc de trong.";
-            if (!AllowedDurations.Contains(request.DurationDays)) return "Chi duoc tao goi 7 ngay, 1 thang hoac 1 nam.";
-            if (request.Price <= 0) return "Gia goi phai lon hon 0.";
+            if (request == null) return "Dữ liệu gói VIP không hợp lệ.";
+            if (NormalizeAudience(request.Audience) == null) return "Loại tài khoản phải là Applicant hoặc Employer.";
+            if (string.IsNullOrWhiteSpace(request.Name)) return "Tên gói không được để trống.";
+            if (!AllowedDurations.Contains(request.DurationDays)) return "Chỉ được tạo gói 7 ngày, 1 tháng hoặc 1 năm.";
+            if (request.Price <= 0) return "Giá gói phải lớn hơn 0.";
             return null;
         }
 

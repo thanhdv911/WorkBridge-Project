@@ -33,10 +33,10 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> GetApplicantProfile()
         {
             int userId = GetCurrentUserId();
-            if (userId == 0) return Unauthorized("Invalid token format.");
+            if (userId == 0) return Unauthorized(new { message = "Phiên đăng nhập không hợp lệ." });
 
             var profile = await _profileService.GetApplicantProfileAsync(userId);
-            if (profile == null) return NotFound("User not found or not an applicant.");
+            if (profile == null) return NotFound(new { message = "Không tìm thấy hồ sơ ứng viên." });
 
             return Ok(profile);
         }
@@ -50,19 +50,19 @@ namespace WorkBridge.API.Controllers
             }
 
             int userId = GetCurrentUserId();
-            if (userId == 0) return Unauthorized("Invalid token format.");
+            if (userId == 0) return Unauthorized(new { message = "Phiên đăng nhập không hợp lệ." });
 
             var success = await _profileService.UpdateApplicantProfileAsync(userId, request);
-            if (!success) return NotFound("User not found.");
+            if (!success) return NotFound(new { message = "Không tìm thấy người dùng." });
 
-            return Ok(new { Message = "Profile updated successfully." });
+            return Ok(new { Message = "Đã cập nhật hồ sơ." });
         }
 
         [HttpGet("applicant/{id}")]
         public async Task<IActionResult> GetApplicantProfileById(int id)
         {
             var profile = await _profileService.GetApplicantProfileAsync(id);
-            if (profile == null) return NotFound("User not found or not an applicant.");
+            if (profile == null) return NotFound(new { message = "Không tìm thấy hồ sơ ứng viên." });
 
             return Ok(profile);
         }
@@ -72,18 +72,18 @@ namespace WorkBridge.API.Controllers
         {
             const long maxPdfSizeBytes = 5 * 1024 * 1024;
 
-            if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
-            if (file.Length > maxPdfSizeBytes) return BadRequest("CV PDF must be 5MB or smaller.");
+            if (file == null || file.Length == 0) return BadRequest(new { message = "Vui lòng chọn file CV." });
+            if (file.Length > maxPdfSizeBytes) return BadRequest(new { message = "CV PDF phải có dung lượng tối đa 5MB." });
             if (System.IO.Path.GetExtension(file.FileName).ToLower() != ".pdf")
-                return BadRequest("Only PDF files are allowed.");
+                return BadRequest(new { message = "Chỉ hỗ trợ file PDF." });
             if (!string.Equals(file.ContentType, "application/pdf", System.StringComparison.OrdinalIgnoreCase))
-                return BadRequest("Only PDF files are allowed.");
+                return BadRequest(new { message = "Chỉ hỗ trợ file PDF." });
 
             int userId = GetCurrentUserId();
             if (userId == 0) return Unauthorized();
 
             var cvUrl = await _profileService.UploadCvAsync(userId, file);
-            if (cvUrl == null) return NotFound("User not found.");
+            if (cvUrl == null) return NotFound(new { message = "Không tìm thấy người dùng." });
 
             return Ok(new { CvUrl = cvUrl });
         }
@@ -95,15 +95,15 @@ namespace WorkBridge.API.Controllers
             if (userId == 0) return Unauthorized();
 
             var success = await _profileService.DeleteCvAsync(userId);
-            if (!success) return NotFound("User not found.");
+            if (!success) return NotFound(new { message = "Không tìm thấy người dùng." });
 
-            return Ok(new { CvUrl = (string?)null, Message = "CV deleted successfully." });
+            return Ok(new { CvUrl = (string?)null, Message = "Đã xóa CV." });
         }
 
         [HttpPost("applicant/save-generated-cv")]
         public async Task<IActionResult> SaveGeneratedCv([FromBody] SaveGeneratedCvRequest request)
         {
-            if (request == null) return BadRequest("Invalid CV data.");
+            if (request == null) return BadRequest(new { message = "Dữ liệu CV không hợp lệ." });
 
             int userId = GetCurrentUserId();
             if (userId == 0) return Unauthorized();
@@ -120,7 +120,7 @@ namespace WorkBridge.API.Controllers
             }
 
             var cvUrl = await _profileService.SaveGeneratedCvAsync(userId, request);
-            if (cvUrl == null) return NotFound("User not found.");
+            if (cvUrl == null) return NotFound(new { message = "Không tìm thấy người dùng." });
 
             return Ok(new { CvUrl = cvUrl });
         }

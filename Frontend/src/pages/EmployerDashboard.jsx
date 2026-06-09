@@ -141,16 +141,20 @@ export default function EmployerDashboard() {
   ];
 
   return (
-    <div className="bg-bg-light min-h-[calc(100vh-64px)] font-display text-slate-900 pb-12 overflow-x-hidden">
-      {/* Welcome Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-10">
-        <div className="absolute w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(19,146,236,.18),transparent_70%)] -top-20 -right-10 rounded-full pointer-events-none blur-[60px]"></div>
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="applicant-shell min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 font-display text-slate-900">
+      <section className="applicant-page-hero">
+        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col justify-between gap-4 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
           <div>
-            <h1 className="anim-fadeUp text-2xl lg:text-3xl font-black tracking-tight">
-              Quản lý <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Tuyển dụng</span>
+            <span className="applicant-eyebrow">
+              <span className="material-symbols-outlined !text-[15px]">domain</span>
+              Không gian doanh nghiệp
+            </span>
+            <h1 className="anim-fadeUp mt-4 text-3xl font-black text-white lg:text-4xl">
+              Quản lý tuyển dụng
             </h1>
-            <p className="anim-fadeUp-d1 mt-1 text-sm text-slate-400">Quản lý hồ sơ công ty và tin tuyển dụng.</p>
+            <p className="anim-fadeUp-d1 mt-2 max-w-2xl text-sm font-medium leading-relaxed text-sky-100">
+              Quản lý hồ sơ công ty, tin tuyển dụng, ứng viên, ca làm và bảng lương trong một bảng điều khiển đồng bộ.
+            </p>
           </div>
           <button
             onClick={() => handleTabChange('post-job')}
@@ -161,11 +165,10 @@ export default function EmployerDashboard() {
         </div>
       </section>
 
-      {/* Stats */}
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10 mb-8">
+      <div className="applicant-page-content mx-auto mb-8 w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {stats.map((stat, idx) => (
-            <div key={idx} className={`anim-fadeUp card-lift bg-white rounded-2xl border border-slate-200/70 shadow-sm p-5`} style={{animationDelay: `${idx * 0.12}s`}}>
+            <div key={idx} className="applicant-card anim-fadeUp card-lift p-5" style={{animationDelay: `${idx * 0.12}s`}}>
                <div className="flex items-center justify-between mb-3">
                   <div className={`w-11 h-11 rounded-xl ${stat.bg} flex items-center justify-center`}>
                     <span className={`material-symbols-outlined ${stat.color} !text-2xl`}>{stat.icon}</span>
@@ -178,9 +181,8 @@ export default function EmployerDashboard() {
         </div>
       </div>
 
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 lg:gap-8 min-w-0">
-        {/* Sidebar Nav */}
-        <aside className="space-y-2">
+      <div className="mx-auto grid w-full max-w-[1440px] min-w-0 gap-6 px-4 sm:px-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-8 lg:px-8">
+        <aside className="profile-sidebar-card h-fit rounded-2xl p-3 lg:sticky lg:top-24">
           <button
             onClick={() => handleTabChange('profile')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'profile' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
@@ -259,7 +261,6 @@ export default function EmployerDashboard() {
           </button>
         </aside>
 
-        {/* Content Area */}
         <main className="min-w-0">
           {activeTab === 'profile' && <EmployerProfileTab />}
           {activeTab === 'post-job' && (

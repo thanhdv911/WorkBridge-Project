@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import JobCard from '../components/jobs/JobCard';
@@ -37,7 +38,7 @@ export default function SavedJobs() {
       if (error.response?.status === 401) {
         toast.error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       } else {
-        toast.error('Không thể tải danh sách việc yêu thích.');
+        toast.error('Không thể tải danh sách việc đã lưu.');
       }
     } finally {
       setLoading(false);
@@ -50,7 +51,7 @@ export default function SavedJobs() {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Đã bỏ lưu việc làm.');
-      setSavedJobs(prev => prev.filter(j => j.jobPostId !== jobId));
+      setSavedJobs((prev) => prev.filter((job) => job.jobPostId !== jobId));
     } catch (error) {
       console.error('Error unsaving job:', error);
       toast.error('Không thể bỏ lưu việc làm.');
@@ -59,8 +60,8 @@ export default function SavedJobs() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-bg-light">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+      <div className="applicant-shell flex min-h-screen items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
       </div>
     );
   }
@@ -71,37 +72,46 @@ export default function SavedJobs() {
   );
 
   return (
-    <div className="bg-bg-light min-h-[calc(100vh-64px)] font-display text-slate-900 pb-20">
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-14">
-        <div className="absolute w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(19,146,236,.18),transparent_70%)] -top-20 -right-10 rounded-full pointer-events-none blur-[60px]"></div>
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h1 className="anim-fadeUp text-3xl lg:text-4xl font-black tracking-tight mb-2">
-            Việc Đã <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Lưu</span>
-          </h1>
-          <p className="anim-fadeUp-d1 text-sm text-slate-400">Theo dõi các cơ hội bạn quan tâm.</p>
+    <div className="applicant-shell min-h-screen pb-20 font-display text-slate-900">
+      <section className="applicant-page-hero">
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <span className="applicant-eyebrow">
+            <span className="material-symbols-outlined !text-[15px]">bookmark</span>
+            Bộ sưu tập công việc
+          </span>
+          <h1 className="mt-4 text-3xl font-black text-white lg:text-4xl">Việc đã lưu</h1>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-sky-100">
+            Giữ lại những cơ hội bạn quan tâm để so sánh, đọc lại và ứng tuyển khi sẵn sàng.
+          </p>
         </div>
       </section>
 
-      <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+      <main className="applicant-page-content mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
         {savedJobs.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200/70 shadow-sm p-20 text-center anim-fadeUp-d2">
-            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6">
-              <span className="material-symbols-outlined text-slate-300 !text-4xl">bookmark_border</span>
+          <div className="applicant-empty-card animate-fadeInUp p-12 text-center sm:p-20">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-sky-50 text-primary">
+              <span className="material-symbols-outlined !text-4xl">bookmark_border</span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-800">Chưa có việc đã lưu</h2>
-            <p className="text-slate-500 mt-2 mb-8 max-w-md mx-auto">Khám phá các vị trí và nhấn biểu tượng trái tim để lưu lại.</p>
-            <a href="/jobs" className="inline-flex items-center h-12 px-8 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all">
-               Tìm việc
-            </a>
+            <h2 className="text-2xl font-black text-slate-800">Chưa có việc đã lưu</h2>
+            <p className="mx-auto mb-8 mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+              Khám phá các vị trí phù hợp và nhấn biểu tượng lưu để quay lại nhanh hơn.
+            </p>
+            <Link
+              to="/jobs"
+              className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-8 font-bold text-white shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:bg-primary-dk"
+            >
+              <span className="material-symbols-outlined !text-lg">search</span>
+              Tìm việc
+            </Link>
           </div>
         ) : (
-          <div className="anim-fadeUp-d2">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {paginatedSavedJobs.map(job => (
+          <div className="animate-fadeInUp">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {paginatedSavedJobs.map((job) => (
                 <JobCard
                   key={job.jobPostId}
                   job={job}
-                  isSaved={true}
+                  isSaved
                   onToggleSave={handleUnsave}
                 />
               ))}
@@ -112,7 +122,7 @@ export default function SavedJobs() {
               itemsPerPage={ITEMS_PER_PAGE}
               onPageChange={setCurrentPage}
               label="việc đã lưu"
-              className="mt-6 rounded-3xl border border-slate-200/70 shadow-sm"
+              className="mt-6 rounded-2xl border border-slate-200/60 shadow-sm"
             />
           </div>
         )}

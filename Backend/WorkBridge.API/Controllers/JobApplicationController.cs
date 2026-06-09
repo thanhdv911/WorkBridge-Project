@@ -25,17 +25,23 @@ namespace WorkBridge.API.Controllers
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
             {
-                return Unauthorized("Invalid user token.");
+                return Unauthorized("Token người dùng không hợp lệ.");
             }
 
-            var error = await _applicationService.ApplyForJobAsync(userId, request);
+            var result = await _applicationService.ApplyForJobAsync(userId, request);
             
-            if (error != null)
+            if (!result.Success)
             {
-                return BadRequest(error);
+                return BadRequest(new
+                {
+                    message = result.Error,
+                    requiresProfileUpdate = result.RequiresProfileUpdate,
+                    missingFields = result.MissingFields,
+                    reputationScore = result.ReputationScore
+                });
             }
 
-            return Ok(new { message = "JobApplication submitted successfully." });
+            return Ok(new { message = "Đơn ứng tuyển đã được gửi thành công.", reputationScore = result.ReputationScore });
         }
 
         [HttpGet("my")]
@@ -45,7 +51,7 @@ namespace WorkBridge.API.Controllers
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
             {
-                return Unauthorized("Invalid user token.");
+                return Unauthorized("Token người dùng không hợp lệ.");
             }
 
             var applications = await _applicationService.GetMyApplicationsAsync(userId);
@@ -59,7 +65,7 @@ namespace WorkBridge.API.Controllers
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
             {
-                return Unauthorized("Invalid user token.");
+                return Unauthorized("Token người dùng không hợp lệ.");
             }
 
             var applications = await _applicationService.GetApplicationsForEmployerAsync(userId);
@@ -73,18 +79,18 @@ namespace WorkBridge.API.Controllers
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
             {
-                return Unauthorized("Invalid user token.");
+                return Unauthorized("Token người dùng không hợp lệ.");
             }
 
             if (request == null || string.IsNullOrWhiteSpace(request.Status))
             {
-                return BadRequest(new { message = "Status is required." });
+                return BadRequest(new { message = "Vui lòng chọn trạng thái." });
             }
 
             var result = await _applicationService.UpdateApplicationStatusAsync(userId, id, request.Status);
             if (!result.Success)
             {
-                if (result.Error?.Contains("not found", System.StringComparison.OrdinalIgnoreCase) == true)
+                if (result.Error?.Contains("Không tìm thấy", System.StringComparison.OrdinalIgnoreCase) == true)
                 {
                     return NotFound(new { message = result.Error });
                 }
@@ -94,7 +100,7 @@ namespace WorkBridge.API.Controllers
 
             return Ok(new
             {
-                message = $"JobApplication status updated to {result.Status}.",
+                message = "Đã cập nhật trạng thái ứng tuyển.",
                 status = result.Status,
                 conversationContactId = result.ConversationContactId,
                 conversationContactName = result.ConversationContactName

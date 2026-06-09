@@ -27,21 +27,21 @@ namespace WorkBridge.Application.Services
 
         public async Task<(OfferResponse? Offer, string? Error)> CreateOfferAsync(int employerId, CreateOfferRequest request)
         {
-            if (request.HourlyRate <= 0) return (null, "Hourly rate must be greater than 0.");
-            if (request.PaydayOfMonth < 1 || request.PaydayOfMonth > 28) return (null, "Payday must be between day 1 and 28.");
-            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Position is required.");
+            if (request.HourlyRate <= 0) return (null, "Mức lương theo giờ phải lớn hơn 0.");
+            if (request.PaydayOfMonth < 1 || request.PaydayOfMonth > 28) return (null, "Ngày trả lương phải nằm trong khoảng 1 - 28.");
+            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Vui lòng nhập vị trí làm việc.");
 
             var branch = await _context.Branches
                 .FirstOrDefaultAsync(b => b.BranchId == request.BranchId && b.EmployerId == employerId && b.IsActive);
-            if (branch == null) return (null, "Branch not found or inactive.");
+            if (branch == null) return (null, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == request.ApplicationId && a.JobPost.EmployerId == employerId && !a.IsDeleted);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
             if (application.Status == "Rejected")
             {
-                return (null, "This application cannot receive an offer at this stage.");
+                return (null, "Hồ sơ này chưa đủ điều kiện để gửi lời mời nhận việc.");
             }
 
             var employerProfile = await _context.EmployerProfiles
@@ -57,7 +57,7 @@ namespace WorkBridge.Application.Services
                 e.Status == "Active");
             if (hasActiveEmployment)
             {
-                return (null, "Applicant is already an active employee for this employer.");
+                return (null, "Ứng viên đã là nhân viên đang hoạt động của doanh nghiệp này.");
             }
 
             var now = DateTime.UtcNow;
@@ -106,10 +106,10 @@ namespace WorkBridge.Application.Services
 
             await TryCreateNotificationAsync(
                 application.ApplicantId,
-                isRevision ? "Job Offer Updated" : "New Job Offer",
+                isRevision ? "Lời mời nhận việc đã cập nhật" : "Lời mời nhận việc mới",
                 isRevision
-                    ? $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond."
-                    : $"You received a job offer for '{application.JobPost.Title}'. Open WorkBridge to review the salary, start date, branch, and accept or decline the offer.",
+                    ? $"Lời mời nhận việc cho '{application.JobPost.Title}' đã được cập nhật. Vui lòng mở WorkBridge để xem lương, chi nhánh, ngày bắt đầu và phản hồi."
+                    : $"Bạn nhận được lời mời nhận việc cho '{application.JobPost.Title}'. Vui lòng mở WorkBridge để xem chi tiết và phản hồi.",
                 $"create offer {offer.OfferId}"
             );
 
@@ -137,24 +137,24 @@ namespace WorkBridge.Application.Services
 
         public async Task<(OfferResponse? Offer, string? Error)> UpdateOfferAsync(int employerId, int offerId, UpdateOfferRequest request)
         {
-            if (request.HourlyRate <= 0) return (null, "Hourly rate must be greater than 0.");
-            if (request.PaydayOfMonth < 1 || request.PaydayOfMonth > 28) return (null, "Payday must be between day 1 and 28.");
-            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Position is required.");
+            if (request.HourlyRate <= 0) return (null, "Mức lương theo giờ phải lớn hơn 0.");
+            if (request.PaydayOfMonth < 1 || request.PaydayOfMonth > 28) return (null, "Ngày trả lương phải nằm trong khoảng 1 - 28.");
+            if (string.IsNullOrWhiteSpace(request.Position)) return (null, "Vui lòng nhập vị trí làm việc.");
 
             var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.EmployerId == employerId);
-            if (offer == null) return (null, "Offer not found.");
-            if (offer.Status != "Sent") return (null, "Only offers awaiting applicant response can be edited.");
+            if (offer == null) return (null, "Không tìm thấy lời mời nhận việc.");
+            if (offer.Status != "Sent") return (null, "Chỉ lời mời đang chờ ứng viên phản hồi mới có thể chỉnh sửa.");
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId && !a.IsDeleted);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
 
             var branch = await _context.Branches.FirstOrDefaultAsync(b =>
                 b.BranchId == request.BranchId &&
                 b.EmployerId == employerId &&
                 b.IsActive);
-            if (branch == null) return (null, "Branch not found or inactive.");
+            if (branch == null) return (null, "Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động.");
 
             var employerProfile = await _context.EmployerProfiles
                 .FirstOrDefaultAsync(ep => ep.EmployerId == employerId);
@@ -167,7 +167,7 @@ namespace WorkBridge.Application.Services
                 e.EmployerId == employerId &&
                 e.EmployeeUserId == offer.ApplicantId &&
                 e.Status == "Active");
-            if (hasActiveEmployment) return (null, "Applicant is already an active employee for this employer.");
+            if (hasActiveEmployment) return (null, "Ứng viên đã là nhân viên đang hoạt động của doanh nghiệp này.");
 
             var now = DateTime.UtcNow;
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -197,8 +197,8 @@ namespace WorkBridge.Application.Services
 
                 await TryCreateNotificationAsync(
                     offer.ApplicantId,
-                    "Job Offer Updated",
-                    $"Your job offer for '{application.JobPost.Title}' was updated. Open WorkBridge to review the new salary, branch, start date, and respond.",
+                    "Lời mời nhận việc đã cập nhật",
+                    $"Lời mời nhận việc cho '{application.JobPost.Title}' đã được cập nhật. Vui lòng mở WorkBridge để xem chi tiết và phản hồi.",
                     $"update offer {offer.OfferId}"
                 );
 
@@ -246,9 +246,9 @@ namespace WorkBridge.Application.Services
         public async Task<(EmploymentResponse? Employment, string? Error)> AcceptOfferAsync(int applicantId, int offerId)
         {
             var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.ApplicantId == applicantId);
-            if (offer == null) return (null, "Offer not found.");
-            if (offer.Status != "Sent") return (null, "Only sent offers can be accepted.");
-            if (offer.ExpiredAt.HasValue && offer.ExpiredAt.Value < DateTime.UtcNow) return (null, "Offer has expired.");
+            if (offer == null) return (null, "Không tìm thấy lời mời nhận việc.");
+            if (offer.Status != "Sent") return (null, "Chỉ lời mời đang chờ phản hồi mới có thể chấp nhận.");
+            if (offer.ExpiredAt.HasValue && offer.ExpiredAt.Value < DateTime.UtcNow) return (null, "Lời mời nhận việc đã hết hạn.");
 
             var activeEmploymentsCount = await _context.Employments
                 .Where(e => e.EmployeeUserId == applicantId && e.Status == "Active")
@@ -264,12 +264,12 @@ namespace WorkBridge.Application.Services
                 e.EmployerId == offer.EmployerId &&
                 e.EmployeeUserId == offer.ApplicantId &&
                 e.Status == "Active");
-            if (hasActiveEmployment) return (null, "You are already an active employee for this employer.");
+            if (hasActiveEmployment) return (null, "Bạn đã là nhân viên đang hoạt động của doanh nghiệp này.");
 
             var application = await _context.Applications
                 .Include(a => a.JobPost)
                 .FirstOrDefaultAsync(a => a.ApplicationId == offer.ApplicationId);
-            if (application == null) return (null, "Application not found.");
+            if (application == null) return (null, "Không tìm thấy hồ sơ ứng tuyển.");
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -321,8 +321,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 offer.EmployerId,
-                "Offer Accepted",
-                $"Your offer for '{application.JobPost.Title}' was accepted. Open WorkBridge to manage the new employee, shifts, and payroll."
+                "Ứng viên đã nhận việc",
+                $"Ứng viên đã chấp nhận lời mời cho '{application.JobPost.Title}'. Vui lòng mở WorkBridge để quản lý nhân viên, ca làm và lương."
             );
 
             var response = await GetEmploymentResponseAsync(employment.EmploymentId);
@@ -344,8 +344,8 @@ namespace WorkBridge.Application.Services
         public async Task<string?> DeclineOfferAsync(int applicantId, int offerId)
         {
             var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.ApplicantId == applicantId);
-            if (offer == null) return "Offer not found.";
-            if (offer.Status != "Sent") return "Only sent offers can be declined.";
+            if (offer == null) return "Không tìm thấy lời mời nhận việc.";
+            if (offer.Status != "Sent") return "Chỉ lời mời đang chờ phản hồi mới có thể từ chối.";
 
             offer.Status = "Declined";
             offer.RespondedAt = DateTime.UtcNow;
@@ -361,8 +361,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 offer.EmployerId,
-                "Offer Declined",
-                "An applicant declined your job offer. Open WorkBridge to review the application, continue chatting, or send a revised offer later."
+                "Ứng viên đã từ chối lời mời",
+                "Ứng viên đã từ chối lời mời nhận việc. Bạn có thể xem lại hồ sơ, tiếp tục nhắn tin hoặc gửi lời mời mới sau."
             );
 
             var offerResponse = await GetOfferResponseAsync(offer.OfferId);
@@ -381,8 +381,8 @@ namespace WorkBridge.Application.Services
         public async Task<string?> CancelOfferAsync(int employerId, int offerId)
         {
             var offer = await _context.Offers.FirstOrDefaultAsync(o => o.OfferId == offerId && o.EmployerId == employerId);
-            if (offer == null) return "Offer not found.";
-            if (offer.Status != "Sent") return "Only sent offers can be cancelled.";
+            if (offer == null) return "Không tìm thấy lời mời nhận việc.";
+            if (offer.Status != "Sent") return "Chỉ lời mời đang chờ phản hồi mới có thể hủy.";
 
             offer.Status = "Cancelled";
             offer.RespondedAt = DateTime.UtcNow;
@@ -398,8 +398,8 @@ namespace WorkBridge.Application.Services
 
             await _notificationService.CreateNotificationAsync(
                 offer.ApplicantId,
-                "Offer Withdrawn",
-                "An employer has withdrawn/cancelled their job offer. Open WorkBridge to view the updated offer status and continue the conversation if needed."
+                "Lời mời nhận việc đã bị hủy",
+                "Nhà tuyển dụng đã hủy lời mời nhận việc. Vui lòng mở WorkBridge để xem trạng thái mới và tiếp tục trao đổi nếu cần."
             );
 
             var offerResponse = await GetOfferResponseAsync(offer.OfferId);
@@ -433,7 +433,7 @@ namespace WorkBridge.Application.Services
                        ApplicantId = offer.ApplicantId,
                        BranchId = offer.BranchId,
                        BranchName = branch.Name,
-                       CompanyName = employer == null ? "WorkBridge Employer" : employer.CompanyName,
+                       CompanyName = employer == null ? "Doanh nghiệp WorkBridge" : employer.CompanyName,
                        ApplicantName = applicant.FullName,
                        JobTitle = job.Title,
                        Position = offer.Position,
@@ -575,7 +575,7 @@ namespace WorkBridge.Application.Services
                 BranchId = offer.BranchId,
                 BranchName = branch.Name,
                 CompanyName = string.IsNullOrWhiteSpace(employerProfile?.CompanyName)
-                    ? "WorkBridge Employer"
+                    ? "Doanh nghiệp WorkBridge"
                     : employerProfile.CompanyName,
                 ApplicantName = applicantName ?? "",
                 JobTitle = application.JobPost?.Title ?? offer.Position,

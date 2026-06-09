@@ -26,95 +26,249 @@ namespace WorkBridge.Application.Services
             _emailQueue = emailQueue;
         }
 
-        public async Task<AuthResponse?> LoginAsync(LoginRequest request)
+        public async Task<(AuthResponse? Response, string? Error)> LoginAsync(LoginRequest request)
         {
+            var email = NormalizeEmail(request.Email);
             var user = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == request.Email && !u.IsDeleted);
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email && !u.IsDeleted);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return null;
+                return (null, "Email hoặc mật khẩu không đúng.");
             }
 
             if (!IsActiveUser(user))
             {
-                return null;
+                return (null, "Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.");
             }
 
             // Generate JWT
             var token = GenerateJwtToken(user);
 
-            return new AuthResponse
+            return (new AuthResponse
             {
                 Token = token,
                 FullName = user.FullName,
                 Role = user.Role.RoleName,
                 UserId = user.UserId
-            };
+            }, null);
         }
 
-        public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
+        public async Task<(RegisterStartResponse? Response, string? Error)> RegisterAsync(RegisterRequest request)
         {
-            // Check if email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            var email = NormalizeEmail(request.Email);
+            if (string.IsNullOrWhiteSpace(email))
             {
-                return null; // Return null or throw custom exception to indicate email is taken
+                return (null, "Email là bắt buộc.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+            {
+                return (null, "Vui lòng nhập đầy đủ họ và tên.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                return (null, "Mật khẩu là bắt buộc.");
+            }
+
+            if (request.Password.Length < 8)
+            {
+                return (null, "Mật khẩu phải có ít nhất 8 ký tự.");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email))
+            {
+                return (null, "Email này đã được đăng ký.");
             }
 
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == request.Role);
             if (role == null)
             {
-                return null; // Invalid role
+                return (null, "Vai trò đăng ký không hợp lệ.");
             }
 
-            var user = new User
+            var now = DateTime.UtcNow;
+            var pendingRequests = await _context.EmailVerificationRequests
+                .Where(v => v.Email.ToLower() == email && v.Status == "Pending")
+                .ToListAsync();
+
+            foreach (var pending in pendingRequests)
             {
-                Email = request.Email,
-                FullName = $"{request.FirstName} {request.LastName}".Trim(),
+                pending.Status = "Replaced";
+            }
+
+            var code = GenerateSixDigitCode();
+            var verification = new EmailVerificationRequest
+            {
+                Email = email,
+                FirstName = request.FirstName.Trim(),
+                LastName = request.LastName.Trim(),
+                RoleName = role.RoleName,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = role.RoleId,
-                Status = "Active",
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
+                CodeHash = HashVerificationCode(email, code),
+                AttemptCount = 0,
+                Status = "Pending",
+                CreatedAt = now,
+                ExpiresAt = now.AddMinutes(10)
             };
 
-            await _context.Users.AddAsync(user);
+            await _context.EmailVerificationRequests.AddAsync(verification);
             await _context.SaveChangesAsync();
 
-            // Insert into specific profile table
-            if (role.RoleName == "Applicant")
+            var displayName = $"{verification.FirstName} {verification.LastName}".Trim();
+            var webAppUrl = (_config["Email:WebAppUrl"] ?? "http://127.0.0.1:5173").TrimEnd('/');
+            _emailQueue.QueueNotificationEmail(
+                email,
+                string.IsNullOrWhiteSpace(displayName) ? email : displayName,
+                "Xác thực email đăng ký WorkBridge",
+                $"""
+                WorkBridge đã nhận yêu cầu tạo tài khoản mới bằng địa chỉ email này.
+                Mã xác thực của bạn là {code}.
+                Mã có hiệu lực trong 10 phút kể từ khi email được gửi.
+                Sau khi nhập đúng mã, tài khoản WorkBridge của bạn mới được tạo chính thức.
+                Nếu bạn không thực hiện yêu cầu đăng ký này, vui lòng bỏ qua email và không chia sẻ mã cho bất kỳ ai.
+                """,
+                $"{webAppUrl}/signup",
+                "Mở trang xác thực");
+
+            return (new RegisterStartResponse
             {
-                var profile = new ApplicantProfile
-                {
-                    ApplicantId = user.UserId,
-                    ReputationScore = 100,
-                    ReportCount = 0
-                };
-                await _context.ApplicantProfiles.AddAsync(profile);
+                Message = "Mã xác thực 6 số đã được gửi đến email của bạn.",
+                Email = email,
+                ExpiresInMinutes = 10
+            }, null);
+        }
+
+        public async Task<(AuthResponse? Response, string? Error)> VerifyRegistrationAsync(VerifyRegisterEmailRequest request)
+        {
+            var email = NormalizeEmail(request.Email);
+            var code = request.Code?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(email) || code.Length != 6 || !code.All(char.IsDigit))
+            {
+                return (null, "Mã xác thực không hợp lệ.");
             }
-            else if (role.RoleName == "Employer")
+
+            var now = DateTime.UtcNow;
+            var verification = await _context.EmailVerificationRequests
+                .Where(v => v.Email.ToLower() == email && v.Status == "Pending")
+                .OrderByDescending(v => v.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (verification == null)
             {
-                var profile = new EmployerProfile
-                {
-                    EmployerId = user.UserId,
-                    CompanyName = user.FullName + " Company", // Temporary placeholder
-                    ContactEmail = user.Email
-                };
-                await _context.EmployerProfiles.AddAsync(profile);
+                return (null, "Không tìm thấy yêu cầu xác thực. Vui lòng đăng ký lại.");
             }
 
-            await _context.SaveChangesAsync();
-
-            var token = GenerateJwtToken(user, role.RoleName);
-
-            return new AuthResponse
+            if (verification.ExpiresAt <= now)
             {
-                Token = token,
-                FullName = user.FullName,
-                Role = role.RoleName,
-                UserId = user.UserId
-            };
+                verification.Status = "Expired";
+                await _context.SaveChangesAsync();
+                return (null, "Mã xác thực đã hết hạn. Vui lòng đăng ký lại để nhận mã mới.");
+            }
+
+            if (verification.AttemptCount >= 5)
+            {
+                verification.Status = "Failed";
+                await _context.SaveChangesAsync();
+                return (null, "Bạn đã nhập sai quá nhiều lần. Vui lòng đăng ký lại để nhận mã mới.");
+            }
+
+            if (!string.Equals(verification.CodeHash, HashVerificationCode(email, code), StringComparison.Ordinal))
+            {
+                verification.AttemptCount++;
+                if (verification.AttemptCount >= 5)
+                {
+                    verification.Status = "Failed";
+                }
+
+                await _context.SaveChangesAsync();
+                return (null, "Mã xác thực không đúng.");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email))
+            {
+                verification.Status = "Used";
+                await _context.SaveChangesAsync();
+                return (null, "Email này đã được sử dụng.");
+            }
+
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == verification.RoleName);
+            if (role == null)
+            {
+                return (null, "Vai trò đăng ký không hợp lệ.");
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var user = new User
+                {
+                    Email = verification.Email,
+                    FullName = $"{verification.FirstName} {verification.LastName}".Trim(),
+                    PasswordHash = verification.PasswordHash,
+                    RoleId = role.RoleId,
+                    Status = "Active",
+                    IsDeleted = false,
+                    CreatedAt = now
+                };
+
+                if (string.IsNullOrWhiteSpace(user.FullName))
+                {
+                    user.FullName = verification.Email;
+                }
+
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+
+                if (role.RoleName == "Applicant")
+                {
+                    var profile = new ApplicantProfile
+                    {
+                        ApplicantId = user.UserId,
+                        ReputationScore = 80,
+                        ReportCount = 0
+                    };
+                    profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, user);
+                    await _context.ApplicantProfiles.AddAsync(profile);
+                }
+                else if (role.RoleName == "Employer")
+                {
+                    var profile = new EmployerProfile
+                    {
+                        EmployerId = user.UserId,
+                        CompanyName = user.FullName,
+                        ContactEmail = user.Email,
+                        ReputationScore = 80,
+                        ReportCount = 0,
+                        Status = "Active"
+                    };
+                    profile.ReputationScore = ProfileReputationCalculator.CalculateEmployerScore(profile, user);
+                    await _context.EmployerProfiles.AddAsync(profile);
+                }
+
+                verification.Status = "Verified";
+                verification.VerifiedAt = now;
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                var token = GenerateJwtToken(user, role.RoleName);
+                return (new AuthResponse
+                {
+                    Token = token,
+                    FullName = user.FullName,
+                    Role = role.RoleName,
+                    UserId = user.UserId
+                }, null);
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                return (null, "Email này đã được sử dụng hoặc tài khoản đã tồn tại.");
+            }
         }
 
         public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
@@ -162,10 +316,15 @@ namespace WorkBridge.Application.Services
             _emailQueue.QueueNotificationEmail(
                 user.Email,
                 user.FullName,
-                "\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u",
-                "WorkBridge v\u1eeba nh\u1eadn y\u00eau c\u1ea7u \u0111\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u cho t\u00e0i kho\u1ea3n c\u1ee7a b\u1ea1n. Li\u00ean k\u1ebft n\u00e0y c\u00f3 hi\u1ec7u l\u1ef1c trong 30 ph\u00fat. N\u1ebfu b\u1ea1n kh\u00f4ng y\u00eau c\u1ea7u thao t\u00e1c n\u00e0y, b\u1ea1n c\u00f3 th\u1ec3 b\u1ecf qua email.",
+                "Đặt lại mật khẩu WorkBridge",
+                """
+                WorkBridge vừa nhận yêu cầu đặt lại mật khẩu cho tài khoản của bạn.
+                Vui lòng nhấn nút bên dưới để tạo mật khẩu mới.
+                Liên kết đặt lại mật khẩu chỉ dùng được một lần và có hiệu lực trong 30 phút.
+                Nếu bạn không yêu cầu thao tác này, vui lòng bỏ qua email. Mật khẩu hiện tại của bạn sẽ không thay đổi.
+                """,
                 resetUrl,
-                "\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u");
+                "Đặt lại mật khẩu");
         }
 
         public async Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordRequest request)
@@ -173,19 +332,19 @@ namespace WorkBridge.Application.Services
             var email = request.Email.Trim().ToLowerInvariant();
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(request.Token))
             {
-                return (false, "Email and reset token are required.");
+                return (false, "Email và mã đặt lại mật khẩu là bắt buộc.");
             }
 
             if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 8)
             {
-                return (false, "Password must be at least 8 characters.");
+                return (false, "Mật khẩu phải có ít nhất 8 ký tự.");
             }
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == email && !u.IsDeleted && u.Status == "Active");
             if (user == null)
             {
-                return (false, "Reset link is invalid or expired.");
+                return (false, "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
             }
 
             var tokenHash = HashResetToken(request.Token);
@@ -200,7 +359,7 @@ namespace WorkBridge.Application.Services
 
             if (resetToken == null)
             {
-                return (false, "Reset link is invalid or expired.");
+                return (false, "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
             }
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
@@ -214,6 +373,22 @@ namespace WorkBridge.Application.Services
         private static string GenerateResetToken()
         {
             return Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(32));
+        }
+
+        private static string GenerateSixDigitCode()
+        {
+            return RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        }
+
+        private static string NormalizeEmail(string? email)
+        {
+            return (email ?? string.Empty).Trim().ToLowerInvariant();
+        }
+
+        private string HashVerificationCode(string email, string code)
+        {
+            var secret = _config["JwtSettings:Secret"] ?? "workbridge-email-verification";
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{email}|{code}|{secret}")));
         }
 
         private static string HashResetToken(string token)
@@ -304,9 +479,10 @@ namespace WorkBridge.Application.Services
             var profile = new ApplicantProfile
             {
                 ApplicantId = user.UserId,
-                ReputationScore = 100,
+                ReputationScore = 80,
                 ReportCount = 0
             };
+            profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, user);
             await _context.ApplicantProfiles.AddAsync(profile);
             await _context.SaveChangesAsync();
 
@@ -367,9 +543,10 @@ namespace WorkBridge.Application.Services
                 var profile = new ApplicantProfile
                 {
                     ApplicantId = user.UserId,
-                    ReputationScore = 100,
+                    ReputationScore = 80,
                     ReportCount = 0
                 };
+                profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, user);
                 await _context.ApplicantProfiles.AddAsync(profile);
                 await _context.SaveChangesAsync();
 

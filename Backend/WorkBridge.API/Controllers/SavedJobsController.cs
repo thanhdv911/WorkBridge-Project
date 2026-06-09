@@ -46,8 +46,8 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             var success = await _savedJobService.SaveJobAsync(userId, jobId);
-            if (!success) return BadRequest("Could not save job. Job might not exist.");
-            return Ok(new { message = "Job saved successfully." });
+            if (!success) return BadRequest(new { message = "Không thể lưu vì tin tuyển dụng không tồn tại." });
+            return Ok(new { message = "Đã lưu tin tuyển dụng." });
         }
 
         [HttpDelete("{jobId}")]
@@ -55,8 +55,8 @@ namespace WorkBridge.API.Controllers
         {
             var userId = GetUserId();
             var success = await _savedJobService.UnsaveJobAsync(userId, jobId);
-            if (!success) return NotFound("Saved job not found.");
-            return Ok(new { message = "Job unsaved successfully." });
+            if (!success) return NotFound(new { message = "Không tìm thấy tin đã lưu." });
+            return Ok(new { message = "Đã bỏ lưu tin tuyển dụng." });
         }
     }
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
-import { API_BASE_URL } from '../../services/api';
+import api, { API_BASE_URL, getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 import { signalRService } from '../../services/signalrService';
 import ReportModal from '../shared/ReportModal';
@@ -31,13 +30,6 @@ const parseVND = (formattedValue) => {
     if (!formattedValue) return 0;
     return Number(String(formattedValue).replace(/\D/g, ''));
 };
-
-const getApiErrorMessage = (error, fallback) => (
-    error.response?.data?.message ||
-    error.response?.data?.title ||
-    error.message ||
-    fallback
-);
 
 const decisionStatuses = ['Applied', 'Pending', 'Under Review'];
 
@@ -205,7 +197,7 @@ const EmployerApplicantReview = () => {
             }
         } catch (error) {
             console.error('Error updating application status:', error);
-            toast.error(error.response?.data?.message || 'Không thể cập nhật trạng thái.');
+            toast.error(error.response?.data?.message || 'Không thể cập nhật trạng thái hồ sơ ứng tuyển.');
         }
     };
 

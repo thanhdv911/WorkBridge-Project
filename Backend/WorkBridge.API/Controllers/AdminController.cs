@@ -32,8 +32,8 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] AdminUpdateStatusRequest request)
         {
             var result = await _adminService.UpdateUserStatusAsync(id, request.NewStatus);
-            if (!result) return NotFound("User not found.");
-            return Ok(new { message = "User status updated successfully." });
+            if (!result) return NotFound(new { message = "Không tìm thấy người dùng." });
+            return Ok(new { message = "Đã cập nhật trạng thái người dùng." });
         }
 
         [HttpPatch("users/{id}/reputation")]
@@ -41,12 +41,12 @@ namespace WorkBridge.API.Controllers
         {
             if (request.ReputationScore < 0 || request.ReputationScore > 100)
             {
-                return BadRequest(new { message = "Reputation score must be between 0 and 100." });
+                return BadRequest(new { message = "Điểm uy tín phải nằm trong khoảng 0 - 100." });
             }
 
             var result = await _adminService.UpdateUserReputationAsync(id, request.ReputationScore);
-            if (!result) return NotFound("User profile not found.");
-            return Ok(new { message = "User reputation updated successfully.", reputationScore = request.ReputationScore });
+            if (!result) return NotFound(new { message = "Không tìm thấy hồ sơ người dùng." });
+            return Ok(new { message = "Đã cập nhật điểm uy tín.", reputationScore = request.ReputationScore });
         }
 
         [HttpPost("users/{id}/vip")]
@@ -74,8 +74,8 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> UpdateJobStatus(int id, [FromBody] AdminUpdateStatusRequest request)
         {
             var result = await _adminService.UpdateJobStatusAsync(id, request.NewStatus);
-            if (!result) return NotFound("Job not found.");
-            return Ok(new { message = "Job status updated successfully." });
+            if (!result) return NotFound(new { message = "Không tìm thấy tin tuyển dụng." });
+            return Ok(new { message = "Đã cập nhật trạng thái tin tuyển dụng." });
         }
 
         // Categories
@@ -96,16 +96,16 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] AdminCategoryRequest request)
         {
             var result = await _adminService.UpdateCategoryAsync(id, request);
-            if (!result) return NotFound("Category not found.");
-            return Ok(new { message = "Category updated successfully." });
+            if (!result) return NotFound(new { message = "Không tìm thấy danh mục." });
+            return Ok(new { message = "Đã cập nhật danh mục." });
         }
 
         [HttpDelete("categories/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var result = await _adminService.DeleteCategoryAsync(id);
-            if (!result) return BadRequest("Category not found or still has associated jobs.");
-            return Ok(new { message = "Category deleted successfully." });
+            if (!result) return BadRequest(new { message = "Không thể xóa danh mục vì vẫn còn tin tuyển dụng liên quan." });
+            return Ok(new { message = "Đã xóa danh mục." });
         }
 
         [HttpGet("stats")]
@@ -125,8 +125,8 @@ namespace WorkBridge.API.Controllers
         public async Task<IActionResult> UpdateReportStatus(int id, [FromBody] AdminUpdateStatusRequest request)
         {
             var result = await _adminService.UpdateReportStatusAsync(id, request.NewStatus);
-            if (!result) return NotFound("Report not found.");
-            return Ok(new { message = "Report status updated successfully." });
+            if (!result) return NotFound(new { message = "Không tìm thấy báo cáo." });
+            return Ok(new { message = "Đã cập nhật trạng thái báo cáo." });
         }
     }
 }

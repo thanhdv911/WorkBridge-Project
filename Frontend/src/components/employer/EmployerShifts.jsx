@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../../services/api';
+import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 import { signalRService } from '../../services/signalrService';
 import { composeStreetAddress, parseStoredGoongAddress } from '../../services/goongAddressService';
@@ -13,8 +13,8 @@ const getShiftDisplayName = (title) => {
 
 const getAttendanceStatusText = (status) => {
     switch (status) {
-        case 'CheckedIn': return 'Đã Check-In';
-        case 'CheckedOut': return 'Đã Check-Out';
+        case 'CheckedIn': return 'Đã vào ca';
+        case 'CheckedOut': return 'Đã ra ca';
         case 'Approved': return 'Đã Duyệt';
         case 'Rejected': return 'Bị Từ Chối';
         case 'NotStarted': return 'Chưa Bắt Đầu';
@@ -394,9 +394,9 @@ const EmployerShifts = () => {
     const adjustAttendance = async (assignment) => {
         const currentIn = assignment.checkInAt ? new Date(assignment.checkInAt).toISOString().slice(0, 16) : '';
         const currentOut = assignment.checkOutAt ? new Date(assignment.checkOutAt).toISOString().slice(0, 16) : '';
-        const checkInAt = window.prompt('Điều chỉnh giờ Check-In (YYYY-MM-DDTHH:mm):', currentIn);
+        const checkInAt = window.prompt('Điều chỉnh giờ vào ca (YYYY-MM-DDTHH:mm):', currentIn);
         if (!checkInAt) return;
-        const checkOutAt = window.prompt('Điều chỉnh giờ Check-Out (YYYY-MM-DDTHH:mm):', currentOut);
+        const checkOutAt = window.prompt('Điều chỉnh giờ ra ca (YYYY-MM-DDTHH:mm):', currentOut);
         if (!checkOutAt) return;
 
         try {
@@ -1024,10 +1024,10 @@ const EmployerShifts = () => {
                 });
             }
             addLog(`----------------------------------------`);
-            addLog("🏆 Hoàn tất quá trình tư vấn. Bạn có thể nhấn 'AI Auto-Scheduler' để áp dụng tự động các ca trực này.");
+            addLog("🏆 Hoàn tất quá trình tư vấn. Bạn có thể nhấn 'AI tự động xếp lịch' để áp dụng tự động các ca trực này.");
         } catch (error) {
             console.error('Error during AI Advice:', error);
-            addLog(`❌ Đã xảy ra lỗi khi lấy tư vấn: ${error.response?.data?.message || error.message}`);
+            addLog(`❌ Đã xảy ra lỗi khi lấy tư vấn: ${getApiErrorMessage(error, 'Không thể lấy tư vấn xếp ca.')}`);
         } finally {
             setIsAiScheduling(false);
         }
@@ -1035,7 +1035,7 @@ const EmployerShifts = () => {
 
     const runAiSmartAutoSchedule = async () => {
         if (!isVip) {
-            toast.error('Tính năng AI Auto-Scheduler chỉ dành cho Doanh nghiệp VIP.');
+            toast.error('Tính năng AI tự động xếp lịch chỉ dành cho Doanh nghiệp VIP.');
             return;
         }
 
@@ -1148,7 +1148,7 @@ const EmployerShifts = () => {
             addLog(`🎉 Cập nhật thành công! Điểm phủ ca trực của bạn đã tăng lên.`);
         } catch (error) {
             console.error('Error in Heuristic AI Scheduler:', error);
-            addLog(`❌ Đã xảy ra lỗi trong quá trình tự động xếp lịch: ${error.response?.data?.message || error.message}`);
+            addLog(`❌ Đã xảy ra lỗi trong quá trình tự động xếp lịch: ${getApiErrorMessage(error, 'Không thể tự động xếp lịch.')}`);
         } finally {
             setIsAiScheduling(false);
         }
@@ -1555,7 +1555,7 @@ const EmployerShifts = () => {
                                             className="h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <span className="material-symbols-outlined !text-sm">auto_schedule</span>
-                                            AI Auto-Scheduler
+                                            AI tự động xếp lịch
                                         </button>
                                         <button
                                             onClick={handlePrintSchedule}
@@ -1662,7 +1662,7 @@ const EmployerShifts = () => {
                                                                     </h5>
                                                                     {hasCheckIn && (
                                                                         <span className="shrink-0 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none">
-                                                                            Đã Check-In
+                                                                            Đã vào ca
                                                                         </span>
                                                                     )}
                                                                     {isUnderstaffed && (

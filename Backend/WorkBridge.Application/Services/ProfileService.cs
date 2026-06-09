@@ -49,7 +49,9 @@ namespace WorkBridge.Application.Services
                 AboutMe = user.ApplicantProfile?.AboutMe,
                 Availability = user.ApplicantProfile?.Availability,
                 CvUrl = user.ApplicantProfile?.CvUrl,
-                ReputationScore = user.ApplicantProfile?.ReputationScore ?? 100,
+                ReputationScore = user.ApplicantProfile != null
+                    ? ProfileReputationCalculator.CalculateApplicantScore(user.ApplicantProfile, user)
+                    : 80,
                 ReportCount = user.ApplicantProfile?.ReportCount ?? 0
             };
         }
@@ -67,7 +69,7 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile
                 {
                     ApplicantId = userId,
-                    ReputationScore = 100,
+                    ReputationScore = 80,
                     ReportCount = 0
                 };
             }
@@ -92,6 +94,7 @@ namespace WorkBridge.Application.Services
             // Update DB
             var relativeUrl = $"/uploads/cvs/{fileName}";
             user.ApplicantProfile.CvUrl = relativeUrl;
+            user.ApplicantProfile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(user.ApplicantProfile, user);
             await _context.SaveChangesAsync();
 
             return relativeUrl;
@@ -110,13 +113,14 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile
                 {
                     ApplicantId = userId,
-                    ReputationScore = 100,
+                    ReputationScore = 80,
                     ReportCount = 0
                 };
             }
 
             var currentCvUrl = user.ApplicantProfile.CvUrl;
             user.ApplicantProfile.CvUrl = null;
+            user.ApplicantProfile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(user.ApplicantProfile, user);
             await _context.SaveChangesAsync();
 
             TryDeleteUploadedCvFile(currentCvUrl);
@@ -175,7 +179,7 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile
                 {
                     ApplicantId = userId,
-                    ReputationScore = 100,
+                    ReputationScore = 80,
                     ReportCount = 0
                 };
             }
@@ -193,6 +197,7 @@ namespace WorkBridge.Application.Services
 
             var relativeUrl = $"/uploads/cvs/{fileName}";
             user.ApplicantProfile.CvUrl = relativeUrl;
+            user.ApplicantProfile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(user.ApplicantProfile, user);
             await _context.SaveChangesAsync();
 
             return relativeUrl;
@@ -351,7 +356,7 @@ namespace WorkBridge.Application.Services
                 user.ApplicantProfile = new ApplicantProfile
                 {
                     ApplicantId = userId,
-                    ReputationScore = 100,
+                    ReputationScore = 80,
                     ReportCount = 0
                 };
             }
@@ -363,6 +368,7 @@ namespace WorkBridge.Application.Services
             user.ApplicantProfile.Major = request.Major;
             user.ApplicantProfile.StudyYear = request.StudyYear;
             user.ApplicantProfile.Availability = request.Availability;
+            user.ApplicantProfile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(user.ApplicantProfile, user);
 
             await _context.SaveChangesAsync();
             return true;

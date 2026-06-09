@@ -89,7 +89,7 @@ namespace WorkBridge.API.Controllers
             var applicantId = GetUserId();
             var error = await _offerService.DeclineOfferAsync(applicantId, id);
             if (error != null) return BadRequest(new { message = error });
-            return Ok(new { message = "Offer declined." });
+            return Ok(new { message = "Đã từ chối lời mời nhận việc." });
         }
 
         [HttpPatch("{id}/cancel")]
@@ -99,7 +99,7 @@ namespace WorkBridge.API.Controllers
             var employerId = GetUserId();
             var error = await _offerService.CancelOfferAsync(employerId, id);
             if (error != null) return BadRequest(new { message = error });
-            return Ok(new { message = "Offer cancelled." });
+            return Ok(new { message = "Đã hủy lời mời nhận việc." });
         }
 
         private int GetUserId()

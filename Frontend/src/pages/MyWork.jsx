@@ -76,12 +76,12 @@ const formatMinutes = (minutes = 0) => {
     return `${hours} giờ ${mins} phút`;
 };
 
-const formatCurrency = (value) => `${Number(value || 0).toLocaleString('vi-VN')} VND/h`;
+const formatCurrency = (value) => `${Number(value || 0).toLocaleString('vi-VN')} đ/giờ`;
 
 const attendanceMeta = (status) => {
     switch (status) {
         case 'CheckedIn':
-            return { label: 'Đã check-in', className: 'bg-sky-50 text-sky-700 border-sky-100' };
+            return { label: 'Đã vào ca', className: 'bg-sky-50 text-sky-700 border-sky-100' };
         case 'CheckedOut':
             return { label: 'Chờ duyệt công', className: 'bg-amber-50 text-amber-700 border-amber-100' };
         case 'Approved':
@@ -295,9 +295,6 @@ const MyWork = () => {
     const [now, setNow] = useState(new Date());
     const [historyPage, setHistoryPage] = useState(1);
     const [selectedShiftForDetails, setSelectedShiftForDetails] = useState(null);
-    const [sidebarMode, setSidebarMode] = useState('normal');
-    const mainContentRef = useRef(null);
-    const sidebarPanelRef = useRef(null);
     const token = localStorage.getItem('token');
     const currentUserId = getCurrentUserId();
     const weekDays = getWeekDays(currentDate);
@@ -400,7 +397,7 @@ const MyWork = () => {
                 return {
                     kind: 'checkout',
                     enabled: false,
-                    label: 'Chưa đến giờ check-out',
+                    label: 'Chưa đến giờ ra ca',
                     hint: `Mở lúc ${formatTime(end)}`
                 };
             }
@@ -408,7 +405,7 @@ const MyWork = () => {
                 return {
                     kind: 'checkout',
                     enabled: false,
-                    label: 'Quá giờ check-out',
+                    label: 'Quá giờ ra ca',
                     hint: 'Liên hệ quản lý để chỉnh công'
                 };
             }
@@ -436,7 +433,7 @@ const MyWork = () => {
             return {
                 kind: 'checkin',
                 enabled: false,
-                label: 'Chưa đến giờ check-in',
+                label: 'Chưa đến giờ vào ca',
                 hint: `Mở từ ${formatTime(checkInOpenAt)}`
             };
         }
@@ -445,7 +442,7 @@ const MyWork = () => {
             return {
                 kind: 'checkin',
                 enabled: false,
-                label: 'Quá giờ check-in',
+                label: 'Quá giờ vào ca',
                 hint: 'Liên hệ quản lý để xử lý công'
             };
         }
@@ -454,7 +451,7 @@ const MyWork = () => {
             return {
                 kind: 'checkin',
                 enabled: false,
-                label: 'Quá khung check-in',
+                label: 'Quá khung vào ca',
                 hint: `Ca còn ${CHECK_IN_MIN_REMAINING_MINUTES} phút hoặc ít hơn`
             };
         }
@@ -545,48 +542,6 @@ const MyWork = () => {
         if (historyPage > totalPages) setHistoryPage(totalPages);
     }, [historyPage, historyItems.length]);
 
-    useEffect(() => {
-        if (loading) return undefined;
-
-        const topOffset = 96;
-        const bottomGap = 24;
-        const updateSidebarPin = () => {
-            const main = mainContentRef.current;
-            const panel = sidebarPanelRef.current;
-            if (!main || window.innerWidth < 1024) {
-                setSidebarMode('normal');
-                return;
-            }
-
-            const rect = main.getBoundingClientRect();
-            const panelHeight = Math.min(
-                panel?.offsetHeight || 0,
-                window.innerHeight - topOffset - bottomGap
-            );
-
-            if (rect.top > topOffset) {
-                setSidebarMode('normal');
-                return;
-            }
-
-            if (rect.bottom <= topOffset + panelHeight + bottomGap) {
-                setSidebarMode('bottom');
-                return;
-            }
-
-            setSidebarMode('fixed');
-        };
-
-        updateSidebarPin();
-        window.addEventListener('scroll', updateSidebarPin, { passive: true });
-        window.addEventListener('resize', updateSidebarPin);
-
-        return () => {
-            window.removeEventListener('scroll', updateSidebarPin);
-            window.removeEventListener('resize', updateSidebarPin);
-        };
-    }, [loading]);
-
     const toggleShiftRegistrationChoice = (registrationWindow, shift) => {
         if (!registrationWindow.canSubmit) {
             toast.error('Khung đăng ký ca hiện chưa mở hoặc đã đóng');
@@ -661,10 +616,10 @@ const MyWork = () => {
         setProcessingId(assignmentId);
         try {
             await api.post(`/workforce/attendance/${assignmentId}/check-in`);
-            toast.success('Đã check-in');
+            toast.success('Đã vào ca.');
             await fetchWorkData();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không thể check-in');
+            toast.error(error.response?.data?.message || 'Không thể vào ca.');
         } finally {
             setProcessingId(null);
         }
@@ -674,10 +629,10 @@ const MyWork = () => {
         setProcessingId(assignmentId);
         try {
             await api.post(`/workforce/attendance/${assignmentId}/check-out`);
-            toast.success('Đã check-out. Đang chờ nhà tuyển dụng duyệt công');
+            toast.success('Đã ra ca. Đang chờ nhà tuyển dụng duyệt công.');
             await fetchWorkData();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không thể check-out');
+            toast.error(error.response?.data?.message || 'Không thể ra ca.');
         } finally {
             setProcessingId(null);
         }
@@ -1106,7 +1061,7 @@ const MyWork = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[calc(100vh-80px)] bg-[#f6f8fb] px-4 py-8 font-display">
+            <div className="applicant-shell min-h-[calc(100vh-80px)] px-4 py-8 font-display">
                 <div className="mx-auto max-w-[1440px] space-y-5">
                     <div className="h-40 animate-pulse rounded-[28px] bg-white/80" />
                     <div className="grid gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
@@ -1129,31 +1084,29 @@ const MyWork = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#f6f8fb] pb-16 font-display text-slate-900">
-            <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_10%_12%,rgba(19,146,236,0.12),transparent_26%),radial-gradient(circle_at_88%_8%,rgba(16,185,129,0.10),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#f5f7fb_48%,#eef3f8_100%)]" />
-
-            <header className="mx-auto max-w-[1440px] px-4 pt-6 sm:px-6 lg:px-8">
-                <section className="overflow-hidden rounded-[30px] border border-white/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
-                    <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:p-7">
+        <div className="applicant-shell min-h-screen pb-16 font-display text-slate-900">
+            <header className="applicant-page-hero">
+                <section className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-end">
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex h-9 items-center gap-2 rounded-xl bg-primary px-3 text-xs font-black text-white shadow-sm shadow-primary/20">
+                                <span className="applicant-eyebrow">
                                     <span className="material-symbols-outlined !text-[17px]">work_history</span>
                                     Không gian làm việc
                                 </span>
-                                <span className="inline-flex h-9 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-500">
+                                <span className="inline-flex h-9 items-center rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-bold text-sky-50">
                                     {needsActionCount > 0 ? `${needsActionCount} việc cần xử lý` : 'Không có việc gấp'}
                                 </span>
                             </div>
 
-                            <h1 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                            <h1 className="mt-5 text-3xl font-black text-white sm:text-4xl">
                                 Công việc của tôi
                             </h1>
-                            <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-slate-500 sm:text-base">
+                            <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-sky-100 sm:text-base">
                                 Theo dõi công việc chính thức, đăng ký ca tuần sau, chấm công và xử lý nhường ca trong một màn hình rõ ràng hơn.
                             </p>
 
-                            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="mt-5 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
                                 <WorkStat label="Công việc" value={activeEmployments.length} icon="badge" tone="slate" />
                                 <WorkStat label="Ca hôm nay" value={todayShiftItems.length} icon="today" tone="sky" />
                                 <WorkStat label="Đã ghi nhận" value={completedCount} icon="task_alt" tone="emerald" />
@@ -1161,21 +1114,21 @@ const MyWork = () => {
                             </div>
                         </div>
 
-                        <aside className="rounded-[26px] border border-slate-100 bg-slate-50 p-5">
+                        <aside className="rounded-[26px] border border-white/15 bg-white/12 p-5 text-white shadow-2xl shadow-sky-950/10 backdrop-blur">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-xs font-black text-slate-400">Ca ưu tiên</p>
-                                    <h2 className="mt-1 text-xl font-black tracking-tight text-slate-950">
+                                    <p className="text-xs font-black text-sky-100/80">Ca ưu tiên</p>
+                                    <h2 className="mt-1 text-xl font-black text-white">
                                         {primaryShift ? getShiftDisplayName(primaryShift.shift.title) : 'Chưa có ca sắp tới'}
                                     </h2>
-                                    <p className="mt-1 text-sm font-semibold text-slate-500">
+                                    <p className="mt-1 text-sm font-semibold text-sky-50/80">
                                         {primaryShift
                                             ? `${formatFullDate(primaryShift.shift.startTime)}, ${formatTime(primaryShift.shift.startTime)} đến ${formatTime(primaryShift.shift.endTime)}`
                                             : 'Khi có ca hôm nay hoặc ca sắp tới, hệ thống sẽ đưa lên đây.'}
                                     </p>
                                 </div>
                                 <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                                    primaryAction?.enabled ? 'bg-primary text-white' : 'bg-white text-slate-400 ring-1 ring-slate-200'
+                                    primaryAction?.enabled ? 'bg-primary text-white' : 'bg-white/15 text-sky-50 ring-1 ring-white/15'
                                 }`}>
                                     <span className="material-symbols-outlined !text-[24px]">{primaryAction?.enabled ? 'bolt' : 'event'}</span>
                                 </div>
@@ -1216,18 +1169,10 @@ const MyWork = () => {
                 </section>
             </header>
 
-            <main ref={mainContentRef} className="mx-auto mt-6 grid max-w-[1440px] items-stretch gap-6 px-4 sm:px-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:px-8">
+            <main className="applicant-page-content mx-auto grid max-w-[1440px] items-start gap-6 px-4 sm:px-6 xl:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:px-8">
                 <aside className="relative min-w-0">
                     <div
-                        ref={sidebarPanelRef}
-                        style={sidebarMode === 'fixed' ? { left: 'max(2rem, calc((100vw - 1440px) / 2 + 2rem))' } : undefined}
-                        className={`space-y-5 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1 ${
-                            sidebarMode === 'fixed'
-                                ? 'lg:fixed lg:top-24 lg:z-40 lg:w-[360px]'
-                                : sidebarMode === 'bottom'
-                                    ? 'lg:absolute lg:bottom-0 lg:left-0 lg:w-[360px]'
-                                    : ''
-                        }`}
+                        className="my-work-sidebar space-y-5 xl:sticky xl:top-24"
                     >
                     <section className="rounded-[28px] border border-white/80 bg-white p-5 shadow-sm">
                         <div className="mb-5 flex items-start justify-between gap-3">
@@ -1333,10 +1278,10 @@ const MyWork = () => {
 
                 <div className="min-w-0 space-y-6">
                     <section id="registration" className="scroll-mt-24">
-                        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="mb-4 flex flex-col gap-2 rounded-[24px] border border-white/15 bg-gradient-to-br from-sky-950 via-primary to-sky-400 p-5 shadow-lg shadow-sky-900/10 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="text-xl font-black tracking-tight text-slate-950">Đăng ký ca tuần sau</h2>
-                                <p className="mt-1 text-sm font-medium text-slate-500">Chọn ca theo từng ngày, hệ thống tự kiểm tra trùng lịch trước khi gửi.</p>
+                                <h2 className="text-xl font-black tracking-tight text-white">Đăng ký ca tuần sau</h2>
+                                <p className="mt-1 text-sm font-semibold text-sky-50">Chọn ca theo từng ngày, hệ thống tự kiểm tra trùng lịch trước khi gửi.</p>
                             </div>
                         </div>
                         {registrationWindows.length === 0 ? (
@@ -1356,7 +1301,7 @@ const MyWork = () => {
                         <div className="grid gap-4 border-b border-slate-100 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                             <div>
                                 <h2 className="text-xl font-black tracking-tight text-slate-950">Lịch làm việc và chấm công</h2>
-                                <p className="mt-1 text-sm font-medium text-slate-500">Xem lịch tuần, check-in/check-out và kiểm tra lịch sử công.</p>
+                                <p className="mt-1 text-sm font-medium text-slate-500">Xem lịch tuần, vào ca/ra ca và kiểm tra lịch sử công.</p>
                             </div>
                             <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
                                 <button
@@ -1400,7 +1345,7 @@ const MyWork = () => {
                                         >
                                             <span className="material-symbols-outlined !text-[20px]">chevron_left</span>
                                         </button>
-                                        <span className="min-w-[190px] px-3 text-center text-xs font-black text-slate-700">
+                                        <span className="min-w-0 px-2 text-center text-xs font-black text-slate-700 sm:min-w-[190px] sm:px-3">
                                             {formatWeekRange()}
                                         </span>
                                         <button
@@ -1413,26 +1358,26 @@ const MyWork = () => {
                                     </div>
                                     <span className="text-xs font-black text-slate-400">{shifts.length} ca đang hoạt động</span>
                                 </div>
-                                <div className="overflow-x-auto">
-                                    <div className="min-w-[880px] bg-white">
-                                        <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-slate-100 bg-slate-50/60 py-4 text-center">
+                                <div className="overflow-hidden">
+                                    <div className="w-full bg-white">
+                                        <div className="grid grid-cols-[44px_repeat(7,minmax(0,1fr))] border-b border-slate-100 bg-slate-50/60 py-3 text-center sm:grid-cols-[64px_repeat(7,minmax(0,1fr))] sm:py-4">
                                             <div className="flex items-center justify-center text-xs font-black text-slate-400">Giờ</div>
                                             {weekDays.map((day) => (
-                                                <div key={getDateKey(day)} className={`text-xs ${isToday(day) ? 'font-black text-primary' : 'font-bold text-slate-500'}`}>
-                                                    <div>{getDayName(day.getDay())}</div>
-                                                    <div className="mt-0.5 text-base font-black">{day.getDate()}</div>
+                                                <div key={getDateKey(day)} className={`min-w-0 text-[10px] sm:text-xs ${isToday(day) ? 'font-black text-primary' : 'font-bold text-slate-500'}`}>
+                                                    <div className="truncate px-0.5">{getDayName(day.getDay())}</div>
+                                                    <div className="mt-0.5 text-sm font-black sm:text-base">{day.getDate()}</div>
                                                 </div>
                                             ))}
                                         </div>
 
-                                        <div className="relative grid grid-cols-[80px_repeat(7,1fr)]" style={{ height: '620px' }}>
+                                        <div className="relative grid grid-cols-[44px_repeat(7,minmax(0,1fr))] sm:grid-cols-[64px_repeat(7,minmax(0,1fr))]" style={{ height: 'clamp(440px, 62dvh, 620px)' }}>
                                             <div className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateRows: 'repeat(14, minmax(0, 1fr))' }}>
                                                 {Array.from({ length: 14 }).map((_, index) => (
                                                     <div key={index} className="h-full w-full border-b border-slate-100/70" />
                                                 ))}
                                             </div>
 
-                                            <div className="flex h-full select-none flex-col justify-between border-r border-slate-100 bg-slate-50/50 py-1 text-[10px] font-black text-slate-400">
+                                            <div className="flex h-full select-none flex-col justify-between border-r border-slate-100 bg-slate-50/50 py-1 text-[9px] font-black text-slate-400 sm:text-[10px]">
                                                 {Array.from({ length: 15 }).map((_, hour) => (
                                                     <div key={hour} className="flex h-5 items-center justify-center text-center">
                                                         {String(8 + hour).padStart(2, '0')}:00
@@ -1476,19 +1421,19 @@ const MyWork = () => {
                                                                     }`}>
                                                                         <div className="min-w-0">
                                                                             <div className="flex items-start justify-between gap-1">
-                                                                                <h5 className="truncate text-[10px] font-black">
+                                                                                <h5 className="truncate text-[9px] font-black sm:text-[10px]">
                                                                                     {getShiftDisplayName(shift.title)}
                                                                                 </h5>
                                                                                 {isMine && (
-                                                                                    <span className="shrink-0 rounded bg-primary px-1.5 py-0.5 text-[8px] font-black uppercase leading-none text-white">
+                                                                                    <span className="hidden shrink-0 rounded bg-primary px-1.5 py-0.5 text-[8px] font-black uppercase leading-none text-white sm:inline-flex">
                                                                                         Tôi
                                                                                     </span>
                                                                                 )}
                                                                             </div>
-                                                                            <p className="mt-1 text-[9px] font-semibold opacity-75">
+                                                                            <p className="mt-1 truncate text-[8px] font-semibold opacity-75 sm:text-[9px]">
                                                                                 {formatTime(shift.startTime)} đến {formatTime(shift.endTime)}
                                                                             </p>
-                                                                            <div className="mt-1.5 flex max-h-[62px] flex-wrap gap-1 overflow-y-auto">
+                                                                            <div className="mt-1.5 flex max-h-[48px] flex-wrap gap-1 overflow-hidden sm:max-h-[62px]">
                                                                                 {activeAssignments.length > 0 ? (
                                                                                     activeAssignments.map((assignment) => {
                                                                                         const isMe = assignment.employeeUserId === currentUserId;

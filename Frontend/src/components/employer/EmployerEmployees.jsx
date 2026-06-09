@@ -126,7 +126,7 @@ const EmployerEmployees = () => {
         } catch (error) {
             toast.dismiss(loadToast);
             console.error('Error generating AI report:', error);
-            toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi tạo báo cáo AI.');
+            toast.error(error.response?.data?.message || 'Không thể tạo báo cáo AI nhân sự. Vui lòng kiểm tra dữ liệu nhân viên.');
         } finally {
             setIsGeneratingReport(false);
         }

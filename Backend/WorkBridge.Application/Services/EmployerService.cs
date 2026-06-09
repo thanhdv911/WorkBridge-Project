@@ -58,6 +58,7 @@ namespace WorkBridge.Application.Services
             }
 
             var profile = user.EmployerProfile;
+            var reputationScore = ProfileReputationCalculator.CalculateEmployerScore(profile, user);
             return new EmployerProfileResponse
             {
                 EmployerId = profile.EmployerId,
@@ -69,7 +70,7 @@ namespace WorkBridge.Application.Services
                 Address = profile.Address,
                 Description = profile.Description,
                 LogoUrl = profile.LogoUrl,
-                ReputationScore = profile.ReputationScore,
+                ReputationScore = reputationScore,
                 ReportCount = profile.ReportCount,
                 Status = profile.Status ?? "Active"
             };
@@ -82,19 +83,23 @@ namespace WorkBridge.Application.Services
                 .FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
-                throw new Exception("User not found");
+                throw new Exception("Không tìm thấy người dùng.");
 
             if (user.EmployerProfile == null)
             {
                 // Create new profile
                 user.EmployerProfile = new EmployerProfile
                 {
+                    EmployerId = userId,
                     CompanyName = request.CompanyName,
                     ContactEmail = request.ContactEmail,
                     ContactPhone = request.ContactPhone,
                     Address = request.Address,
                     Description = request.Description,
-                    LogoUrl = request.LogoUrl
+                    LogoUrl = request.LogoUrl,
+                    ReputationScore = 80,
+                    ReportCount = 0,
+                    Status = "Active"
                 };
                 _context.EmployerProfiles.Add(user.EmployerProfile);
             }
@@ -109,6 +114,8 @@ namespace WorkBridge.Application.Services
                 user.EmployerProfile.LogoUrl = request.LogoUrl;
             }
 
+            user.EmployerProfile.ReputationScore = ProfileReputationCalculator.CalculateEmployerScore(user.EmployerProfile, user);
+
             await _context.SaveChangesAsync();
 
             return await GetProfileAsync(userId);
@@ -120,7 +127,7 @@ namespace WorkBridge.Application.Services
 
             if (profile == null)
             {
-                throw new Exception("Employer profile is required before posting a job.");
+                throw new Exception("Vui lòng cập nhật hồ sơ doanh nghiệp trước khi đăng tin.");
             }
 
             if (profile.Status == "Suspended" || profile.ReputationScore < 80)
@@ -253,7 +260,7 @@ namespace WorkBridge.Application.Services
             var profile = await _context.EmployerProfiles.FirstOrDefaultAsync(p => p.EmployerId == userId);
             if (profile == null)
             {
-                throw new Exception("Employer profile is required before updating a job.");
+                throw new Exception("Vui lòng cập nhật hồ sơ doanh nghiệp trước khi sửa tin.");
             }
 
             if (profile.Status == "Suspended" || profile.ReputationScore < 80)
@@ -267,7 +274,7 @@ namespace WorkBridge.Application.Services
 
             if (job == null)
             {
-                throw new Exception("Job post not found or access denied.");
+                throw new Exception("Không tìm thấy tin tuyển dụng hoặc bạn không có quyền chỉnh sửa.");
             }
 
             job.CategoryId = request.CategoryId;
@@ -368,7 +375,12 @@ namespace WorkBridge.Application.Services
         public async Task<EmployerDashboardStats> GetDashboardStatsAsync(int userId)
         {
             var profile = await _context.EmployerProfiles.FirstOrDefaultAsync(p => p.EmployerId == userId);
-            var reputationScore = profile?.ReputationScore ?? 100;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (profile != null)
+            {
+                profile.ReputationScore = ProfileReputationCalculator.CalculateEmployerScore(profile, user);
+            }
+            var reputationScore = profile?.ReputationScore ?? 80;
 
             var jobPostCount = await _context.JobPosts
                 .CountAsync(j => j.EmployerId == userId && !j.IsDeleted);
