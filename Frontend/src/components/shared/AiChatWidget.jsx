@@ -141,6 +141,8 @@ const AiChatWidget = () => {
   // Floating Action Toolbar States
   const [savedJobsCount, setSavedJobsCount] = useState(0);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showFeedbackChoiceModal, setShowFeedbackChoiceModal] = useState(false);
+  const [showSupportPanel, setShowSupportPanel] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(5);
   const [feedbackComment, setFeedbackComment] = useState('');
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
@@ -558,11 +560,113 @@ const AiChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-0 right-5 z-[9999] font-sans pointer-events-none">
+    <div className="fixed bottom-5 right-5 z-[9999] font-sans pointer-events-none">
       {!isPanelMounted && (
-        <div className="flex flex-col items-end gap-3 pb-0 pointer-events-auto">
+        <div className="relative flex flex-col items-end gap-3 pointer-events-auto">
+          {/* Support Panel (Image 1 style) */}
+          {showSupportPanel && (
+            <div className="absolute bottom-[68px] right-[56px] w-[320px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden anim-fadeLeft pointer-events-auto">
+              {/* Header */}
+              <div className="bg-[#1392ec] p-4 text-white relative overflow-hidden">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-white">headset_mic</span>
+                    <span className="font-black text-sm">
+                      {role === 'Employer' ? 'Trung tâm hỗ trợ doanh nghiệp' : 'Trung tâm hỗ trợ ứng viên'}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSupportPanel(false)}
+                    className="text-white/80 hover:text-white hover:bg-white/10 rounded-lg p-0.5 flex items-center justify-center transition-colors"
+                  >
+                    <span className="material-symbols-outlined !text-lg">close</span>
+                  </button>
+                </div>
+                <div className="mt-3 flex items-center gap-3 relative z-10">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/20 bg-white/10 flex-shrink-0">
+                    <img
+                      src="/support-avatar.jpg"
+                      alt="Support Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm">Mr. Thành Đinh</h4>
+                    <p className="text-xs text-white/80 mt-0.5">WorkBridge thường phản hồi trong vòng 24h</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Options list */}
+              <div className="flex flex-col divide-y divide-slate-100 text-sm">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSupportPanel(false);
+                    navigate(role === 'Employer' ? '/employer-safety' : '/safety');
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
+                >
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">work</span>
+                  <span className="flex-1">
+                    {role === 'Employer' ? 'Hướng dẫn tuyển dụng an toàn *' : 'Hướng dẫn tìm việc an toàn *'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSupportPanel(false);
+                    navigate('/profile');
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
+                >
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">person</span>
+                  <span className="flex-1">Hướng dẫn quản lý tài khoản</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSupportPanel(false);
+                    navigate('/faq');
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
+                >
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">question_answer</span>
+                  <span className="flex-1">Các câu hỏi thường gặp</span>
+                </button>
+
+                <a
+                  href="https://zalo.me/0969701460"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShowSupportPanel(false)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
+                >
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">chat</span>
+                  <span className="flex-1">Hỗ trợ qua Zalo</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSupportPanel(false);
+                    navigate('/contact');
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
+                >
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">call</span>
+                  <span className="flex-1">Liên hệ WorkBridge</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Floating Action Buttons Stack */}
-          <div className="flex flex-col items-center gap-3 mb-2 animate-fadeInUp">
+          <div className="flex flex-col items-center gap-3 animate-fadeInUp">
             {/* 1. Saved Jobs Button */}
             <button
               type="button"
@@ -578,71 +682,56 @@ const AiChatWidget = () => {
               )}
             </button>
 
-            {/* 2. Referral Button */}
-            <button
-              type="button"
-              onClick={() => {
-                toast.success('Tính năng giới thiệu bạn bè đang được cập nhật!');
-              }}
-              className="w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all hover:bg-[#1392ec]/5"
-              title="Giới thiệu bạn bè"
-            >
-              <span className="material-symbols-outlined !text-xl">person_add</span>
-            </button>
-
-            {/* 3. Safety/Privacy Button */}
-            <button
-              type="button"
-              onClick={() => navigate('/privacy')}
-              className="w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all hover:bg-[#1392ec]/5"
-              title="Bảo mật & Điều khoản"
-            >
-              <span className="material-symbols-outlined !text-xl">verified_user</span>
-            </button>
-
-            {/* 4. Feedback & Support Card */}
-            <div className="w-[60px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100/60 flex flex-col overflow-hidden">
+            {/* 2. Góp ý & Hỗ trợ Combined Capsule */}
+            <div className="w-11 bg-white rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex flex-col overflow-hidden">
+              {/* Góp ý Button */}
               <button
                 type="button"
-                onClick={() => setShowFeedbackModal(true)}
-                className="flex flex-col items-center gap-0.5 py-2.5 text-[#1392ec] hover:bg-sky-50/50 transition-colors border-b border-slate-100"
+                onClick={() => setShowFeedbackChoiceModal(true)}
+                className="flex flex-col items-center justify-center py-2 text-[#1392ec] hover:bg-sky-50/50 transition-colors border-b border-slate-100"
                 title="Góp ý"
               >
-                <span className="material-symbols-outlined !text-[19px]">comment</span>
-                <span className="text-[9px] font-black leading-none mt-1">Góp ý</span>
+                <span className="material-symbols-outlined !text-[18px]">comment</span>
+                <span className="text-[9px] font-bold leading-none mt-1">Góp ý</span>
               </button>
+
+              {/* Hỗ trợ Button */}
               <button
                 type="button"
-                onClick={() => navigate('/contact')}
-                className="flex flex-col items-center gap-0.5 py-2.5 text-[#1392ec] hover:bg-sky-50/50 transition-colors"
+                onClick={() => setShowSupportPanel(prev => !prev)}
+                className={`flex flex-col items-center justify-center py-2 transition-colors ${
+                  showSupportPanel
+                    ? 'bg-sky-50/80 text-[#1392ec]'
+                    : 'text-[#1392ec] hover:bg-sky-50/50'
+                }`}
                 title="Hỗ trợ"
               >
-                <span className="material-symbols-outlined !text-[19px]">headset_mic</span>
-                <span className="text-[9px] font-black leading-none mt-1">Hỗ trợ</span>
+                <span className="material-symbols-outlined !text-[18px]">headset_mic</span>
+                <span className="text-[9px] font-bold leading-none mt-1">Hỗ trợ</span>
               </button>
             </div>
-          </div>
 
-          {/* Current Chat trigger button */}
-          <button
-            type="button"
-            onClick={openWidget}
-            className="relative flex h-12 min-w-[112px] origin-bottom-right items-center justify-center gap-2 rounded-t-lg bg-[#1392ec] px-4 text-white shadow-2xl shadow-blue-500/25 transition duration-200 hover:-translate-y-0.5 hover:bg-[#0b6fbb] active:translate-y-0"
-          >
-            {unreadTotal > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-black ring-2 ring-white">
-                {unreadTotal > 9 ? '9+' : unreadTotal}
-              </span>
-            )}
-            <span className="material-symbols-outlined !text-[24px]">chat</span>
-            <span className="text-base font-black">Chat</span>
-          </button>
+            {/* 3. Chat Button */}
+            <button
+              type="button"
+              onClick={openWidget}
+              className="relative w-12 h-12 rounded-full bg-[#1392ec] text-white shadow-[0_4px_16px_rgba(19,146,236,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all hover:bg-[#0b6fbb]"
+              title="WorkBridge Chat"
+            >
+              {unreadTotal > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-red-500 text-[10px] text-white font-black flex items-center justify-center border-2 border-white shadow-sm">
+                  {unreadTotal > 9 ? '9+' : unreadTotal}
+                </span>
+              )}
+              <span className="material-symbols-outlined !text-[24px]">chat</span>
+            </button>
+          </div>
         </div>
       )}
 
       {isPanelMounted && (
         <div
-          className={`absolute bottom-4 right-0 flex h-[600px] max-h-[calc(100vh-48px)] w-[720px] max-w-[calc(100vw-24px)] origin-bottom-right transform-gpu flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl transition-all duration-300 ease-out pointer-events-auto ${
+          className={`absolute bottom-0 right-0 flex h-[600px] max-h-[calc(100vh-48px)] w-[720px] max-w-[calc(100vw-24px)] origin-bottom-right transform-gpu flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl transition-all duration-300 ease-out pointer-events-auto ${
             isOpen
               ? 'translate-y-0 scale-100 opacity-100'
               : 'pointer-events-none translate-y-8 scale-90 opacity-0'
@@ -1016,6 +1105,65 @@ const AiChatWidget = () => {
           )}
         </div>
       )}
+      {/* ── Feedback Choice Modal ("Bạn muốn?") ── */}
+      {showFeedbackChoiceModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm pointer-events-auto">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl border border-slate-100/80 anim-fadeUp relative">
+            <div className="flex items-start justify-between mb-6">
+              <h3 className="text-lg font-black text-slate-900">Bạn muốn?</h3>
+              <button
+                type="button"
+                onClick={() => setShowFeedbackChoiceModal(false)}
+                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Product Feedback Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowFeedbackChoiceModal(false);
+                  setShowFeedbackModal(true);
+                }}
+                className="flex flex-col items-center text-center p-6 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/5 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 shadow-sm transition-transform group-hover:scale-105">
+                  <span className="material-symbols-outlined !text-4xl">mail</span>
+                </div>
+                <h4 className="text-base font-black text-slate-800 mt-4 group-hover:text-emerald-600 transition-colors">
+                  Góp ý sản phẩm
+                </h4>
+                <p className="text-xs text-slate-500 mt-2 font-semibold leading-relaxed">
+                  Chia sẻ ý kiến, đề xuất và nhận xét về sản phẩm
+                </p>
+              </button>
+
+              {/* Zalo Support Card */}
+              <a
+                href="https://zalo.me/0969701460"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowFeedbackChoiceModal(false)}
+                className="flex flex-col items-center text-center p-6 rounded-2xl border-2 border-slate-100 hover:border-[#0084FF] hover:bg-[#0084FF]/5 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-full bg-[#0084FF] flex items-center justify-center text-white font-black text-lg shadow-md border border-white transition-transform group-hover:scale-105">
+                  Zalo
+                </div>
+                <h4 className="text-base font-black text-slate-800 mt-4 group-hover:text-[#0084FF] transition-colors">
+                  Chat Zalo để được hỗ trợ
+                </h4>
+                <p className="text-xs text-slate-500 mt-2 font-semibold leading-relaxed">
+                  Yêu cầu hỗ trợ liên quan đến sản phẩm hoặc dịch vụ
+                </p>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Feedback Modal ── */}
       {showFeedbackModal && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm pointer-events-auto">

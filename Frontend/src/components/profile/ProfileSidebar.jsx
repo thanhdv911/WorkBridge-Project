@@ -41,53 +41,6 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
   return (
     <aside className="profile-sidebar-card anim-fadeUp h-fit rounded-2xl p-5">
       <div className="space-y-5">
-        {isOwnProfile && (
-          <section className="rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-xs font-black uppercase text-slate-500">Độ hoàn thiện hồ sơ</h3>
-                <p className="mt-1 text-[11px] font-semibold text-slate-500">
-                  {strength < 100 ? 'Bổ sung thêm thông tin để hồ sơ nổi bật hơn.' : 'Hồ sơ đã sẵn sàng để ứng tuyển.'}
-                </p>
-              </div>
-              <span className="text-2xl font-black text-primary">{strength}%</span>
-            </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dk transition-all duration-1000"
-                style={{ width: `${strength}%` }}
-              />
-            </div>
-          </section>
-        )}
-
-        <section className={`rounded-2xl border p-4 ${reputationTone}`}>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-black uppercase opacity-70">Uy tín cá nhân</p>
-              <div className="mt-1 flex items-end gap-1">
-                <span className="text-3xl font-black text-slate-950">{reputationScore}</span>
-                <span className="pb-1 text-xs font-black opacity-70">/100</span>
-              </div>
-            </div>
-            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${reputationGradient} text-white shadow-lg shadow-slate-200`}>
-              <span className="material-symbols-outlined filled">verified_user</span>
-            </div>
-          </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/80">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${reputationGradient}`}
-              style={{ width: `${Math.max(0, Math.min(100, reputationScore))}%` }}
-            />
-          </div>
-          <p className={`mt-2 flex items-start gap-1.5 text-[11px] font-bold leading-relaxed ${shouldShowReputationHint ? 'opacity-95' : 'opacity-75'}`}>
-            {shouldShowReputationHint && (
-              <span className="material-symbols-outlined !text-[14px]">tips_and_updates</span>
-            )}
-            <span>{reputationNote}</span>
-          </p>
-        </section>
-
         <section className="space-y-3">
           <h3 className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-500">
             <span className="material-symbols-outlined text-primary !text-lg">contact_mail</span>

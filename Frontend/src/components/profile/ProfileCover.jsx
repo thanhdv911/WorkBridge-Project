@@ -17,6 +17,14 @@ export default function ProfileCover({ user, onEditClick, isOwnProfile = true, r
     }
   };
 
+  let strength = 30;
+  if (user?.phone) strength += 10;
+  if (user?.address) strength += 10;
+  if (user?.university) strength += 20;
+  if (user?.aboutMe) strength += 30;
+
+  const reputationScore = Number.isFinite(Number(user?.reputationScore)) ? Number(user.reputationScore) : 100;
+
   return (
     <section className="relative animate-fadeIn">
       <div className="profile-cover-band h-56">
@@ -40,7 +48,27 @@ export default function ProfileCover({ user, onEditClick, isOwnProfile = true, r
                 <span className="material-symbols-outlined !text-[15px]">verified</span>
                 Hồ sơ ứng viên
               </div>
-              <h1 className="mt-3 text-2xl font-black text-slate-950 sm:text-3xl">{user?.fullName || 'Người dùng WorkBridge'}</h1>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-black text-slate-950 sm:text-3xl leading-none">{user?.fullName || 'Người dùng WorkBridge'}</h1>
+                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                  {isOwnProfile && (
+                    <div className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2 py-0.5 text-[10px] font-black text-primary" title="Độ hoàn thiện hồ sơ">
+                      <span className="material-symbols-outlined !text-[12px] text-primary">analytics</span>
+                      <span>Hoàn thiện: {strength}%</span>
+                    </div>
+                  )}
+                  <div className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black ${
+                    reputationScore >= 90
+                      ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                      : reputationScore >= 80
+                        ? 'border-sky-100 bg-sky-50 text-sky-700'
+                        : 'border-rose-100 bg-rose-50 text-rose-700'
+                  }`} title="Uy tín cá nhân">
+                    <span className="material-symbols-outlined !text-[12px] filled">verified_user</span>
+                    <span>Uy tín: {reputationScore}/100</span>
+                  </div>
+                </div>
+              </div>
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
                   <span className="material-symbols-outlined !text-[16px] text-primary">school</span>
