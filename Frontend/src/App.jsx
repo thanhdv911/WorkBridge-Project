@@ -86,6 +86,16 @@ function PresenceRealtime() {
   return null;
 }
 
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
+  return null;
+}
+
 function MaintenanceGate() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -142,6 +152,7 @@ function App() {
     <>
       <Toaster position="top-right" />
       <MaintenanceGate />
+      <ScrollToTop />
       <PresenceRealtime />
       <PresenceHeartbeat />
       {!hideHeader && <Header />}

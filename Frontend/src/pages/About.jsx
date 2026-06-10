@@ -59,6 +59,12 @@ export default function About() {
 
         <div className="static-hero-inner static-about-hero-inner">
           <div className="static-hero-copy">
+            <div className="static-page-topline">
+              <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="static-facebook-link">
+                <span className="static-facebook-logo" aria-hidden="true">f</span>
+                Fanpage WorkBridge
+              </a>
+            </div>
             <span className="static-kicker">
               <span className="material-symbols-outlined">handshake</span>
               Giới thiệu WorkBridge

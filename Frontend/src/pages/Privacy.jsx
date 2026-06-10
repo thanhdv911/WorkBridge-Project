@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { openAdminChat, WORKBRIDGE_SUPPORT_EMAIL } from '../utils/contactAdmin';
+import { openAdminChat, WORKBRIDGE_FACEBOOK_URL, WORKBRIDGE_SUPPORT_EMAIL } from '../utils/contactAdmin';
 
 const sections = [
   {
@@ -67,6 +67,12 @@ export default function Privacy() {
       <section className="static-hero static-hero-compact">
         <div className="static-hero-inner">
           <div className="static-hero-copy">
+            <div className="static-page-topline">
+              <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="static-facebook-link">
+                <span className="static-facebook-logo" aria-hidden="true">f</span>
+                Fanpage WorkBridge
+              </a>
+            </div>
             <span className="static-kicker">
               <span className="material-symbols-outlined">policy</span>
               Chính sách bảo mật

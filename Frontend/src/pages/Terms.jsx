@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { WORKBRIDGE_FACEBOOK_URL } from '../utils/contactAdmin';
 
 const terms = [
   ['Tài khoản', 'Bạn chịu trách nhiệm giữ an toàn thông tin đăng nhập, sử dụng email thật và cập nhật hồ sơ đúng thực tế.'],
@@ -16,6 +17,12 @@ export default function Terms() {
       <section className="static-hero static-hero-compact">
         <div className="static-hero-inner">
           <div className="static-hero-copy">
+            <div className="static-page-topline">
+              <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="static-facebook-link">
+                <span className="static-facebook-logo" aria-hidden="true">f</span>
+                Fanpage WorkBridge
+              </a>
+            </div>
             <span className="static-kicker">
               <span className="material-symbols-outlined">gavel</span>
               Điều khoản dịch vụ
