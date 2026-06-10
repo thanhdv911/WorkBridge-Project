@@ -321,6 +321,13 @@ export default function Header() {
               Trang chủ
             </Link>
 
+            <Link
+              to="/jobs"
+              className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+            >
+              Tìm việc
+            </Link>
+
             {/* Categories Dropdown */}
             <div className="relative group py-5">
               <button
@@ -357,13 +364,6 @@ export default function Header() {
                 </div>
               </div>
             </div>
-
-            <Link
-              to="/jobs"
-              className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
-            >
-              Tìm việc
-            </Link>
             {userRole === 'Employer' && (
               <>
                 <Link
@@ -685,6 +685,8 @@ export default function Header() {
         <nav className="px-4 py-4 flex flex-col gap-1">
           <MobileNavLink to="/" icon="home" label="Trang chủ" active={isActive('/')} />
 
+          <MobileNavLink to="/jobs" icon="work" label="Tìm việc" active={isActive('/jobs')} />
+
           {/* Categories mobile accordion */}
           <div>
             <button
@@ -714,8 +716,6 @@ export default function Header() {
               </div>
             </div>
           </div>
-
-          <MobileNavLink to="/jobs" icon="work" label="Tìm việc" active={isActive('/jobs')} />
 
           {userRole === 'Employer' && (
             <>

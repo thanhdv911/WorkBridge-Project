@@ -255,7 +255,7 @@ export default function AuthModal() {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── LEFT: Form ── */}
-        <div className="min-w-0 flex flex-col justify-center p-6 sm:p-8 relative z-10 w-full">
+        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-7 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[584px] overflow-y-auto">
         {/* Close Button X */}
         <button
           onClick={closeAuth}
@@ -266,12 +266,12 @@ export default function AuthModal() {
         </button>
 
         {/* Brand header */}
-        <div className="text-center mb-6 mt-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1.5 text-[11px] font-extrabold text-primary shadow-sm">
-            <span className="material-symbols-outlined !text-[15px]">verified</span>
+        <div className="text-center mb-4 mt-1">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-primary shadow-sm">
+            <span className="material-symbols-outlined !text-[14px]">verified</span>
             Cổng thông tin WorkBridge
           </div>
-          <h2 className="mt-4 text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+          <h2 className="mt-2.5 text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
             {isForgotMode 
               ? 'Quên mật khẩu?' 
               : pendingRegistrationEmail 
@@ -293,7 +293,7 @@ export default function AuthModal() {
 
         {/* ── Mode selector tabs (only if not forgot / verification mode) ── */}
         {!isForgotMode && !pendingRegistrationEmail && (
-          <div className="flex h-11 w-full items-center rounded-xl bg-sky-50/70 p-1 gap-1 border border-sky-100/50 mb-5">
+          <div className="flex h-11 w-full items-center rounded-xl bg-sky-50/70 p-1 gap-1 border border-sky-100/50 mb-4">
             <button
               onClick={() => setMode('login')}
               className={`flex-1 h-full rounded-lg text-xs font-black transition-all ${
@@ -498,7 +498,7 @@ export default function AuthModal() {
 
         {/* ════ 4. SIGNUP MODE FORM ════ */}
         {mode === 'signup' && !isForgotMode && !pendingRegistrationEmail && (
-          <form onSubmit={handleRegister} className="flex flex-col gap-3.5">
+          <form onSubmit={handleRegister} className="flex flex-col gap-2.5">
             {/* Segment Control Toggle Role */}
             <div className="flex h-11 w-full items-center rounded-xl bg-slate-50 p-1 gap-1 border border-slate-200/60 select-none flex-shrink-0">
               <button
@@ -525,7 +525,7 @@ export default function AuthModal() {
 
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Họ</label>
                 <input
                   value={lastName}
@@ -536,7 +536,7 @@ export default function AuthModal() {
                   required
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Tên</label>
                 <input
                   value={firstName}
@@ -550,7 +550,7 @@ export default function AuthModal() {
             </div>
 
             {/* Email */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Địa chỉ Email</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">mail</span>
@@ -566,7 +566,7 @@ export default function AuthModal() {
             </div>
 
             {/* Password */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Mật khẩu</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock</span>
@@ -589,7 +589,7 @@ export default function AuthModal() {
             </div>
 
             {/* Confirm Password */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Xác nhận mật khẩu</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock_reset</span>
@@ -615,7 +615,7 @@ export default function AuthModal() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center justify-center rounded-xl h-11 bg-gradient-to-r from-primary to-primary-dk text-white font-bold text-xs shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-[0.98] transition-all gap-1.5 mt-2 disabled:opacity-75"
+              className="flex items-center justify-center rounded-xl h-11 bg-gradient-to-r from-primary to-primary-dk text-white font-bold text-xs shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-[0.98] transition-all gap-1.5 mt-1.5 disabled:opacity-75"
             >
               <span>{isLoading ? 'Đang đăng ký...' : 'Đăng ký tài khoản'}</span>
               {!isLoading && <span className="material-symbols-outlined !text-lg">arrow_forward</span>}
@@ -637,7 +637,7 @@ export default function AuthModal() {
         </div>
 
         {/* ── RIGHT: Image Panel ── */}
-        <div className="auth-visual-panel hidden xl:flex min-h-[580px] relative overflow-hidden rounded-[2rem] m-3 flex-col justify-between p-7" aria-hidden="true">
+        <div className="auth-visual-panel hidden xl:flex h-[560px] relative overflow-hidden rounded-[2rem] m-3 flex-col justify-between p-7" aria-hidden="true">
           <div className="auth-visual-scan"></div>
           <div className="blob-deco w-64 h-64 bg-sky-300/25 -top-16 -right-16 blur-[44px]"></div>
           <div className="blob-deco w-44 h-44 bg-cyan-200/20 bottom-24 -left-14 blur-[36px]"></div>
