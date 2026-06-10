@@ -661,8 +661,13 @@ const AiChatWidget = () => {
                       >
                         <div className="flex gap-2.5">
                           <div className="relative shrink-0">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-xs font-black text-white">
-                              {getInitials(conversation.contactName)}
+                            <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                              <img
+                                src={conversation.avatarUrl || "/default-avatar.png"}
+                                alt={conversation.contactName}
+                                className="h-full w-full object-cover"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                              />
                             </div>
                             <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${conversation.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                           </div>
@@ -702,8 +707,13 @@ const AiChatWidget = () => {
                         <span className="material-symbols-outlined !text-[20px]">arrow_back</span>
                       </button>
                       <div className="relative shrink-0">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-xs font-black text-white">
-                          {getInitials(selectedConversation.contactName)}
+                        <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                          <img
+                            src={selectedConversation.avatarUrl || "/default-avatar.png"}
+                            alt={selectedConversation.contactName}
+                            className="h-full w-full object-cover"
+                            onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                          />
                         </div>
                         <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${selectedConversation.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                       </div>

@@ -285,6 +285,9 @@ using (var scope = app.Services.CreateScope())
     // Ensure ShiftRegistrationWindows and other tables are created if missing
     try
     {
+        // Automatically apply any pending EF Core migrations on startup
+        context.Database.Migrate();
+
         context.Database.ExecuteSqlRaw(@"
             IF OBJECT_ID('dbo.ShiftRegistrationWindows', 'U') IS NULL
             BEGIN

@@ -27,8 +27,13 @@ export default function ProfileCover({ user, onEditClick, isOwnProfile = true, r
       <div className="relative z-10 mx-auto -mt-24 w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="profile-cover-card">
           <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end">
-            <div className="profile-avatar flex h-28 w-28 select-none items-center justify-center rounded-2xl border-4 border-white text-3xl font-black text-white">
-              {initials}
+            <div className="profile-avatar relative h-28 w-28 rounded-2xl border-4 border-white overflow-hidden bg-slate-100 flex-shrink-0">
+              <img
+                src={user?.avatarUrl || "/default-avatar.png"}
+                alt={user?.fullName || "User"}
+                className="h-full w-full object-cover"
+                onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+              />
             </div>
             <div className="min-w-0 flex-1 pb-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-[11px] font-black text-primary">

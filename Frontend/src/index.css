@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Syne:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -4862,4 +4862,186 @@
     display: none;
   }
 }
+
+/* ==========================================
+   WorkBridge Home Page Redesign - TopCV Style
+   ========================================== */
+
+/* Blue Theme Overrides for Home Page */
+.home-shell {
+  background:
+    radial-gradient(circle at 12% 4%, rgba(56,189,248,.22), transparent 30rem),
+    radial-gradient(circle at 86% 9%, rgba(19,146,236,.16), transparent 34rem),
+    linear-gradient(180deg, #eef9ff 0%, #f7fcff 34%, #ffffff 72%, #f5fbff 100%) !important;
+}
+
+.home-eyebrow {
+  border-color: rgba(19,146,236,.16) !important;
+  color: #0b6fbb !important;
+  box-shadow: 0 18px 45px rgba(19,146,236,.08) !important;
+}
+
+.home-kinetic-title span:nth-child(2) {
+  color: #1392ec !important;
+}
+
+.home-search:focus-within {
+  border-color: rgba(19,146,236,.42) !important;
+  box-shadow: 0 28px 80px rgba(19,146,236,.16) !important;
+}
+
+.home-search-field:focus-within,
+.home-location-trigger:hover {
+  border-color: rgba(19,146,236,.32) !important;
+}
+
+.home-search-button,
+.home-cta-primary,
+.home-job-action {
+  background: #1392ec !important;
+  box-shadow: 0 18px 38px rgba(19,146,236,.24) !important;
+}
+
+.home-search-button:hover,
+.home-cta-primary:hover,
+.home-job-action:hover {
+  background: #0b6fbb !important;
+}
+
+.home-step-number {
+  border-color: rgba(19,146,236,.22) !important;
+  background: #1392ec !important;
+  box-shadow: 0 18px 42px rgba(19,146,236,.23) !important;
+}
+
+.home-step-card {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.9), rgba(239,248,255,.76)),
+    #fff !important;
+}
+
+.home-step-card::before {
+  background: rgba(19,146,236,.08) !important;
+}
+
+.home-steps-timeline::before {
+  background: linear-gradient(90deg, rgba(19,146,236,.16), rgba(19,146,236,.72), rgba(19,146,236,.16)) !important;
+}
+
+.home-outline-button:hover,
+.home-cta-secondary:hover,
+.home-section-link:hover {
+  border-color: rgba(19,146,236,.34) !important;
+  color: #0b6fbb !important;
+  box-shadow: 0 14px 34px rgba(19,146,236,.1) !important;
+}
+
+.home-category-card:hover,
+.home-process-card:hover,
+.home-job-card:hover,
+.home-step-card:hover,
+.home-testimonial-card:hover,
+.home-story-card:hover,
+.home-story-large:hover {
+  border-color: rgba(19,146,236,.28) !important;
+}
+
+.home-category-blue {
+  background: linear-gradient(135deg, #1392ec, #0b6fbb) !important;
+}
+
+.home-presence-dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.12) !important;
+}
+
+.home-presence-pages button {
+  border-color: rgba(19,146,236,.18) !important;
+  color: #0b6fbb !important;
+  box-shadow: 0 8px 18px rgba(19,146,236,.07) !important;
+}
+
+.home-presence-pages button:hover:not(:disabled) {
+  border-color: rgba(19,146,236,.32) !important;
+  background: #eef9ff !important;
+}
+
+.home-presence-card {
+  border-color: rgba(19,146,236,.18) !important;
+  background:
+    linear-gradient(135deg, rgba(239,248,255,.92), rgba(255,255,255,.84)),
+    #fff !important;
+  box-shadow: 0 16px 42px rgba(19,146,236,.08) !important;
+}
+
+.home-job-badge {
+  background: #eff6ff !important;
+  color: #0b6fbb !important;
+  border-color: rgba(19,146,236,.14) !important;
+}
+
+.home-job-badge-soft {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: rgba(16,185,129,.16) !important;
+}
+
+.home-job-featured {
+  background:
+    linear-gradient(135deg, rgba(239,248,255,.95), rgba(255,255,255,.96)),
+    #fff !important;
+  border-color: rgba(19,146,236,.24) !important;
+}
+
+.home-cta-panel {
+  border-color: rgba(19,146,236,.18) !important;
+  background:
+    linear-gradient(135deg, rgba(239,248,255,.9), rgba(255,255,255,.86)),
+    #fff !important;
+  box-shadow: 0 30px 90px rgba(19,146,236,.12) !important;
+}
+
+.home-cta-primary {
+  background: #1392ec !important;
+  box-shadow: 0 18px 38px rgba(19,146,236,.24) !important;
+}
+
+.home-cta-primary:hover {
+  background: #0b6fbb !important;
+}
+
+.home-jobs-footer::before {
+  background: linear-gradient(90deg, transparent, rgba(19,146,236,.2), transparent) !important;
+}
+
+/* Premium Slideshow Banner Styles */
+.home-slideshow-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(203,213,225,.75);
+  box-shadow: 0 24px 70px rgba(15,23,42,.12);
+  height: 380px;
+}
+
+.home-slide-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+}
+
+.home-slide-item.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.home-slide-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2,6,23,0) 0%, rgba(2,6,23,0.2) 40%, rgba(2,6,23,0.85) 100%);
+  z-index: 10;
+}
+
 

@@ -197,6 +197,44 @@ function Hero({ heroRef }) {
   const locationRef = useRef(null);
   const displayLocationLabel = compactLocationLabel(selectedLabel);
 
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    {
+      id: 1,
+      image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+      title: 'WorkBridge AI CV Reviewer',
+      subtitle: 'Đánh giá CV của bạn bằng Trí tuệ Nhân tạo chỉ trong 10 giây.',
+      badge: 'Tính năng HOT',
+      badgeColor: 'bg-primary',
+      link: '/profile'
+    },
+    {
+      id: 2,
+      image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=80',
+      title: 'VIP Doanh Nghiệp',
+      subtitle: 'Tìm kiếm nhân sự part-time nhanh chóng, hỗ trợ chấm công bằng QR code.',
+      badge: 'Doanh nghiệp',
+      badgeColor: 'bg-blue-500',
+      link: '/signup'
+    },
+    {
+      id: 3,
+      image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
+      title: 'Việc Làm Verified 100%',
+      subtitle: 'Đi làm ngay, không lo lừa đảo. Thanh toán lương minh bạch và rõ ràng.',
+      badge: 'Cam kết',
+      badgeColor: 'bg-amber-500',
+      link: '/jobs'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
   const handleClearLocation = () => {
     setProvince('');
     setDistrict('');
@@ -248,18 +286,18 @@ function Hero({ heroRef }) {
   return (
     <section
       ref={heroRef}
-      className="home-hero relative z-10 px-4 pb-8 pt-8 sm:px-6 lg:px-8 lg:pb-10 lg:pt-10"
+      className="home-hero relative z-10 px-4 pb-12 pt-12 sm:px-6 lg:px-8 lg:pb-16 lg:pt-16"
     >
       <div className="home-motion-field" aria-hidden="true" />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(520px,.82fr)]">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <div className="relative z-20 min-w-0">
           <div className="home-eyebrow mb-5 inline-flex items-center gap-2">
             <span className="material-symbols-outlined !text-[17px]">verified</span>
-            WorkBridge Part-time Network
+            Hệ thống kết nối part-time sinh viên
           </div>
 
-          <h1 className="home-kinetic-title" aria-label="Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn">
+          <h1 className="home-kinetic-title mb-4" aria-label="Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn">
             <span>Tìm Việc Bán Thời Gian</span>
             <span>Hoàn Hảo Cho Bạn</span>
           </h1>
@@ -268,7 +306,7 @@ function Hero({ heroRef }) {
             Kết nối sinh viên với công việc linh hoạt. Tích lũy kinh nghiệm, tạo thu nhập và phát triển sự nghiệp — theo lịch trình của bạn.
           </p>
 
-          <form onSubmit={handleSearch} className="home-search mt-6">
+          <form onSubmit={handleSearch} className="home-search mt-8">
             <div className="home-search-field">
               <span className="material-symbols-outlined text-slate-400 !text-xl">search</span>
               <input
@@ -284,7 +322,7 @@ function Hero({ heroRef }) {
               <button
                 type="button"
                 onClick={() => setShowLocationCard((current) => !current)}
-                className="home-location-trigger"
+                className="home-location-trigger w-full"
                 title={selectedLabel}
               >
                 <span className="material-symbols-outlined shrink-0 text-slate-400 !text-xl">location_on</span>
@@ -358,7 +396,7 @@ function Hero({ heroRef }) {
             ))}
           </div>
 
-          <div className="home-hero-ribbon mt-5" aria-label="Điểm mạnh WorkBridge">
+          <div className="home-hero-ribbon mt-6" aria-label="Điểm mạnh WorkBridge">
             {['60 giây tạo hồ sơ', 'Ca làm rõ ràng', 'Nhắn tin trực tiếp', 'Theo dõi chấm công'].map((item, index) => (
               <span key={item} className="home-ribbon-pill" style={{ '--home-delay': `${index * 90}ms` }}>
                 {item}
@@ -370,62 +408,55 @@ function Hero({ heroRef }) {
 
         </div>
 
-        <div className="home-scene relative hidden min-h-[430px] xl:block" aria-label="Minh họa WorkBridge">
-          <div className="home-scene-grid" aria-hidden="true" />
-          <img src="/workbridge-mark.png" alt="WorkBridge" className="home-brand-mark" />
-
-          <div className="home-live-panel">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-black text-primary">Gợi ý ca phù hợp</p>
-                <h2 className="mt-1 text-2xl font-black text-slate-950">3 việc mới gần bạn</h2>
-              </div>
-              <div className="home-live-badge">
-                <span className="material-symbols-outlined !text-[15px]">radio_button_checked</span>
-                Live
+        {/* Cột Phải: Slide Banner tự động trượt kiểu TopCV */}
+        <div className="relative w-full h-[380px] home-slideshow-container rounded-3xl overflow-hidden shadow-2xl border border-slate-100 hidden xl:block z-20">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`home-slide-item absolute inset-0 ${index === currentSlide ? 'active' : ''}`}
+            >
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+              <div className="home-slide-gradient" />
+              <div className="absolute bottom-0 left-0 right-0 p-8 z-20 text-white">
+                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider mb-3 text-white ${slide.badgeColor}`}>
+                  {slide.badge}
+                </span>
+                <h2 className="text-3xl font-black mb-2 leading-tight tracking-tight">
+                  {slide.title}
+                </h2>
+                <p className="text-sm text-slate-200 mb-4 max-w-[45ch] font-medium leading-relaxed">
+                  {slide.subtitle}
+                </p>
+                <a
+                  href={slide.link}
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary hover:bg-primary-dk text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                >
+                  Khám phá ngay
+                  <span className="material-symbols-outlined !text-sm">arrow_forward</span>
+                </a>
               </div>
             </div>
-
-            <div className="mt-6 grid gap-3">
-              {[
-                ['Ca sáng', 'Nhân viên pha chế', '35.000đ/giờ', 'Cách 1.8 km'],
-                ['Ca tối', 'Trợ lý cửa hàng', '42.000đ/giờ', 'Ưu tiên sinh viên'],
-                ['Cuối tuần', 'Gia sư tiếng Anh', '90.000đ/giờ', 'Lịch linh hoạt']
-              ].map(([slot, title, pay, note], index) => (
-                <div key={title} className="home-mini-job" style={{ '--home-delay': `${index * 80}ms` }}>
-                  <div>
-                    <p className="text-[11px] font-black text-slate-400">{slot}</p>
-                    <h3 className="mt-0.5 text-sm font-black text-slate-900">{title}</h3>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-primary">{pay}</p>
-                    <p className="mt-0.5 text-[11px] font-bold text-slate-400">{note}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="home-floating-note home-floating-note-a">
-            <span className="material-symbols-outlined !text-[19px] text-primary">task_alt</span>
-            Hồ sơ đã sẵn sàng
-          </div>
-
-          <div className="home-floating-note home-floating-note-b">
-            <span className="material-symbols-outlined !text-[19px] text-primary">schedule</span>
-            Lọc theo ca rảnh
-          </div>
-
-          <div className="home-orbit-chip home-orbit-chip-a">
-            <span>Ứng tuyển</span>
-            <strong>1 chạm</strong>
-          </div>
-
-          <div className="home-orbit-chip home-orbit-chip-b">
-            <span>Phản hồi</span>
-            <strong>nhanh</strong>
+          ))}
+          
+          {/* Carousel Indicators (Dots) */}
+          <div className="absolute bottom-6 right-8 z-30 flex gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? 'bg-primary w-6' : 'bg-white/40 hover:bg-white/70'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
+
       </div>
     </section>
   );
@@ -447,7 +478,7 @@ function OnlinePresencePanel() {
       <div className="home-presence-head">
         <div className="flex items-center gap-2">
           <span className="home-presence-dot" aria-hidden="true" />
-          <p className="text-[11px] font-black text-emerald-700">Đang online</p>
+          <p className="text-[11px] font-black text-primary">Đang online</p>
         </div>
       </div>
 
@@ -529,7 +560,7 @@ function Categories() {
     <section className="home-section home-slide-categories mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <SectionHeader
         title="Khám phá theo danh mục"
-        description="Kéo xuống là các nhóm việc trượt vào từ hai phía để bạn chọn nhanh hơn."
+        description="Các nhóm ngành nghề phổ biến được thiết kế trực quan giúp bạn lọc việc nhanh chóng."
         actionHref="/jobs"
         actionLabel="Xem tất cả"
       />
@@ -626,8 +657,8 @@ function LatestJobs() {
     <section className="home-section home-jobs-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="home-jobs-content">
         <SectionHeader
-          title="Việc làm đang mở"
-          description="Các cơ hội mới nhất được gom lại để bạn xem nhanh, lọc nhanh và ứng tuyển ngay."
+          title="Việc làm nổi bật"
+          description="Các cơ hội mới nhất được kết nối trực tiếp, phản hồi nhanh chóng từ doanh nghiệp."
           actionHref="/jobs"
           actionLabel="Xem tất cả việc làm"
         />
@@ -666,52 +697,62 @@ function JobCard({ job, index, renderedAt }) {
 
   return (
     <article
-      className={`home-job-card shine-hover ${isFeatured ? 'home-job-featured' : ''}`}
+      className={`home-job-card shine-hover flex flex-col justify-between ${isFeatured ? 'home-job-featured' : ''}`}
       style={{ '--home-delay': `${index * 70}ms` }}
     >
-      <div className="flex items-start justify-between gap-4">
-        {job.companyLogoUrl ? (
-          <img src={job.companyLogoUrl} alt={job.companyName} className="h-12 w-12 rounded-2xl border border-slate-100 object-cover" />
-        ) : (
-          <div className="home-company-avatar">{initials}</div>
-        )}
+      <div>
+        <div className="flex items-start justify-between gap-4">
+          {job.companyLogoUrl ? (
+            <img src={job.companyLogoUrl} alt={job.companyName} className="h-12 w-12 rounded-2xl border border-slate-100 object-cover" />
+          ) : (
+            <div className="home-company-avatar flex items-center justify-center bg-gradient-to-br from-sky-400 to-primary text-white font-bold rounded-2xl">{initials}</div>
+          )}
 
-        {isFeatured ? (
-          <span className="home-job-badge">
-            <span className="material-symbols-outlined !text-[15px]">local_fire_department</span>
-            Việc hot
-          </span>
-        ) : isNew ? (
-          <span className="home-job-badge home-job-badge-soft">Mới</span>
-        ) : null}
+          {isFeatured ? (
+            <span className="home-job-badge flex items-center gap-1">
+              <span className="material-symbols-outlined !text-[15px] text-primary">local_fire_department</span>
+              Việc hot
+            </span>
+          ) : isNew ? (
+            <span className="home-job-badge home-job-badge-soft">Mới</span>
+          ) : null}
+        </div>
+
+        <div className="mt-5">
+          <h3 className="line-clamp-2 min-h-[3.25rem] text-lg font-black leading-snug text-slate-950 hover:text-primary transition-colors">
+            <a href={`/jobs/${job.jobPostId}`}>{job.title}</a>
+          </h3>
+          <p className="mt-1.5 line-clamp-1 text-sm font-bold text-slate-500">
+            {job.companyName}
+          </p>
+          <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-400 flex items-center gap-1">
+            <span className="material-symbols-outlined !text-sm text-slate-400">location_on</span>
+            {compactLocationLabel(job.location) || 'Việt Nam'}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-5">
-        <h3 className="line-clamp-2 min-h-[3.25rem] text-xl font-black leading-snug text-slate-950">{job.title}</h3>
-        <p className="mt-2 line-clamp-1 text-sm font-semibold text-slate-500">
-          {job.companyName} · {job.location || 'Việt Nam'}
-        </p>
-      </div>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <span className="home-job-chip">
-          <span className="material-symbols-outlined !text-[14px]">schedule</span>
-          {job.jobType}
-        </span>
-        {job.payRate && (
+      <div>
+        <div className="mt-4 flex flex-wrap gap-2">
           <span className="home-job-chip">
-            <span className="material-symbols-outlined !text-[14px]">payments</span>
-            {formatPayRate(job.payRate)} {translatePayUnit(job.payUnit)}
+            <span className="material-symbols-outlined !text-[14px]">schedule</span>
+            {job.jobType}
           </span>
-        )}
-      </div>
+          {job.payRate && (
+            <span className="home-job-chip text-primary bg-sky-50 border border-sky-100/60 font-black">
+              <span className="material-symbols-outlined !text-[14px] text-primary">payments</span>
+              {formatPayRate(job.payRate)} {translatePayUnit(job.payUnit)}
+            </span>
+          )}
+        </div>
 
-      <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-5">
-        <span className="text-xs font-bold text-slate-400">{timeAgo(job.createdAt, renderedAt)}</span>
-        <a href={`/jobs/${job.jobPostId}`} className="button-swipe home-job-action">
-          Ứng tuyển
-          <span className="material-symbols-outlined !text-[16px]">arrow_forward</span>
-        </a>
+        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+          <span className="text-[11px] font-bold text-slate-400">{timeAgo(job.createdAt, renderedAt)}</span>
+          <a href={`/jobs/${job.jobPostId}`} className="button-swipe home-job-action">
+            Ứng tuyển ngay
+            <span className="material-symbols-outlined !text-[15px]">arrow_forward</span>
+          </a>
+        </div>
       </div>
     </article>
   );
@@ -750,7 +791,7 @@ function Testimonials() {
         {testimonials.map((item, index) => (
           <article key={item.name} className="home-testimonial-card shine-hover" style={{ '--home-delay': `${index * 110}ms` }}>
             <div className="flex items-center gap-3">
-              <div className="home-story-mini-avatar">{item.initials}</div>
+              <div className="home-story-mini-avatar flex items-center justify-center bg-primary text-white font-bold rounded-xl">{item.initials}</div>
               <div>
                 <h3>{item.name}</h3>
                 <p>{item.role}</p>

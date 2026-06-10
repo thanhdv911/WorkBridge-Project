@@ -43,6 +43,16 @@ export default function Header() {
   const isLoggedIn = !!token;
   const userRole = localStorage.getItem('role');
   const [isVip, setIsVip] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState('');
+
+  useEffect(() => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      setAvatarUrl(storedUser.avatarUrl || '');
+    } catch {
+      setAvatarUrl('');
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (isLoggedIn && (userRole === 'Employer' || userRole === 'Applicant')) {
@@ -557,16 +567,21 @@ export default function Header() {
                 </div>
                 <Link
                   to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"}
-                  className={`hidden sm:flex w-9 h-9 rounded-full items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition-all relative ${
+                  className={`hidden sm:flex w-9 h-9 rounded-full items-center justify-center shadow-md hover:shadow-lg transition-all relative overflow-hidden ${
                     isVip
-                      ? 'bg-gradient-to-br from-amber-500 to-yellow-400 border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-amber-500/20'
-                      : 'bg-gradient-to-br from-primary to-accent'
+                      ? 'border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-amber-500/20 bg-slate-100'
+                      : 'border border-slate-200 bg-slate-100'
                   }`}
                   title={isVip ? "Hồ sơ Doanh nghiệp VIP" : "Hồ sơ"}
                 >
-                  {userRole === 'Employer' ? 'E' : 'ME'}
+                  <img
+                    src={avatarUrl || "/default-avatar.png"}
+                    alt="Hồ sơ"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                  />
                   {isVip && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[8px] font-black shadow shadow-amber-500/35">
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[8px] font-black shadow shadow-amber-500/35 z-10">
                       ★
                     </span>
                   )}
@@ -744,14 +759,19 @@ export default function Header() {
               to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-sky-50/80 transition-colors"
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md relative ${
+              <div className={`w-8 h-8 rounded-full overflow-hidden relative flex-shrink-0 bg-slate-100 ${
                 isVip
-                  ? 'bg-gradient-to-br from-amber-500 to-yellow-400 border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-amber-500/30'
-                  : 'bg-gradient-to-br from-primary to-accent'
+                  ? 'border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-md shadow-amber-500/30'
+                  : 'border border-slate-200 shadow-md'
               }`}>
-                {userRole === 'Employer' ? 'E' : 'ME'}
+                <img
+                  src={avatarUrl || "/default-avatar.png"}
+                  alt="Hồ sơ"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                />
                 {isVip && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[7px] font-black shadow-sm">
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[7px] font-black shadow-sm z-10">
                     ★
                   </span>
                 )}

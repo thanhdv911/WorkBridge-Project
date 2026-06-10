@@ -232,8 +232,12 @@ export default function Profile() {
                     <div key={review.reviewId} className="p-5 rounded-xl bg-slate-50/50 border border-slate-100/70 hover:border-primary/20 hover:bg-white transition-all group shadow-sm">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                            {(review.reviewerName || 'A').charAt(0).toUpperCase()}
+                          <div className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                            <img
+                              src="/default-avatar.png"
+                              alt={review.reviewerName || 'Reviewer'}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                           <div>
                             <div className="font-bold text-slate-700 text-sm">{review.reviewerName || 'Người dùng ẩn danh'}</div>

@@ -1121,8 +1121,13 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                 >
                                     <div className="flex gap-3">
                                         <div className="relative shrink-0">
-                                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-800 text-sm font-black text-white">
-                                                {getInitials(conv.contactName)}
+                                            <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                                                <img
+                                                    src={conv.avatarUrl || "/default-avatar.png"}
+                                                    alt={conv.contactName}
+                                                    className="h-full w-full object-cover"
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                                                />
                                             </div>
                                             <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${conv.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                                         </div>
@@ -1161,8 +1166,13 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                 <span className="material-symbols-outlined !text-xl">arrow_back</span>
                             </button>
                             <div className="relative shrink-0">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-black text-white">
-                                    {getInitials(selectedContact.contactName)}
+                                <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                                    <img
+                                        src={selectedContact.avatarUrl || "/default-avatar.png"}
+                                        alt={selectedContact.contactName}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                                    />
                                 </div>
                                 <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${selectedContact.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                             </div>
@@ -1327,8 +1337,13 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             <aside className="scrollbar-none hidden w-[320px] shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-white xl:flex">
                                 <div className="border-b border-slate-100 p-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-sm font-black text-white">
-                                            {getInitials(selectedContact.contactName)}
+                                        <div className="h-12 w-12 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                                            <img
+                                                src={selectedContact.avatarUrl || "/default-avatar.png"}
+                                                alt={selectedContact.contactName}
+                                                className="h-full w-full object-cover"
+                                                onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                                            />
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="truncate text-sm font-black text-slate-900">{selectedContact.contactName}</h3>
