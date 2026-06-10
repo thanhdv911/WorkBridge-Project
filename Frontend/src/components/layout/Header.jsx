@@ -364,54 +364,6 @@ export default function Header() {
                 </div>
               </div>
             </div>
-            {userRole === 'Employer' && (
-              <>
-                <Link
-                  to="/employer-dashboard"
-                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
-                >
-                  Quản lý tuyển dụng
-                </Link>
-                {isVip ? (
-                  <Link
-                    to="/employer-dashboard?tab=vip"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-amber-500 bg-amber-500/10 border border-amber-500/35 transition-all shadow-sm shadow-amber-100/30 ml-1 hover:bg-amber-500/20"
-                  >
-                    <span className="material-symbols-outlined !text-sm text-amber-500">workspace_premium</span>
-                    Doanh nghiệp VIP
-                  </Link>
-                ) : (
-                  <Link
-                    to="/employer-dashboard?tab=vip"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-amber-600 bg-amber-50 border border-amber-200/50 hover:bg-amber-100 transition-all shadow-sm shadow-amber-100/50 ml-1"
-                  >
-                    <span className="material-symbols-outlined !text-sm text-amber-500 animate-pulse">workspace_premium</span>
-                    Nâng cấp VIP
-                  </Link>
-                )}
-              </>
-            )}
-            {userRole === 'Applicant' && (
-              <Link
-                to="/profile?tab=vip"
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm ml-1 ${
-                  isVip
-                    ? 'text-[#1687d9] bg-blue-50 border border-blue-200'
-                    : 'text-blue-700 bg-blue-50 border border-blue-200/70 hover:bg-blue-100'
-                }`}
-              >
-                <span className="material-symbols-outlined !text-sm">{isVip ? 'workspace_premium' : 'lock'}</span>
-                {isVip ? 'Cá nhân VIP' : 'Nâng cấp VIP'}
-              </Link>
-            )}
-            {userRole === 'Admin' && (
-              <Link
-                to="/admin-dashboard"
-                className={`${NAV_LINK_BASE} ${isActive('/admin-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
-              >
-                Quản trị hệ thống
-              </Link>
-            )}
             {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
               <div className="relative group py-5">
                 <button
@@ -481,6 +433,54 @@ export default function Header() {
                   </div>
                 </div>
               </div>
+            )}
+            {userRole === 'Employer' && (
+              <>
+                <Link
+                  to="/employer-dashboard"
+                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+                >
+                  Quản lý tuyển dụng
+                </Link>
+                {isVip ? (
+                  <Link
+                    to="/employer-dashboard?tab=vip"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-amber-500 bg-amber-500/10 border border-amber-500/35 transition-all shadow-sm shadow-amber-100/30 ml-1 hover:bg-amber-500/20"
+                  >
+                    <span className="material-symbols-outlined !text-sm text-amber-500">workspace_premium</span>
+                    Doanh nghiệp VIP
+                  </Link>
+                ) : (
+                  <Link
+                    to="/employer-dashboard?tab=vip"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-amber-600 bg-amber-50 border border-amber-200/50 hover:bg-amber-100 transition-all shadow-sm shadow-amber-100/50 ml-1"
+                  >
+                    <span className="material-symbols-outlined !text-sm text-amber-500 animate-pulse">workspace_premium</span>
+                    Nâng cấp VIP
+                  </Link>
+                )}
+              </>
+            )}
+            {userRole === 'Applicant' && (
+              <Link
+                to="/profile?tab=vip"
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm ml-1 ${
+                  isVip
+                    ? 'text-[#1687d9] bg-blue-50 border border-blue-200'
+                    : 'text-blue-700 bg-blue-50 border border-blue-200/70 hover:bg-blue-100'
+                }`}
+              >
+                <span className="material-symbols-outlined !text-sm">{isVip ? 'workspace_premium' : 'lock'}</span>
+                {isVip ? 'Cá nhân VIP' : 'Nâng cấp VIP'}
+              </Link>
+            )}
+            {userRole === 'Admin' && (
+              <Link
+                to="/admin-dashboard"
+                className={`${NAV_LINK_BASE} ${isActive('/admin-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+              >
+                Quản trị hệ thống
+              </Link>
             )}
           </nav>
 
@@ -717,41 +717,6 @@ export default function Header() {
             </div>
           </div>
 
-          {userRole === 'Employer' && (
-            <>
-              <MobileNavLink to="/employer-dashboard" icon="dashboard" label="Quản lý tuyển dụng" active={isActive('/employer-dashboard')} />
-              {isVip ? (
-                <Link
-                  to="/employer-dashboard?tab=vip"
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-amber-500 bg-amber-500/10 border border-amber-500/30`}
-                >
-                  <span className="material-symbols-outlined !text-[20px] text-amber-500">workspace_premium</span>
-                  Doanh nghiệp VIP
-                </Link>
-              ) : (
-                <Link
-                  to="/employer-dashboard?tab=vip"
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-amber-600 bg-amber-50/50 hover:bg-amber-50 border border-amber-200/50`}
-                >
-                  <span className="material-symbols-outlined !text-[20px] text-amber-500 animate-pulse">workspace_premium</span>
-                  Nâng cấp VIP Doanh nghiệp
-                </Link>
-              )}
-            </>
-          )}
-          {userRole === 'Applicant' && (
-            <Link
-              to="/profile?tab=vip"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-blue-700 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/70"
-            >
-              <span className="material-symbols-outlined !text-[20px] text-[#1687d9]">{isVip ? 'workspace_premium' : 'lock'}</span>
-              {isVip ? 'Cá nhân VIP' : 'Nâng cấp VIP'}
-            </Link>
-          )}
-          {userRole === 'Admin' && (
-            <MobileNavLink to="/admin-dashboard" icon="admin_panel_settings" label="Quản trị hệ thống" active={isActive('/admin-dashboard')} />
-          )}
-
           {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
             <>
               {/* Workspace accordion */}
@@ -790,6 +755,41 @@ export default function Header() {
 
               <MobileNavLink to="/messages" icon="forum" label="Tin nhắn" active={isActive('/messages')} badge={unreadMessages} />
             </>
+          )}
+
+          {userRole === 'Employer' && (
+            <>
+              <MobileNavLink to="/employer-dashboard" icon="dashboard" label="Quản lý tuyển dụng" active={isActive('/employer-dashboard')} />
+              {isVip ? (
+                <Link
+                  to="/employer-dashboard?tab=vip"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-amber-500 bg-amber-500/10 border border-amber-500/30`}
+                >
+                  <span className="material-symbols-outlined !text-[20px] text-amber-500">workspace_premium</span>
+                  Doanh nghiệp VIP
+                </Link>
+              ) : (
+                <Link
+                  to="/employer-dashboard?tab=vip"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-amber-600 bg-amber-50/50 hover:bg-amber-50 border border-amber-200/50`}
+                >
+                  <span className="material-symbols-outlined !text-[20px] text-amber-500 animate-pulse">workspace_premium</span>
+                  Nâng cấp VIP Doanh nghiệp
+                </Link>
+              )}
+            </>
+          )}
+          {userRole === 'Applicant' && (
+            <Link
+              to="/profile?tab=vip"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-blue-700 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/70"
+            >
+              <span className="material-symbols-outlined !text-[20px] text-[#1687d9]">{isVip ? 'workspace_premium' : 'lock'}</span>
+              {isVip ? 'Cá nhân VIP' : 'Nâng cấp VIP'}
+            </Link>
+          )}
+          {userRole === 'Admin' && (
+            <MobileNavLink to="/admin-dashboard" icon="admin_panel_settings" label="Quản trị hệ thống" active={isActive('/admin-dashboard')} />
           )}
         </nav>
 
