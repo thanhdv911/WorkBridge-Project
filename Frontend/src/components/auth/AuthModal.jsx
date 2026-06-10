@@ -251,9 +251,11 @@ export default function AuthModal() {
       onClick={closeAuth}
     >
       <div 
-        className="bg-white/95 backdrop-blur-xl rounded-[28px] border border-sky-100/80 max-w-[420px] w-full p-6 sm:p-8 relative shadow-2xl anim-fadeUp origin-center font-display flex flex-col"
+        className="bg-white/95 backdrop-blur-xl rounded-[28px] lg:rounded-[2rem] border border-sky-100/80 max-w-[420px] xl:max-w-[960px] w-full relative shadow-2xl anim-fadeUp origin-center font-display grid xl:grid-cols-[minmax(0,1fr)_420px] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* ── LEFT: Form ── */}
+        <div className="min-w-0 flex flex-col justify-center p-6 sm:p-8 relative z-10 w-full">
         {/* Close Button X */}
         <button
           onClick={closeAuth}
@@ -632,6 +634,83 @@ export default function AuthModal() {
             </p>
           </form>
         )}
+        </div>
+
+        {/* ── RIGHT: Image Panel ── */}
+        <div className="auth-visual-panel hidden xl:flex min-h-[580px] relative overflow-hidden rounded-[2rem] m-3 flex-col justify-between p-7" aria-hidden="true">
+          <div className="auth-visual-scan"></div>
+          <div className="blob-deco w-64 h-64 bg-sky-300/25 -top-16 -right-16 blur-[44px]"></div>
+          <div className="blob-deco w-44 h-44 bg-cyan-200/20 bottom-24 -left-14 blur-[36px]"></div>
+
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/20 px-3.5 py-2 text-xs font-extrabold text-white shadow-lg shadow-sky-950/10 backdrop-blur-md">
+              <span className="material-symbols-outlined filled !text-[16px] text-emerald-300">radio_button_checked</span>
+              ca làm phù hợp
+            </div>
+            <div className="auth-orbit-chip">
+              <span className="material-symbols-outlined filled !text-xl">bolt</span>
+            </div>
+          </div>
+
+          <div className="relative z-10">
+            <div className="auth-photo-card">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-extrabold text-sky-100">Gợi ý trong hôm nay</p>
+                  <h3 className="mt-2 text-2xl font-black leading-tight tracking-normal text-white">Tìm ca làm nhanh hơn</h3>
+                </div>
+                <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/20">
+                  <span className="material-symbols-outlined !text-2xl text-white">work</span>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                <div className="auth-mini-row">
+                  <span className="material-symbols-outlined !text-[18px] text-cyan-200">schedule</span>
+                  <div>
+                    <div className="text-xs font-extrabold text-white">Ca tối gần trường</div>
+                    <div className="text-[10px] font-semibold text-white/60">Ưu tiên lịch rảnh của bạn</div>
+                  </div>
+                  <strong>42k</strong>
+                </div>
+                <div className="auth-mini-row">
+                  <span className="material-symbols-outlined !text-[18px] text-emerald-200">verified_user</span>
+                  <div>
+                    <div className="text-xs font-extrabold text-white">Nhà tuyển dụng xác minh</div>
+                    <div className="text-[10px] font-semibold text-white/60">Ứng tuyển tự tin hơn</div>
+                  </div>
+                  <strong>1 chạm</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="auth-floating-badge auth-badge-a">
+              <span className="material-symbols-outlined !text-[18px] text-sky-500">chat</span>
+              phản hồi nhanh
+            </div>
+            <div className="auth-floating-badge auth-badge-b">
+              <span className="material-symbols-outlined !text-[18px] text-emerald-500">task_alt</span>
+              hồ sơ sẵn sàng
+            </div>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-2 gap-4">
+            <div className="auth-stat-tile">
+              <span className="material-symbols-outlined !text-xl text-cyan-200">trending_up</span>
+              <div>
+                <div className="text-base font-black text-white">5,000+</div>
+                <div className="text-[10px] font-semibold text-white/60">việc đang mở</div>
+              </div>
+            </div>
+            <div className="auth-stat-tile">
+              <span className="material-symbols-outlined !text-xl text-emerald-200">groups</span>
+              <div>
+                <div className="text-base font-black text-white">12K+</div>
+                <div className="text-[10px] font-semibold text-white/60">sinh viên kết nối</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
