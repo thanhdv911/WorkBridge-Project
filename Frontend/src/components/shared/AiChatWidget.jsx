@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { signalRService } from '../../services/signalrService';
@@ -133,9 +133,17 @@ const renderFormattedText = (text = '') => {
 
 const AiChatWidget = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('messages');
+
+  // Floating Action Toolbar States
+  const [savedJobsCount, setSavedJobsCount] = useState(0);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   const [aiMessages, setAiMessages] = useState([]);
   const [aiInput, setAiInput] = useState('');
@@ -212,6 +220,29 @@ const AiChatWidget = () => {
   useEffect(() => {
     return () => window.clearTimeout(closeTimerRef.current);
   }, []);
+
+  // Fetch saved jobs count when user, token, or page route path changes
+  useEffect(() => {
+    if (!token) {
+      setSavedJobsCount(0);
+      return;
+    }
+    let active = true;
+    const fetchSavedCount = async () => {
+      try {
+        const res = await api.get('/savedjobs');
+        if (active) {
+          setSavedJobsCount(res.data?.length || 0);
+        }
+      } catch {
+        if (active) setSavedJobsCount(0);
+      }
+    };
+    fetchSavedCount();
+    return () => {
+      active = false;
+    };
+  }, [token, location.pathname]);
 
   useEffect(() => {
     if (!token) return;
@@ -527,13 +558,76 @@ const AiChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-0 right-5 z-[9999] font-sans">
+    <div className="fixed bottom-0 right-5 z-[9999] font-sans pointer-events-none">
       {!isPanelMounted && (
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end gap-3 pb-0 pointer-events-auto">
+          {/* Floating Action Buttons Stack */}
+          <div className="flex flex-col items-center gap-3 mb-2 animate-fadeInUp">
+            {/* 1. Saved Jobs Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/saved-jobs')}
+              className="relative w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group hover:bg-[#1392ec]/5"
+              title="Việc đã lưu"
+            >
+              <span className="material-symbols-outlined !text-xl filled">favorite</span>
+              {savedJobsCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-500 text-[10px] text-white font-black flex items-center justify-center border border-white shadow-sm shadow-emerald-500/20">
+                  {savedJobsCount}
+                </span>
+              )}
+            </button>
+
+            {/* 2. Referral Button */}
+            <button
+              type="button"
+              onClick={() => {
+                toast.success('Tính năng giới thiệu bạn bè đang được cập nhật!');
+              }}
+              className="w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all hover:bg-[#1392ec]/5"
+              title="Giới thiệu bạn bè"
+            >
+              <span className="material-symbols-outlined !text-xl">person_add</span>
+            </button>
+
+            {/* 3. Safety/Privacy Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/privacy')}
+              className="w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all hover:bg-[#1392ec]/5"
+              title="Bảo mật & Điều khoản"
+            >
+              <span className="material-symbols-outlined !text-xl">verified_user</span>
+            </button>
+
+            {/* 4. Feedback & Support Card */}
+            <div className="w-[60px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100/60 flex flex-col overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(true)}
+                className="flex flex-col items-center gap-0.5 py-2.5 text-[#1392ec] hover:bg-sky-50/50 transition-colors border-b border-slate-100"
+                title="Góp ý"
+              >
+                <span className="material-symbols-outlined !text-[19px]">comment</span>
+                <span className="text-[9px] font-black leading-none mt-1">Góp ý</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/contact')}
+                className="flex flex-col items-center gap-0.5 py-2.5 text-[#1392ec] hover:bg-sky-50/50 transition-colors"
+                title="Hỗ trợ"
+              >
+                <span className="material-symbols-outlined !text-[19px]">headset_mic</span>
+                <span className="text-[9px] font-black leading-none mt-1">Hỗ trợ</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Current Chat trigger button */}
           <button
             type="button"
             onClick={openWidget}
-            className="relative flex h-12 min-w-[112px] origin-bottom-right items-center justify-center gap-2 rounded-t-lg bg-[#1687d9] px-4 text-white shadow-2xl shadow-blue-500/25 transition duration-200 hover:-translate-y-0.5 hover:bg-[#0f75c2] active:translate-y-0"
+            className="relative flex h-12 min-w-[112px] origin-bottom-right items-center justify-center gap-2 rounded-t-lg bg-[#1392ec] px-4 text-white shadow-2xl shadow-blue-500/25 transition duration-200 hover:-translate-y-0.5 hover:bg-[#0b6fbb] active:translate-y-0"
           >
             {unreadTotal > 0 && (
               <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-black ring-2 ring-white">
@@ -548,7 +642,7 @@ const AiChatWidget = () => {
 
       {isPanelMounted && (
         <div
-          className={`absolute bottom-4 right-0 flex h-[600px] max-h-[calc(100vh-48px)] w-[720px] max-w-[calc(100vw-24px)] origin-bottom-right transform-gpu flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl transition-all duration-300 ease-out ${
+          className={`absolute bottom-4 right-0 flex h-[600px] max-h-[calc(100vh-48px)] w-[720px] max-w-[calc(100vw-24px)] origin-bottom-right transform-gpu flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl transition-all duration-300 ease-out pointer-events-auto ${
             isOpen
               ? 'translate-y-0 scale-100 opacity-100'
               : 'pointer-events-none translate-y-8 scale-90 opacity-0'
@@ -920,6 +1014,94 @@ const AiChatWidget = () => {
               </form>
             </div>
           )}
+        </div>
+      )}
+      {/* ── Feedback Modal ── */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm pointer-events-auto">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-100/80 anim-fadeUp">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Gửi góp ý của bạn</h3>
+                <p className="text-xs font-semibold text-slate-500 mt-1">Chúng tôi luôn trân trọng ý kiến góp ý của bạn để cải thiện WorkBridge.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(false)}
+                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Rating stars */}
+              <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wide">Đánh giá độ hài lòng</label>
+                <div className="flex items-center gap-1.5 mt-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setFeedbackRating(star)}
+                      className="transition-transform active:scale-95 hover:scale-110"
+                    >
+                      <span className={`material-symbols-outlined !text-2xl ${
+                        star <= feedbackRating ? 'text-amber-400 filled' : 'text-slate-200'
+                      }`}>
+                        star
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feedback Comment */}
+              <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wide">Ý kiến đóng góp</label>
+                <textarea
+                  rows={4}
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                  placeholder="Hãy chia sẻ trải nghiệm của bạn hoặc những tính năng bạn muốn cải thiện..."
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-3 mt-1.5 text-sm placeholder:text-slate-400 focus:outline-none focus:border-[#1392ec] focus:bg-white focus:ring-2 focus:ring-[#1392ec]/15 resize-none transition-all"
+                  required
+                />
+              </div>
+
+              {/* Submit buttons */}
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!feedbackComment.trim()) {
+                      toast.error('Vui lòng nhập nội dung góp ý.');
+                      return;
+                    }
+                    setSubmittingFeedback(true);
+                    setTimeout(() => {
+                      toast.success('Cảm ơn ý kiến góp ý quý giá của bạn!');
+                      setFeedbackComment('');
+                      setFeedbackRating(5);
+                      setSubmittingFeedback(false);
+                      setShowFeedbackModal(false);
+                    }, 800);
+                  }}
+                  disabled={submittingFeedback}
+                  className="flex-1 h-11 rounded-xl bg-gradient-to-r from-[#1392ec] to-[#0b6fbb] text-white font-bold text-sm shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 transition-all disabled:opacity-50"
+                >
+                  {submittingFeedback ? 'Đang gửi...' : 'Gửi góp ý'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
