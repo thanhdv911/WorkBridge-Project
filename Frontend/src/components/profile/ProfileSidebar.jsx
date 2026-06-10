@@ -1,7 +1,11 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { signalRService } from '../../services/signalrService';
 
 export default function ProfileSidebar({ user, isOwnProfile = true }) {
+  const navigate = useNavigate();
+
   let strength = 30;
   if (user?.phone) strength += 10;
   if (user?.address) strength += 10;
@@ -37,6 +41,13 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
     { to: '/interviews', icon: 'event_available', label: 'Phỏng vấn' },
     { to: '/payslips', icon: 'receipt_long', label: 'Phiếu lương' }
   ];
+
+  const handleLogout = () => {
+    signalRService.stop(); // cleanly disconnect on logout
+    localStorage.clear();
+    toast.success('Đã đăng xuất thành công');
+    navigate('/login');
+  };
 
   return (
     <aside className="profile-sidebar-card anim-fadeUp h-fit rounded-2xl p-5">
@@ -85,6 +96,16 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
                 </NavLink>
               ))}
             </nav>
+
+            <div className="border-t border-slate-200/70 pt-4 mt-4">
+              <button
+                onClick={handleLogout}
+                className="flex w-full min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-bold text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all border border-transparent hover:border-rose-100/50"
+              >
+                <span className="material-symbols-outlined !text-lg">logout</span>
+                Đăng xuất tài khoản
+              </button>
+            </div>
           </section>
         )}
       </div>

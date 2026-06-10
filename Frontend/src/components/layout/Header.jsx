@@ -72,6 +72,7 @@ export default function Header() {
   const [recentNotifs, setRecentNotifs] = useState([]);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
   const dropdownRef = useRef(null);
+  const [showEmployerConfirm, setShowEmployerConfirm] = useState(false);
 
   // Mobile menu state
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -285,6 +286,21 @@ export default function Header() {
     navigate('/login');
   };
 
+  const handleEmployerCtaClick = (e) => {
+    if (isLoggedIn && userRole !== 'Employer') {
+      e.preventDefault();
+      setShowEmployerConfirm(true);
+    }
+  };
+
+  const handleConfirmEmployerSwitch = () => {
+    setShowEmployerConfirm(false);
+    signalRService.stop();
+    localStorage.clear();
+    navigate('/signup?role=Employer');
+    window.location.reload();
+  };
+
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -476,7 +492,7 @@ export default function Header() {
               <>
                 <Link
                   to="/messages"
-                  className="relative w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
+                  className="relative w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
                   title="Tin nhắn"
                 >
                   <span className="material-symbols-outlined text-slate-500 !text-xl">forum</span>
@@ -489,7 +505,7 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={handleToggleNotifDropdown}
-                    className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${showNotifDropdown ? 'bg-primary/10 text-primary' : 'bg-sky-50 hover:bg-sky-100 text-slate-500'}`}
+                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${showNotifDropdown ? 'bg-primary/10 text-primary' : 'bg-sky-50 hover:bg-sky-100 text-slate-500'}`}
                     title="Thông báo"
                   >
                     <span className="material-symbols-outlined !text-xl">notifications</span>
@@ -565,30 +581,33 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-                <Link
-                  to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"}
-                  className={`hidden sm:flex w-9 h-9 rounded-full items-center justify-center shadow-md hover:shadow-lg transition-all relative overflow-hidden ${
-                    isVip
-                      ? 'border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-amber-500/20 bg-slate-100'
-                      : 'border border-slate-200 bg-slate-100'
-                  }`}
-                  title={isVip ? "Hồ sơ Doanh nghiệp VIP" : "Hồ sơ"}
-                >
-                  <img
-                    src={avatarUrl || "/default-avatar.png"}
-                    alt="Hồ sơ"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
-                  />
-                  {isVip && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[8px] font-black shadow shadow-amber-500/35 z-10">
-                      ★
-                    </span>
-                  )}
-                </Link>
-                <button onClick={handleLogout} className="hidden sm:flex w-9 h-9 rounded-xl border border-slate-200 text-slate-500 items-center justify-center hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors" title="Đăng xuất">
-                  <span className="material-symbols-outlined !text-xl">logout</span>
-                </button>
+                
+                <div className="relative hidden sm:block select-none">
+                  <Link
+                    to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"}
+                    className={`flex w-9 h-9 rounded-full items-center justify-center shadow-md hover:shadow-lg transition-all relative overflow-hidden ${
+                      isVip
+                        ? 'border-2 border-amber-300 ring-2 ring-amber-500/25 shadow-amber-500/20 bg-slate-100'
+                        : 'border border-slate-200 bg-slate-100'
+                    }`}
+                    title={isVip ? "Hồ sơ Doanh nghiệp VIP" : "Hồ sơ"}
+                  >
+                    <img
+                      src={avatarUrl || "/default-avatar.png"}
+                      alt="Hồ sơ"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                    />
+                    {isVip && (
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white rounded-full flex items-center justify-center border border-amber-200 text-[8px] font-black shadow shadow-amber-500/35 z-10">
+                        ★
+                      </span>
+                    )}
+                  </Link>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 pointer-events-none">
+                    <span className="material-symbols-outlined !text-[9px] text-slate-500 font-bold">keyboard_arrow_down</span>
+                  </div>
+                </div>
               </>
             ) : (
               <>
@@ -597,6 +616,24 @@ export default function Header() {
                 </Link>
                 <Link to="/signup" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">
                   Đăng ký miễn phí
+                </Link>
+              </>
+            )}
+
+            {/* Are you an employer? CTA */}
+            {isLoggedIn && userRole !== 'Employer' && (
+              <>
+                <div className="h-8 w-px bg-slate-200/80 mx-1 hidden sm:block"></div>
+                <Link
+                  to={isLoggedIn ? "#" : "/signup?role=Employer"}
+                  onClick={handleEmployerCtaClick}
+                  className="hidden sm:flex flex-col text-left leading-tight group select-none pl-1"
+                >
+                  <span className="text-[11px] font-medium text-slate-400">Bạn là nhà tuyển dụng?</span>
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-primary transition-colors flex items-center gap-0.5 mt-0.5">
+                    Đăng tuyển ngay
+                    <span className="text-primary font-bold ml-1 transition-transform group-hover:translate-x-0.5">»</span>
+                  </span>
                 </Link>
               </>
             )}
@@ -797,6 +834,55 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {/* ── Custom Switch Role Confirmation Modal ── */}
+      {showEmployerConfirm && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[999] p-4 animate-in fade-in duration-200"
+          onClick={() => setShowEmployerConfirm(false)}
+        >
+          <div 
+            className="bg-white/95 backdrop-blur-xl rounded-3xl border border-sky-100/85 max-w-md w-full p-6 relative shadow-2xl anim-fadeUp origin-center text-center font-display"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close X */}
+            <button
+              onClick={() => setShowEmployerConfirm(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <span className="material-symbols-outlined !text-lg">close</span>
+            </button>
+
+            {/* Icon decoration */}
+            <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 mt-2">
+              <span className="material-symbols-outlined !text-3xl text-primary animate-pulse">domain</span>
+            </div>
+
+            <h3 className="text-xl font-black text-slate-900 tracking-tight">
+              Chuyển sang Nhà tuyển dụng?
+            </h3>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed px-2">
+              Bạn đang đăng nhập bằng tài khoản <strong>Người tìm việc</strong>. Để đăng tin tuyển dụng, bạn cần sử dụng tài khoản <strong>Nhà tuyển dụng</strong>. Hệ thống sẽ đăng xuất tài khoản hiện tại để tiếp tục.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEmployerConfirm(false)}
+                className="flex-1 h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold transition-all text-slate-500"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={handleConfirmEmployerSwitch}
+                className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary to-primary-dk hover:shadow-lg hover:shadow-primary/25 text-white font-black text-xs transition-all shadow-md shadow-primary/10"
+              >
+                Đăng xuất & Tiếp tục
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -37,6 +37,14 @@ export default function Auth() {
     setIsLogin(location.pathname === '/login');
   }, [location.pathname]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const roleParam = params.get('role');
+    if (roleParam === 'Employer' || roleParam === 'Applicant') {
+      setRole(roleParam);
+    }
+  }, [location.search]);
+
   const persistSession = (data) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);

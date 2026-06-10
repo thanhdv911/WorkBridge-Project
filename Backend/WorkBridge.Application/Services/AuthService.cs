@@ -51,7 +51,8 @@ namespace WorkBridge.Application.Services
                 Token = token,
                 FullName = user.FullName,
                 Role = user.Role.RoleName,
-                UserId = user.UserId
+                UserId = user.UserId,
+                AvatarUrl = user.AvatarUrl
             }, null);
         }
 
@@ -261,7 +262,8 @@ namespace WorkBridge.Application.Services
                     Token = token,
                     FullName = user.FullName,
                     Role = role.RoleName,
-                    UserId = user.UserId
+                    UserId = user.UserId,
+                    AvatarUrl = user.AvatarUrl
                 }, null);
             }
             catch (DbUpdateException)
@@ -469,7 +471,8 @@ namespace WorkBridge.Application.Services
                 RoleId = role.RoleId,
                 Status = "Active",
                 IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                AvatarUrl = payload.Picture
             };
 
             await _context.Users.AddAsync(user);
@@ -492,6 +495,14 @@ namespace WorkBridge.Application.Services
         {
             return null;
         }
+        else
+        {
+            if (string.IsNullOrEmpty(user.AvatarUrl) && !string.IsNullOrEmpty(payload.Picture))
+            {
+                user.AvatarUrl = payload.Picture;
+                await _context.SaveChangesAsync();
+            }
+        }
 
         var token = GenerateJwtToken(user);
 
@@ -500,7 +511,8 @@ namespace WorkBridge.Application.Services
             Token = token,
             FullName = user.FullName,
             Role = user.Role.RoleName,
-            UserId = user.UserId
+            UserId = user.UserId,
+            AvatarUrl = user.AvatarUrl
         };
     }
 
@@ -564,7 +576,8 @@ namespace WorkBridge.Application.Services
                 Token = token,
                 FullName = user.FullName,
                 Role = user.Role.RoleName,
-                UserId = user.UserId
+                UserId = user.UserId,
+                AvatarUrl = user.AvatarUrl
             };
         }
         catch
