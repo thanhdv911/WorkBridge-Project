@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { translatePayUnit } from '../utils/translate';
+import { useAuthModal } from '../contexts/AuthModalContext';
 
 import ReportModal from '../components/shared/ReportModal';
 
@@ -11,6 +12,7 @@ const REAPPLY_STATUSES = ['Rejected', 'Cancelled', 'Canceled', 'Interview Failed
 const JobDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { openLogin, user } = useAuthModal();
     const [job, setJob] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ const JobDetails = () => {
     const [canReapply, setCanReapply] = useState(false);
     const [profileUpdatePrompt, setProfileUpdatePrompt] = useState(null);
 
-    const userRole = localStorage.getItem('role');
+    const userRole = user?.role || localStorage.getItem('role');
     const token = localStorage.getItem('token');
     const isApplicant = userRole?.toLowerCase() === 'applicant';
 
@@ -76,7 +78,31 @@ const JobDetails = () => {
 
         if (!token) {
             toast.error('Vui lòng đăng nhập để ứng tuyển công việc này.');
-            navigate('/login');
+            openLogin(() => {
+                const freshToken = localStorage.getItem('token');
+                const freshRole = localStorage.getItem('role');
+                if (freshRole?.toLowerCase() === 'applicant') {
+                    // Check application status dynamically
+                    api.get('/application/my', {
+                        headers: { Authorization: `Bearer ${freshToken}` }
+                    }).then(res => {
+                        const existingApplication = res.data.find(app => app.jobPostId === parseInt(id));
+                        const status = existingApplication?.status || null;
+                        const canReapplyStatus = existingApplication?.canReapply ?? (existingApplication ? REAPPLY_STATUSES.includes(existingApplication.status) : false);
+                        
+                        if (status && !canReapplyStatus) {
+                            toast.error(`Bạn đã ứng tuyển công việc này rồi. Trạng thái hiện tại: ${status}`);
+                        } else {
+                            setShowApplyModal(true);
+                        }
+                    }).catch(err => {
+                        console.error('Error fetching application status in callback:', err);
+                        setShowApplyModal(true);
+                    });
+                } else {
+                    toast.error('Chỉ người tìm việc mới có thể ứng tuyển.');
+                }
+            });
             return;
         }
 
@@ -130,6 +156,21 @@ const JobDetails = () => {
     const handleToggleSave = async () => {
         if (!token) {
             toast.error('Vui lòng đăng nhập để lưu công việc.');
+            openLogin(async () => {
+                const freshToken = localStorage.getItem('token');
+                if (freshToken) {
+                    try {
+                        await api.post(`/savedjobs/${id}`, {}, {
+                            headers: { Authorization: `Bearer ${freshToken}` }
+                        });
+                        setIsSaved(true);
+                        toast.success('Đã lưu công việc thành công.');
+                    } catch (err) {
+                        console.error('Error saving job in login callback:', err);
+                        toast.error('Không thể lưu công việc.');
+                    }
+                }
+            });
             return;
         }
 

@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Header from './components/layout/Header';
+import { AuthModalProvider } from './contexts/AuthModalContext';
+import AuthModal from './components/auth/AuthModal';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
@@ -149,7 +151,7 @@ function App() {
   const hideVipPromo = isAuthPage || isSystemPage || location.pathname === '/admin-dashboard';
 
   return (
-    <>
+    <AuthModalProvider>
       <Toaster position="top-right" />
       <MaintenanceGate />
       <ScrollToTop />
@@ -195,7 +197,8 @@ function App() {
         </ErrorBoundary>
       </main>
       {!hideFooter && <Footer />}
-    </>
+      <AuthModal />
+    </AuthModalProvider>
   );
 }
 

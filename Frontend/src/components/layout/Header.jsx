@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { signalRService } from '../../services/signalrService';
 import { translateCategory } from '../../utils/translate';
 import WorkBridgeLogo from '../shared/WorkBridgeLogo';
+import { useAuthModal } from '../../contexts/AuthModalContext';
 
 const WORKSPACE_PATHS = ['/my-applications', '/saved-jobs', '/offers', '/interviews', '/my-work', '/payslips'];
 
@@ -35,24 +36,20 @@ const NAV_LINK_BASE = 'text-sm font-semibold transition-colors';
 const NAV_LINK_ACTIVE = 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded';
 
 export default function Header() {
+  const { openLogin, openSignup, user, logoutUser } = useAuthModal();
   const location = useLocation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const token = localStorage.getItem('token');
-  const isLoggedIn = !!token;
-  const userRole = localStorage.getItem('role');
+  const isLoggedIn = !!user;
+  const userRole = user?.role || localStorage.getItem('role');
   const [isVip, setIsVip] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState('');
 
   useEffect(() => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-      setAvatarUrl(storedUser.avatarUrl || '');
-    } catch {
-      setAvatarUrl('');
-    }
-  }, [location.pathname]);
+    setAvatarUrl(user?.avatarUrl || '');
+  }, [user, location.pathname]);
 
   useEffect(() => {
     if (isLoggedIn && (userRole === 'Employer' || userRole === 'Applicant')) {
@@ -282,6 +279,7 @@ export default function Header() {
   const handleLogout = () => {
     signalRService.stop(); // cleanly disconnect on logout
     localStorage.clear();
+    logoutUser();
     toast.success('Đã đăng xuất thành công');
     navigate('/login');
   };
@@ -611,12 +609,18 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link to="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors">
+                <button
+                  onClick={() => openLogin()}
+                  className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors"
+                >
                   Đăng nhập
-                </Link>
-                <Link to="/signup" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">
+                </button>
+                <button
+                  onClick={() => openSignup()}
+                  className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap"
+                >
                   Đăng ký miễn phí
-                </Link>
+                </button>
               </>
             )}
 
@@ -825,12 +829,24 @@ export default function Header() {
           </div>
         ) : (
           <div className="px-4 py-4 mt-auto border-t border-sky-100/80 flex flex-col gap-2">
-            <Link to="/login" className="flex items-center justify-center h-11 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors">
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                openLogin();
+              }}
+              className="flex items-center justify-center h-11 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors w-full"
+            >
               Đăng nhập
-            </Link>
-            <Link to="/signup" className="flex items-center justify-center h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+            </button>
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                openSignup();
+              }}
+              className="flex items-center justify-center h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all w-full"
+            >
               Đăng ký miễn phí
-            </Link>
+            </button>
           </div>
         )}
       </div>
