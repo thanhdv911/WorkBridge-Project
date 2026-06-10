@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Header from './components/layout/Header';
-import { AuthModalProvider } from './contexts/AuthModalContext';
+import { AuthModalProvider, useAuthModal } from './contexts/AuthModalContext';
 import AuthModal from './components/auth/AuthModal';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
-import Auth from './pages/Auth';
 import FindJobs from './pages/FindJobs';
 import Profile from './pages/Profile';
 import EmployerDashboard from './pages/EmployerDashboard';
@@ -140,6 +139,20 @@ function MaintenanceGate() {
   return null;
 }
 
+function AuthRedirect({ mode }) {
+  const { openLogin, openSignup } = useAuthModal();
+
+  useEffect(() => {
+    if (mode === 'signup') {
+      openSignup();
+    } else {
+      openLogin();
+    }
+  }, [mode]);
+
+  return <Navigate to="/" replace />;
+}
+
 function App() {
   const location = useLocation();
   const isAuthPage = ['/login', '/signup', '/auth', '/reset-password'].includes(location.pathname);
@@ -183,8 +196,8 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/signup" element={<Auth />} />
+            <Route path="/login" element={<AuthRedirect mode="login" />} />
+            <Route path="/signup" element={<AuthRedirect mode="signup" />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth" element={<Navigate to="/login" replace />} />
             <Route path="/post-job" element={<Navigate to="/employer-dashboard" replace />} />
