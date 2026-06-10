@@ -279,7 +279,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="glass sticky top-0 z-50 border-b border-[#e5e1d8]/60">
+      <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
         <div className="w-full mx-auto flex items-center justify-between gap-3 px-4 sm:px-4 sm:px-6 lg:px-8 h-20">
           {/* Logo */}
           <div className="flex items-center min-w-0">
@@ -308,7 +308,7 @@ export default function Header() {
                 </span>
               </button>
 
-              <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-[#faf8f4] rounded-2xl shadow-xl shadow-slate-200/40 border border-[#e5e1d8]/60 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
+              <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1.5 block">
                     Danh mục việc làm
@@ -320,7 +320,7 @@ export default function Header() {
                         <Link
                           key={cat.categoryId}
                           to={`/jobs?categoryId=${cat.categoryId}`}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100/60 hover:text-primary transition-all"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-sky-50/80 hover:text-primary transition-all"
                         >
                           <span className="material-symbols-outlined !text-[16px] text-slate-400">{icon}</span>
                           {translateCategory(cat.name)}
@@ -404,7 +404,7 @@ export default function Header() {
                 </button>
 
                 {/* Workspace Dropdown */}
-                <div className="absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[340px] bg-[#faf8f4] rounded-2xl shadow-xl shadow-slate-200/40 border border-[#e5e1d8]/60 p-4 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
+                <div className="absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[340px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-4 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
                   <div className="grid grid-cols-2 gap-4">
                     {/* Job Hunting */}
                     <div className="flex flex-col gap-1.5">
@@ -423,7 +423,7 @@ export default function Header() {
                           className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
                             isActive(item.to)
                               ? 'bg-primary/10 text-primary'
-                              : 'text-slate-600 hover:bg-slate-100/60 hover:text-primary'
+                              : 'text-slate-600 hover:bg-sky-50/80 hover:text-primary'
                           }`}
                         >
                           <span className="material-symbols-outlined !text-[16px]">{item.icon}</span>
@@ -432,7 +432,7 @@ export default function Header() {
                       ))}
                     </div>
                     {/* Active Work */}
-                    <div className="flex flex-col gap-1.5 border-l border-[#e5e1d8]/50 pl-4">
+                    <div className="flex flex-col gap-1.5 border-l border-sky-100/80 pl-4">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1 block">
                         Công việc
                       </span>
@@ -446,7 +446,7 @@ export default function Header() {
                           className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
                             isActive(item.to)
                               ? 'bg-primary/10 text-primary'
-                              : 'text-slate-600 hover:bg-slate-100/60 hover:text-primary'
+                              : 'text-slate-600 hover:bg-sky-50/80 hover:text-primary'
                           }`}
                         >
                           <span className="material-symbols-outlined !text-[16px]">{item.icon}</span>
@@ -466,7 +466,7 @@ export default function Header() {
               <>
                 <Link
                   to="/messages"
-                  className="relative w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                  className="relative w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
                   title="Tin nhắn"
                 >
                   <span className="material-symbols-outlined text-slate-500 !text-xl">forum</span>
@@ -479,7 +479,7 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={handleToggleNotifDropdown}
-                    className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${showNotifDropdown ? 'bg-primary/10 text-primary' : 'bg-slate-100 hover:bg-slate-200 text-slate-500'}`}
+                    className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${showNotifDropdown ? 'bg-primary/10 text-primary' : 'bg-sky-50 hover:bg-sky-100 text-slate-500'}`}
                     title="Thông báo"
                   >
                     <span className="material-symbols-outlined !text-xl">notifications</span>
@@ -492,8 +492,8 @@ export default function Header() {
 
                   {/* Notification Dropdown Menu */}
                   {showNotifDropdown && (
-                    <div className="absolute top-[calc(100%+8px)] right-0 w-[320px] sm:w-[360px] bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 py-3 z-50 anim-fadeUp origin-top-right">
-                      <div className="flex items-center justify-between px-4 pb-3 border-b border-slate-100">
+                    <div className="absolute top-[calc(100%+8px)] right-0 w-[320px] sm:w-[360px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 py-3 z-50 anim-fadeUp origin-top-right">
+                      <div className="flex items-center justify-between px-4 pb-3 border-b border-sky-100">
                         <h3 className="font-bold text-slate-800 text-base">Thông báo</h3>
                         {unreadCount > 0 && (
                           <button onClick={handleMarkAllRead} className="text-[11px] font-bold text-primary hover:text-primary-dk uppercase tracking-wider">
@@ -547,7 +547,7 @@ export default function Header() {
                         )}
                       </div>
 
-                      <div className="px-4 pt-3 mt-1 border-t border-slate-100 text-center">
+                      <div className="px-4 pt-3 mt-1 border-t border-sky-100 text-center">
                         <Link to="/notifications" onClick={() => setShowNotifDropdown(false)} className="text-xs font-bold text-slate-500 hover:text-primary transition-colors">
                           Xem tất cả thông báo
                         </Link>
@@ -577,7 +577,7 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link to="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                <Link to="/login" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors">
                   Đăng nhập
                 </Link>
                 <Link to="/signup" className="hidden sm:inline-flex items-center h-10 px-5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all whitespace-nowrap">
@@ -589,7 +589,7 @@ export default function Header() {
             {/* ── Mobile Hamburger ── */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+              className="lg:hidden w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
               aria-label="Toggle menu"
             >
               <span className="material-symbols-outlined !text-xl text-slate-600">
@@ -610,16 +610,16 @@ export default function Header() {
 
       {/* ── Mobile Drawer ── */}
       <div
-        className={`fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[85vw] bg-[#faf8f4] shadow-2xl transform transition-transform duration-300 ease-out lg:hidden overflow-y-auto ${
+        className={`fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[85vw] bg-white/95 backdrop-blur-xl shadow-2xl shadow-sky-900/20 transform transition-transform duration-300 ease-out lg:hidden overflow-y-auto ${
           mobileOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between px-5 h-[72px] border-b border-[#e5e1d8]/60">
+        <div className="flex items-center justify-between px-5 h-[72px] border-b border-sky-100/80">
           <WorkBridgeLogo imageClassName="h-12 w-auto max-w-[194px] drop-shadow-[0_6px_14px_rgba(37,99,235,0.14)]" />
           <button
             onClick={() => setMobileOpen(false)}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+            className="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
           >
             <span className="material-symbols-outlined !text-xl text-slate-600">close</span>
           </button>
@@ -633,7 +633,7 @@ export default function Header() {
           <div>
             <button
               onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
-              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100/60"
+              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-sky-50/80"
             >
               <span className="flex items-center gap-3">
                 <span className="material-symbols-outlined !text-[20px]">grid_view</span>
@@ -705,7 +705,7 @@ export default function Header() {
                   className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
                     WORKSPACE_PATHS.includes(location.pathname)
                       ? 'text-primary bg-primary/5'
-                      : 'text-slate-700 hover:bg-slate-100/60'
+                      : 'text-slate-700 hover:bg-sky-50/80'
                   }`}
                 >
                   <span className="flex items-center gap-3">
@@ -739,10 +739,10 @@ export default function Header() {
 
         {/* Drawer Footer */}
         {isLoggedIn ? (
-          <div className="px-4 py-4 mt-auto border-t border-[#e5e1d8]/60 flex flex-col gap-2">
+          <div className="px-4 py-4 mt-auto border-t border-sky-100/80 flex flex-col gap-2">
             <Link
               to={userRole === 'Employer' ? "/employer-dashboard" : "/profile"}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100/60 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-sky-50/80 transition-colors"
             >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md relative ${
                 isVip
@@ -767,8 +767,8 @@ export default function Header() {
             </button>
           </div>
         ) : (
-          <div className="px-4 py-4 mt-auto border-t border-[#e5e1d8]/60 flex flex-col gap-2">
-            <Link to="/login" className="flex items-center justify-center h-11 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+          <div className="px-4 py-4 mt-auto border-t border-sky-100/80 flex flex-col gap-2">
+            <Link to="/login" className="flex items-center justify-center h-11 rounded-xl text-sm font-semibold text-slate-700 bg-sky-50 hover:bg-sky-100 hover:text-primary transition-colors">
               Đăng nhập
             </Link>
             <Link to="/signup" className="flex items-center justify-center h-11 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-dk shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
@@ -791,7 +791,7 @@ function MobileNavLink({ to, icon, label, active, indent, badge }) {
       } ${
         active
           ? 'bg-primary/10 text-primary'
-          : 'text-slate-700 hover:bg-slate-100/60 hover:text-primary'
+          : 'text-slate-700 hover:bg-sky-50/80 hover:text-primary'
       }`}
     >
       <span className="material-symbols-outlined !text-[20px]">{icon}</span>

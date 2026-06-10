@@ -4,7 +4,7 @@ import { WORKBRIDGE_FACEBOOK_URL, WORKBRIDGE_SUPPORT_EMAIL } from '../../utils/c
 
 export default function Footer() {
   return (
-    <footer className="bg-[#faf8f4] border-t border-[#e5e1d8]/60">
+    <footer className="bg-sky-50/80 border-t border-slate-200/50 shadow-[0_-14px_44px_rgba(8,47,73,0.06)]">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
@@ -39,13 +39,13 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-[#e5e1d8]/60 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="border-t border-slate-200/60 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-slate-400 text-sm">&copy; 2026 WorkBridge. Bản quyền thuộc về WorkBridge.</p>
           <div className="flex gap-3">
-            <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors" aria-label="Fanpage WorkBridge">
-              <span className="material-symbols-outlined !text-lg">language</span>
+            <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-white/85 border border-sky-100 flex items-center justify-center text-[#1877f2] hover:bg-sky-100 hover:border-sky-200 transition-colors font-black text-lg" aria-label="Fanpage WorkBridge">
+              f
             </a>
-            <a href={`mailto:${WORKBRIDGE_SUPPORT_EMAIL}`} className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors" aria-label="Email WorkBridge">
+            <a href={`mailto:${WORKBRIDGE_SUPPORT_EMAIL}`} className="w-9 h-9 rounded-full bg-white/85 border border-sky-100 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-sky-100 hover:border-sky-200 transition-colors" aria-label="Email WorkBridge">
               <span className="material-symbols-outlined !text-lg">mail</span>
             </a>
           </div>

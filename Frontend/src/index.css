@@ -55,9 +55,10 @@
     height: 0;
   }
   .glass {
-    background: rgba(250,248,244,0.85);
+    background: rgba(255,255,255,.78);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 14px 44px rgba(8,47,73,.12);
   }
   .hero-blob {
     position: absolute;
