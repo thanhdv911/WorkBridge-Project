@@ -7,6 +7,7 @@ import { translateCategory, translatePayUnit } from '../utils/translate';
 import { getVisitorId, PRESENCE_REFRESH_MS } from '../utils/presence';
 import toast from 'react-hot-toast';
 import JobMarketDashboard from '../components/home/JobMarketDashboard';
+import EmployerHomeFeatures from '../components/home/EmployerHomeFeatures';
 
 const compactLocationLabel = (label = '') => {
   const parts = String(label || '').split(',').map(part => part.trim()).filter(Boolean);
@@ -176,15 +177,24 @@ export default function Home() {
   const { heroRef, pointerEffects } = useHeroPointerTilt();
   const userRole = localStorage.getItem('role');
 
+  if (userRole === 'Employer') {
+    return (
+      <div className={`home-shell home-perf-lite relative overflow-x-hidden ${pointerEffects ? 'home-allow-tilt' : ''}`}>
+        <Hero heroRef={heroRef} userRole={userRole} />
+        <EmployerHomeFeatures />
+      </div>
+    );
+  }
+
   return (
     <div className={`home-shell home-perf-lite relative overflow-x-hidden ${pointerEffects ? 'home-allow-tilt' : ''}`}>
       <Hero heroRef={heroRef} userRole={userRole} />
-      {userRole !== 'Employer' && <LatestJobs />}
+      <LatestJobs />
       <JobMarketDashboard />
-      {userRole !== 'Employer' && <Categories />}
+      <Categories />
       <HowItWorks />
       <Testimonials />
-      {userRole !== 'Employer' && <CTA />}
+      <CTA />
     </div>
   );
 }
