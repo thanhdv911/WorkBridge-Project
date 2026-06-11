@@ -180,7 +180,9 @@ function App() {
             <Route path="/jobs" element={<FindJobs />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+            <Route path="/employer-dashboard" element={
+              localStorage.getItem('role') === 'Employer' ? <EmployerDashboard /> : <Navigate to="/" replace />
+            } />
             <Route path="/my-applications" element={<MyApplications />} />
             <Route path="/saved-jobs" element={<SavedJobs />} />
             <Route path="/notifications" element={<Notifications />} />

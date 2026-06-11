@@ -141,12 +141,14 @@ export default function FindJobs() {
         });
         setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
         toast.success('Đã bỏ lưu việc làm');
+        window.dispatchEvent(new Event('savedJobsChanged'));
       } else {
         await api.post(`/savedjobs/${jobId}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSavedJobIds((prev) => [...prev, jobId]);
         toast.success('Đã lưu việc làm');
+        window.dispatchEvent(new Event('savedJobsChanged'));
       }
     } catch (err) {
       console.error('Error toggling save:', err);

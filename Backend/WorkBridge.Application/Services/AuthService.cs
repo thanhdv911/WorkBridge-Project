@@ -458,8 +458,9 @@ namespace WorkBridge.Application.Services
 
         if (user == null)
         {
-            // Register a new user automatically as "Applicant" per our agreed spec
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Applicant");
+            // Register a new user automatically with the requested role (default to "Applicant")
+            var requestedRoleName = request.Role == "Employer" ? "Employer" : "Applicant";
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == requestedRoleName);
             if (role == null) return null;
 
             user = new User
@@ -478,15 +479,31 @@ namespace WorkBridge.Application.Services
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            // Create Applicant Profile
-            var profile = new ApplicantProfile
+            if (role.RoleName == "Employer")
             {
-                ApplicantId = user.UserId,
-                ReputationScore = 80,
-                ReportCount = 0
-            };
-            profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, user);
-            await _context.ApplicantProfiles.AddAsync(profile);
+                var profile = new EmployerProfile
+                {
+                    EmployerId = user.UserId,
+                    CompanyName = user.FullName,
+                    ContactEmail = user.Email,
+                    ReputationScore = 80,
+                    ReportCount = 0,
+                    Status = "Active"
+                };
+                profile.ReputationScore = ProfileReputationCalculator.CalculateEmployerScore(profile, user);
+                await _context.EmployerProfiles.AddAsync(profile);
+            }
+            else
+            {
+                var profile = new ApplicantProfile
+                {
+                    ApplicantId = user.UserId,
+                    ReputationScore = 80,
+                    ReportCount = 0
+                };
+                profile.ReputationScore = ProfileReputationCalculator.CalculateApplicantScore(profile, user);
+                await _context.ApplicantProfiles.AddAsync(profile);
+            }
             await _context.SaveChangesAsync();
 
             user.Role = role; // Attach role to generate correct token claims

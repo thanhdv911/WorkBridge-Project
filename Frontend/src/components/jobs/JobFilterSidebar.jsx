@@ -34,12 +34,21 @@ export default function JobFilterSidebar({
       });
   }, []);
 
-  const handleApply = () => {
-    onFilterApply?.({
-      minSalary: localSalary,
-      categoryId: localCategoryId
-    });
-  };
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const currentSalaryProp = minSalary ? Number(minSalary) : 20000;
+      const currentCategoryProp = selectedCategoryId ? Number(selectedCategoryId) : '';
+      
+      // Only apply if the local state actually differs from the props to prevent loops
+      if (localSalary !== currentSalaryProp || localCategoryId !== currentCategoryProp) {
+        onFilterApply?.({
+          minSalary: localSalary,
+          categoryId: localCategoryId
+        });
+      }
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [localSalary, localCategoryId, minSalary, selectedCategoryId, onFilterApply]);
 
   return (
     <aside className={`jobs-filter anim-fadeUp ${isOpen ? 'is-open' : ''}`}>
@@ -118,14 +127,6 @@ export default function JobFilterSidebar({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={handleApply}
-        className="jobs-filter-submit"
-      >
-        <span className="material-symbols-outlined !text-lg">filter_list</span>
-        Áp dụng bộ lọc
-      </button>
     </aside>
   );
 }

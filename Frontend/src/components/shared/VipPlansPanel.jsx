@@ -31,11 +31,7 @@ const AUDIENCE_COPY = {
     success: 'Thanh toán thành công! Gói VIP Doanh nghiệp đã được kích hoạt.',
     paymentTitle: 'Thanh toán gói VIP Doanh nghiệp',
     campaign: ['Tin tuyển dụng nổi bật hơn', 'AI hỗ trợ tuyển nhanh', 'Gói 1 năm tự xuất bản tin', 'Xếp ca thông minh', 'Vận hành gọn hơn'],
-    spotlights: [
-      ['campaign', 'Tăng hiển thị', 'Đẩy tin tuyển dụng nổi bật và tiếp cận ứng viên nhanh hơn.'],
-      ['auto_awesome', 'AI vận hành', 'Hỗ trợ tối ưu tin, ca làm, chấm công và lương.'],
-      ['verified', 'Tự xuất bản gói năm', 'VIP Doanh nghiệp 1 năm đăng tin lên ngay, không cần admin duyệt.']
-    ],
+    spotlights: [],
     features: [
       ['auto_awesome', 'AI tối ưu tin tuyển dụng'],
       ['calendar_month', 'AI tư vấn và tự động xếp ca'],

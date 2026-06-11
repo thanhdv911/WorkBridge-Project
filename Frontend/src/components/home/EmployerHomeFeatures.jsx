@@ -6,25 +6,41 @@ export default function EmployerHomeFeatures() {
 
   return (
     <div className="home-employer-sections bg-slate-50/50">
-      {/* ── 1. Statistics Section ── */}
+      {/* ── 1. Core Advantages Section ── */}
       <section className="py-20 bg-white border-y border-slate-100">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 text-center">
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-[#1392ec]">50,000+</h3>
-              <p className="text-sm md:text-base font-bold text-slate-500">Sinh viên sẵn sàng làm việc</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-800 mb-4">
+              Lợi thế cạnh tranh
+            </h2>
+            <p className="text-lg font-medium text-slate-500">
+              Công nghệ tiên phong giúp doanh nghiệp tối ưu chi phí và nguồn lực nhân sự.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="p-8 rounded-[2rem] bg-sky-50/50 border border-sky-100/50 hover:bg-sky-50 transition-colors">
+              <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-sky-100">
+                <span className="material-symbols-outlined !text-3xl text-sky-500">verified_user</span>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Ứng viên xác thực 100%</h3>
+              <p className="text-slate-500 leading-relaxed text-sm font-medium">Hồ sơ sinh viên được xác minh danh tính rõ ràng, đảm bảo nguồn nhân lực uy tín và an toàn.</p>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-[#1392ec]">10,000+</h3>
-              <p className="text-sm md:text-base font-bold text-slate-500">Tin tuyển dụng đã đăng</p>
+            
+            <div className="p-8 rounded-[2rem] bg-indigo-50/50 border border-indigo-100/50 hover:bg-indigo-50 transition-colors">
+              <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-indigo-100">
+                <span className="material-symbols-outlined !text-3xl text-indigo-500">memory</span>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Công nghệ lõi AI</h3>
+              <p className="text-slate-500 leading-relaxed text-sm font-medium">Hệ thống matching ứng viên tự động, giúp giảm thiểu 80% thời gian lọc hồ sơ và phỏng vấn thủ công.</p>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-[#1392ec]">5,000+</h3>
-              <p className="text-sm md:text-base font-bold text-slate-500">Doanh nghiệp tin dùng</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-[#1392ec]">100%</h3>
-              <p className="text-sm md:text-base font-bold text-slate-500">Tự động hóa tính lương</p>
+            
+            <div className="p-8 rounded-[2rem] bg-emerald-50/50 border border-emerald-100/50 hover:bg-emerald-50 transition-colors">
+              <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-emerald-100">
+                <span className="material-symbols-outlined !text-3xl text-emerald-500">hub</span>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Hệ sinh thái khép kín</h3>
+              <p className="text-slate-500 leading-relaxed text-sm font-medium">Tích hợp đầy đủ tính năng: Đăng tin, Xếp ca tự động, Chấm công, và Trả lương trên một nền tảng.</p>
             </div>
           </div>
         </div>

@@ -301,14 +301,16 @@ export default function Header() {
 
   const isActive = (path) => location.pathname === path;
 
+  const isEmployerMode = userRole === 'Employer';
+
   return (
     <>
-      <header className="glass sticky top-0 z-50 border-b border-slate-200/50">
+      <header className={`sticky top-0 z-50 border-b ${isEmployerMode ? 'bg-slate-900 border-slate-800 shadow-xl' : 'glass border-slate-200/50'}`}>
         <div className="w-full mx-auto flex items-center justify-between gap-3 px-4 sm:px-4 sm:px-6 lg:px-8 h-20">
           {/* Logo */}
           <div className="flex items-center min-w-0">
             <Link to="/" className="flex items-center group" aria-label="WorkBridge">
-              <WorkBridgeLogo imageClassName="h-14 w-auto max-w-[232px] drop-shadow-[0_8px_18px_rgba(37,99,235,0.18)] transition-transform duration-200 group-hover:scale-[1.02]" />
+              <WorkBridgeLogo imageClassName={`h-14 w-auto max-w-[232px] drop-shadow-[0_8px_18px_rgba(37,99,235,0.18)] transition-transform duration-200 group-hover:scale-[1.02] ${isEmployerMode ? 'brightness-0 invert' : ''}`} />
             </Link>
           </div>
 
@@ -316,7 +318,7 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link
               to="/"
-              className={`${NAV_LINK_BASE} ${isActive('/') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+              className={`${NAV_LINK_BASE} ${isActive('/') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-primary')}`}
             >
               Trang chủ
             </Link>
@@ -442,7 +444,7 @@ export default function Header() {
               <>
                 <Link
                   to="/employer-dashboard"
-                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-primary')}`}
                 >
                   Quản lý tuyển dụng
                 </Link>
@@ -492,12 +494,16 @@ export default function Header() {
           <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
             {isLoggedIn ? (
               <>
-                <Link
-                  to="/messages"
-                  className="relative w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
-                  title="Tin nhắn"
-                >
-                  <span className="material-symbols-outlined text-slate-500 !text-xl">forum</span>
+                  <Link
+                    to="/messages"
+                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                      isActive('/messages')
+                        ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-400' : 'bg-sky-50 hover:bg-sky-100 text-slate-500')
+                    }`}
+                    title="Tin nhắn"
+                  >
+                    <span className="material-symbols-outlined !text-xl">forum</span>
                   {unreadMessages > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[10px] text-white font-bold flex items-center justify-center">
                       {unreadMessages > 9 ? '9+' : unreadMessages}
@@ -507,7 +513,11 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={handleToggleNotifDropdown}
-                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${showNotifDropdown ? 'bg-primary/10 text-primary' : 'bg-sky-50 hover:bg-sky-100 text-slate-500'}`}
+                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                      showNotifDropdown
+                        ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-400' : 'bg-sky-50 hover:bg-sky-100 text-slate-500')
+                    }`}
                     title="Thông báo"
                   >
                     <span className="material-symbols-outlined !text-xl">notifications</span>

@@ -7,7 +7,7 @@ import ErrorBoundary from '../shared/ErrorBoundary';
 import { useAuthModal } from '../../contexts/AuthModalContext';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
-  || '336931851953-adc02j9sbgou7oga3t1uiu6abfe7av80.apps.googleusercontent.com';
+  || '1076301859968-o8s7ergmtru24s9vi5j179478vhg2dqa.apps.googleusercontent.com';
 
 export default function AuthModal() {
   const navigate = useNavigate();
@@ -202,7 +202,10 @@ export default function AuthModal() {
   const handleGoogleSuccess = async (credentialResponse) => {
     setIsLoading(true);
     try {
-      const response = await api.post('/auth/google', { IdToken: credentialResponse.credential });
+      const response = await api.post('/auth/google', { 
+        IdToken: credentialResponse.credential,
+        Role: role
+      });
       toast.success(`Chào mừng, ${response.data.fullName}!`);
       persistSession(response.data);
       loginUser(response.data);
@@ -255,7 +258,7 @@ export default function AuthModal() {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── LEFT: Illustration Panel ── */}
-        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[620px]">
+        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[680px]">
           {/* Decorative blobs */}
           <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#1392ec]/10 -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-sky-200/20 translate-x-1/3 translate-y-1/3" />
@@ -334,7 +337,7 @@ export default function AuthModal() {
         </div>
 
         {/* ── RIGHT: Form ── */}
-        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[620px] overflow-y-auto bg-white">
+        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[680px] overflow-y-auto bg-white">
         {/* Close Button X */}
         <button
           onClick={closeAuth}
@@ -579,7 +582,7 @@ export default function AuthModal() {
 
         {/* ════ 4. SIGNUP MODE FORM ════ */}
         {mode === 'signup' && !isForgotMode && !pendingRegistrationEmail && (
-          <form onSubmit={handleRegister} className="flex flex-col gap-2.5">
+          <form onSubmit={handleRegister} className="flex flex-col gap-2">
             {/* Segment Control Toggle Role */}
             <div className="flex h-11 w-full items-center rounded-xl bg-slate-50 p-1 gap-1 border border-slate-200/60 select-none flex-shrink-0">
               <button
@@ -701,6 +704,28 @@ export default function AuthModal() {
               <span>{isLoading ? 'Đang đăng ký...' : 'Đăng ký tài khoản'}</span>
               {!isLoading && <span className="material-symbols-outlined !text-lg">arrow_forward</span>}
             </button>
+
+            {/* Google Sign-up */}
+            {hasGoogleLogin && (
+              <ErrorBoundary fallback={<p className="text-center text-[10px] text-slate-400">Đăng ký Google tạm thời không khả dụng.</p>}>
+                <div className="relative flex items-center py-1.5 mt-1">
+                  <div className="flex-grow border-t border-slate-100"></div>
+                  <span className="flex-shrink-0 mx-3 text-slate-450 text-[10px] font-black uppercase tracking-wider">hoặc</span>
+                  <div className="flex-grow border-t border-slate-100"></div>
+                </div>
+
+                <div className="w-full flex justify-center overflow-hidden min-h-10">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="outline"
+                    size="medium"
+                    width="260"
+                    text="signup_with"
+                  />
+                </div>
+              </ErrorBoundary>
+            )}
 
             {/* Toggle prompt */}
             <p className="text-center text-xs text-slate-500 mt-1">

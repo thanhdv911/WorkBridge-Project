@@ -253,16 +253,16 @@ const JobDetails = () => {
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h1 className="flex flex-wrap items-center gap-2 text-3xl font-black leading-tight tracking-tight text-slate-950 lg:text-4xl">
+                                <h1 className="flex flex-wrap items-center gap-2 text-[26px] font-bold leading-tight tracking-tight text-slate-900 lg:text-[32px]">
                                     {job.title}
                                     {job.isFeatured && (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-sky-700">
-                                            <span className="material-symbols-outlined !text-[15px]">workspace_premium</span>
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700">
+                                            <span className="material-symbols-outlined !text-sm">workspace_premium</span>
                                             VIP
                                         </span>
                                     )}
                                 </h1>
-                                <p className="text-sm text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
+                                <p className="text-[13px] font-medium text-slate-500 mt-1.5 flex flex-wrap items-center gap-1.5">
                                     <span className="material-symbols-outlined !text-[16px]">apartment</span>{job.companyName}
                                     {job.branchName && (
                                         <>
@@ -295,25 +295,25 @@ const JobDetails = () => {
                             </div>
                         </div>
                         {/* Quick stats */}
-                        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-sky-100/70 pt-5 sm:grid-cols-4">
-                            <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
-                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Mức lương</p>
-                                <p className="text-lg font-black text-primary">
+                        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-slate-200/60 pt-5 sm:grid-cols-4">
+                            <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
+                                <p className="mb-1 text-xs font-medium text-slate-500">Mức lương</p>
+                                <p className="text-[17px] font-semibold tracking-tight text-slate-800">
                                     {job.payRate?.toLocaleString()}₫
-                                    <span className="text-xs font-normal text-slate-400">/{(() => { const u = translatePayUnit(job.payUnit); return u.startsWith('đ/') ? u.slice(2) : u; })()}</span>
+                                    <span className="text-xs font-normal text-slate-500">/{(() => { const u = translatePayUnit(job.payUnit); return u.startsWith('đ/') ? u.slice(2) : u; })()}</span>
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
-                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Đăng tuyển</p>
-                                <p className="text-sm font-bold text-slate-700">{new Date(job.createdAt).toLocaleDateString('vi-VN')}</p>
+                            <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
+                                <p className="mb-1 text-xs font-medium text-slate-500">Đăng tuyển</p>
+                                <p className="text-[15px] font-semibold text-slate-700 tracking-tight">{new Date(job.createdAt).toLocaleDateString('vi-VN')}</p>
                             </div>
-                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
-                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Hạn chót</p>
-                                <p className="text-sm font-bold text-slate-700">{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}</p>
+                            <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
+                                <p className="mb-1 text-xs font-medium text-slate-500">Hạn chót</p>
+                                <p className="text-[15px] font-semibold text-slate-700 tracking-tight">{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}</p>
                             </div>
-                            <div className="rounded-2xl border border-slate-100 bg-white/75 p-4">
-                                <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">Trạng thái</p>
-                                <p className="text-sm font-bold text-emerald-600">Đang nhận hồ sơ</p>
+                            <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
+                                <p className="mb-1 text-xs font-medium text-slate-500">Trạng thái</p>
+                                <p className="text-[15px] font-semibold text-emerald-600 tracking-tight">Đang nhận hồ sơ</p>
                             </div>
                         </div>
                     </div>
@@ -420,11 +420,11 @@ const JobDetails = () => {
                     {/* Apply card */}
                     <div className="profile-sidebar-card sticky top-24 rounded-2xl p-6 animate-fadeInUp">
                         <div className="text-center mb-5">
-                            <p className="text-xs text-slate-400 mb-1">Mức lương</p>
-                            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                            <p className="text-sm font-medium text-slate-500 mb-1">Mức lương</p>
+                            <p className="text-[32px] font-bold tracking-tight text-slate-800">
                                 {job.payRate?.toLocaleString()}₫
                             </p>
-                            <p className="text-xs text-slate-400 mt-1">{translatePayUnit(job.payUnit)}</p>
+                            <p className="text-[13px] font-medium text-slate-500 mt-0.5">{translatePayUnit(job.payUnit)}</p>
                         </div>
                         <button
                             onClick={handleApplyClick}

@@ -896,41 +896,76 @@ function HowItWorks() {
     {
       title: 'Tạo hồ sơ',
       text: 'Đăng ký và xây dựng hồ sơ sinh viên của bạn chỉ trong 3 phút. Nêu bật kỹ năng và lịch rảnh.',
+      icon: 'assignment_ind',
+      color: 'from-sky-400 to-blue-600',
+      iconColor: 'text-blue-500'
     },
     {
       title: 'Khám phá việc làm',
       text: 'Tìm kiếm vị trí bán thời gian phù hợp với lịch trình, địa điểm và sở thích của bạn.',
+      icon: 'travel_explore',
+      color: 'from-emerald-400 to-teal-600',
+      iconColor: 'text-emerald-500'
     },
     {
       title: 'Ứng tuyển & Nhận việc',
       text: 'Ứng tuyển chỉ với một cú nhấp. Nhà tuyển dụng phản hồi nhanh — phần lớn trong vòng 48 giờ.',
+      icon: 'handshake',
+      color: 'from-violet-400 to-purple-600',
+      iconColor: 'text-violet-500'
     },
   ];
 
   return (
-    <section className="home-section home-steps-section mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 py-12 bg-sky-50/20 border border-sky-100/40 rounded-3xl relative overflow-hidden shadow-sm shadow-sky-100/20 my-16">
-      <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-[#1392ec]/5 blur-3xl pointer-events-none" />
-      
-      <SectionHeader
-        title="Cách Thức Hoạt Động"
-        titleClassName="!text-2xl lg:!text-3xl !text-[#1392ec]"
-        description="Ba bước đơn giản đến cơ hội tiếp theo"
-      />
+    <section className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 pt-8 pb-16 mb-16 bg-white rounded-3xl">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl lg:text-4xl font-black text-primary mb-4 tracking-tight">Cách Thức Hoạt Động</h2>
+        <p className="text-slate-500 text-lg">Ba bước đơn giản đến cơ hội tiếp theo</p>
+      </div>
 
-      <div className="home-steps-timeline">
-        {steps.map((step, index) => (
-          <article
-            key={step.title}
-            className="group home-step-card shine-hover flex flex-col justify-between p-6 bg-slate-50/40 border border-slate-200/50 rounded-2xl hover:border-[#1392ec] hover:bg-white hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden"
-            style={{ '--home-delay': `${index * 100}ms` }}
-          >
-            <div className="home-step-number !border-2 !border-white flex items-center justify-center transition-all duration-300 group-hover:!bg-white">
-              <span className="relative z-10 text-lg font-black text-white group-hover:text-[#1392ec] transition-colors duration-300">{index + 1}</span>
+      <div className="relative max-w-5xl mx-auto">
+        {/* Vertical Line */}
+        <div className="absolute left-[39px] lg:left-1/2 top-8 bottom-8 w-1 bg-slate-100 lg:-translate-x-1/2 rounded-full" />
+
+        {steps.map((step, index) => {
+          const isEven = index % 2 !== 0;
+          
+          return (
+            <div 
+              key={step.title}
+              className={`relative flex flex-col lg:flex-row items-center gap-8 lg:gap-16 mb-24 last:mb-0 ${isEven ? 'lg:flex-row-reverse' : ''}`}
+            >
+              {/* Timeline Marker */}
+              <div className="absolute left-[20px] lg:left-1/2 top-10 lg:top-1/2 w-10 h-10 lg:-translate-y-1/2 lg:-translate-x-1/2 rounded-full bg-white border-[3px] border-[#1392ec] flex items-center justify-center font-black text-[#1392ec] z-10 shadow-lg shadow-sky-100/50">
+                {index + 1}
+              </div>
+
+              {/* Text Content */}
+              <div className={`w-full lg:w-1/2 pl-24 lg:pl-0 ${isEven ? 'lg:pr-16 lg:text-right' : 'lg:pl-16 lg:text-left'} pt-8 lg:pt-0`}>
+                <h3 className="text-2xl lg:text-[28px] font-black text-slate-900 mb-4 tracking-tight">{step.title}</h3>
+                <p className="text-slate-500 leading-relaxed text-base lg:text-lg">{step.text}</p>
+              </div>
+
+              {/* Graphic Block */}
+              <div className={`w-full lg:w-1/2 pl-24 lg:pl-0 ${isEven ? 'lg:pl-16' : 'lg:pr-16'}`}>
+                <div className="group relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden bg-white border border-slate-200/60 shadow-2xl shadow-slate-200/40 flex flex-col items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-sky-200/60">
+                  {/* Background decoration */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500`} />
+                  <div className={`absolute -right-16 -top-16 w-56 h-56 bg-gradient-to-br ${step.color} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
+                  <div className={`absolute -left-16 -bottom-16 w-56 h-56 bg-gradient-to-br ${step.color} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
+                  
+                  {/* Inner Grid Pattern */}
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
+                  
+                  {/* Icon Container */}
+                  <div className={`relative z-10 w-28 h-28 rounded-3xl bg-white shadow-xl border border-slate-100 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ${step.iconColor}`}>
+                    <span className="material-symbols-outlined !text-6xl">{step.icon}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3 className="group-hover:text-[#1392ec] transition-colors">{step.title}</h3>
-            <p>{step.text}</p>
-          </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -1018,12 +1053,14 @@ function LatestJobs() {
         });
         setSavedJobIds(prev => prev.filter(id => id !== jobId));
         toast.success('Đã bỏ lưu việc làm.');
+        window.dispatchEvent(new Event('savedJobsChanged'));
       } else {
         await api.post(`/savedjobs/${jobId}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSavedJobIds(prev => [...prev, jobId]);
         toast.success('Đã lưu việc làm.');
+        window.dispatchEvent(new Event('savedJobsChanged'));
       }
     } catch (err) {
       console.error('Error toggling save job:', err);

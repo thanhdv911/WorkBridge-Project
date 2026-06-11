@@ -57,6 +57,7 @@ namespace WorkBridge.Application.DTOs
   public class ExternalAuthRequest
   {
       public string IdToken { get; set; } = string.Empty;
+      public string? Role { get; set; }
   }
 
   public class FacebookAuthRequest
