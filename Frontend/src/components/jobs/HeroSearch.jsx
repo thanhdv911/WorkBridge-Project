@@ -15,6 +15,14 @@ const compactLocationLabel = (label = '') => {
   return [district, province].filter(Boolean).join(', ') || label;
 };
 
+const QUICK_CITIES = [
+  { label: 'Toàn quốc', value: '' },
+  { label: 'Hà Nội', value: 'Hà Nội' },
+  { label: 'TP. HCM', value: 'Hồ Chí Minh' },
+  { label: 'Đà Nẵng', value: 'Đà Nẵng' },
+  { label: 'TP. Huế', value: 'Huế' }
+];
+
 export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', initialLocation = '' }) {
   const [keyword, setKeyword] = useState(initialKeyword);
   const [showLocationCard, setShowLocationCard] = useState(false);
@@ -58,6 +66,27 @@ export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', i
 
     setSelectedLabel(parts.join(', '));
     setShowLocationCard(false);
+  };
+
+  const handleQuickCitySelect = (cityValue, cityLabel) => {
+    let finalLoc = '';
+    if (!cityValue) {
+      setProvince('');
+      setDistrict('');
+      setWard('');
+      setAddress('');
+      setSelectedLabel('');
+      finalLoc = '';
+    } else {
+      setProvince(cityValue);
+      setDistrict('');
+      setWard('');
+      setAddress('');
+      setSelectedLabel(cityLabel);
+      finalLoc = cityLabel;
+    }
+    setShowLocationCard(false);
+    onSearch(keyword, finalLoc);
   };
 
   useEffect(() => {
@@ -108,7 +137,9 @@ export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', i
 
   return (
     <section className="jobs-hero">
-      <div className="jobs-hero-field" aria-hidden="true" />
+      <div className="jobs-hero-bg-wrapper" aria-hidden="true">
+        <div className="jobs-hero-field" />
+      </div>
 
       <div className="jobs-hero-inner">
         <div className="jobs-hero-copy">
@@ -118,9 +149,7 @@ export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', i
           </div>
 
           <h1 className="jobs-hero-title">
-            Khám phá <span>{totalJobsLabel}</span>
-            <br />
-            việc làm <br className="jobs-hero-mobile-break" />bán thời gian
+            Khám phá <span>{totalJobsLabel}</span> việc làm bán thời gian
           </h1>
 
           <p className="jobs-hero-subtitle">
@@ -174,22 +203,46 @@ export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', i
                   Khu vực tìm kiếm
                 </div>
 
-                <div className="jobs-location-body">
-                  <GoongAddressPicker
-                    value={{ address, ward, district, city: province }}
-                    onChange={(next) => {
-                      setAddress(next.address);
-                      setWard(next.ward);
-                      setDistrict(next.district);
-                      setProvince(next.city);
-                    }}
-                    label="Khu vực tìm kiếm"
-                    placeholder="Gõ tỉnh, quận, phường hoặc tên đường..."
-                    showMapLink={false}
-                    compact
-                  />
+                <div className="jobs-location-body space-y-4">
+                  {/* Quick Cities Selection */}
+                  <div>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2 text-left">Chọn nhanh thành phố</span>
+                    <div className="flex flex-wrap gap-2">
+                      {QUICK_CITIES.map((city) => {
+                        const isActive = city.value === '' ? (!province && !address) : (province === city.value);
+                        return (
+                          <button
+                            key={city.label}
+                            type="button"
+                            onClick={() => handleQuickCitySelect(city.value, city.label)}
+                            className={`home-quick-city-pill ${isActive ? 'active' : ''}`}
+                          >
+                            {city.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                  <div className="jobs-location-actions">
+                  <div className="border-t border-slate-100 pt-3">
+                    <GoongAddressPicker
+                      value={{ address, ward, district, city: province }}
+                      onChange={(next) => {
+                        setAddress(next.address);
+                        setWard(next.ward);
+                        setDistrict(next.district);
+                        setProvince(next.city);
+                      }}
+                      label="Hoặc nhập địa chỉ chi tiết:"
+                      placeholder="Gõ quận huyện, tên đường để tìm kiếm..."
+                      showAdminFields={false}
+                      detailLabel={null}
+                      showMapLink={false}
+                      compact
+                    />
+                  </div>
+
+                  <div className="jobs-location-actions pt-1">
                     <button type="button" onClick={handleClearLocation}>
                       Xóa
                     </button>

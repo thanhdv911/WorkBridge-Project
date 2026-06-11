@@ -1,6 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { translateCategory, translateJobType, translateShift, translatePayUnit } from '../../utils/translate';
+import { API_BASE_URL } from '../../services/api';
+
+const getInitials = (name) => {
+  if (!name) return '??';
+  return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+};
 
 const getCategoryTone = (categoryName = '') => {
   const value = categoryName.toLowerCase();
@@ -46,8 +52,18 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
       )}
 
       <div className="jobs-card-head">
-        <div className="jobs-card-icon">
-          <span className="material-symbols-outlined">work</span>
+        <div className="jobs-card-logo-wrap">
+          {job.companyLogoUrl ? (
+            <img 
+              src={job.companyLogoUrl.startsWith('http') ? job.companyLogoUrl : `${API_BASE_URL}${job.companyLogoUrl.startsWith('/') ? '' : '/'}${job.companyLogoUrl}`} 
+              alt={job.companyName} 
+              className="jobs-card-logo"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-400 to-[#1392ec] text-white font-bold text-base rounded-xl">
+              {getInitials(job.companyName)}
+            </div>
+          )}
         </div>
 
         <div className="jobs-card-title">
@@ -66,7 +82,9 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
             className={`jobs-save-button ${isSaved ? 'is-saved' : ''}`}
             aria-label={isSaved ? 'Bỏ lưu việc làm' : 'Lưu việc làm'}
           >
-            <span className={`material-symbols-outlined ${isSaved ? 'filled' : ''}`}>favorite</span>
+            <span className="material-symbols-outlined !text-xl">
+              {isSaved ? 'bookmark' : 'bookmark_border'}
+            </span>
           </button>
         )}
       </div>

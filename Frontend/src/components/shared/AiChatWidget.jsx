@@ -674,7 +674,7 @@ const AiChatWidget = () => {
               className="relative w-11 h-11 rounded-full bg-white text-[#1392ec] shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-slate-100/60 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group hover:bg-[#1392ec]/5"
               title="Việc đã lưu"
             >
-              <span className="material-symbols-outlined !text-xl filled">favorite</span>
+              <span className="material-symbols-outlined !text-xl">bookmark_border</span>
               {savedJobsCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-500 text-[10px] text-white font-black flex items-center justify-center border border-white shadow-sm shadow-emerald-500/20">
                   {savedJobsCount}

@@ -1,19 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
+import { translateCategory } from '../../utils/translate';
 
-const categories = [
-  ['Đồ ăn & Đồ uống', 48, true],
-  ['Gia sư', 32],
-  ['Giao hàng', 27],
-  ['Bán lẻ', 21],
-  ['Marketing', 14]
-];
-
-const distances = ['Trong vòng 5 km', 'Trong vòng 10 km', 'Trong vòng 20 km', 'Bất kỳ khoảng cách'];
-const shifts = ['Sáng', 'Chiều', 'Tối', 'Cuối tuần'];
-
-export default function JobFilterSidebar({ onFilterChange }) {
-  const [salary, setSalary] = useState(20000);
+export default function JobFilterSidebar({ 
+  selectedCategoryId, 
+  minSalary, 
+  onFilterApply 
+}) {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [localSalary, setLocalSalary] = useState(minSalary ? Number(minSalary) : 20000);
+  const [localCategoryId, setLocalCategoryId] = useState(selectedCategoryId ? Number(selectedCategoryId) : '');
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setLocalSalary(minSalary ? Number(minSalary) : 20000);
+  }, [minSalary]);
+
+  useEffect(() => {
+    setLocalCategoryId(selectedCategoryId ? Number(selectedCategoryId) : '');
+  }, [selectedCategoryId]);
+
+  useEffect(() => {
+    api.get('/home/categories')
+      .then(res => {
+        setCategories(res.data || []);
+      })
+      .catch(err => {
+        console.error('Error fetching categories for filters:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const handleApply = () => {
+    onFilterApply?.({
+      minSalary: localSalary,
+      categoryId: localCategoryId
+    });
+  };
 
   return (
     <aside className={`jobs-filter anim-fadeUp ${isOpen ? 'is-open' : ''}`}>
@@ -40,63 +66,61 @@ export default function JobFilterSidebar({ onFilterChange }) {
         </div>
 
         <div className="jobs-filter-section">
-          <label>Danh mục</label>
-          <div className="jobs-filter-list">
-            {categories.map(([name, count, checked]) => (
-              <label key={name} className="jobs-filter-option">
-                <input type="checkbox" defaultChecked={checked} />
-                <span>{name}</span>
-                <small>{count}</small>
+          <label>Danh mục công việc</label>
+          {loading ? (
+            <div className="py-3 text-xs text-slate-400 animate-pulse text-left">Đang tải danh mục...</div>
+          ) : (
+            <div className="jobs-filter-list">
+              <label className="jobs-filter-option">
+                <input 
+                  type="radio" 
+                  name="categoryFilter" 
+                  checked={localCategoryId === ''} 
+                  onChange={() => setLocalCategoryId('')} 
+                />
+                <span>Tất cả ngành nghề</span>
               </label>
-            ))}
-          </div>
+              {categories.map((cat) => {
+                const categoryIdVal = cat.categoryId;
+                const isChecked = String(localCategoryId) === String(categoryIdVal);
+                return (
+                  <label key={cat.categoryId} className="jobs-filter-option">
+                    <input 
+                      type="radio" 
+                      name="categoryFilter" 
+                      checked={isChecked} 
+                      onChange={() => setLocalCategoryId(categoryIdVal)} 
+                    />
+                    <span>{translateCategory(cat.categoryName || cat.name)}</span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="jobs-filter-section">
-          <label>Mức lương</label>
+          <label>Mức lương tối thiểu</label>
           <div className="jobs-salary-box">
             <input
               type="range"
               min="20000"
               max="200000"
               step="5000"
-              value={salary}
-              onChange={(e) => setSalary(Number(e.target.value))}
+              value={localSalary}
+              onChange={(e) => setLocalSalary(Number(e.target.value))}
             />
             <div className="jobs-salary-row">
               <span>20.000đ/giờ</span>
-              <strong>{salary.toLocaleString()}đ/giờ</strong>
+              <strong>{localSalary.toLocaleString()}đ/giờ</strong>
             </div>
-          </div>
-        </div>
-
-        <div className="jobs-filter-section">
-          <label>Khoảng cách</label>
-          <div className="jobs-filter-list">
-            {distances.map((distance, index) => (
-              <label key={distance} className="jobs-filter-option">
-                <input type="radio" name="dist" defaultChecked={index === 0} />
-                <span>{distance}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="jobs-filter-section">
-          <label>Ca làm việc</label>
-          <div className="jobs-shift-pills">
-            {shifts.map((shift, index) => (
-              <button key={shift} type="button" className={index === 0 ? 'is-active' : ''}>
-                {shift}
-              </button>
-            ))}
           </div>
         </div>
       </div>
 
       <button
         type="button"
-        onClick={() => onFilterChange(salary)}
+        onClick={handleApply}
         className="jobs-filter-submit"
       >
         <span className="material-symbols-outlined !text-lg">filter_list</span>

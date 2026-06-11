@@ -2,6 +2,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 using WorkBridge.Application.DTOs;
 using WorkBridge.Application.Services;
 
@@ -128,6 +130,33 @@ namespace WorkBridge.API.Controllers
                 var userId = GetUserId();
                 var stats = await _employerService.GetDashboardStatsAsync(userId);
                 return Ok(stats);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("upload-logo")]
+        public async Task<IActionResult> UploadLogo(IFormFile file)
+        {
+            const long maxImageSizeBytes = 2 * 1024 * 1024; // 2MB
+
+            if (file == null || file.Length == 0) return BadRequest(new { message = "Vui lòng chọn file logo." });
+            if (file.Length > maxImageSizeBytes) return BadRequest(new { message = "Ảnh Logo phải có dung lượng tối đa 2MB." });
+
+            var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+            var ext = System.IO.Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(ext))
+                return BadRequest(new { message = "Chỉ hỗ trợ định dạng ảnh (.png, .jpg, .jpeg, .webp)." });
+
+            try
+            {
+                var userId = GetUserId();
+                var logoUrl = await _employerService.UploadLogoAsync(userId, file);
+                if (logoUrl == null) return NotFound(new { message = "Không tìm thấy hồ sơ nhà tuyển dụng." });
+
+                return Ok(new { LogoUrl = logoUrl });
             }
             catch (System.Exception ex)
             {

@@ -15,10 +15,12 @@ namespace WorkBridge.Application.Services
     {
         private const int StandardEmployerJobLimit = 2;
         private readonly IWorkBridgeContext _context;
+        private readonly Microsoft.Extensions.Hosting.IHostEnvironment _hostEnvironment;
 
-        public EmployerService(IWorkBridgeContext context)
+        public EmployerService(IWorkBridgeContext context, Microsoft.Extensions.Hosting.IHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         private Task<bool> HasActiveEmployerVipAsync(int employerId, DateTime now)
@@ -411,6 +413,36 @@ namespace WorkBridge.Application.Services
                 Rating = rating,
                 ReputationScore = reputationScore
             };
+        }
+
+        public async Task<string?> UploadLogoAsync(int userId, IFormFile file)
+        {
+            var user = await _context.Users
+                .Include(u => u.EmployerProfile)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null || user.EmployerProfile == null) return null;
+
+            var ext = System.IO.Path.GetExtension(file.FileName).ToLower();
+            var fileName = $"logo_{userId}_{System.Guid.NewGuid()}{ext}";
+
+            var uploadsFolder = System.IO.Path.Combine(UploadStorage.ResolveUploadsRoot(_hostEnvironment.ContentRootPath), "logos");
+            if (!System.IO.Directory.Exists(uploadsFolder))
+                System.IO.Directory.CreateDirectory(uploadsFolder);
+
+            var filePath = System.IO.Path.Combine(uploadsFolder, fileName);
+            using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var relativeUrl = $"/uploads/logos/{fileName}";
+            user.EmployerProfile.LogoUrl = relativeUrl;
+            user.EmployerProfile.ReputationScore = ProfileReputationCalculator.CalculateEmployerScore(user.EmployerProfile, user);
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return relativeUrl;
         }
     }
 }

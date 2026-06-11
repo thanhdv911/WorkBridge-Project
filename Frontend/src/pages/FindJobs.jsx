@@ -29,9 +29,35 @@ export default function FindJobs() {
   const [filters, setFilters] = useState(() => readFiltersFromSearchParams(searchParams));
   const [savedJobIds, setSavedJobIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState('newest');
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   const isApplicant = role && role.toLowerCase() === 'applicant';
+
+  const sortedJobs = React.useMemo(() => {
+    const jobsCopy = [...jobs];
+    if (sortBy === 'salary') {
+      return jobsCopy.sort((a, b) => (b.payRate || 0) - (a.payRate || 0));
+    }
+    if (sortBy === 'newest') {
+      return jobsCopy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    if (sortBy === 'popular') {
+      return jobsCopy.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+    }
+    if (sortBy === 'closest') {
+      const locFilter = (filters.location || '').toLowerCase();
+      if (locFilter) {
+        return jobsCopy.sort((a, b) => {
+          const aMatch = (a.location || '').toLowerCase().includes(locFilter) ? 1 : 0;
+          const bMatch = (b.location || '').toLowerCase().includes(locFilter) ? 1 : 0;
+          return bMatch - aMatch;
+        });
+      }
+    }
+    return jobsCopy;
+  }, [jobs, sortBy, filters.location]);
 
   useEffect(() => {
     const nextFilters = readFiltersFromSearchParams(searchParams);
@@ -138,7 +164,11 @@ export default function FindJobs() {
       />
 
       <main className="jobs-main">
-        <JobFilterSidebar onFilterChange={(minSalary) => handleSearch({ minSalary })} />
+        <JobFilterSidebar 
+          selectedCategoryId={filters.categoryId}
+          minSalary={filters.minSalary}
+          onFilterApply={(next) => handleSearch(next)}
+        />
 
         <section className="jobs-results">
           <div className="jobs-results-toolbar anim-fadeUp-d1">
@@ -147,18 +177,33 @@ export default function FindJobs() {
             </p>
 
             <div className="jobs-results-controls">
-              <select className="jobs-sort-select" aria-label="Sắp xếp việc làm">
-                <option>Mới nhất</option>
-                <option>Lương cao nhất</option>
-                <option>Gần nhất</option>
-                <option>Phổ biến nhất</option>
+              <select 
+                className="jobs-sort-select" 
+                aria-label="Sắp xếp việc làm"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="newest">Mới nhất</option>
+                <option value="salary">Lương cao nhất</option>
+                <option value="closest">Gần nhất</option>
+                <option value="popular">Phổ biến nhất</option>
               </select>
 
               <div className="jobs-view-toggle" aria-label="Kiểu hiển thị">
-                <button type="button" className="is-active" aria-label="Hiển thị dạng lưới">
+                <button 
+                  type="button" 
+                  className={viewMode === 'grid' ? 'is-active' : ''} 
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Hiển thị dạng lưới"
+                >
                   <span className="material-symbols-outlined !text-xl">grid_view</span>
                 </button>
-                <button type="button" aria-label="Hiển thị dạng danh sách">
+                <button 
+                  type="button" 
+                  className={viewMode === 'list' ? 'is-active' : ''} 
+                  onClick={() => setViewMode('list')}
+                  aria-label="Hiển thị dạng danh sách"
+                >
                   <span className="material-symbols-outlined !text-xl">view_list</span>
                 </button>
               </div>
@@ -177,8 +222,8 @@ export default function FindJobs() {
               <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.</p>
             </div>
           ) : (
-            <div className="jobs-grid">
-              {jobs.map((job) => (
+            <div className={viewMode === 'grid' ? 'jobs-grid' : 'jobs-list'}>
+              {sortedJobs.map((job) => (
                 <JobCard
                   key={job.jobPostId}
                   job={job}

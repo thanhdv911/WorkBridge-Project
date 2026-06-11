@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { useAuthModal } from '../contexts/AuthModalContext';
+import { signalRService } from '../services/signalrService';
+import toast from 'react-hot-toast';
 import EmployerProfileTab from '../components/employer/EmployerProfileTab';
 import EmployerJobForm from '../components/employer/EmployerJobForm';
 import EmployerManagePosts from '../components/employer/EmployerManagePosts';
@@ -14,10 +17,23 @@ import EmployerInterviews from '../components/employer/EmployerInterviews';
 import EmployerVipTab from '../components/employer/EmployerVipTab';
 
 export default function EmployerDashboard() {
+  const { logoutUser } = useAuthModal();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'profile';
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+
+  const handleLogout = () => {
+    try {
+      signalRService.stop();
+    } catch (err) {
+      console.error('Error stopping SignalR on logout:', err);
+    }
+    localStorage.clear();
+    logoutUser();
+    toast.success('Đã đăng xuất thành công');
+    navigate('/login');
+  };
 
   // Basic role check (In a real app, verify from decoded JWT)
   const isEmployer = localStorage.getItem('role') === 'Employer';
@@ -258,6 +274,15 @@ export default function EmployerDashboard() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'payroll' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">payments</span>Bảng lương
+          </button>
+          
+          <hr className="my-2 border-slate-100" />
+          
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors text-rose-500 hover:bg-rose-50/80"
+          >
+            <span className="material-symbols-outlined !text-lg text-rose-500">logout</span>Đăng xuất
           </button>
         </aside>
 

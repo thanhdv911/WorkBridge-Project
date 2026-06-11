@@ -16,5 +16,6 @@ namespace WorkBridge.Application.Services
         Task<IEnumerable<JobResponse>> GetMyJobsAsync(int userId);
         Task<bool> UpdateJobStatusAsync(int userId, int jobId, string status);
         Task<EmployerDashboardStats> GetDashboardStatsAsync(int userId);
+        Task<string?> UploadLogoAsync(int userId, IFormFile file);
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import api, { API_BASE_URL } from '../../services/api';
 import toast from 'react-hot-toast';
 import GoongAddressPicker from '../shared/GoongAddressPicker';
 import { composeGoongAddress, parseStoredGoongAddress } from '../../services/goongAddressService';
@@ -19,6 +19,7 @@ export default function EmployerProfileTab() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -50,6 +51,61 @@ export default function EmployerProfileTab() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getFullLogoUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      return url;
+    }
+    return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Dung lượng ảnh tối đa là 2MB.');
+      return;
+    }
+
+    const allowedExtensions = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedExtensions.includes(file.type)) {
+      toast.error('Chỉ hỗ trợ định dạng ảnh PNG, JPG, JPEG, WEBP.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setIsUploading(true);
+    try {
+      const response = await api.post('/employer/upload-logo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const newLogoUrl = response.data?.logoUrl || response.data?.LogoUrl;
+      if (newLogoUrl) {
+        setProfile(prev => ({ ...prev, logoUrl: newLogoUrl }));
+        toast.success('Tải lên ảnh logo thành công.');
+      } else {
+        toast.error('Không nhận được đường dẫn logo mới.');
+      }
+    } catch (error) {
+      const errMsg = error.response?.data?.message || error.response?.data?.Message || 'Không thể tải lên logo.';
+      toast.error(errMsg);
+      console.error('Logo upload error:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setProfile(prev => ({ ...prev, logoUrl: '' }));
+    toast.success('Đã gỡ logo. Vui lòng nhấn Lưu hồ sơ để cập nhật.');
   };
 
   const handleChange = (e) => {
@@ -121,6 +177,54 @@ export default function EmployerProfileTab() {
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Logo Upload Widget */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl border border-slate-200 bg-slate-50/50">
+          <div className="relative group w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            {profile.logoUrl ? (
+              <img 
+                src={getFullLogoUrl(profile.logoUrl)} 
+                alt="Logo công ty" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-slate-300 !text-4xl">domain</span>
+            )}
+            {isUploading && (
+              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex-1 text-center sm:text-left space-y-2">
+            <h3 className="text-sm font-semibold text-slate-800">Ảnh đại diện / Logo công ty</h3>
+            <p className="text-xs text-slate-500">Chấp nhận định dạng PNG, JPG, JPEG, WEBP. Dung lượng tối đa 2MB.</p>
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+              <label className="cursor-pointer inline-flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
+                <span className="material-symbols-outlined !text-base">cloud_upload</span>
+                Chọn ảnh
+                <input 
+                  type="file" 
+                  accept=".png,.jpg,.jpeg,.webp" 
+                  className="hidden" 
+                  onChange={handleLogoUpload}
+                  disabled={isUploading}
+                />
+              </label>
+              {profile.logoUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveLogo}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all"
+                >
+                  <span className="material-symbols-outlined !text-base">delete</span>
+                  Gỡ bỏ
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Tên công ty *</label>
@@ -155,17 +259,6 @@ export default function EmployerProfileTab() {
               onChange={handleChange}
               className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
               placeholder="+84 123 456 789"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Đường dẫn ảnh Logo (URL)</label>
-            <input
-              type="url"
-              name="logoUrl"
-              value={profile.logoUrl}
-              onChange={handleChange}
-              className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-              placeholder="https://..."
             />
           </div>
         </div>

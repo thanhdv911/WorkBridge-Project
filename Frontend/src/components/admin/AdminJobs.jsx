@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory, translateJobType } from '../../utils/translate';
@@ -206,9 +207,15 @@ const AdminJobs = () => {
                 </div>
             )}
 
-            {selectedJob && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm">
-                    <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-2xl anim-scaleUp">
+            {selectedJob && createPortal(
+                <div 
+                    onClick={() => setSelectedJob(null)}
+                    className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-2xl anim-scaleUp"
+                    >
                         <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-slate-50 px-5 py-5 sm:px-6">
                             <div className="min-w-0">
                                 <p className="text-xs font-black text-primary">Chi tiết tin tuyển dụng</p>
@@ -309,7 +316,8 @@ const AdminJobs = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

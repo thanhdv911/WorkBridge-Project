@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory } from '../../utils/translate';
@@ -178,7 +179,7 @@ const AdminCategories = () => {
                 </div>
             )}
 
-            {showModal && (
+            {showModal && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <button
                         type="button"
@@ -241,7 +242,8 @@ const AdminCategories = () => {
                             </button>
                         </div>
                     </form>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

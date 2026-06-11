@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 import toast from 'react-hot-toast';
 import { translatePayUnit } from '../utils/translate';
 import { useAuthModal } from '../contexts/AuthModalContext';
@@ -239,7 +239,11 @@ const JobDetails = () => {
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                             <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-sky-400 shadow-lg shadow-sky-200/70">
                                 {job.companyLogoUrl ? (
-                                    <img src={job.companyLogoUrl} alt={job.companyName} className="w-full h-full object-cover rounded-2xl" />
+                                    <img 
+                                        src={job.companyLogoUrl.startsWith('http') ? job.companyLogoUrl : `${API_BASE_URL}${job.companyLogoUrl.startsWith('/') ? '' : '/'}${job.companyLogoUrl}`} 
+                                        alt={job.companyName} 
+                                        className="w-full h-full object-cover rounded-2xl" 
+                                    />
                                 ) : (
                                     <span className="material-symbols-outlined text-white !text-3xl">work</span>
                                 )}
@@ -436,12 +440,12 @@ const JobDetails = () => {
                             <button
                                 onClick={handleToggleSave}
                                 className={`w-full h-11 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${isSaved
-                                        ? 'bg-rose-50 text-rose-500 border border-rose-100 shadow-sm'
+                                        ? 'bg-sky-50 text-[#1392ec] border border-sky-100 shadow-sm'
                                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                     }`}
                             >
                                 <span className={`material-symbols-outlined !text-xl ${isSaved ? 'filled' : ''}`}>
-                                    {isSaved ? 'favorite' : 'bookmark_border'}
+                                    {isSaved ? 'bookmark' : 'bookmark_border'}
                                 </span>
                                 {isSaved ? 'Đã lưu việc' : 'Lưu việc'}
                             </button>
