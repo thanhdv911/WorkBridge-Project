@@ -82,3 +82,8 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Agent Config
+.agents/
+README1.md
+skills-lock.json
