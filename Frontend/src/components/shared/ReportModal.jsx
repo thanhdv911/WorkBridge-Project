@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -45,8 +46,8 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-slate-900/60 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-y-auto bg-slate-900/60 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
             <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-white/20 bg-white shadow-2xl animate-scaleUp sm:max-h-[calc(100dvh-4rem)]">
                 <div className="flex shrink-0 justify-between items-start border-b border-slate-100 px-5 py-5 sm:px-6">
                     <div>
@@ -109,7 +110,8 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

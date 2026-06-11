@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import GoongAddressPicker from '../shared/GoongAddressPicker';
-import { composeGoongAddress } from '../../services/goongAddressService';
+import { composeGoongAddress, parseStoredGoongAddress } from '../../services/goongAddressService';
 
 const EmployerBranches = () => {
   const [branches, setBranches] = useState([]);
@@ -16,6 +16,7 @@ const EmployerBranches = () => {
     phone: ''
   });
   const [saving, setSaving] = useState(false);
+  const [companyAddress, setCompanyAddress] = useState(null);
   const token = localStorage.getItem('token');
 
   const fullAddress = composeGoongAddress({
@@ -27,7 +28,39 @@ const EmployerBranches = () => {
 
   useEffect(() => {
     fetchBranches();
+    fetchCompanyAddress();
   }, []);
+
+  const fetchCompanyAddress = async () => {
+    try {
+      const res = await api.get('/employer/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const parsed = parseStoredGoongAddress(res.data?.address || '');
+      if (parsed.province || parsed.city) {
+        setCompanyAddress({
+          province: parsed.province || parsed.city || '',
+          district: parsed.district || '',
+          ward: parsed.ward || '',
+          detailAddress: parsed.detailAddress || parsed.address || ''
+        });
+      }
+    } catch {
+      // silently ignore
+    }
+  };
+
+  const handleCopyCompanyAddress = () => {
+    if (!companyAddress) return;
+    setForm(prev => ({
+      ...prev,
+      province: companyAddress.province,
+      district: companyAddress.district,
+      ward: companyAddress.ward,
+      detailAddress: companyAddress.detailAddress
+    }));
+    toast.success('Đã sao chép địa chỉ công ty.');
+  };
 
   const fetchBranches = async () => {
     try {
@@ -113,24 +146,38 @@ const EmployerBranches = () => {
           className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10"
         />
 
-        <GoongAddressPicker
-          value={{
-            address: form.detailAddress,
-            ward: form.ward,
-            district: form.district,
-            city: form.province
-          }}
-          onChange={(next) => setForm(prev => ({
-            ...prev,
-            province: next.city,
-            district: next.district,
-            ward: next.ward,
-            detailAddress: next.address
-          }))}
-          label="Địa chỉ chi nhánh"
-          placeholder="Gõ địa chỉ chi nhánh và chọn gợi ý từ Goong..."
-          required
-        />
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-semibold text-slate-700">Địa chỉ chi nhánh *</span>
+            {companyAddress && (
+              <button
+                type="button"
+                onClick={handleCopyCompanyAddress}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-primary-dk bg-sky-50 hover:bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-lg transition-all"
+              >
+                <span className="material-symbols-outlined !text-[13px]">content_copy</span>
+                Sao chép địa chỉ công ty
+              </button>
+            )}
+          </div>
+          <GoongAddressPicker
+            value={{
+              address: form.detailAddress,
+              ward: form.ward,
+              district: form.district,
+              city: form.province
+            }}
+            onChange={(next) => setForm(prev => ({
+              ...prev,
+              province: next.city,
+              district: next.district,
+              ward: next.ward,
+              detailAddress: next.address
+            }))}
+            placeholder="Gõ địa chỉ chi nhánh và chọn gợi ý từ Goong..."
+            required
+          />
+        </div>
 
         <input
           value={form.phone}

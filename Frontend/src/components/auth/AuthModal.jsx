@@ -251,11 +251,90 @@ export default function AuthModal() {
       onClick={closeAuth}
     >
       <div 
-        className="bg-white/95 backdrop-blur-xl rounded-[28px] lg:rounded-[2rem] border border-sky-100/80 max-w-[420px] xl:max-w-[960px] w-full relative shadow-2xl anim-fadeUp origin-center font-display grid xl:grid-cols-[minmax(0,1fr)_420px] overflow-hidden"
+        className="bg-white rounded-[28px] lg:rounded-[2rem] border border-sky-100/80 max-w-[420px] xl:max-w-[820px] w-full relative shadow-2xl anim-fadeUp origin-center grid xl:grid-cols-[380px_minmax(0,1fr)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── LEFT: Form ── */}
-        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-7 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[584px] overflow-y-auto">
+        {/* ── LEFT: Illustration Panel ── */}
+        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[560px]">
+          {/* Decorative blobs */}
+          <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#1392ec]/10 -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-sky-200/20 translate-x-1/3 translate-y-1/3" />
+          <div className="absolute top-1/2 left-1/2 w-32 h-32 rounded-full bg-[#1392ec]/5 -translate-x-1/2 -translate-y-1/2" />
+
+          {/* 3D Character SVG illustration */}
+          <div className="relative z-10 flex flex-col items-center px-8 text-center">
+            {/* Illustration */}
+            <div className="w-52 h-52 mb-5 relative">
+              <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
+                {/* Body */}
+                <ellipse cx="100" cy="185" rx="55" ry="10" fill="#1392ec" opacity="0.15"/>
+                {/* Legs */}
+                <rect x="78" y="140" width="18" height="45" rx="9" fill="#2563eb"/>
+                <rect x="104" y="140" width="18" height="45" rx="9" fill="#1d4ed8"/>
+                {/* Shoes */}
+                <ellipse cx="87" cy="184" rx="14" ry="7" fill="#1e293b"/>
+                <ellipse cx="113" cy="184" rx="14" ry="7" fill="#1e293b"/>
+                {/* Torso - shirt */}
+                <rect x="68" y="95" width="64" height="55" rx="12" fill="#1392ec"/>
+                {/* Laptop */}
+                <rect x="55" y="108" width="55" height="38" rx="5" fill="#e2e8f0"/>
+                <rect x="58" y="111" width="49" height="30" rx="3" fill="#0ea5e9"/>
+                <rect x="52" y="146" width="61" height="5" rx="2.5" fill="#cbd5e1"/>
+                {/* Screen content */}
+                <rect x="62" y="115" width="18" height="3" rx="1.5" fill="white" opacity="0.8"/>
+                <rect x="62" y="121" width="12" height="3" rx="1.5" fill="white" opacity="0.6"/>
+                <rect x="62" y="127" width="22" height="3" rx="1.5" fill="white" opacity="0.6"/>
+                <rect x="83" y="115" width="20" height="18" rx="3" fill="white" opacity="0.15"/>
+                {/* Left arm */}
+                <rect x="44" y="98" width="16" height="40" rx="8" fill="#38bdf8" transform="rotate(-15 44 98)"/>
+                {/* Right arm on laptop */}
+                <rect x="118" y="100" width="16" height="38" rx="8" fill="#38bdf8" transform="rotate(10 118 100)"/>
+                {/* Neck */}
+                <rect x="91" y="80" width="18" height="20" rx="9" fill="#fbbf24"/>
+                {/* Head */}
+                <ellipse cx="100" cy="68" rx="28" ry="28" fill="#fbbf24"/>
+                {/* Hair */}
+                <ellipse cx="100" cy="44" rx="26" ry="16" fill="#1e293b"/>
+                <ellipse cx="80" cy="56" rx="10" ry="14" fill="#1e293b"/>
+                <ellipse cx="120" cy="56" rx="10" ry="14" fill="#1e293b"/>
+                {/* Eyes */}
+                <ellipse cx="90" cy="68" rx="5" ry="6" fill="white"/>
+                <ellipse cx="110" cy="68" rx="5" ry="6" fill="white"/>
+                <circle cx="91" cy="69" r="3" fill="#1e293b"/>
+                <circle cx="111" cy="69" r="3" fill="#1e293b"/>
+                <circle cx="92" cy="68" r="1" fill="white"/>
+                <circle cx="112" cy="68" r="1" fill="white"/>
+                {/* Smile */}
+                <path d="M92 78 Q100 85 108 78" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+                {/* Floating badge */}
+                <rect x="130" y="50" width="52" height="26" rx="13" fill="white" filter="url(#shadow)" opacity="0.95"/>
+                <text x="143" y="67" fontSize="11" fill="#1392ec" fontWeight="bold">Hired! 🎉</text>
+                <defs>
+                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.15"/>
+                  </filter>
+                </defs>
+              </svg>
+            </div>
+
+            {/* Welcome Text */}
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1392ec]/10 border border-[#1392ec]/20 px-3 py-1 mb-3">
+              <span className="material-symbols-outlined !text-[13px] text-[#1392ec]">verified</span>
+              <span className="text-[11px] font-bold text-[#1392ec] tracking-wide">Cổng thông tin việc làm</span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-800 leading-tight mb-2">
+              Chào mừng đến<br/><span className="text-[#1392ec]">WorkBridge</span>
+            </h2>
+            <p className="text-sm text-slate-500 leading-relaxed max-w-[220px]">
+              Tìm việc làm thêm linh hoạt, ca ngắn phù hợp với lịch học của bạn.
+            </p>
+
+
+          </div>
+        </div>
+
+        {/* ── RIGHT: Form ── */}
+        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[560px] overflow-y-auto bg-white">
         {/* Close Button X */}
         <button
           onClick={closeAuth}
@@ -265,29 +344,31 @@ export default function AuthModal() {
           <span className="material-symbols-outlined !text-lg">close</span>
         </button>
 
-        {/* Brand header */}
-        <div className="text-center mb-4 mt-1">
+        {/* Brand header - only show on mobile (xl already has left panel) */}
+        <div className="text-center mb-5 mt-1 xl:hidden">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-primary shadow-sm">
             <span className="material-symbols-outlined !text-[14px]">verified</span>
-            Cổng thông tin WorkBridge
+            WorkBridge
           </div>
-          <h2 className="mt-2.5 text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+        </div>
+        <div className="mb-5 mt-1">
+          <h2 className="text-xl font-bold text-slate-800">
             {isForgotMode 
               ? 'Quên mật khẩu?' 
               : pendingRegistrationEmail 
               ? 'Xác thực tài khoản' 
               : mode === 'login' 
-              ? 'Chào mừng quay lại' 
-              : 'Tạo tài khoản mới'}
+              ? 'Đăng nhập' 
+              : 'Tạo tài khoản'}
           </h2>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed px-4">
+          <p className="text-sm text-slate-400 mt-1">
             {isForgotMode
-              ? 'Nhập email của bạn để nhận liên kết khôi phục mật khẩu.'
+              ? 'Nhập email để nhận liên kết khôi phục mật khẩu.'
               : pendingRegistrationEmail
-              ? `Nhập mã xác thực gửi đến ${pendingRegistrationEmail}`
+              ? `Mã xác thực gửi đến ${pendingRegistrationEmail}`
               : mode === 'login'
-              ? 'Nhập thông tin để tiếp tục không gian làm việc của bạn.'
-              : 'Tham gia tìm việc làm ca kíp và ca ngắn thông minh ngay hôm nay.'}
+              ? 'Chào mừng quay lại! Nhập thông tin để tiếp tục.'
+              : 'Tham gia tìm việc thông minh ngay hôm nay.'}
           </p>
         </div>
 
@@ -317,7 +398,7 @@ export default function AuthModal() {
         {isForgotMode && (
           <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider pl-1">Địa chỉ Email đăng ký</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email đăng ký</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
                 <input
@@ -354,7 +435,7 @@ export default function AuthModal() {
         {pendingRegistrationEmail && !isForgotMode && (
           <form onSubmit={handleVerifyRegistration} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider pl-1 text-center">Mã xác thực email</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block text-center">Mã xác thực email</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">pin</span>
                 <input
@@ -404,7 +485,7 @@ export default function AuthModal() {
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {/* Email */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Địa chỉ Email</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
                 <input
@@ -421,7 +502,7 @@ export default function AuthModal() {
             {/* Password */}
             <div className="flex flex-col gap-1">
               <div className="flex justify-between items-center pr-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Mật khẩu</label>
+                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Mật khẩu</label>
                 <button
                   type="button"
                   onClick={() => setIsForgotMode(true)}
@@ -526,7 +607,7 @@ export default function AuthModal() {
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Họ</label>
+                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Họ</label>
                 <input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -537,7 +618,7 @@ export default function AuthModal() {
                 />
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Tên</label>
+                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Tên</label>
                 <input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -551,7 +632,7 @@ export default function AuthModal() {
 
             {/* Email */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Địa chỉ Email</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">mail</span>
                 <input
@@ -567,7 +648,7 @@ export default function AuthModal() {
 
             {/* Password */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Mật khẩu</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Mật khẩu</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock</span>
                 <input
@@ -590,7 +671,7 @@ export default function AuthModal() {
 
             {/* Confirm Password */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">Xác nhận mật khẩu</label>
+              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Xác nhận mật khẩu</label>
               <div className="relative">
                 <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock_reset</span>
                 <input
@@ -636,81 +717,7 @@ export default function AuthModal() {
         )}
         </div>
 
-        {/* ── RIGHT: Image Panel ── */}
-        <div className="auth-visual-panel hidden xl:flex h-[560px] relative overflow-hidden rounded-[2rem] m-3 flex-col justify-between p-7" aria-hidden="true">
-          <div className="auth-visual-scan"></div>
-          <div className="blob-deco w-64 h-64 bg-sky-300/25 -top-16 -right-16 blur-[44px]"></div>
-          <div className="blob-deco w-44 h-44 bg-cyan-200/20 bottom-24 -left-14 blur-[36px]"></div>
 
-          <div className="relative z-10 flex items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/20 px-3.5 py-2 text-xs font-extrabold text-white shadow-lg shadow-sky-950/10 backdrop-blur-md">
-              <span className="material-symbols-outlined filled !text-[16px] text-emerald-300">radio_button_checked</span>
-              ca làm phù hợp
-            </div>
-            <div className="auth-orbit-chip">
-              <span className="material-symbols-outlined filled !text-xl">bolt</span>
-            </div>
-          </div>
-
-          <div className="relative z-10">
-            <div className="auth-photo-card">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-extrabold text-sky-100">Gợi ý trong hôm nay</p>
-                  <h3 className="mt-2 text-2xl font-black leading-tight tracking-normal text-white">Tìm ca làm nhanh hơn</h3>
-                </div>
-                <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/20">
-                  <span className="material-symbols-outlined !text-2xl text-white">work</span>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <div className="auth-mini-row">
-                  <span className="material-symbols-outlined !text-[18px] text-cyan-200">schedule</span>
-                  <div>
-                    <div className="text-xs font-extrabold text-white">Ca tối gần trường</div>
-                    <div className="text-[10px] font-semibold text-white/60">Ưu tiên lịch rảnh của bạn</div>
-                  </div>
-                  <strong>42k</strong>
-                </div>
-                <div className="auth-mini-row">
-                  <span className="material-symbols-outlined !text-[18px] text-emerald-200">verified_user</span>
-                  <div>
-                    <div className="text-xs font-extrabold text-white">Nhà tuyển dụng xác minh</div>
-                    <div className="text-[10px] font-semibold text-white/60">Ứng tuyển tự tin hơn</div>
-                  </div>
-                  <strong>1 chạm</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="auth-floating-badge auth-badge-a">
-              <span className="material-symbols-outlined !text-[18px] text-sky-500">chat</span>
-              phản hồi nhanh
-            </div>
-            <div className="auth-floating-badge auth-badge-b">
-              <span className="material-symbols-outlined !text-[18px] text-emerald-500">task_alt</span>
-              hồ sơ sẵn sàng
-            </div>
-          </div>
-
-          <div className="relative z-10 grid grid-cols-2 gap-4">
-            <div className="auth-stat-tile">
-              <span className="material-symbols-outlined !text-xl text-cyan-200">trending_up</span>
-              <div>
-                <div className="text-base font-black text-white">5,000+</div>
-                <div className="text-[10px] font-semibold text-white/60">việc đang mở</div>
-              </div>
-            </div>
-            <div className="auth-stat-tile">
-              <span className="material-symbols-outlined !text-xl text-emerald-200">groups</span>
-              <div>
-                <div className="text-base font-black text-white">12K+</div>
-                <div className="text-[10px] font-semibold text-white/60">sinh viên kết nối</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

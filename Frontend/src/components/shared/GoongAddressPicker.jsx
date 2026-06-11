@@ -3,6 +3,7 @@ import {
   composeGoongAddress,
   searchGoongPlaces
 } from '../../services/goongAddressService';
+import VietnamCascadePicker from './VietnamCascadePicker';
 
 const emptyAddress = {
   address: '',
@@ -250,41 +251,23 @@ export default function GoongAddressPicker({
       )}
 
       {showAdminFields && (
-        <div className={`grid gap-3 ${compact ? 'grid-cols-1' : 'sm:grid-cols-3'}`}>
-          {adminFields.map((field) => (
-            <div key={field.key} className="relative space-y-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{field.label}</span>
-              <input
-                value={field.value || ''}
-                placeholder={field.placeholder}
-                onFocus={() => setAdminField(field.key)}
-                onChange={(event) => handleAdminChange(field.key, event.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
-              />
-              {adminField === field.key && adminSearching && (
-                <span className="material-symbols-outlined !text-base text-primary animate-spin absolute right-3 top-7">progress_activity</span>
-              )}
-              {adminField === field.key && adminSuggestions.length > 0 && (
-                <ul className="scrollbar-none absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-52 overflow-y-auto z-50 divide-y divide-slate-100">
-                  {adminSuggestions.map((suggestion, index) => (
-                    <li
-                      key={`${field.key}-${suggestion.placeId || suggestion.description || index}`}
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => handleSelectAdminSuggestion(suggestion)}
-                      className="px-3 py-2 hover:bg-primary/5 cursor-pointer transition-colors text-left"
-                    >
-                      <p className="text-xs font-bold text-slate-700 whitespace-normal break-words">
-                        {pickAdminValue(suggestion, field.key)}
-                      </p>
-                      <p className="text-[11px] text-slate-400 mt-0.5 whitespace-normal break-words">
-                        {suggestion.description}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tỉnh / TP → Quận / Huyện → Phường / Xã</span>
+          <VietnamCascadePicker
+            value={{
+              province: currentCity,
+              district: currentDistrict,
+              ward: currentWard
+            }}
+            onChange={(next) => {
+              emitChange({
+                ...current,
+                city: next.province,
+                district: next.district,
+                ward: next.ward
+              });
+            }}
+          />
         </div>
       )}
 

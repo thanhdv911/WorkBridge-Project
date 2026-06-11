@@ -791,33 +791,54 @@ function Categories() {
             const categoryName = category.categoryName || category.name;
             const jobCount = categoryCounts[category.categoryId] || 0;
 
+            const CATEGORY_IMAGES = [
+              "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+              "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            ];
+            
+            const imgSrc = CATEGORY_IMAGES[index % CATEGORY_IMAGES.length];
+
             return (
               <a
                 key={category.categoryId}
-                className="group flex flex-col items-center justify-center p-6 bg-slate-50/50 border border-slate-200/50 rounded-2xl hover:border-[#1392ec] hover:bg-white hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+                className="group relative flex flex-col justify-end p-6 rounded-3xl overflow-hidden min-h-[220px] shadow-sm hover:shadow-2xl hover:shadow-[#1392ec]/20 transition-all duration-500 hover:-translate-y-2 border border-slate-200/50 hover:border-transparent"
                 href={`/jobs?category=${category.categoryId}`}
                 style={{
-                  '--home-delay': `${index * 55}ms`,
-                  boxShadow: '0 10px 30px rgba(15, 23, 42, 0.02)'
+                  '--home-delay': `${index * 55}ms`
                 }}
               >
-                {/* Large circular background badge mirroring mascot style */}
-                <div className="relative w-20 h-20 rounded-full border-2 border-white bg-sky-50 shadow-md shadow-sky-200/40 flex items-center justify-center mb-4 transition-all duration-300 group-hover:bg-white group-hover:border-sky-100 group-hover:shadow-lg">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#1392ec]/10 to-transparent opacity-60 pointer-events-none rounded-full" />
-                  <div className="relative z-10 transform transition-transform duration-300 group-hover:scale-110">
-                    {getCategorySvg(categoryName)}
-                  </div>
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img 
+                    src={imgSrc} 
+                    alt={categoryName} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  />
                 </div>
                 
-                {/* Name */}
-                <h3 className="text-center text-sm font-black text-slate-800 line-clamp-2 min-h-[40px] flex items-center justify-center px-1">
-                  {translateCategory(categoryName)}
-                </h3>
+                {/* Subtle Overlay for Text Readability */}
+                <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-[#1392ec]/50 transition-colors duration-500" />
                 
-                {/* Job Count */}
-                <span className="mt-2 text-[11px] font-black text-[#1392ec] bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100/50">
-                  {jobCount.toLocaleString('vi-VN')} việc làm
-                </span>
+                {/* Content - Centered to fix empty space */}
+                <div className="relative z-10 flex flex-col h-full justify-center items-center text-center p-4">
+                  <div className="transform transition-transform duration-500 group-hover:-translate-y-2">
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-3 drop-shadow-lg leading-tight">
+                      {translateCategory(categoryName)}
+                    </h3>
+                    
+                    <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full backdrop-blur-md bg-white/20 border border-white/30 shadow-sm transition-all duration-300 group-hover:bg-white group-hover:text-[#1392ec] text-white">
+                      <span className="text-xs font-bold uppercase tracking-wider">
+                        {jobCount.toLocaleString('vi-VN')} việc làm
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </a>
             );
           })}
@@ -881,12 +902,21 @@ const LOCATION_PILLS = [
   { label: 'Miền Nam', filter: 'Bình Dương' }
 ];
 
+const SALARY_PILLS = [
+  { label: 'Tất cả', filter: '' },
+  { label: 'Từ 20 nghìn/giờ', filter: '20000' },
+  { label: 'Từ 40 nghìn/giờ', filter: '40000' },
+  { label: 'Từ 100 nghìn/giờ', filter: '100000' }
+];
+
 function LatestJobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filterMode, setFilterMode] = useState('location'); // 'location' | 'salary'
   const [selectedLocPill, setSelectedLocPill] = useState('Ngẫu Nhiên');
+  const [selectedSalaryPill, setSelectedSalaryPill] = useState('Tất cả');
   const [savedJobIds, setSavedJobIds] = useState([]);
   
   const token = localStorage.getItem('token');
@@ -906,10 +936,17 @@ function LatestJobs() {
 
   useEffect(() => {
     setLoading(true);
-    const selectedPillObj = LOCATION_PILLS.find(p => p.label === selectedLocPill);
-    const filterLoc = selectedPillObj ? selectedPillObj.filter : '';
+    const selectedLocObj = LOCATION_PILLS.find(p => p.label === selectedLocPill);
+    const filterLoc = selectedLocObj ? selectedLocObj.filter : '';
+
+    const selectedSalObj = SALARY_PILLS.find(p => p.label === selectedSalaryPill);
+    const filterSal = selectedSalObj ? selectedSalObj.filter : '';
     
-    api.get(`/jobs?page=${page}&pageSize=9&location=${encodeURIComponent(filterLoc)}`)
+    let url = `/jobs?page=${page}&pageSize=9`;
+    if (filterLoc) url += `&location=${encodeURIComponent(filterLoc)}`;
+    if (filterSal) url += `&minSalary=${filterSal}`;
+
+    api.get(url)
       .then(res => {
         setJobs(res.data.items || []);
         setTotalPages(res.data.totalPages || 1);
@@ -1004,12 +1041,17 @@ function LatestJobs() {
 
         {/* REDESIGNED FILTERS ROW */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative">
-            <button className="home-best-filter-select">
-              <span className="material-symbols-outlined !text-lg text-slate-400">filter_list</span>
-              Lọc theo: Địa điểm
-              <span className="material-symbols-outlined !text-base text-slate-400">expand_more</span>
-            </button>
+          <div className="relative flex-shrink-0">
+            <select
+              value={filterMode}
+              onChange={(e) => setFilterMode(e.target.value)}
+              className="home-best-filter-select appearance-none !pr-10 !pl-10 cursor-pointer hover:border-[#1392ec] transition-all outline-none focus:ring-2 focus:ring-[#1392ec]/20 bg-white"
+            >
+              <option value="location">Lọc theo: Địa điểm</option>
+              <option value="salary">Lọc theo: Mức lương</option>
+            </select>
+            <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">filter_list</span>
+            <span className="material-symbols-outlined !text-base text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
           </div>
           
           <div className="flex items-center gap-2 flex-1 min-w-0 max-w-2xl sm:justify-end">
@@ -1018,7 +1060,7 @@ function LatestJobs() {
             </button>
             
             <div ref={pillsRef} className="home-best-pills-container flex-1">
-              {LOCATION_PILLS.map((pill) => (
+              {filterMode === 'location' && LOCATION_PILLS.map((pill) => (
                 <button
                   key={pill.label}
                   onClick={() => {
@@ -1026,6 +1068,19 @@ function LatestJobs() {
                     setPage(1);
                   }}
                   className={`home-best-pill ${selectedLocPill === pill.label ? 'active' : ''}`}
+                >
+                  {pill.label}
+                </button>
+              ))}
+              
+              {filterMode === 'salary' && SALARY_PILLS.map((pill) => (
+                <button
+                  key={pill.label}
+                  onClick={() => {
+                    setSelectedSalaryPill(pill.label);
+                    setPage(1);
+                  }}
+                  className={`home-best-pill ${selectedSalaryPill === pill.label ? 'active' : ''}`}
                 >
                   {pill.label}
                 </button>
@@ -1261,25 +1316,50 @@ function CTA() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
-      <div className="home-cta-panel">
-        <img src="/workbridge-mark.png" alt="" className="home-cta-mark" aria-hidden="true" />
-        <div className="relative z-10 max-w-2xl">
-          <h2 className="home-section-title mt-3 text-slate-950">
-            Sẵn sàng tìm cơ hội tiếp theo?
-          </h2>
-          <p className="mt-4 text-base font-semibold leading-7 text-slate-600">
-            Tham gia cùng hàng nghìn sinh viên đang vừa học vừa làm. Tạo tài khoản miễn phí và bắt đầu ứng tuyển ngay hôm nay.
-          </p>
+      {/* Outer wrapper for absolute-positioning the illustration outside the panel */}
+      <div className="relative">
+
+        {/* Panel — right padding on lg to leave space for the floating illustration */}
+        <div className="home-cta-panel lg:pr-72 xl:pr-80">
+          <img src="/workbridge-mark.png" alt="" className="home-cta-mark" aria-hidden="true" />
+
+          <div className="relative z-10 flex flex-1 flex-col gap-5">
+            <div>
+              <h2 className="home-section-title mt-3 text-slate-950">
+              Sẵn sàng tìm cơ hội?
+              </h2>
+              <p className="mt-4 text-base font-semibold leading-7 text-slate-600">
+                Tham gia cùng hàng nghìn sinh viên đang vừa học vừa làm. Tạo tài khoản miễn phí và bắt đầu ứng tuyển ngay hôm nay.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a href={getStartedHref} className="button-swipe home-cta-primary">
+                Bắt đầu miễn phí
+                <span className="material-symbols-outlined !text-xl">arrow_forward</span>
+              </a>
+              <a href="/jobs" className="home-cta-secondary">
+                Tìm việc
+              </a>
+            </div>
+          </div>
         </div>
-        <div className="relative z-10 mt-8 flex flex-col gap-3 sm:flex-row lg:mt-0">
-          <a href={getStartedHref} className="button-swipe home-cta-primary">
-            Bắt đầu miễn phí
-            <span className="material-symbols-outlined !text-xl">arrow_forward</span>
-          </a>
-          <a href="/jobs" className="home-cta-secondary">
-            Tìm việc
-          </a>
-        </div>
+
+        {/* Illustration — OUTSIDE the panel, floating freely on the right */}
+        <img
+          src="/cta-illustration.png"
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          className="pointer-events-none select-none hidden lg:block"
+          style={{
+            position: 'absolute',
+            right: '0px',
+            bottom: '0px',
+            height: '320px',
+            width: 'auto',
+            mixBlendMode: 'multiply',
+          }}
+        />
       </div>
     </section>
   );
