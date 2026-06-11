@@ -605,43 +605,7 @@ const AiChatWidget = () => {
               {/* Options list */}
               <div className="flex flex-col divide-y divide-slate-100 text-sm">
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSupportPanel(false);
-                    navigate(role === 'Employer' ? '/employer-safety' : '/safety');
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
-                >
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">work</span>
-                  <span className="flex-1">
-                    {role === 'Employer' ? 'Hướng dẫn tuyển dụng an toàn *' : 'Hướng dẫn tìm việc an toàn *'}
-                  </span>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSupportPanel(false);
-                    navigate('/profile');
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
-                >
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">person</span>
-                  <span className="flex-1">Hướng dẫn quản lý tài khoản</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSupportPanel(false);
-                    navigate('/faq');
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
-                >
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">question_answer</span>
-                  <span className="flex-1">Các câu hỏi thường gặp</span>
-                </button>
 
                 <a
                   href="https://zalo.me/0969701460"
