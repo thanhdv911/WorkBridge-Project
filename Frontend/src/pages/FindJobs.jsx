@@ -185,8 +185,6 @@ export default function FindJobs() {
               >
                 <option value="newest">Mới nhất</option>
                 <option value="salary">Lương cao nhất</option>
-                <option value="closest">Gần nhất</option>
-                <option value="popular">Phổ biến nhất</option>
               </select>
 
               <div className="jobs-view-toggle" aria-label="Kiểu hiển thị">

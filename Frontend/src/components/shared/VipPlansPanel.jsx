@@ -14,11 +14,7 @@ const AUDIENCE_COPY = {
     success: 'Thanh toán thành công! Gói VIP Cá nhân đã được kích hoạt.',
     paymentTitle: 'Thanh toán gói VIP Cá nhân',
     campaign: ['AI gợi ý việc hợp hồ sơ', 'CV được soi lỗi nhanh', 'Luyện phỏng vấn tự tin', 'Ưu tiên trải nghiệm VIP'],
-    spotlights: [
-      ['bolt', 'Gợi ý tức thì', 'Nhận hướng đi tiếp theo ngay khi bạn cần tìm việc.'],
-      ['verified_user', 'Dữ liệu thật', 'AI đọc dữ liệu WorkBridge để gợi ý việc đang tuyển.'],
-      ['trending_up', 'Tăng cơ hội', 'Tối ưu CV và chuẩn bị câu trả lời trước phỏng vấn.']
-    ],
+    spotlights: [],
     features: [
       ['smart_toy', 'Chat với WorkBridge AI'],
       ['description', 'AI đánh giá và gợi ý sửa CV'],
