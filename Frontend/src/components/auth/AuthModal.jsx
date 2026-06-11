@@ -255,7 +255,7 @@ export default function AuthModal() {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── LEFT: Illustration Panel ── */}
-        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[560px]">
+        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[620px]">
           {/* Decorative blobs */}
           <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#1392ec]/10 -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-sky-200/20 translate-x-1/3 translate-y-1/3" />
@@ -334,7 +334,7 @@ export default function AuthModal() {
         </div>
 
         {/* ── RIGHT: Form ── */}
-        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[560px] overflow-y-auto bg-white">
+        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[620px] overflow-y-auto bg-white">
         {/* Close Button X */}
         <button
           onClick={closeAuth}

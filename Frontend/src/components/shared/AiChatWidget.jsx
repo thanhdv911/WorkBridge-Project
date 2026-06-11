@@ -241,8 +241,12 @@ const AiChatWidget = () => {
       }
     };
     fetchSavedCount();
+
+    // Re-fetch immediately when user saves/unsaves a job anywhere in the app
+    window.addEventListener('savedJobsChanged', fetchSavedCount);
     return () => {
       active = false;
+      window.removeEventListener('savedJobsChanged', fetchSavedCount);
     };
   }, [token, location.pathname]);
 
@@ -565,7 +569,7 @@ const AiChatWidget = () => {
         <div className="relative flex flex-col items-end gap-3 pointer-events-auto">
           {/* Support Panel (Image 1 style) */}
           {showSupportPanel && (
-            <div className="absolute bottom-[68px] right-[56px] w-[320px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden anim-fadeLeft pointer-events-auto">
+            <div className="absolute bottom-[68px] right-[56px] w-[370px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden anim-fadeLeft pointer-events-auto">
               {/* Header */}
               <div className="bg-[#1392ec] p-4 text-white relative overflow-hidden">
                 <div className="flex justify-between items-start">
@@ -593,7 +597,7 @@ const AiChatWidget = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-sm">Mr. Thành Đinh</h4>
-                    <p className="text-xs text-white/80 mt-0.5">WorkBridge thường phản hồi trong vòng 24h</p>
+                    <p className="text-xs text-white/80 mt-0.5 whitespace-nowrap">WorkBridge thường phản hồi trong vòng 24h</p>
                   </div>
                 </div>
               </div>

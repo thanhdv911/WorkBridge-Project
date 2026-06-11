@@ -174,16 +174,17 @@ function usePresenceSnapshot(page = 1, pageSize = 5) {
 
 export default function Home() {
   const { heroRef, pointerEffects } = useHeroPointerTilt();
+  const userRole = localStorage.getItem('role');
 
   return (
     <div className={`home-shell home-perf-lite relative overflow-x-hidden ${pointerEffects ? 'home-allow-tilt' : ''}`}>
-      <Hero heroRef={heroRef} />
-      <LatestJobs />
+      <Hero heroRef={heroRef} userRole={userRole} />
+      {userRole !== 'Employer' && <LatestJobs />}
       <JobMarketDashboard />
-      <Categories />
+      {userRole !== 'Employer' && <Categories />}
       <HowItWorks />
       <Testimonials />
-      <CTA />
+      {userRole !== 'Employer' && <CTA />}
     </div>
   );
 }
@@ -196,7 +197,7 @@ const QUICK_CITIES = [
   { label: 'TP. Huế', value: 'Huế' }
 ];
 
-function Hero({ heroRef }) {
+function Hero({ heroRef, userRole }) {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showLocationCard, setShowLocationCard] = useState(false);
@@ -325,115 +326,130 @@ function Hero({ heroRef }) {
             Hệ thống kết nối part-time sinh viên
           </div>
 
-          <h1 className="home-kinetic-title mb-4" aria-label="Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn">
-            <span>Tìm Việc Bán Thời Gian</span>
-            <span>Hoàn Hảo Cho Bạn</span>
+          <h1 className="home-kinetic-title mb-4" aria-label={userRole === 'Employer' ? "Tìm Kiếm Nhân Sự Part-Time Nhanh Chóng" : "Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn"}>
+            <span>{userRole === 'Employer' ? "Tìm Kiếm Nhân Sự" : "Tìm Việc Bán Thời Gian"}</span>
+            <span>{userRole === 'Employer' ? "Part-Time Hoàn Hảo" : "Hoàn Hảo Cho Bạn"}</span>
           </h1>
 
           <p className="mt-4 max-w-[610px] break-words text-base font-semibold leading-7 text-slate-600">
-            Kết nối sinh viên với công việc linh hoạt. Tích lũy kinh nghiệm, tạo thu nhập và phát triển sự nghiệp — theo lịch trình của bạn.
+            {userRole === 'Employer' 
+              ? "Kết nối với hàng ngàn sinh viên năng động. Đăng tin tuyển dụng nhanh chóng, quản lý ca làm việc hiệu quả và tối ưu hóa nhân sự của bạn."
+              : "Kết nối sinh viên với công việc linh hoạt. Tích lũy kinh nghiệm, tạo thu nhập và phát triển sự nghiệp — theo lịch trình của bạn."}
           </p>
 
-          <form onSubmit={handleSearch} className="home-search mt-8">
-            <div className="home-search-field">
-              <span className="material-symbols-outlined text-slate-400 !text-xl">search</span>
-              <input
-                className="min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none"
-                placeholder="Chức danh, từ khóa..."
-                type="text"
-                value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
-              />
-            </div>
-
-            <div className="relative min-w-0 flex-[1.25]" ref={locationRef}>
-              <button
-                type="button"
-                onClick={() => setShowLocationCard((current) => !current)}
-                className="home-location-trigger w-full"
-                title={selectedLabel}
-              >
-                <span className="material-symbols-outlined shrink-0 text-slate-400 !text-xl">location_on</span>
-                <span className={`min-w-0 flex-1 truncate text-left text-sm ${selectedLabel ? 'font-black text-slate-800' : 'font-semibold text-slate-400'}`}>
-                  {displayLocationLabel || 'Chọn khu vực...'}
-                </span>
-                <span className="material-symbols-outlined shrink-0 text-slate-400 !text-xl transition-transform duration-200" style={{ transform: showLocationCard ? 'rotate(180deg)' : 'rotate(0)' }}>
-                  keyboard_arrow_down
-                </span>
+          {userRole === 'Employer' ? (
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <button onClick={() => navigate('/employer-dashboard?tab=post-job')} className="button-swipe h-[60px] px-8 rounded-[20px] bg-primary text-[15px] font-black text-white transition hover:bg-primary-dk shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined !text-xl">post_add</span>
+                Đăng tin tuyển dụng ngay
               </button>
+              <button onClick={() => navigate('/employer-dashboard')} className="h-[60px] px-8 rounded-[20px] border-2 border-slate-200 bg-white text-[15px] font-black text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined !text-xl">dashboard</span>
+                Đến trang quản lý
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSearch} className="home-search mt-8">
+              <div className="home-search-field">
+                <span className="material-symbols-outlined text-slate-400 !text-xl">search</span>
+                <input
+                  className="min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none"
+                  placeholder="Chức danh, từ khóa..."
+                  type="text"
+                  value={keyword}
+                  onChange={(event) => setKeyword(event.target.value)}
+                />
+              </div>
 
-              {showLocationCard && (
-                <div className="home-location-popover">
-                  <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2.5 text-sm font-black text-slate-800">
-                    <span className="material-symbols-outlined text-primary !text-lg">explore</span>
-                    Khu vực tìm kiếm
-                  </div>
+              <div className="relative min-w-0 flex-[1.25]" ref={locationRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowLocationCard((current) => !current)}
+                  className="home-location-trigger w-full"
+                  title={selectedLabel}
+                >
+                  <span className="material-symbols-outlined shrink-0 text-slate-400 !text-xl">location_on</span>
+                  <span className={`min-w-0 flex-1 truncate text-left text-sm ${selectedLabel ? 'font-black text-slate-800' : 'font-semibold text-slate-400'}`}>
+                    {displayLocationLabel || 'Chọn khu vực...'}
+                  </span>
+                  <span className="material-symbols-outlined shrink-0 text-slate-400 !text-xl transition-transform duration-200" style={{ transform: showLocationCard ? 'rotate(180deg)' : 'rotate(0)' }}>
+                    keyboard_arrow_down
+                  </span>
+                </button>
 
-                  <div className="space-y-4">
-                    {/* Quick Cities Selection */}
-                    <div>
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Chọn nhanh thành phố</span>
-                      <div className="flex flex-wrap gap-2">
-                        {QUICK_CITIES.map((city) => {
-                          const isActive = city.value === '' ? (!province && !address) : (province === city.value);
-                          return (
-                            <button
-                              key={city.label}
-                              type="button"
-                              onClick={() => handleQuickCitySelect(city.value, city.label)}
-                              className={`home-quick-city-pill ${isActive ? 'active' : ''}`}
-                            >
-                              {city.label}
-                            </button>
-                          );
-                        })}
+                {showLocationCard && (
+                  <div className="home-location-popover">
+                    <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2.5 text-sm font-black text-slate-800">
+                      <span className="material-symbols-outlined text-primary !text-lg">explore</span>
+                      Khu vực tìm kiếm
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Quick Cities Selection */}
+                      <div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Chọn nhanh thành phố</span>
+                        <div className="flex flex-wrap gap-2">
+                          {QUICK_CITIES.map((city) => {
+                            const isActive = city.value === '' ? (!province && !address) : (province === city.value);
+                            return (
+                              <button
+                                key={city.label}
+                                type="button"
+                                onClick={() => handleQuickCitySelect(city.value, city.label)}
+                                className={`home-quick-city-pill ${isActive ? 'active' : ''}`}
+                              >
+                                {city.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-3">
+                        <GoongAddressPicker
+                          value={{ address, ward, district, city: province }}
+                          onChange={(next) => {
+                            setAddress(next.address);
+                            setWard(next.ward);
+                            setDistrict(next.district);
+                            setProvince(next.city);
+                          }}
+                          label="Hoặc nhập địa chỉ chi tiết:"
+                          placeholder="Gõ quận huyện, tên đường để tìm kiếm..."
+                          showAdminFields={false}
+                          detailLabel={null}
+                          showMapLink={false}
+                          compact
+                        />
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleClearLocation}
+                          className="h-10 flex-1 rounded-xl border border-slate-200 text-xs font-black text-slate-500 transition hover:bg-slate-50 active:translate-y-px"
+                        >
+                          Xóa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleApplyLocation}
+                          className="button-swipe h-10 flex-1 rounded-xl bg-primary text-xs font-black text-white transition hover:bg-primary-dk active:translate-y-px"
+                        >
+                          Áp dụng
+                        </button>
                       </div>
                     </div>
-
-                    <div className="border-t border-slate-100 pt-3">
-                      <GoongAddressPicker
-                        value={{ address, ward, district, city: province }}
-                        onChange={(next) => {
-                          setAddress(next.address);
-                          setWard(next.ward);
-                          setDistrict(next.district);
-                          setProvince(next.city);
-                        }}
-                        label="Hoặc nhập địa chỉ chi tiết:"
-                        placeholder="Gõ quận huyện, tên đường để tìm kiếm..."
-                        showAdminFields={false}
-                        detailLabel={null}
-                        showMapLink={false}
-                        compact
-                      />
-                    </div>
-
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={handleClearLocation}
-                        className="h-10 flex-1 rounded-xl border border-slate-200 text-xs font-black text-slate-500 transition hover:bg-slate-50 active:translate-y-px"
-                      >
-                        Xóa
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleApplyLocation}
-                        className="button-swipe h-10 flex-1 rounded-xl bg-primary text-xs font-black text-white transition hover:bg-primary-dk active:translate-y-px"
-                      >
-                        Áp dụng
-                      </button>
-                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <button type="submit" className="button-swipe home-search-button">
-              <span className="material-symbols-outlined !text-xl">search</span>
-              Tìm kiếm
-            </button>
-          </form>
+              <button type="submit" className="button-swipe home-search-button">
+                <span className="material-symbols-outlined !text-xl">search</span>
+                Tìm kiếm
+              </button>
+            </form>
+          )}
 
           <div className="home-trust-row mt-6 flex flex-wrap items-center gap-3 text-sm font-bold text-slate-500">
             {[

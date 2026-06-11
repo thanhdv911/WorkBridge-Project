@@ -41,9 +41,7 @@ export default function EmployerDashboard() {
   const [statsData, setStatsData] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // VIP Promo Banner States
-  const [showVipBanner, setShowVipBanner] = useState(false);
-  const [dontShowAgain, setDontShowAgain] = useState(false);
+  // VIP Promo Banner States removed
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -65,10 +63,7 @@ export default function EmployerDashboard() {
         localStorage.setItem('isVip', vip ? 'true' : 'false');
 
         if (!vip) {
-          const hideUntil = localStorage.getItem('hideVipBannerUntil');
-          if (!hideUntil || Number(hideUntil) < Date.now()) {
-            setShowVipBanner(true);
-          }
+          // VIP banner logic removed
         }
       } catch (error) {
         console.error('Error checking VIP for banner:', error);
@@ -81,18 +76,6 @@ export default function EmployerDashboard() {
     }
   }, [token, isEmployer]);
 
-  const handleCloseVipBanner = () => {
-    if (dontShowAgain) {
-      const expireTime = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-      localStorage.setItem('hideVipBannerUntil', String(expireTime));
-    }
-    setShowVipBanner(false);
-  };
-
-  const handleGoToVip = () => {
-    handleCloseVipBanner();
-    handleTabChange('vip');
-  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -310,92 +293,7 @@ export default function EmployerDashboard() {
         </main>
       </div>
 
-      {/* Premium VIP Pop-up Advertisement Modal */}
-      {showVipBanner && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl border border-amber-500/30 max-w-lg w-full p-6 relative shadow-2xl overflow-hidden anim-fadeUp">
-            {/* Background glowing gradients */}
-            <div className="absolute w-64 h-64 bg-amber-500/10 rounded-full blur-[40px] -top-10 -right-10 pointer-events-none"></div>
 
-            {/* Close button X */}
-            <button
-              onClick={handleCloseVipBanner}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-            >
-              <span className="material-symbols-outlined !text-lg">close</span>
-            </button>
-
-            <div className="text-center mt-2">
-              {/* Crown Icon */}
-              <div className="w-16 h-16 bg-amber-500/15 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-                <span className="material-symbols-outlined !text-3xl text-amber-400">workspace_premium</span>
-              </div>
-
-              <h3 className="text-xl font-black text-amber-300 tracking-tight">
-                NÂNG CẤP DOANH NGHIỆP VIP
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">Mở khóa sức mạnh AI để quản trị nhân sự tối ưu nhất</p>
-            </div>
-
-            {/* List of benefits */}
-            <div className="my-6 space-y-3.5">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3 items-start hover:border-amber-500/20 transition-all">
-                <span className="material-symbols-outlined text-amber-400 !text-xl shrink-0">smart_toy</span>
-                <div>
-                  <h4 className="text-xs font-bold text-white">Xếp ca tự động AI</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Thuật toán Heuristic tự động sắp lịch thông minh cho toàn bộ nhân sự trong 2 giây.</p>
-                </div>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3 items-start hover:border-amber-500/20 transition-all">
-                <span className="material-symbols-outlined text-amber-400 !text-xl shrink-0">payments</span>
-                <div>
-                  <h4 className="text-xs font-bold text-white">Tính lương tự động một chạm</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Tự động kết xuất bảng công, tính thưởng và khấu trừ phạt đi muộn/quên checkout.</p>
-                </div>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3 items-start hover:border-amber-500/20 transition-all">
-                <span className="material-symbols-outlined text-amber-400 !text-xl shrink-0">push_pin</span>
-                <div>
-                  <h4 className="text-xs font-bold text-white">Đăng tin không giới hạn & Ghim đầu tin</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Standard giới hạn 3 tin. VIP đăng không giới hạn, tin đăng luôn được ghim đầu trang.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Checkbox block */}
-            <div className="flex items-center gap-2 mb-6 select-none bg-slate-800/40 p-2.5 rounded-xl border border-slate-800/80">
-              <input
-                type="checkbox"
-                id="dontShowAgain"
-                checked={dontShowAgain}
-                onChange={(e) => setDontShowAgain(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-900 cursor-pointer"
-              />
-              <label htmlFor="dontShowAgain" className="text-[10.5px] font-bold text-slate-300 cursor-pointer">
-                Không hiển thị lại quảng cáo này trong 24 giờ tới
-              </label>
-            </div>
-
-            {/* CTA action */}
-            <div className="flex gap-3">
-              <button
-                onClick={handleCloseVipBanner}
-                className="flex-1 h-11 rounded-2xl border border-white/10 hover:bg-white/5 text-xs font-bold transition-all text-slate-300"
-              >
-                Để sau
-              </button>
-              <button
-                onClick={handleGoToVip}
-                className="flex-1 h-11 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-black text-xs transition-all shadow-lg shadow-amber-500/10"
-              >
-                Khám phá & Nâng cấp VIP
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

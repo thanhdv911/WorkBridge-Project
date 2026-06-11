@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api, { API_BASE_URL } from '../services/api';
 import toast from 'react-hot-toast';
@@ -164,6 +165,7 @@ const JobDetails = () => {
                             headers: { Authorization: `Bearer ${freshToken}` }
                         });
                         setIsSaved(true);
+                        window.dispatchEvent(new Event('savedJobsChanged'));
                         toast.success('Đã lưu công việc thành công.');
                     } catch (err) {
                         console.error('Error saving job in login callback:', err);
@@ -180,12 +182,14 @@ const JobDetails = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setIsSaved(false);
+                window.dispatchEvent(new Event('savedJobsChanged'));
                 toast.success('Đã xóa công việc khỏi danh sách lưu.');
             } else {
                 await api.post(`/savedjobs/${id}`, {}, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setIsSaved(true);
+                window.dispatchEvent(new Event('savedJobsChanged'));
                 toast.success('Đã lưu công việc thành công.');
             }
         } catch (err) {
@@ -534,8 +538,8 @@ const JobDetails = () => {
             />
 
             {/* Apply Modal */}
-            {showApplyModal && (
-                <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-slate-900/40 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+            {showApplyModal && createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-900/40 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
                     <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl animate-scaleIn sm:max-h-[calc(100dvh-4rem)]">
                         <div className="flex shrink-0 items-center justify-between border-b border-slate-100 p-5 sm:p-6">
                             <h3 className="text-xl font-bold text-slate-800">Nộp đơn ứng tuyển</h3>
@@ -576,11 +580,12 @@ const JobDetails = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            {profileUpdatePrompt && (
-                <div className="fixed inset-0 z-[110] flex items-start justify-center overflow-y-auto bg-slate-950/45 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
+            {profileUpdatePrompt && createPortal(
+                <div className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-slate-950/45 px-3 py-[clamp(0.75rem,4dvh,2rem)] backdrop-blur-sm animate-fadeIn sm:px-4">
                     <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-sky-100 bg-white shadow-2xl animate-scaleIn sm:max-h-[calc(100dvh-4rem)]">
                         <div className="shrink-0 bg-gradient-to-br from-slate-950 via-sky-900 to-primary px-6 py-5 text-white">
                             <div className="flex items-start justify-between gap-4">
@@ -645,7 +650,8 @@ const JobDetails = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

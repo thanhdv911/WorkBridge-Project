@@ -321,49 +321,53 @@ export default function Header() {
               Trang chủ
             </Link>
 
-            <Link
-              to="/jobs"
-              className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
-            >
-              Tìm việc
-            </Link>
+            {userRole !== 'Employer' && (
+              <>
+                <Link
+                  to="/jobs"
+                  className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+                >
+                  Tìm việc
+                </Link>
 
-            {/* Categories Dropdown */}
-            <div className="relative group py-5">
-              <button
-                className={`${NAV_LINK_BASE} flex items-center gap-1.5 text-slate-500 hover:text-primary`}
-              >
-                Danh mục
-                <span className="material-symbols-outlined !text-[16px] group-hover:rotate-180 transition-transform duration-200">
-                  keyboard_arrow_down
-                </span>
-              </button>
+                {/* Categories Dropdown */}
+                <div className="relative group py-5">
+                  <button
+                    className={`${NAV_LINK_BASE} flex items-center gap-1.5 text-slate-500 hover:text-primary`}
+                  >
+                    Danh mục
+                    <span className="material-symbols-outlined !text-[16px] group-hover:rotate-180 transition-transform duration-200">
+                      keyboard_arrow_down
+                    </span>
+                  </button>
 
-              <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1.5 block">
-                    Danh mục việc làm
-                  </span>
-                  {categories.length > 0 ? (
-                    categories.map(cat => {
-                      const icon = getCategoryIcon(cat.name);
-                      return (
-                        <Link
-                          key={cat.categoryId}
-                          to={`/jobs?categoryId=${cat.categoryId}`}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-sky-50/80 hover:text-primary transition-all"
-                        >
-                          <span className="material-symbols-outlined !text-[16px] text-slate-400">{icon}</span>
-                          {translateCategory(cat.name)}
-                        </Link>
-                      );
-                    })
-                  ) : (
-                    <span className="text-xs text-slate-400 px-3 py-2">Đang tải...</span>
-                  )}
+                  <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1.5 block">
+                        Danh mục việc làm
+                      </span>
+                      {categories.length > 0 ? (
+                        categories.map(cat => {
+                          const icon = getCategoryIcon(cat.name);
+                          return (
+                            <Link
+                              key={cat.categoryId}
+                              to={`/jobs?categoryId=${cat.categoryId}`}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-sky-50/80 hover:text-primary transition-all"
+                            >
+                              <span className="material-symbols-outlined !text-[16px] text-slate-400">{icon}</span>
+                              {translateCategory(cat.name)}
+                            </Link>
+                          );
+                        })
+                      ) : (
+                        <span className="text-xs text-slate-400 px-3 py-2">Đang tải...</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
             {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
               <div className="relative group py-5">
                 <button
@@ -685,37 +689,41 @@ export default function Header() {
         <nav className="px-4 py-4 flex flex-col gap-1">
           <MobileNavLink to="/" icon="home" label="Trang chủ" active={isActive('/')} />
 
-          <MobileNavLink to="/jobs" icon="work" label="Tìm việc" active={isActive('/jobs')} />
+          {userRole !== 'Employer' && (
+            <>
+              <MobileNavLink to="/jobs" icon="work" label="Tìm việc" active={isActive('/jobs')} />
 
-          {/* Categories mobile accordion */}
-          <div>
-            <button
-              onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
-              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-sky-50/80"
-            >
-              <span className="flex items-center gap-3">
-                <span className="material-symbols-outlined !text-[20px]">grid_view</span>
-                Danh mục
-              </span>
-              <span className={`material-symbols-outlined !text-[18px] transition-transform duration-200 ${mobileCategoriesOpen ? 'rotate-180' : ''}`}>
-                keyboard_arrow_down
-              </span>
-            </button>
+              {/* Categories mobile accordion */}
+              <div>
+                <button
+                  onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
+                  className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-sky-50/80"
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="material-symbols-outlined !text-[20px]">grid_view</span>
+                    Danh mục
+                  </span>
+                  <span className={`material-symbols-outlined !text-[18px] transition-transform duration-200 ${mobileCategoriesOpen ? 'rotate-180' : ''}`}>
+                    keyboard_arrow_down
+                  </span>
+                </button>
 
-            <div className={`overflow-hidden transition-all duration-300 ${mobileCategoriesOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-              <div className="pl-4 pt-1 pb-2 flex flex-col gap-0.5">
-                {categories.map(cat => (
-                  <MobileNavLink
-                    key={cat.categoryId}
-                    to={`/jobs?categoryId=${cat.categoryId}`}
-                    icon={getCategoryIcon(cat.name)}
-                    label={translateCategory(cat.name)}
-                    indent
-                  />
-                ))}
+                <div className={`overflow-hidden transition-all duration-300 ${mobileCategoriesOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="pl-4 pt-1 pb-2 flex flex-col gap-0.5">
+                    {categories.map(cat => (
+                      <MobileNavLink
+                        key={cat.categoryId}
+                        to={`/jobs?categoryId=${cat.categoryId}`}
+                        icon={getCategoryIcon(cat.name)}
+                        label={translateCategory(cat.name)}
+                        indent
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
 
           {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
             <>
@@ -877,7 +885,7 @@ export default function Header() {
             <h3 className="text-xl font-black text-slate-900 tracking-tight">
               Chuyển sang Nhà tuyển dụng?
             </h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed px-2">
+            <p className="text-[15px] text-slate-500 mt-2 leading-relaxed px-4 text-balance mx-auto">
               Bạn đang đăng nhập bằng tài khoản <strong>Người tìm việc</strong>. Để đăng tin tuyển dụng, bạn cần sử dụng tài khoản <strong>Nhà tuyển dụng</strong>. Hệ thống sẽ đăng xuất tài khoản hiện tại để tiếp tục.
             </p>
 
@@ -885,13 +893,13 @@ export default function Header() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowEmployerConfirm(false)}
-                className="flex-1 h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold transition-all text-slate-500"
+                className="flex-1 h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-bold transition-all text-slate-500"
               >
                 Hủy bỏ
               </button>
               <button
                 onClick={handleConfirmEmployerSwitch}
-                className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary to-primary-dk hover:shadow-lg hover:shadow-primary/25 text-white font-black text-xs transition-all shadow-md shadow-primary/10"
+                className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary to-primary-dk hover:shadow-lg hover:shadow-primary/25 text-white font-black text-sm transition-all shadow-md shadow-primary/10"
               >
                 Đăng xuất & Tiếp tục
               </button>
