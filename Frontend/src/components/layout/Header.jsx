@@ -321,7 +321,7 @@ export default function Header() {
               Trang chủ
             </Link>
 
-            {userRole !== 'Employer' && (
+            {userRole !== 'Employer' && userRole !== 'Admin' && (
               <>
                 <Link
                   to="/jobs"
@@ -689,7 +689,7 @@ export default function Header() {
         <nav className="px-4 py-4 flex flex-col gap-1">
           <MobileNavLink to="/" icon="home" label="Trang chủ" active={isActive('/')} />
 
-          {userRole !== 'Employer' && (
+          {userRole !== 'Employer' && userRole !== 'Admin' && (
             <>
               <MobileNavLink to="/jobs" icon="work" label="Tìm việc" active={isActive('/jobs')} />
 

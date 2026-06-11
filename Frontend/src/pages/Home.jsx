@@ -186,6 +186,14 @@ export default function Home() {
     );
   }
 
+  if (userRole === 'Admin') {
+    return (
+      <div className={`home-shell home-perf-lite relative overflow-x-hidden ${pointerEffects ? 'home-allow-tilt' : ''}`}>
+        <Hero heroRef={heroRef} userRole={userRole} />
+      </div>
+    );
+  }
+
   return (
     <div className={`home-shell home-perf-lite relative overflow-x-hidden ${pointerEffects ? 'home-allow-tilt' : ''}`}>
       <Hero heroRef={heroRef} userRole={userRole} />
@@ -336,18 +344,27 @@ function Hero({ heroRef, userRole }) {
             Hệ thống kết nối part-time sinh viên
           </div>
 
-          <h1 className="home-kinetic-title mb-4" aria-label={userRole === 'Employer' ? "Tìm Kiếm Nhân Sự Part-Time Nhanh Chóng" : "Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn"}>
-            <span>{userRole === 'Employer' ? "Tìm Kiếm Nhân Sự" : "Tìm Việc Bán Thời Gian"}</span>
-            <span>{userRole === 'Employer' ? "Part-Time Hoàn Hảo" : "Hoàn Hảo Cho Bạn"}</span>
+          <h1 className="home-kinetic-title mb-4" aria-label={userRole === 'Admin' ? "Quản Trị Hệ Thống WorkBridge" : userRole === 'Employer' ? "Tìm Kiếm Nhân Sự Part-Time Nhanh Chóng" : "Tìm Việc Bán Thời Gian Hoàn Hảo Cho Bạn"}>
+            <span>{userRole === 'Admin' ? "Quản Trị Hệ Thống" : userRole === 'Employer' ? "Tìm Kiếm Nhân Sự" : "Tìm Việc Bán Thời Gian"}</span>
+            <span>{userRole === 'Admin' ? "WorkBridge Platform" : userRole === 'Employer' ? "Part-Time Hoàn Hảo" : "Hoàn Hảo Cho Bạn"}</span>
           </h1>
 
           <p className="mt-4 max-w-[610px] break-words text-base font-semibold leading-7 text-slate-600">
-            {userRole === 'Employer' 
-              ? "Kết nối với hàng ngàn sinh viên năng động. Đăng tin tuyển dụng nhanh chóng, quản lý ca làm việc hiệu quả và tối ưu hóa nhân sự của bạn."
-              : "Kết nối sinh viên với công việc linh hoạt. Tích lũy kinh nghiệm, tạo thu nhập và phát triển sự nghiệp — theo lịch trình của bạn."}
+            {userRole === 'Admin'
+              ? "Trung tâm quản trị toàn diện hệ thống WorkBridge. Giám sát hoạt động, quản lý người dùng và duy trì nền tảng kết nối nhân sự ổn định."
+              : userRole === 'Employer' 
+                ? "Kết nối với hàng ngàn sinh viên năng động. Đăng tin tuyển dụng nhanh chóng, quản lý ca làm việc hiệu quả và tối ưu hóa nhân sự của bạn."
+                : "Kết nối sinh viên với công việc linh hoạt. Tích lũy kinh nghiệm, tạo thu nhập và phát triển sự nghiệp — theo lịch trình của bạn."}
           </p>
 
-          {userRole === 'Employer' ? (
+          {userRole === 'Admin' ? (
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <button onClick={() => navigate('/admin-dashboard')} className="button-swipe h-[60px] px-8 rounded-[20px] bg-primary text-[15px] font-black text-white transition hover:bg-primary-dk shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined !text-xl">admin_panel_settings</span>
+                Vào trang quản trị ngay
+              </button>
+            </div>
+          ) : userRole === 'Employer' ? (
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <button onClick={() => navigate('/employer-dashboard?tab=post-job')} className="button-swipe h-[60px] px-8 rounded-[20px] bg-primary text-[15px] font-black text-white transition hover:bg-primary-dk shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined !text-xl">post_add</span>

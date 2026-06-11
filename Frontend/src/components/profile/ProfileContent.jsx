@@ -26,6 +26,7 @@ const toAbsoluteFileUrl = (url) => {
   return `${API_BASE_URL}${value.startsWith('/') ? value : `/${value}`}`;
 };
 export default function ProfileContent({ user, setUser, isEditing, editForm, setEditForm, onSave, onCancel, isOwnProfile = true, activeTab = 'overview' }) {
+  const userRole = localStorage.getItem('role');
   const [cvLoading, setCvLoading] = useState(false);
   const [employments, setEmployments] = useState([]);
   const [employmentsLoading, setEmploymentsLoading] = useState(true);
@@ -552,41 +553,43 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Trường Đại học/Cao đẳng</label>
-                <input
-                  type="text"
-                  value={editForm.university || ''}
-                  onChange={(e) => setEditForm({...editForm, university: e.target.value})}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm"
-                />
+            {userRole !== 'Admin' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Trường Đại học/Cao đẳng</label>
+                  <input
+                    type="text"
+                    value={editForm.university || ''}
+                    onChange={(e) => setEditForm({...editForm, university: e.target.value})}
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Chuyên ngành</label>
+                  <input
+                    type="text"
+                    value={editForm.major || ''}
+                    onChange={(e) => setEditForm({...editForm, major: e.target.value})}
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Năm học</label>
+                  <select
+                    value={editForm.studyYear || ''}
+                    onChange={(e) => setEditForm({...editForm, studyYear: e.target.value})}
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm bg-white"
+                  >
+                    <option value="">Chọn năm học</option>
+                    <option value="1st Year Student">Sinh viên năm 1</option>
+                    <option value="2nd Year Student">Sinh viên năm 2</option>
+                    <option value="3rd Year Student">Sinh viên năm 3</option>
+                    <option value="4th Year Student">Sinh viên năm 4</option>
+                    <option value="Graduated">Đã tốt nghiệp</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Chuyên ngành</label>
-                <input
-                  type="text"
-                  value={editForm.major || ''}
-                  onChange={(e) => setEditForm({...editForm, major: e.target.value})}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Năm học</label>
-                <select
-                  value={editForm.studyYear || ''}
-                  onChange={(e) => setEditForm({...editForm, studyYear: e.target.value})}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm bg-white"
-                >
-                  <option value="">Chọn năm học</option>
-                  <option value="1st Year Student">Sinh viên năm 1</option>
-                  <option value="2nd Year Student">Sinh viên năm 2</option>
-                  <option value="3rd Year Student">Sinh viên năm 3</option>
-                  <option value="4th Year Student">Sinh viên năm 4</option>
-                  <option value="Graduated">Đã tốt nghiệp</option>
-                </select>
-              </div>
-            </div>
+            )}
 
             <div>
               <GoongAddressPicker
@@ -652,7 +655,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             )}
           </div>
 
-          {renderCvPdfSection()}
+          {userRole !== 'Admin' && renderCvPdfSection()}
 
         </>
       )}

@@ -3,6 +3,7 @@ import ReportModal from '../shared/ReportModal';
 
 export default function ProfileCover({ user, onEditClick, isOwnProfile = true, ratingStats }) {
   const [showReportModal, setShowReportModal] = useState(false);
+  const userRole = localStorage.getItem('role');
   const initials = user?.fullName
     ? user.fullName.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U'
     : 'U';
@@ -46,42 +47,46 @@ export default function ProfileCover({ user, onEditClick, isOwnProfile = true, r
             <div className="min-w-0 flex-1 pb-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-[11px] font-black text-primary">
                 <span className="material-symbols-outlined !text-[15px]">verified</span>
-                Hồ sơ ứng viên
+                {userRole === 'Admin' ? 'Hồ sơ Quản trị viên' : 'Hồ sơ ứng viên'}
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <h1 className="text-2xl font-black text-slate-950 sm:text-3xl leading-none">{user?.fullName || 'Người dùng WorkBridge'}</h1>
                 <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                  {isOwnProfile && (
+                  {isOwnProfile && userRole !== 'Admin' && (
                     <div className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2 py-0.5 text-[10px] font-black text-primary" title="Độ hoàn thiện hồ sơ">
                       <span className="material-symbols-outlined !text-[12px] text-primary">analytics</span>
                       <span>Hoàn thiện: {strength}%</span>
                     </div>
                   )}
-                  <div className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black ${
-                    reputationScore >= 90
-                      ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
-                      : reputationScore >= 80
-                        ? 'border-sky-100 bg-sky-50 text-sky-700'
-                        : 'border-rose-100 bg-rose-50 text-rose-700'
-                  }`} title="Uy tín cá nhân">
-                    <span className="material-symbols-outlined !text-[12px] filled">verified_user</span>
-                    <span>Uy tín: {reputationScore}/100</span>
-                  </div>
+                  {userRole !== 'Admin' && (
+                    <div className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black ${
+                      reputationScore >= 90
+                        ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                        : reputationScore >= 80
+                          ? 'border-sky-100 bg-sky-50 text-sky-700'
+                          : 'border-rose-100 bg-rose-50 text-rose-700'
+                    }`} title="Uy tín cá nhân">
+                      <span className="material-symbols-outlined !text-[12px] filled">verified_user</span>
+                      <span>Uy tín: {reputationScore}/100</span>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-3">
-                <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
-                  <span className="material-symbols-outlined !text-[16px] text-primary">school</span>
-                  {translateStudyYear(user?.studyYear)} · {user?.university || 'Chưa cập nhật trường'} {user?.major ? `(${user.major})` : ''}
-                </p>
-                {ratingStats?.totalReviews > 0 && (
-                  <div className="flex items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-1 shadow-sm">
-                    <span className="material-symbols-outlined !text-[14px] text-amber-500 filled">star</span>
-                    <span className="text-xs font-black text-amber-700">{ratingStats?.averageRating || 0}</span>
-                    <span className="text-[10px] font-bold text-amber-500">({ratingStats?.totalReviews || 0} đánh giá)</span>
-                  </div>
-                )}
-              </div>
+              {userRole !== 'Admin' && (
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+                    <span className="material-symbols-outlined !text-[16px] text-primary">school</span>
+                    {translateStudyYear(user?.studyYear)} · {user?.university || 'Chưa cập nhật trường'} {user?.major ? `(${user.major})` : ''}
+                  </p>
+                  {ratingStats?.totalReviews > 0 && (
+                    <div className="flex items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-1 shadow-sm">
+                      <span className="material-symbols-outlined !text-[14px] text-amber-500 filled">star</span>
+                      <span className="text-xs font-black text-amber-700">{ratingStats?.averageRating || 0}</span>
+                      <span className="text-[10px] font-bold text-amber-500">({ratingStats?.totalReviews || 0} đánh giá)</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             {isOwnProfile ? (
               <button

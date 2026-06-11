@@ -19,6 +19,7 @@ export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentUserId = parseInt(localStorage.getItem('userId') || '0');
+  const userRole = localStorage.getItem('role');
   const isOwnProfile = !id || parseInt(id) === currentUserId;
 
   useEffect(() => {
@@ -147,35 +148,39 @@ export default function Profile() {
                 <span className="material-symbols-outlined !text-lg">person</span>
                 Tổng quan
               </button>
-              <button
-                onClick={() => handleTabChange('experience')}
-                className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'experience' ? 'is-active' : ''}`}
-              >
-                <span className="material-symbols-outlined !text-lg">work_history</span>
-                Kinh nghiệm làm việc
-              </button>
-              <button
-                onClick={() => handleTabChange('reviews')}
-                className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'reviews' ? 'is-active' : ''}`}
-              >
-                <span className="material-symbols-outlined !text-lg">star</span>
-                Đánh giá
-                {ratingStats?.totalReviews > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                    activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                  }`}>
-                    {ratingStats.totalReviews}
-                  </span>
-                )}
-              </button>
-              {isOwnProfile && (
-                <button
-                  onClick={() => handleTabChange('vip')}
-                  className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'vip' ? 'is-active' : ''}`}
-                >
-                  <span className="material-symbols-outlined !text-lg">workspace_premium</span>
-                  Cá nhân VIP
-                </button>
+              {userRole !== 'Admin' && (
+                <>
+                  <button
+                    onClick={() => handleTabChange('experience')}
+                    className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'experience' ? 'is-active' : ''}`}
+                  >
+                    <span className="material-symbols-outlined !text-lg">work_history</span>
+                    Kinh nghiệm làm việc
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('reviews')}
+                    className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'reviews' ? 'is-active' : ''}`}
+                  >
+                    <span className="material-symbols-outlined !text-lg">star</span>
+                    Đánh giá
+                    {ratingStats?.totalReviews > 0 && (
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                        activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {ratingStats.totalReviews}
+                      </span>
+                    )}
+                  </button>
+                  {isOwnProfile && userRole === 'Applicant' && (
+                    <button
+                      onClick={() => handleTabChange('vip')}
+                      className={`profile-tab-button flex items-center gap-2 text-sm font-bold transition-all ${activeTab === 'vip' ? 'is-active' : ''}`}
+                    >
+                      <span className="material-symbols-outlined !text-lg">workspace_premium</span>
+                      Cá nhân VIP
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}

@@ -5,6 +5,7 @@ import { signalRService } from '../../services/signalrService';
 
 export default function ProfileSidebar({ user, isOwnProfile = true }) {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('role');
 
   let strength = 30;
   if (user?.phone) strength += 10;
@@ -81,7 +82,7 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
           <section className="space-y-3 border-t border-slate-200/70 pt-5">
             <h3 className="text-xs font-black uppercase text-slate-500">Điều hướng nhanh</h3>
             <nav className="space-y-1">
-              {quickLinks.map((link) => (
+              {userRole !== 'Admin' && quickLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -95,6 +96,19 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
                   {link.label}
                 </NavLink>
               ))}
+              {userRole === 'Admin' && (
+                <NavLink
+                  to="/admin-dashboard"
+                  className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-bold transition-all ${
+                    isActive
+                      ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                      : 'text-slate-600 hover:bg-sky-50 hover:text-primary'
+                  }`}
+                >
+                  <span className="material-symbols-outlined !text-lg">admin_panel_settings</span>
+                  Quản trị hệ thống
+                </NavLink>
+              )}
             </nav>
 
             <div className="border-t border-slate-200/70 pt-4 mt-4">
