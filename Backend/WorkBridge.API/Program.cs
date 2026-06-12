@@ -32,14 +32,14 @@ var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?
     .Distinct(StringComparer.OrdinalIgnoreCase)
     .ToArray();
 
-if (allowedOrigins is null || allowedOrigins.Length == 0)
+if (allowedOrigins == null || allowedOrigins.Length == 0)
 {
-    allowedOrigins =
-    [
+    allowedOrigins = [
         "http://localhost:5173",
         "https://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://127.0.0.1:5173"
+        "https://127.0.0.1:5173",
+        "https://work-bridge-project.vercel.app"
     ];
 }
 
