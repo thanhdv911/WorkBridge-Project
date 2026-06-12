@@ -26,22 +26,28 @@ builder.Services.AddSwaggerGen();
 // Add SignalR
 builder.Services.AddSignalR();
 
-var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?
+var allowedOriginsList = new List<string>
+{
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173",
+    "https://work-bridge-project.vercel.app",
+    "https://work-bridge-project-eu4keiggb-tdinh7967-9790s-projects.vercel.app"
+};
+
+var configOrigins = builder.Configuration["Cors:AllowedOrigins"]?
     .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
     .Select(origin => origin.TrimEnd('/'))
     .Distinct(StringComparer.OrdinalIgnoreCase)
     .ToArray();
 
-if (allowedOrigins == null || allowedOrigins.Length == 0)
+if (configOrigins != null && configOrigins.Length > 0)
 {
-    allowedOrigins = [
-        "http://localhost:5173",
-        "https://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://127.0.0.1:5173",
-        "https://work-bridge-project.vercel.app"
-    ];
+    allowedOriginsList.AddRange(configOrigins);
 }
+
+var allowedOrigins = allowedOriginsList.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
 // Configure CORS — must AllowCredentials for SignalR WebSocket auth
 builder.Services.AddCors(options =>
