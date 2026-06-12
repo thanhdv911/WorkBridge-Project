@@ -289,24 +289,6 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // --- DROP ALL TABLES TO WIPE DATABASE CLEANLY ---
-        Console.WriteLine("Dropping all tables...");
-        context.Database.ExecuteSqlRaw(@"
-            DECLARE @sql NVARCHAR(max) = ''
-            SELECT @sql += 'ALTER TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name) + ' DROP CONSTRAINT ' + QUOTENAME(f.name) + ';'
-            FROM sys.foreign_keys f
-            INNER JOIN sys.tables t ON f.parent_object_id = t.object_id
-            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id;
-            EXEC sp_executesql @sql;
-
-            SET @sql = '';
-            SELECT @sql += 'DROP TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name) + ';'
-            FROM sys.tables t
-            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id;
-            EXEC sp_executesql @sql;
-        ");
-        Console.WriteLine("Drop completed.");
-
         Console.WriteLine("Running EF Migrations...");
         context.Database.Migrate();
         Console.WriteLine("EF Migrations completed.");
@@ -512,4 +494,5 @@ public class NullableUtcDateTimeConverter : System.Text.Json.Serialization.JsonC
         }
     }
 }
+
 
