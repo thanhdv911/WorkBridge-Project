@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkBridge.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using WorkBridge.Infrastructure.Data;
 namespace WorkBridge.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkBridgeContext))]
-    partial class WorkBridgeContextModelSnapshot : ModelSnapshot
+    [Migration("20260612051921_AddReputationAndReportCount")]
+    partial class AddReputationAndReportCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
