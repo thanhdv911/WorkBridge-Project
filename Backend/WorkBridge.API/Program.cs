@@ -288,11 +288,19 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<WorkBridgeContext>();
 
-    // Ensure ShiftRegistrationWindows and other tables are created if missing
     try
     {
         // Automatically apply any pending EF Core migrations on startup
         context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error running EF migrations: {ex.Message}");
+    }
+
+    // Ensure ShiftRegistrationWindows and other tables are created if missing
+    try
+    {
 
         context.Database.ExecuteSqlRaw(@"
             IF OBJECT_ID('dbo.ShiftRegistrationWindows', 'U') IS NULL
@@ -467,6 +475,43 @@ using (var scope = app.Services.CreateScope())
                 UPDATE dbo.SubscriptionPlans
                 SET IsActive = 0, UpdatedAt = GETDATE()
                 WHERE DurationDays NOT IN (7, 30, 365);
+            END
+        ");
+
+        context.Database.ExecuteSqlRaw(@"
+            IF COL_LENGTH('dbo.ApplicantProfiles', 'ReputationScore') IS NULL
+            BEGIN
+                ALTER TABLE dbo.ApplicantProfiles ADD ReputationScore INT NOT NULL DEFAULT 100;
+            END
+            IF COL_LENGTH('dbo.ApplicantProfiles', 'ReportCount') IS NULL
+            BEGIN
+                ALTER TABLE dbo.ApplicantProfiles ADD ReportCount INT NOT NULL DEFAULT 0;
+            END
+
+            IF COL_LENGTH('dbo.EmployerProfiles', 'ReputationScore') IS NULL
+            BEGIN
+                ALTER TABLE dbo.EmployerProfiles ADD ReputationScore INT NOT NULL DEFAULT 0;
+            END
+            IF COL_LENGTH('dbo.EmployerProfiles', 'ReportCount') IS NULL
+            BEGIN
+                ALTER TABLE dbo.EmployerProfiles ADD ReportCount INT NOT NULL DEFAULT 0;
+            END
+            IF COL_LENGTH('dbo.EmployerProfiles', 'Status') IS NULL
+            BEGIN
+                ALTER TABLE dbo.EmployerProfiles ADD Status NVARCHAR(20) NOT NULL DEFAULT 'Active';
+            END
+
+            IF COL_LENGTH('dbo.Employments', 'ExpectedShifts') IS NULL
+            BEGIN
+                ALTER TABLE dbo.Employments ADD ExpectedShifts NVARCHAR(100) NULL;
+            END
+            IF COL_LENGTH('dbo.Offers', 'ExpectedShifts') IS NULL
+            BEGIN
+                ALTER TABLE dbo.Offers ADD ExpectedShifts NVARCHAR(100) NULL;
+            END
+            IF COL_LENGTH('dbo.Reports', 'AiAnalysis') IS NULL
+            BEGIN
+                ALTER TABLE dbo.Reports ADD AiAnalysis NVARCHAR(MAX) NULL;
             END
         ");
     }
