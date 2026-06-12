@@ -304,7 +304,7 @@ using (var scope = app.Services.CreateScope())
             FROM sys.tables t
             INNER JOIN sys.schemas s ON t.schema_id = s.schema_id;
             EXEC sp_executesql @sql;
-        "@);
+        ");
         Console.WriteLine("Drop completed.");
 
         Console.WriteLine("Running EF Migrations...");
