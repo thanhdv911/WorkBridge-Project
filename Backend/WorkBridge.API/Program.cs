@@ -32,7 +32,9 @@ var allowedOriginsList = new List<string>
     "https://localhost:5173",
     "http://127.0.0.1:5173",
     "https://127.0.0.1:5173",
-    "https://work-bridge-project.vercel.app"
+    "https://work-bridge-project.vercel.app",
+    "https://workbridge.io.vn",
+    "https://www.workbridge.io.vn"
 };
 
 var configOrigins = builder.Configuration["Cors:AllowedOrigins"]?
