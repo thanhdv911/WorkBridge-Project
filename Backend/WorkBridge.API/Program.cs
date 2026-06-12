@@ -275,6 +275,38 @@ app.Use(async (httpContext, next) =>
     });
 });
 
+app.MapGet("/api/seed-vip", async (WorkBridgeContext context) => 
+{
+    try 
+    {
+        var plansToSeed = new List<WorkBridge.Domain.Entities.SubscriptionPlan>
+        {
+            new() { Audience = "Applicant", Code = "applicant_7d", Name = "VIP Cá nhân 7 ngày", Description = "Mở khóa WorkBridge AI, gợi ý việc làm và đánh giá CV trong 7 ngày.", DurationDays = 7, Price = 19000, Currency = "VND", IsActive = true, SortOrder = 10, CreatedAt = DateTime.UtcNow },
+            new() { Audience = "Applicant", Code = "applicant_30d", Name = "VIP Cá nhân 1 tháng", Description = "Gói dễ tiếp cận cho AI tìm việc, CV và phỏng vấn với chi phí thấp.", DurationDays = 30, Price = 49000, Currency = "VND", IsActive = true, SortOrder = 20, CreatedAt = DateTime.UtcNow },
+            new() { Audience = "Applicant", Code = "applicant_365d", Name = "VIP Cá nhân 1 năm", Description = "Tiết kiệm nhất cho ứng viên dùng AI WorkBridge dài hạn.", DurationDays = 365, Price = 399000, Currency = "VND", IsActive = true, SortOrder = 30, CreatedAt = DateTime.UtcNow },
+            new() { Audience = "Employer", Code = "employer_7d", Name = "VIP Doanh nghiệp 7 ngày", Description = "Trải nghiệm AI tuyển dụng, xếp ca và tính lương trong 7 ngày.", DurationDays = 7, Price = 69000, Currency = "VND", IsActive = true, SortOrder = 40, CreatedAt = DateTime.UtcNow },
+            new() { Audience = "Employer", Code = "employer_30d", Name = "VIP Doanh nghiệp 1 tháng", Description = "Gói vận hành hàng tháng cho tuyển dụng, xếp ca và bảng lương AI.", DurationDays = 30, Price = 149000, Currency = "VND", IsActive = true, SortOrder = 50, CreatedAt = DateTime.UtcNow },
+            new() { Audience = "Employer", Code = "employer_365d", Name = "VIP Doanh nghiệp 1 năm", Description = "Tự động xuất bản tin tuyển dụng không cần admin duyệt, kèm AI vận hành dài hạn.", DurationDays = 365, Price = 1190000, Currency = "VND", IsActive = true, SortOrder = 60, CreatedAt = DateTime.UtcNow }
+        };
+
+        var seeded = 0;
+        foreach (var plan in plansToSeed)
+        {
+            if (!await context.SubscriptionPlans.AnyAsync(p => p.Audience == plan.Audience && p.Code == plan.Code))
+            {
+                await context.SubscriptionPlans.AddAsync(plan);
+                seeded++;
+            }
+        }
+        await context.SaveChangesAsync();
+        return Results.Ok(new { message = $"Seeded {seeded} plans successfully." });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.ToString());
+    }
+});
+
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
