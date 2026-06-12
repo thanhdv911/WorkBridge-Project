@@ -32,8 +32,7 @@ var allowedOriginsList = new List<string>
     "https://localhost:5173",
     "http://127.0.0.1:5173",
     "https://127.0.0.1:5173",
-    "https://work-bridge-project.vercel.app",
-    "https://work-bridge-project-eu4keiggb-tdinh7967-9790s-projects.vercel.app"
+    "https://work-bridge-project.vercel.app"
 };
 
 var configOrigins = builder.Configuration["Cors:AllowedOrigins"]?
