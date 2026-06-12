@@ -53,7 +53,7 @@ const AdminOperations = () => {
         audience: 'All',
         subject: 'WorkBridge nâng cấp trải nghiệm mới',
         message: 'WorkBridge vừa cập nhật một số cải tiến để việc tìm việc, ứng tuyển và quản lý tuyển dụng mượt mà hơn.',
-        actionUrl: 'https://workbridge.vercel.app',
+        actionUrl: 'https://workbridge.io.vn',
         actionText: 'Mở WorkBridge'
     });
 
