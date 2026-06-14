@@ -16,9 +16,9 @@ export default {
         "ink":        "#0F172A",
       },
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "sans-serif"],
-        display: ["Outfit", "sans-serif"],
-        heading: ["Syne", "Outfit", "sans-serif"],
+        sans: ["'Be Vietnam Pro'", "sans-serif"],
+        display: ["Lexend", "sans-serif"],
+        heading: ["Lexend", "sans-serif"],
       },
       boxShadow: {
         'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
