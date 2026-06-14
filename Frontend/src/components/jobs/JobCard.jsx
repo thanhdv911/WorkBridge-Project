@@ -45,7 +45,7 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
   const locationStr = job.district && job.city ? `${job.district}, ${job.city}` : (job.location || 'Việt Nam');
 
   return (
-    <Link to={`/jobs/${job.jobPostId}`} className={`group relative flex flex-col p-5 bg-surface border border-slate-200/60 rounded-[20px] transition-all duration-300 hover:shadow-premium hover:-translate-y-1 hover:border-primary/30 ${job.isFeatured ? 'bg-gradient-to-b from-amber-50/50 to-surface border-amber-200/50' : ''}`}>
+    <Link to={`/jobs/${job.jobPostId}`} className={`jobs-card !min-h-0 !h-fit ${job.isFeatured ? 'is-featured' : ''}`}>
       {job.isFeatured && (
         <span
           title="Tin đăng từ doanh nghiệp VIP"
@@ -55,37 +55,33 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         </span>
       )}
 
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0 bg-slate-50 flex items-center justify-center">
-              {job.companyLogoUrl ? (
-                <img 
-                  src={job.companyLogoUrl.startsWith('http') ? job.companyLogoUrl : `${API_BASE_URL}${job.companyLogoUrl.startsWith('/') ? '' : '/'}${job.companyLogoUrl}`} 
-                  alt={job.companyName} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary-dk text-white font-bold text-lg">
-                  {getInitials(job.companyName)}
-                </div>
-              )}
+      <div className="jobs-card-head">
+        <div className="jobs-card-logo-wrap">
+          {job.companyLogoUrl ? (
+            <img 
+              src={job.companyLogoUrl.startsWith('http') ? job.companyLogoUrl : `${API_BASE_URL}${job.companyLogoUrl.startsWith('/') ? '' : '/'}${job.companyLogoUrl}`} 
+              alt={job.companyName} 
+              className="jobs-card-logo"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-400 to-[#1392ec] text-white font-bold text-base rounded-xl">
+              {getInitials(job.companyName)}
             </div>
+          )}
+        </div>
 
-            <div>
-              <h3 className="font-display text-lg font-bold text-ink leading-tight group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-sm font-semibold text-slate-600 line-clamp-1">{job.companyName}</span>
-                {job.isVipEmployer && (
-                  <span className="material-symbols-outlined !text-[16px] text-primary" title="Doanh nghiệp xác thực">verified</span>
-                )}
-                <span className="text-slate-300">•</span>
-                <span className="text-sm text-slate-500 line-clamp-1 flex items-center gap-1">
-                  <span className="material-symbols-outlined !text-[14px]">location_on</span>
-                  {locationStr}
-                </span>
-              </div>
-            </div>
-          </div>
+        <div className="jobs-card-title">
+          <h3>
+            {job.title}
+          </h3>
+          <p className="flex items-center gap-1">
+            {job.companyName}
+            {job.isVipEmployer && (
+              <span className="material-symbols-outlined !text-[14px] text-primary" title="Doanh nghiệp xác thực">verified</span>
+            )}
+            · {locationStr}
+          </p>
+        </div>
 
         {onToggleSave && (
           <button
@@ -105,22 +101,24 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {job.isFeatured && <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-700"><span className="material-symbols-outlined !text-[14px] mr-1">local_fire_department</span>Việc Hot</span>}
-        {isUrgent && <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-700">Tuyển gấp {job.vacancies} người</span>}
-        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">{translateJobType(job.jobType)}</span>
-        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700">{translateShift(shift)}</span>
+      <div className="jobs-card-chips">
+        {job.isFeatured && <span className="jobs-chip is-hot">Việc hot</span>}
+        {isUrgent && <span className="jobs-chip is-rose">Tuyển gấp {job.vacancies}</span>}
+        <span className="jobs-chip is-green">{translateJobType(job.jobType)}</span>
+        <span className={`jobs-chip ${getShiftTone(shift)}`}>{translateShift(shift)}</span>
+        {categoryName !== 'Chung' && <span className={`jobs-chip ${getCategoryTone(categoryName)}`}>{translateCategory(categoryName)}</span>}
+        {job.position && <span className="jobs-chip is-indigo">Vị trí: {job.position}</span>}
       </div>
 
-      <p className="text-[13px] font-medium text-slate-500 line-clamp-2 mb-4 leading-relaxed">{job.description}</p>
+      <p className="jobs-card-description">{job.description}</p>
 
-      <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-        <div className="flex items-baseline gap-1 text-primary">
-          <span className="text-lg font-black">{payRate}</span>
-          <span className="text-xs font-bold text-slate-500">/{translatePayUnit(job.payUnit)}</span>
+      <div className="jobs-card-footer">
+        <div className="jobs-card-pay">
+          <span>{payRate}</span>
+          <small>{translatePayUnit(job.payUnit)}</small>
         </div>
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
-          <span className="material-symbols-outlined !text-[14px]">schedule</span>
+        <span className="jobs-card-time">
+          <span className="material-symbols-outlined">schedule</span>
           Đăng {timeStr}
         </span>
       </div>
