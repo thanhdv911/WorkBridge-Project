@@ -50,7 +50,7 @@ export default function JobMarketDashboard() {
 
   // Categories & Counts for real distribution
   const [categories, setCategories] = useState([]);
-  const [categoryCounts, setCategoryCounts] = useState({});
+  const [allJobs, setAllJobs] = useState([]);
 
   // Counter states for count-up animation
   const [jobsMonthCount, setJobsMonthCount] = useState(0);
@@ -61,8 +61,8 @@ export default function JobMarketDashboard() {
   const [activeLineIndex, setActiveLineIndex] = useState(null);
   const [activeBarIndex, setActiveBarIndex] = useState(null);
 
-  // Dropdown filter (pure cosmetic)
-  const [industryFilter, setIndustryFilter] = useState('Ngành nghề');
+  // Dropdown filter
+  const [chartFilter, setChartFilter] = useState('Ngành nghề');
   const [showDropdown, setShowDropdown] = useState(false);
 
   // Today's date string
@@ -109,21 +109,14 @@ export default function JobMarketDashboard() {
         console.error('Error fetching categories for dashboard:', err);
       });
 
-    // Fetch up to 100 jobs to calculate real distribution by category in frontend
+    // Fetch up to 100 jobs to calculate real distribution in frontend
     api.get('/jobs?page=1&pageSize=100')
       .then(res => {
         const items = res?.data?.items || res?.data?.Items || [];
-        const counts = {};
-        items.forEach(job => {
-          const catId = job.categoryId || job.CategoryId;
-          if (catId) {
-            counts[catId] = (counts[catId] || 0) + 1;
-          }
-        });
-        setCategoryCounts(counts);
+        setAllJobs(items);
       })
       .catch(err => {
-        console.error('Error aggregating job categories:', err);
+        console.error('Error fetching jobs for distribution:', err);
       });
   }, []);
 
@@ -230,26 +223,54 @@ export default function JobMarketDashboard() {
     return `${linePathD} L ${last.x} 170 L ${first.x} 170 Z`;
   }, [linePoints, linePathD]);
 
-  // 5. Bar Chart Data (Top 5 actual categories in database)
+  // 5. Bar Chart Data (Dynamic based on selected filter)
   const barChartData = useMemo(() => {
-    const list = categories.map(cat => {
-      const catId = cat.categoryId || cat.CategoryId;
-      const count = categoryCounts[catId] || 0;
-      return {
-        category: cat.name || cat.categoryName || cat.Name || cat.CategoryName,
-        value: count
-      };
-    });
+    let list = [];
+    const counts = {};
+
+    if (chartFilter === 'Ngành nghề') {
+      allJobs.forEach(job => {
+        const catId = job.categoryId || job.CategoryId;
+        if (catId) counts[catId] = (counts[catId] || 0) + 1;
+      });
+      list = categories.map(cat => {
+        const catId = cat.categoryId || cat.CategoryId;
+        return {
+          category: cat.name || cat.categoryName || cat.Name || cat.CategoryName,
+          value: counts[catId] || 0
+        };
+      });
+    } else if (chartFilter === 'Khu vực') {
+      allJobs.forEach(job => {
+        let loc = job.city || job.City;
+        if (!loc) {
+          const fullLoc = job.location || job.Location || '';
+          loc = fullLoc.split(',').pop().trim();
+        }
+        if (!loc || loc.toLowerCase() === 'việt nam') loc = 'Khác';
+        counts[loc] = (counts[loc] || 0) + 1;
+      });
+      list = Object.keys(counts).map(key => ({ category: key, value: counts[key] }));
+    } else if (chartFilter === 'Hình thức') {
+      allJobs.forEach(job => {
+        let type = job.jobType || job.JobType || 'Khác';
+        if (type.toLowerCase() === 'parttime') type = 'Bán thời gian';
+        if (type.toLowerCase() === 'fulltime') type = 'Toàn thời gian';
+        if (type.toLowerCase() === 'freelance') type = 'Tự do';
+        counts[type] = (counts[type] || 0) + 1;
+      });
+      list = Object.keys(counts).map(key => ({ category: key, value: counts[key] }));
+    }
 
     // Sort descending by actual job count
     list.sort((a, b) => b.value - a.value);
 
     // Take top 5
     const top5 = list.slice(0, 5);
-    const fallbackCategories = ['Kinh doanh', 'Hành chính', 'Dịch vụ', 'Marketing', 'Tư vấn'];
+    const fallbackCategories = ['A', 'B', 'C', 'D', 'E'];
     while (top5.length < 5) {
       top5.push({
-        category: fallbackCategories[top5.length] || 'Khác',
+        category: fallbackCategories[top5.length],
         value: 0
       });
     }
@@ -266,12 +287,12 @@ export default function JobMarketDashboard() {
       const displayCategory = item.category || 'Khác';
       return {
         ...item,
-        category: displayCategory.length > 10 ? displayCategory.slice(0, 9) + '..' : displayCategory,
+        category: displayCategory.length > 11 ? displayCategory.slice(0, 10) + '..' : displayCategory,
         color: colorPills[idx].color,
         legendColor: colorPills[idx].legendColor
       };
     });
-  }, [categories, categoryCounts]);
+  }, [allJobs, categories, chartFilter]);
 
   // Determine Bar Chart Max Range
   const barChartYMax = useMemo(() => {
@@ -562,30 +583,30 @@ export default function JobMarketDashboard() {
                 
                 {/* Header with Industry Dropdown */}
                 <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 relative z-20">
-                  <h4 className="text-xs lg:text-sm font-black text-slate-800 flex items-center gap-1.5">
+                  <h4 className="text-xs lg:text-sm font-black text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
                     <span className="h-2 w-2 rounded-full bg-purple-500 shadow-sm" />
-                    Top ngành tuyển dụng nhiều nhất
+                    Top tuyển dụng theo:
                   </h4>
 
-                  {/* Cosmetic industry dropdown trigger */}
-                  <div className="relative">
+                  {/* Filter dropdown trigger */}
+                  <div className="relative ml-2">
                     <button 
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="flex items-center gap-1.5 rounded bg-white border border-slate-200 px-2 py-1 text-[10px] font-black text-slate-700 transition-colors hover:bg-slate-50"
+                      className="flex items-center gap-1 rounded bg-white border border-slate-200 px-2 py-1 text-[10.5px] font-black text-[#1392ec] transition-colors hover:bg-sky-50 whitespace-nowrap"
                     >
-                      {industryFilter}
-                      <span className="material-symbols-outlined !text-[12px] text-[#1392ec]">expand_more</span>
+                      {chartFilter}
+                      <span className="material-symbols-outlined !text-[14px]">expand_more</span>
                     </button>
                     {showDropdown && (
                       <div className="absolute right-0 mt-1 w-28 rounded-lg border border-slate-200 bg-white p-1 shadow-xl text-[10px] font-black text-slate-700 z-50">
-                        {['Ngành nghề', 'Khu vực', 'Kinh nghiệm'].map((opt) => (
+                        {['Ngành nghề', 'Khu vực', 'Hình thức'].map((opt) => (
                           <button
                             key={opt}
                             onClick={() => {
-                              setIndustryFilter(opt);
+                              setChartFilter(opt);
                               setShowDropdown(false);
                             }}
-                            className="w-full text-left px-2 py-1.5 rounded hover:bg-[#1392ec]/12 hover:text-slate-800 transition-colors"
+                            className={`w-full text-left px-2 py-1.5 rounded transition-colors ${chartFilter === opt ? 'bg-[#1392ec]/10 text-[#1392ec]' : 'hover:bg-slate-50'}`}
                           >
                             {opt}
                           </button>
