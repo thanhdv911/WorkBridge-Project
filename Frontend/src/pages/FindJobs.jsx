@@ -6,12 +6,13 @@ import HeroSearch from '../components/jobs/HeroSearch';
 import JobFilterSidebar from '../components/jobs/JobFilterSidebar';
 import JobCard from '../components/jobs/JobCard';
 import Pagination from '../components/shared/Pagination';
+import { getCategorySlug, getCategoryIdFromSlug } from '../utils/categorySlug';
 
 const readFiltersFromSearchParams = (searchParams) => ({
   keyword: searchParams.get('keyword') || '',
   location: searchParams.get('location') || '',
   minSalary: searchParams.get('minSalary') || '',
-  categoryId: searchParams.get('categoryId') || searchParams.get('category') || ''
+  categoryId: searchParams.get('categoryId') || getCategoryIdFromSlug(searchParams.get('category')) || ''
 });
 
 export default function FindJobs() {
@@ -123,7 +124,7 @@ export default function FindJobs() {
     if (nextFilters.keyword) params.set('keyword', nextFilters.keyword);
     if (nextFilters.location) params.set('location', nextFilters.location);
     if (nextFilters.minSalary) params.set('minSalary', nextFilters.minSalary);
-    if (nextFilters.categoryId) params.set('categoryId', nextFilters.categoryId);
+    if (nextFilters.categoryId) params.set('category', getCategorySlug(nextFilters.categoryId));
     setSearchParams(params);
   };
 

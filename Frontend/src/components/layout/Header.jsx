@@ -35,6 +35,8 @@ function getCategoryIcon(name) {
 const NAV_LINK_BASE = 'text-sm font-semibold transition-colors';
 const NAV_LINK_ACTIVE = 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded';
 
+import { getCategorySlug } from '../../utils/categorySlug';
+
 export default function Header() {
   const { openLogin, openSignup, user, logoutUser } = useAuthModal();
   const location = useLocation();
@@ -354,7 +356,7 @@ export default function Header() {
                           return (
                             <Link
                               key={cat.categoryId}
-                              to={`/jobs?categoryId=${cat.categoryId}`}
+                              to={`/jobs?category=${getCategorySlug(cat.categoryId)}`}
                               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-sky-50/80 hover:text-primary transition-all"
                             >
                               <span className="material-symbols-outlined !text-[16px] text-slate-400">{icon}</span>
@@ -723,7 +725,7 @@ export default function Header() {
                     {categories.map(cat => (
                       <MobileNavLink
                         key={cat.categoryId}
-                        to={`/jobs?categoryId=${cat.categoryId}`}
+                        to={`/jobs?category=${getCategorySlug(cat.categoryId)}`}
                         icon={getCategoryIcon(cat.name)}
                         label={translateCategory(cat.name)}
                         indent
