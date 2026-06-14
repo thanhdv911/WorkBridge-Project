@@ -308,6 +308,14 @@ app.MapGet("/api/seed-vip", async (WorkBridgeContext context) =>
     }
 });
 
+app.MapGet("/api/clean-spam", async (WorkBridge.Infrastructure.Data.WorkBridgeContext db) => 
+{
+    var spamMsgs = db.Messages.Where(m => m.Content.Contains("rate-limit-test"));
+    db.Messages.RemoveRange(spamMsgs);
+    var count = await db.SaveChangesAsync();
+    return Results.Ok(new { message = $"Đã dọn dẹp sạch sẽ {count} tin nhắn rác!" });
+});
+
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
