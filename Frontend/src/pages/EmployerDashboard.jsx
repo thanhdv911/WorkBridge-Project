@@ -97,13 +97,17 @@ export default function EmployerDashboard() {
     {
       label: 'Tin tuyển dụng',
       value: loadingStats ? '...' : (statsData?.jobPostCount ?? 0),
+      trend: '+12%',
+      trendUp: true,
       icon: 'work',
       color: 'text-primary',
-      bg: 'bg-primary/10'
+      bg: 'bg-sky-50'
     },
     {
       label: 'Tổng đơn ứng tuyển',
       value: loadingStats ? '...' : (statsData?.totalApplications ?? 0),
+      trend: '+24%',
+      trendUp: true,
       icon: 'description',
       color: 'text-blue-500',
       bg: 'bg-blue-50'
@@ -111,13 +115,17 @@ export default function EmployerDashboard() {
     {
       label: 'Ứng viên phù hợp',
       value: loadingStats ? '...' : `${statsData?.suitablePercentage ?? 0}%`,
+      trend: '+5%',
+      trendUp: true,
       icon: 'how_to_reg',
-      color: 'text-green-500',
-      bg: 'bg-green-50'
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-50'
     },
     {
       label: 'Đánh giá doanh nghiệp',
       value: loadingStats ? '...' : `${statsData?.rating ?? 5.0} ★`,
+      trend: '-',
+      trendUp: true,
       icon: 'star',
       color: 'text-amber-500',
       bg: 'bg-amber-50'
@@ -125,6 +133,8 @@ export default function EmployerDashboard() {
     {
       label: 'Điểm uy tín tuyển dụng',
       value: loadingStats ? '...' : `${statsData?.reputationScore ?? 100} / 100`,
+      trend: 'Tốt',
+      trendUp: true,
       icon: 'verified_user',
       color: (statsData?.reputationScore ?? 100) >= 90
         ? 'text-emerald-500'
@@ -167,9 +177,20 @@ export default function EmployerDashboard() {
       <div className="applicant-page-content mx-auto mb-8 w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4 pb-4 lg:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {stats.map((stat, idx) => (
-            <div key={idx} className="applicant-card anim-fadeUp card-lift p-6 flex flex-col justify-center gap-1.5 flex-shrink-0 snap-start w-[260px] lg:w-auto border border-slate-200/60 bg-white/50 backdrop-blur-xl" style={{animationDelay: `${idx * 0.12}s`}}>
-               <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-               <p className="text-2xl font-semibold tracking-tight text-slate-800">{stat.value}</p>
+            <div key={idx} className="applicant-card anim-fadeUp relative p-6 flex flex-col gap-3 flex-shrink-0 snap-start w-[260px] lg:w-auto border border-slate-200/60 bg-surface rounded-[24px] transition-all hover:shadow-card hover:border-primary/20" style={{animationDelay: `${idx * 0.1}s`}}>
+               <div className="flex items-center justify-between">
+                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bg} ${stat.color}`}>
+                   <span className="material-symbols-outlined !text-[20px]">{stat.icon}</span>
+                 </div>
+                 <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg ${stat.trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                   {stat.trendUp ? <span className="material-symbols-outlined !text-[14px]">trending_up</span> : <span className="material-symbols-outlined !text-[14px]">trending_down</span>}
+                   {stat.trend}
+                 </div>
+               </div>
+               <div>
+                 <p className="text-[28px] font-display font-black text-ink tracking-tight">{stat.value}</p>
+                 <p className="text-[13px] font-semibold text-slate-500 mt-0.5">{stat.label}</p>
+               </div>
             </div>
           ))}
         </div>
