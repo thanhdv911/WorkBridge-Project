@@ -37,7 +37,7 @@ export default function Footer() {
               <li><Link to="/dashboard" className="hover:text-primary transition-colors">Bảng điều khiển</Link></li>
             </ul>
           </div>
-          <div className="md:col-span-4 lg:col-span-3">
+          <div className="md:col-span-4 lg:col-span-2">
             <h4 className="text-sm font-bold mb-4 uppercase tracking-wider">Về chúng tôi</h4>
             <ul className="space-y-2.5 text-sm text-slate-500">
               <li><Link to="/about" className="hover:text-primary transition-colors">Giới thiệu</Link></li>
