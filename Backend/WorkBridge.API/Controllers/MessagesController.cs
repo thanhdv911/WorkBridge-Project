@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WorkBridge.Application.DTOs;
 using WorkBridge.Application.Services;
 
@@ -46,6 +47,7 @@ namespace WorkBridge.API.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("MessageRateLimit")]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
         {
             var userId = GetUserId();

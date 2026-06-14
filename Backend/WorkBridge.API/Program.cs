@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using WorkBridge.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +15,28 @@ using WorkBridge.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("MessageRateLimit", httpContext =>
+    {
+        var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: userId ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromSeconds(10),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsync("Bạn thao tác quá nhanh, vui lòng chờ một chút.", token);
+    };
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -183,6 +206,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
+app.UseRateLimiter();
 
 var runtimeUploadsRoot = UploadStorage.ResolveUploadsRoot(app.Environment.ContentRootPath);
 Directory.CreateDirectory(runtimeUploadsRoot);
