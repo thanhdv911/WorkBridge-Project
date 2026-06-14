@@ -885,6 +885,23 @@ function Categories() {
               </a>
             );
           })}
+
+          {/* Padding Card if exactly 7 categories to balance the grid */}
+          {categories.length === 7 && (
+            <a
+              className="group relative flex flex-col justify-center items-center p-6 rounded-3xl overflow-hidden min-h-[220px] shadow-sm hover:shadow-2xl hover:shadow-[#1392ec]/20 transition-all duration-500 hover:-translate-y-2 border-2 border-dashed border-sky-200 hover:border-transparent bg-sky-50/30 hover:bg-sky-50"
+              href="/jobs"
+              style={{ '--home-delay': `385ms` }}
+            >
+              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md mb-3 group-hover:scale-110 transition-transform duration-500">
+                <span className="material-symbols-outlined !text-3xl text-[#1392ec]">arrow_forward</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-700 group-hover:text-[#1392ec] transition-colors">
+                Khám phá thêm
+              </h3>
+              <p className="text-xs font-bold text-slate-500 mt-1">Xem tất cả ngành nghề</p>
+            </a>
+          )}
         </div>
       )}
     </section>
