@@ -377,7 +377,14 @@ namespace WorkBridge.Application.Services
 
             if (subscription == null)
             {
-                throw new InvalidOperationException("Không tìm thấy giao dịch VIP theo orderCode PayOS.");
+                // PayOS uses test webhooks (e.g. orderCode 123) to verify the endpoint.
+                // We must return a successful result so PayOS accepts the Webhook URL.
+                return new PaymentStatusResult 
+                { 
+                    State = "Unknown", 
+                    Paid = true, 
+                    Message = "Webhook received but orderCode not found. (Test mode ok)" 
+                };
             }
 
             if (TryGetDecimal(request.Data, "amount", out var webhookAmount) &&
