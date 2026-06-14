@@ -39,10 +39,6 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
   const shift = job.shift || 'Flexible';
   const timeStr = formatTimeAgo(job.createdAt);
   const payRate = job.payRate?.toLocaleString('vi-VN') || 0;
-  
-  // High density info
-  const isUrgent = job.vacancies >= 5;
-  const locationStr = job.district && job.city ? `${job.district}, ${job.city}` : (job.location || 'Việt Nam');
 
   return (
     <Link to={`/jobs/${job.jobPostId}`} className={`jobs-card !min-h-0 !h-fit ${job.isFeatured ? 'is-featured' : ''}`}>
@@ -71,16 +67,8 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         </div>
 
         <div className="jobs-card-title">
-          <h3>
-            {job.title}
-          </h3>
-          <p className="flex items-center gap-1">
-            {job.companyName}
-            {job.isVipEmployer && (
-              <span className="material-symbols-outlined !text-[14px] text-primary" title="Doanh nghiệp xác thực">verified</span>
-            )}
-            · {locationStr}
-          </p>
+          <h3>{job.title}</h3>
+          <p>{job.companyName} · {job.location || 'Việt Nam'}</p>
         </div>
 
         {onToggleSave && (
@@ -103,14 +91,14 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
 
       <div className="jobs-card-chips">
         {job.isFeatured && <span className="jobs-chip is-hot">Việc hot</span>}
-        {isUrgent && <span className="jobs-chip is-rose">Tuyển gấp {job.vacancies}</span>}
         <span className="jobs-chip is-green">{translateJobType(job.jobType)}</span>
         <span className={`jobs-chip ${getShiftTone(shift)}`}>{translateShift(shift)}</span>
         {categoryName !== 'Chung' && <span className={`jobs-chip ${getCategoryTone(categoryName)}`}>{translateCategory(categoryName)}</span>}
         {job.position && <span className="jobs-chip is-indigo">Vị trí: {job.position}</span>}
+        {job.vacancies && <span className="jobs-chip is-rose">Tuyển: {job.vacancies}</span>}
       </div>
 
-      <p className="jobs-card-description">{job.description}</p>
+      <p className="mt-2.5 text-[13px] font-semibold text-slate-500 overflow-hidden text-ellipsis whitespace-nowrap">{job.description}</p>
 
       <div className="jobs-card-footer">
         <div className="jobs-card-pay">
