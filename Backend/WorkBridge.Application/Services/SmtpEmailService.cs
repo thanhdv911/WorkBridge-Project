@@ -200,7 +200,7 @@ namespace WorkBridge.Application.Services
     </tr>
   </table>
 </body>
-</html>"";
+</html>";
         }
 
         private static string BuildMessageHtml(string message)

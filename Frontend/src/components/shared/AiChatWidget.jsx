@@ -608,7 +608,7 @@ const AiChatWidget = () => {
 
 
                 <a
-                  href="https://zalo.me/0969701460"
+                  href="https://zalo.me/0924220664"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setShowSupportPanel(false)}
@@ -1111,7 +1111,7 @@ const AiChatWidget = () => {
 
               {/* Zalo Support Card */}
               <a
-                href="https://zalo.me/0969701460"
+                href="https://zalo.me/0924220664"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setShowFeedbackChoiceModal(false)}

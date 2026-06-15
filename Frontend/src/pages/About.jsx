@@ -4,228 +4,128 @@ import WorkBridgeLogo from '../components/shared/WorkBridgeLogo';
 import { openAdminChat, WORKBRIDGE_FACEBOOK_URL, WORKBRIDGE_SUPPORT_EMAIL } from '../utils/contactAdmin';
 
 const impactStats = [
-  ['60 giây', 'Tạo hồ sơ nhanh'],
-  ['Theo ca', 'Tìm việc đúng lịch cá nhân'],
-  ['Uy tín', 'Điểm hồ sơ và báo cáo rõ ràng'],
-  ['Trực tiếp', 'Chat với doanh nghiệp và admin']
+  { value: '60s', label: 'Tạo hồ sơ nhanh', icon: 'timer' },
+  { value: '24/7', label: 'Kết nối liên tục', icon: 'all_inclusive' },
+  { value: '100%', label: 'Xác thực uy tín', icon: 'verified' }
 ];
 
-const principles = [
-  ['verified_user', 'Hồ sơ có độ tin cậy', 'Ứng viên và doanh nghiệp được ghi nhận điểm uy tín, trạng thái hồ sơ, lịch sử báo cáo và các tín hiệu cần thiết để giảm rủi ro khi hợp tác.'],
-  ['event_available', 'Công việc vận hành theo ca', 'Tin tuyển dụng, lịch phỏng vấn, ca làm, chấm công, nhường ca và phiếu lương được gom vào một không gian làm việc dễ kiểm tra.'],
-  ['forum', 'Trao đổi không bị đứt đoạn', 'Tin nhắn, lời mời nhận việc, phản hồi phỏng vấn và liên hệ admin nằm trong cùng hệ thống để hai bên xử lý nhanh hơn.']
-];
-
-const audienceHighlights = [
+const audiences = [
   {
     icon: 'school',
-    title: 'Ứng viên bán thời gian',
-    text: 'Tạo hồ sơ rõ ràng, tìm việc theo khu vực, theo dõi ứng tuyển và quản lý ca làm sau khi được nhận.',
-    items: ['CV và thông tin liên hệ', 'Ứng tuyển và phỏng vấn', 'Chấm công, lịch sử ca, phiếu lương']
+    title: 'Ứng viên',
+    desc: 'Tìm việc bán thời gian theo lịch rảnh, ứng tuyển nhanh chóng và quản lý ca làm dễ dàng.',
+    color: 'text-blue-600',
+    bg: 'bg-blue-50'
   },
   {
     icon: 'storefront',
-    title: 'Doanh nghiệp tuyển dụng',
-    text: 'Đăng tin, đánh giá ứng viên, gửi offer, phân ca và theo dõi nhân sự trong một luồng vận hành thống nhất.',
-    items: ['Tin tuyển dụng và chi nhánh', 'Lời mời nhận việc, nhân viên', 'Đăng ký ca, chấm công, bảng lương']
+    title: 'Doanh nghiệp',
+    desc: 'Đăng tin tuyển dụng, chọn lọc hồ sơ uy tín, xếp ca làm việc và quản lý nhân sự hiệu quả.',
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50'
   },
   {
     icon: 'admin_panel_settings',
-    title: 'Quản trị hệ thống',
-    text: 'Theo dõi báo cáo, thông báo bảo trì, hỗ trợ người dùng và giữ trải nghiệm WorkBridge ổn định hơn mỗi ngày.',
-    items: ['Báo cáo nội dung', 'Thông báo email hệ thống', 'Kênh hỗ trợ trực tiếp']
+    title: 'Hệ thống',
+    desc: 'Đảm bảo môi trường kết nối an toàn, minh bạch, hỗ trợ giải quyết vấn đề nhanh chóng.',
+    color: 'text-purple-600',
+    bg: 'bg-purple-50'
   }
-];
-
-const workflow = [
-  ['01', 'Tạo hồ sơ đáng tin', 'Ứng viên hoàn thiện thông tin, CV, vị trí mong muốn và số điện thoại để tăng dần điểm uy tín cá nhân.'],
-  ['02', 'Tìm và ứng tuyển', 'Lọc công việc theo khu vực, mức lương, loại việc và gửi hồ sơ khi lịch làm phù hợp với nhu cầu của mình.'],
-  ['03', 'Nhận việc và làm theo ca', 'Doanh nghiệp gửi offer, phân ca, mở đăng ký lịch tuần và nhân viên theo dõi mọi thay đổi trong không gian làm việc.'],
-  ['04', 'Ghi nhận minh bạch', 'Chấm công, lịch sử ca, phiếu lương và báo cáo được lưu lại để hai bên đối chiếu khi cần.']
 ];
 
 export default function About() {
   const navigate = useNavigate();
 
   return (
-    <div className="static-page-shell static-about-shell">
-      <section className="static-hero static-about-hero">
-        <div className="static-hero-canvas" aria-hidden="true">
-          <span className="static-hero-beam static-hero-beam-a" />
-          <span className="static-hero-beam static-hero-beam-b" />
-          <span className="static-hero-line static-hero-line-a" />
-          <span className="static-hero-line static-hero-line-b" />
+    <div className="min-h-screen bg-slate-50 pb-20 pt-8">
+      {/* Hero Section */}
+      <section className="relative mx-auto max-w-5xl px-6 text-center">
+        <div className="absolute left-1/2 top-0 -z-10 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-blue-400/20 blur-[100px]" />
+        
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-600 shadow-sm backdrop-blur">
+          <span className="material-symbols-outlined !text-[16px]">info</span>
+          Giới thiệu WorkBridge
+        </div>
+        
+        <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+          Nền tảng kết nối việc làm <br />
+          <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">bán thời gian thông minh</span>
+        </h1>
+        
+        <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-slate-500 sm:text-lg">
+          Làm cho việc tìm kiếm ca làm việc và tuyển dụng nhân sự trở nên gọn gàng, minh bạch và đáng tin cậy hơn bao giờ hết.
+        </p>
+
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link to="/jobs" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">
+            <span className="material-symbols-outlined !text-[20px]">work</span>
+            Khám phá việc làm
+          </Link>
+          <button type="button" onClick={() => openAdminChat(navigate)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50">
+            <span className="material-symbols-outlined !text-[20px]">chat</span>
+            Nhắn admin
+          </button>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="mx-auto mt-16 max-w-4xl px-6">
+        <div className="grid grid-cols-3 gap-4 rounded-3xl border border-white bg-white/60 p-2 shadow-xl shadow-slate-200/50 backdrop-blur-md">
+          {impactStats.map((stat, idx) => (
+            <div key={idx} className="flex flex-col items-center justify-center rounded-2xl bg-white py-6 text-center shadow-sm">
+              <span className={`material-symbols-outlined mb-2 !text-3xl text-slate-300`}>{stat.icon}</span>
+              <strong className="text-3xl font-black tracking-tight text-slate-800">{stat.value}</strong>
+              <span className="mt-1 text-xs font-bold text-slate-500">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* For Who Section */}
+      <section className="mx-auto mt-24 max-w-5xl px-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Thiết kế cho tất cả mọi người</h2>
+          <p className="mt-2 text-sm font-semibold text-slate-500">Hệ sinh thái WorkBridge kết nối chặt chẽ ba góc nhìn khác biệt.</p>
         </div>
 
-        <div className="static-hero-inner static-about-hero-inner">
-          <div className="static-hero-copy">
-            <div className="static-page-topline">
-              <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="static-facebook-link">
-                <span className="static-facebook-logo" aria-hidden="true">f</span>
-                Fanpage WorkBridge
-              </a>
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {audiences.map((aud, idx) => (
+            <div key={idx} className="group flex flex-col items-center rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm transition hover:shadow-xl hover:shadow-slate-200/50">
+              <div className={`mb-5 flex h-16 w-16 items-center justify-center rounded-2xl ${aud.bg} ${aud.color} transition-transform group-hover:scale-110`}>
+                <span className="material-symbols-outlined !text-3xl">{aud.icon}</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900">{aud.title}</h3>
+              <p className="mt-3 text-sm font-medium leading-relaxed text-slate-500">{aud.desc}</p>
             </div>
-            <span className="static-kicker">
-              <span className="material-symbols-outlined">handshake</span>
-              Giới thiệu WorkBridge
-            </span>
-            <h1>WorkBridge kết nối việc làm bán thời gian trong một hệ sinh thái đáng tin cậy.</h1>
-            <p>
-              Chúng tôi xây dựng nền tảng để ứng viên tìm được ca phù hợp nhanh hơn, doanh nghiệp tuyển và quản lý nhân sự rõ ràng hơn, còn mọi trao đổi quan trọng đều nằm trong một luồng minh bạch.
+          ))}
+        </div>
+      </section>
+
+      {/* Mission / Contact */}
+      <section className="mx-auto mt-24 max-w-4xl px-6">
+        <div className="relative overflow-hidden rounded-3xl bg-slate-900 px-8 py-12 text-center text-white sm:px-16 sm:py-16">
+          <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-blue-600/30 blur-[80px]" />
+          <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-emerald-600/20 blur-[80px]" />
+          
+          <div className="relative z-10">
+            <h2 className="text-2xl font-black sm:text-3xl">Gắn kết cơ hội. Mở lối tương lai.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm font-medium leading-relaxed text-slate-300 sm:text-base">
+              WorkBridge ra đời để xóa bỏ rào cản thông tin giữa người tìm việc và doanh nghiệp tuyển dụng. Hãy cùng chúng tôi xây dựng một môi trường làm việc tử tế.
             </p>
-            <div className="static-hero-actions">
-              <button type="button" onClick={() => openAdminChat(navigate)} className="static-primary-button">
-                <span className="material-symbols-outlined">chat</span>
-                Nhắn admin
-              </button>
-              <Link to="/jobs" className="static-secondary-button">
-                <span className="material-symbols-outlined">work</span>
-                Khám phá việc đang mở
-              </Link>
-            </div>
-
-            <div className="static-impact-row" aria-label="Điểm nổi bật của WorkBridge">
-              {impactStats.map(([value, label]) => (
-                <div key={value} className="static-impact-card">
-                  <strong>{value}</strong>
-                  <span>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="static-about-visual" aria-label="Mô phỏng hệ sinh thái WorkBridge">
-            <div className="static-visual-top">
-              <WorkBridgeLogo imageClassName="h-12 w-auto max-w-[210px]" />
-              <span className="static-live-pill">
-                <i />
-                Đang đồng bộ
-              </span>
-            </div>
-
-            <div className="static-system-board">
-              <div className="static-system-row">
-                <span className="material-symbols-outlined">badge</span>
-                <div>
-                  <strong>Ứng viên hoàn thiện hồ sơ</strong>
-                  <small>CV, số điện thoại, khu vực mong muốn</small>
-                  <div className="static-progress-track"><i style={{ width: '92%' }} /></div>
-                </div>
-                <b>92%</b>
-              </div>
-
-              <div className="static-system-row">
-                <span className="material-symbols-outlined">business_center</span>
-                <div>
-                  <strong>Doanh nghiệp mở ca tuần sau</strong>
-                  <small>Kiểm tra trùng lịch trước khi gửi</small>
-                  <div className="static-progress-track"><i style={{ width: '76%' }} /></div>
-                </div>
-                <b>Live</b>
-              </div>
-
-              <div className="static-system-row">
-                <span className="material-symbols-outlined">shield</span>
-                <div>
-                  <strong>Admin theo dõi an toàn</strong>
-                  <small>Lọc báo cáo, hỗ trợ người dùng, gửi thông báo</small>
-                  <div className="static-progress-track"><i style={{ width: '84%' }} /></div>
-                </div>
-                <b>OK</b>
-              </div>
-            </div>
-
-            <div className="static-workflow-rail" aria-hidden="true">
-              {['Hồ sơ', 'Ứng tuyển', 'Phỏng vấn', 'Ca làm', 'Lương'].map((item) => (
-                <span key={item}>{item}</span>
-              ))}
+            
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-bold text-white shadow-sm backdrop-blur transition hover:bg-white/20">
+                <span className="material-symbols-outlined !text-[18px]">public</span>
+                Theo dõi Fanpage
+              </a>
+              <a href={`mailto:${WORKBRIDGE_SUPPORT_EMAIL}`} className="inline-flex h-11 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-bold text-white shadow-sm backdrop-blur transition hover:bg-white/20">
+                <span className="material-symbols-outlined !text-[18px]">mail</span>
+                {WORKBRIDGE_SUPPORT_EMAIL}
+              </a>
             </div>
           </div>
         </div>
       </section>
-
-      <main className="static-content">
-        <section className="static-section static-two-col">
-          <div>
-            <span className="static-section-label">Sứ mệnh</span>
-            <h2>Làm cho việc bán thời gian bớt rời rạc và dễ tin nhau hơn.</h2>
-          </div>
-          <p>
-            Một công việc bán thời gian không chỉ là tin tuyển dụng. Người lao động cần biết công việc nào phù hợp, doanh nghiệp cần theo dõi lịch, điểm danh, phản hồi và lương. WorkBridge gom các bước đó vào một hệ thống rõ ràng để mỗi bên ra quyết định nhanh hơn, giảm hiểu nhầm và có dữ liệu đối chiếu khi cần.
-          </p>
-        </section>
-
-        <section className="static-card-grid">
-          {principles.map(([icon, title, text]) => (
-            <article key={title} className="static-info-card">
-              <span className="material-symbols-outlined">{icon}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="static-section">
-          <div className="static-section-heading">
-            <span className="static-section-label">Dành cho ai</span>
-            <h2>Một nền tảng, ba góc nhìn được thiết kế để làm việc cùng nhau.</h2>
-          </div>
-          <div className="static-audience-grid">
-            {audienceHighlights.map((item) => (
-              <article key={item.title} className="static-audience-card">
-                <span className="material-symbols-outlined">{item.icon}</span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-                <ul>
-                  {item.items.map((line) => (
-                    <li key={line}>
-                      <span className="material-symbols-outlined">check_circle</span>
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="static-section">
-          <div className="static-section-heading">
-            <span className="static-section-label">Cách WorkBridge vận hành</span>
-            <h2>Từ hồ sơ đến ca làm trong một đường đi rõ ràng, có ghi nhận và có người hỗ trợ.</h2>
-          </div>
-          <div className="static-timeline static-timeline-wide">
-            {workflow.map(([number, title, text]) => (
-              <article key={number}>
-                <span>{number}</span>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="static-contact-band">
-          <div>
-            <span className="static-section-label">Liên hệ</span>
-            <h2>Cần hỗ trợ tài khoản, báo cáo nội dung hoặc trao đổi hợp tác?</h2>
-            <p>Đội ngũ WorkBridge ưu tiên xử lý trực tiếp trong hệ thống để có đủ ngữ cảnh. Bạn cũng có thể theo dõi fanpage để nhận thông báo cập nhật mới.</p>
-          </div>
-          <div className="static-contact-actions">
-            <button type="button" onClick={() => openAdminChat(navigate)} className="static-primary-button">
-              <span className="material-symbols-outlined">forum</span>
-              Nhắn với admin
-            </button>
-            <a href={WORKBRIDGE_FACEBOOK_URL} target="_blank" rel="noreferrer" className="static-secondary-button">
-              <span className="material-symbols-outlined">public</span>
-              Fanpage WorkBridge
-            </a>
-            <a href={`mailto:${WORKBRIDGE_SUPPORT_EMAIL}`} className="static-text-link">
-              {WORKBRIDGE_SUPPORT_EMAIL}
-            </a>
-          </div>
-        </section>
-      </main>
     </div>
   );
 }

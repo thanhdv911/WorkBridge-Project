@@ -885,17 +885,6 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
               </div>
             ))}
 
-            {paymentRequest.checkoutUrl && (
-              <a
-                href={paymentRequest.checkoutUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1687d9] px-5 text-sm font-black text-white shadow-sm transition hover:bg-[#0f75c2]"
-              >
-                Mở trang thanh toán
-              </a>
-            )}
-
             <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
               <div className="flex items-start gap-2 text-xs font-bold text-blue-800">
                 <div className="mt-0.5 h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-[#1687d9]" />
