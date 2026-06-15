@@ -16,8 +16,21 @@ export default {
         "ink":        "#0f0e17",
       },
       fontFamily: {
-        display: ["Outfit","Inter","sans-serif"],
-        heading: ["Syne","Outfit","Inter","sans-serif"],
+        sans: ["Inter", "sans-serif"],
+        display: ["Inter", "sans-serif"],
+        heading: ["Inter", "sans-serif"],
+      },
+      fontWeight: {
+        bold: "600",
+        extrabold: "600",
+        black: "700",
+      },
+      fontSize: {
+        '2xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        '3xl': ['1.5rem', { lineHeight: '2rem' }],
+        '4xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '5xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '6xl': ['3rem', { lineHeight: '1' }],
       },
       borderRadius: { DEFAULT:".25rem", lg:".5rem", xl:".75rem", "2xl":"1rem", "3xl":"1.5rem", full:"9999px" },
     },
