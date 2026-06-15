@@ -250,15 +250,16 @@ export default function AuthModal() {
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] flex items-center justify-center p-4 animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] overflow-y-auto animate-in fade-in duration-200"
       onClick={closeAuth}
     >
-      <div 
-        className="bg-white rounded-[28px] lg:rounded-[2rem] border border-sky-100/80 max-w-[420px] xl:max-w-[820px] w-full relative shadow-2xl anim-fadeUp origin-center grid xl:grid-cols-[380px_minmax(0,1fr)] overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── LEFT: Illustration Panel ── */}
-        <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[680px]">
+      <div className="min-h-full flex items-center justify-center p-4 sm:p-6">
+        <div 
+          className="bg-white rounded-[28px] lg:rounded-[2rem] border border-sky-100/80 max-w-[420px] xl:max-w-[800px] w-full relative shadow-2xl anim-fadeUp origin-center grid xl:grid-cols-[360px_minmax(0,1fr)] overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* ── LEFT: Illustration Panel ── */}
+          <div className="hidden xl:flex relative flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-50 via-white to-sky-50 min-h-[500px] py-8">
           {/* Decorative blobs */}
           <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#1392ec]/10 -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-sky-200/20 translate-x-1/3 translate-y-1/3" />
@@ -337,7 +338,7 @@ export default function AuthModal() {
         </div>
 
         {/* ── RIGHT: Form ── */}
-        <div className="min-w-0 flex flex-col justify-start p-5 sm:p-6 xl:p-8 relative z-10 w-full max-h-[calc(100vh-3rem)] xl:max-h-[680px] overflow-y-auto bg-white">
+        <div className="min-w-0 flex flex-col justify-center p-5 sm:p-6 xl:px-8 xl:py-6 relative z-10 w-full bg-white">
         {/* Close Button X */}
         <button
           onClick={closeAuth}
@@ -377,10 +378,10 @@ export default function AuthModal() {
 
         {/* ── Mode selector tabs (only if not forgot / verification mode) ── */}
         {!isForgotMode && !pendingRegistrationEmail && (
-          <div className="flex h-11 w-full items-center rounded-xl bg-sky-50/70 p-1 gap-1 border border-sky-100/50 mb-4">
+          <div className="flex h-11 w-full items-center rounded-xl bg-sky-50/70 p-1 gap-1 border border-sky-100/50 mb-4 flex-shrink-0">
             <button
               onClick={() => setMode('login')}
-              className={`flex-1 h-full rounded-lg text-xs font-black transition-all ${
+              className={`flex-1 h-full rounded-lg text-[13px] font-bold transition-all ${
                 mode === 'login' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
@@ -388,7 +389,7 @@ export default function AuthModal() {
             </button>
             <button
               onClick={() => setMode('signup')}
-              className={`flex-1 h-full rounded-lg text-xs font-black transition-all ${
+              className={`flex-1 h-full rounded-lg text-[13px] font-bold transition-all ${
                 mode === 'signup' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
@@ -743,6 +744,7 @@ export default function AuthModal() {
         </div>
 
 
+        </div>
       </div>
     </div>
   );
