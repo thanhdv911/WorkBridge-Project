@@ -97,23 +97,35 @@ namespace WorkBridge.Application.Services
             var safeActionText = WebUtility.HtmlEncode(finalText);
             var messageHtml = BuildMessageHtml(message);
             var verificationCode = ExtractVerificationCode(message);
+            
             var codeHtml = string.IsNullOrWhiteSpace(verificationCode)
                 ? string.Empty
                 : $@"
-              <tr>
-                <td style=""padding:0 32px 22px;"">
-                  <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;background:#f0f9ff;border:1px solid #bae6fd;border-radius:18px;"">
-                    <tr>
-                      <td style=""padding:22px 20px;text-align:center;"">
-                        <div style=""font-size:12px;line-height:18px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0369a1;"">Mã xác thực của bạn</div>
-                        <div style=""margin-top:10px;font-family:'Segoe UI',Arial,sans-serif;font-size:34px;line-height:42px;font-weight:900;letter-spacing:8px;color:#075985;"">{WebUtility.HtmlEncode(verificationCode)}</div>
-                        <div style=""margin-top:10px;font-size:13px;line-height:20px;color:#0f5f8c;"">Mã chỉ dùng một lần. Vui lòng không chia sẻ mã này với bất kỳ ai.</div>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>";
-            var sentAt = DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy HH:mm");
+              <!-- Verification Code Box -->
+              <table width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""margin: 30px 0;"">
+                <tr>
+                  <td align=""center"">
+                    <div style=""background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; display: inline-block;"">
+                      <div style=""font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;"">Mã xác thực của bạn</div>
+                      <div style=""font-size: 36px; font-weight: 800; color: #0f8fe8; letter-spacing: 6px;"">{WebUtility.HtmlEncode(verificationCode)}</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>";
+
+            var buttonHtml = $@"
+              <!-- Action Button -->
+              <table width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""margin: 35px 0 20px;"">
+                <tr>
+                  <td align=""center"">
+                    <a href=""{safeUrl}"" style=""display: inline-block; background-color: #0f8fe8; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(15, 143, 232, 0.25);"">{safeActionText}</a>
+                  </td>
+                </tr>
+              </table>
+              <p style=""margin: 0; font-size: 13px; color: #94a3b8; text-align: center;"">
+                Hoặc truy cập liên kết:<br>
+                <a href=""{safeUrl}"" style=""color: #0f8fe8; text-decoration: none;"">{safeUrl}</a>
+              </p>";
 
             return $@"
 <!doctype html>
@@ -123,96 +135,72 @@ namespace WorkBridge.Application.Services
   <meta name=""viewport"" content=""width=device-width,initial-scale=1"">
   <title>{safeTitle}</title>
 </head>
-<body style=""margin:0;padding:0;background:#eef7ff;font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#0f172a;"">
-  <div style=""display:none;max-height:0;overflow:hidden;color:transparent;opacity:0;"">
-    WorkBridge gửi bạn một thông báo quan trọng. Vui lòng mở email để xem đầy đủ thông tin.
-  </div>
-
-  <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;background:#eef7ff;margin:0;padding:0;"">
+<body style=""margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;"">
+  
+  <table width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background-color: #f1f5f9; padding: 40px 20px;"">
     <tr>
-      <td align=""center"" style=""padding:32px 14px;"">
-        <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;max-width:680px;background:#ffffff;border:1px solid #cfe7ff;border-radius:26px;overflow:hidden;box-shadow:0 22px 70px rgba(15,23,42,.12);"">
+      <td align=""center"">
+        
+        <!-- Header Logo -->
+        <table width=""100%"" max-width=""600"" cellpadding=""0"" cellspacing=""0"" style=""max-width: 600px; margin-bottom: 24px;"">
           <tr>
-            <td style=""padding:0;background:#0f8fe8;"">
-              <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;background:linear-gradient(135deg,#0f8fe8 0%,#0b6bc7 55%,#0b3d91 100%);"">
-                <tr>
-                  <td style=""padding:30px 32px;color:#ffffff;"">
-                    <div style=""display:inline-block;padding:7px 12px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;line-height:16px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;"">
-                      Thông báo từ WorkBridge
-                    </div>
-                    <h1 style=""margin:16px 0 0;font-size:28px;line-height:36px;font-weight:900;color:#ffffff;"">{safeTitle}</h1>
-                    <p style=""margin:10px 0 0;font-size:15px;line-height:23px;color:#dff2ff;"">
-                      Email này được gửi tự động để bạn không bỏ lỡ thông tin quan trọng trong tài khoản WorkBridge.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td style=""padding:30px 32px 18px;"">
-              <p style=""margin:0 0 14px;font-size:16px;line-height:26px;color:#0f172a;"">Xin chào <strong>{safeName}</strong>,</p>
-              <div style=""font-size:15px;line-height:25px;color:#334155;"">
-                {messageHtml}
-              </div>
-            </td>
-          </tr>
-
-          {codeHtml}
-
-          <tr>
-            <td style=""padding:0 32px 24px;"">
-              <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;"">
-                <tr>
-                  <td style=""padding:18px 20px;"">
-                    <div style=""font-size:13px;line-height:20px;font-weight:900;color:#0f172a;"">Lưu ý bảo mật</div>
-                    <div style=""margin-top:6px;font-size:13px;line-height:21px;color:#475569;"">
-                      WorkBridge không bao giờ yêu cầu bạn cung cấp mật khẩu qua email. Nếu bạn không nhận ra hoạt động này, hãy đăng nhập và kiểm tra lại thông tin tài khoản càng sớm càng tốt.
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td align=""center"" style=""padding:0 32px 26px;"">
-              <a href=""{safeUrl}"" style=""display:inline-block;background:#0f8fe8;color:#ffffff;text-decoration:none;border-radius:14px;padding:14px 24px;font-size:15px;line-height:20px;font-weight:900;box-shadow:0 12px 28px rgba(15,143,232,.28);"">
-                {safeActionText}
+            <td align=""center"">
+              <a href=""{webAppUrl}"" target=""_blank"">
+                <img src=""{webAppUrl}/workbridge-mark.png"" alt=""WorkBridge"" height=""45"" style=""display: block; border: none;"" />
               </a>
-              <p style=""margin:18px 0 0;font-size:12px;line-height:20px;color:#64748b;"">
-                Nếu nút trên không mở được, hãy sao chép liên kết này và dán vào trình duyệt:
-              </p>
-              <p style=""margin:6px 0 0;font-size:12px;line-height:20px;word-break:break-all;color:#0b6bc7;"">
-                <a href=""{safeUrl}"" style=""color:#0b6bc7;text-decoration:underline;"">{safeUrl}</a>
-              </p>
-            </td>
-          </tr>
-
-          <tr>
-            <td style=""padding:0 32px 30px;"">
-              <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""border-collapse:collapse;border-top:1px solid #e2e8f0;"">
-                <tr>
-                  <td style=""padding-top:18px;font-size:12px;line-height:20px;color:#64748b;"">
-                    <strong style=""color:#334155;"">Người nhận:</strong> {safeEmail}<br>
-                    <strong style=""color:#334155;"">Thời gian gửi:</strong> {sentAt} (UTC+7)<br>
-                    Đây là email tự động từ WorkBridge. Vui lòng không trả lời trực tiếp email này.
-                  </td>
-                </tr>
-              </table>
             </td>
           </tr>
         </table>
-
-        <div style=""max-width:680px;margin:18px auto 0;text-align:center;font-size:12px;line-height:20px;color:#64748b;"">
-          © WorkBridge. Nền tảng kết nối việc làm bán thời gian và quản lý ca làm.
-        </div>
+        
+        <!-- Main Card -->
+        <table width=""100%"" max-width=""600"" cellpadding=""0"" cellspacing=""0"" style=""max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);"">
+          <!-- Top Accent Line -->
+          <tr>
+            <td style=""height: 6px; background: linear-gradient(90deg, #0f8fe8 0%, #0ea5e9 100%);""></td>
+          </tr>
+          
+          <!-- Content Area -->
+          <tr>
+            <td style=""padding: 40px;"">
+              <h1 style=""margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #0f172a; text-align: center;"">{safeTitle}</h1>
+              
+              <p style=""margin: 0 0 16px; font-size: 16px; color: #334155;"">Xin chào <strong style=""color: #0f172a;"">{safeName}</strong>,</p>
+              
+              <div style=""font-size: 16px; color: #475569; line-height: 1.6;"">
+                {messageHtml}
+              </div>
+              
+              {codeHtml}
+              
+              {buttonHtml}
+              
+              <hr style=""border: none; border-top: 1px solid #e2e8f0; margin: 35px 0 24px;"">
+              
+              <!-- Security Notice -->
+              <div style=""background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px;"">
+                <p style=""margin: 0; font-size: 13px; color: #92400e; line-height: 1.5;"">
+                  <strong>Lưu ý bảo mật:</strong> WorkBridge không bao giờ yêu cầu bạn cung cấp mật khẩu. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ với chúng tôi.
+                </p>
+              </div>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Footer -->
+        <table width=""100%"" max-width=""600"" cellpadding=""0"" cellspacing=""0"" style=""max-width: 600px; margin-top: 24px;"">
+          <tr>
+            <td align=""center"" style=""font-size: 13px; color: #64748b; line-height: 1.6;"">
+              &copy; {DateTime.UtcNow.AddHours(7).Year} <strong>WorkBridge</strong>. Kết nối năng lực - Kiến tạo tương lai.<br>
+              Email này được gửi đến {safeEmail}.<br>
+            </td>
+          </tr>
+        </table>
+        
       </td>
     </tr>
   </table>
 </body>
-</html>";
+</html>"";
         }
 
         private static string BuildMessageHtml(string message)
