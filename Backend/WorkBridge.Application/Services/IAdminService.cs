@@ -30,6 +30,10 @@ namespace WorkBridge.Application.Services
         // Report Management
         Task<IEnumerable<AdminReportResponse>> GetReportsAsync();
         Task<bool> UpdateReportStatusAsync(int reportId, string status);
+
+        // Employer Verifications
+        Task<IEnumerable<AdminEmployerVerificationResponse>> GetPendingVerificationsAsync();
+        Task<bool> ReviewEmployerVerificationAsync(int employerId, string status);
     }
 
     public class AdminCategoryResponse

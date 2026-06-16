@@ -25,6 +25,12 @@ public partial class EmployerProfile
 
     public string Status { get; set; } = "Active";
 
+    public string VerificationStatus { get; set; } = "Pending";
+
+    public string? BusinessLicenseUrl { get; set; }
+
+    public string? TaxId { get; set; }
+
     public virtual User Employer { get; set; } = null!;
 
     public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();

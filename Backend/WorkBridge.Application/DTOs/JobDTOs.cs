@@ -20,6 +20,7 @@ namespace WorkBridge.Application.DTOs
         public string Description { get; set; } = null!;
         public string? Requirements { get; set; }
         public string? Benefits { get; set; }
+        public string? WorkingHours { get; set; }
         public DateTime? ApplicationDeadline { get; set; }
         public string? Position { get; set; }
         public int? Vacancies { get; set; }

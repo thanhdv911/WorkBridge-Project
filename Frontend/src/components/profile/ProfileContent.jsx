@@ -291,7 +291,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                     </div>
 
                      <div className="sm:text-right shrink-0 mt-1 sm:mt-0 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                      <div className="text-[9px] font-black text-slate-800 uppercase tracking-widest">Lương theo giờ</div>
+                      <div className="text-[9px] font-black text-primary uppercase tracking-widest">Lương theo giờ</div>
                       <div className="text-sm font-black text-primary mt-0.5">
                         {(emp.currentHourlyRate || 0).toLocaleString('vi-VN')} ₫/giờ
                       </div>
@@ -700,7 +700,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             <div className="flex-1 space-y-5 overflow-y-auto bg-[#f5f8fb] p-5 sm:p-6">
               <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-800">Điểm CV</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-primary">Điểm CV</div>
                   <div className="mt-3 flex items-end gap-1">
                     <span className="text-5xl font-black leading-none text-slate-950">{cvScore || cvAnalysisData.score}</span>
                     <span className="pb-1 text-sm font-black text-slate-800">/10</span>

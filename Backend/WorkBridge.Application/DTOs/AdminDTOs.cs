@@ -9,6 +9,7 @@ namespace WorkBridge.Application.DTOs
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
         public string Status { get; set; } = string.Empty;
         public int? ReputationScore { get; set; }
         public int? ReportCount { get; set; }
@@ -68,5 +69,21 @@ namespace WorkBridge.Application.DTOs
     {
         public string Date { get; set; } = string.Empty;
         public int Count { get; set; }
+    }
+
+    public class AdminEmployerVerificationResponse
+    {
+        public int EmployerId { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
+        public string ContactEmail { get; set; } = string.Empty;
+        public string? TaxId { get; set; }
+        public string? BusinessLicenseUrl { get; set; }
+        public string VerificationStatus { get; set; } = string.Empty;
+        public DateTime? CreatedAt { get; set; }
+    }
+
+    public class AdminReviewVerificationRequest
+    {
+        public string Status { get; set; } = string.Empty; // "Verified" or "Rejected"
     }
 }

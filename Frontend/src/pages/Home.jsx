@@ -8,8 +8,6 @@ import { getVisitorId, PRESENCE_REFRESH_MS } from '../utils/presence';
 import toast from 'react-hot-toast';
 import JobMarketDashboard from '../components/home/JobMarketDashboard';
 import EmployerHomeFeatures from '../components/home/EmployerHomeFeatures';
-import TopEmployers from '../components/home/TopEmployers';
-import PromoBanners from '../components/home/PromoBanners';
 
 const compactLocationLabel = (label = '') => {
   const parts = String(label || '').split(',').map(part => part.trim()).filter(Boolean);
@@ -94,7 +92,7 @@ export default function Home() {
 
   if (userRole === 'Employer') {
     return (
-      <div className="bg-[#faf8f4] relative overflow-x-hidden">
+      <div className="bg-gradient-to-br from-sky-100 via-sky-50 to-cyan-100 relative overflow-x-hidden">
         <Hero userRole={userRole} />
         <EmployerHomeFeatures />
       </div>
@@ -103,20 +101,18 @@ export default function Home() {
 
   if (userRole === 'Admin') {
     return (
-      <div className="bg-[#faf8f4] relative overflow-x-hidden">
+      <div className="bg-gradient-to-br from-sky-100 via-sky-50 to-cyan-100 relative overflow-x-hidden">
         <Hero userRole={userRole} />
       </div>
     );
   }
 
   return (
-    <div className="bg-[#faf8f4] relative overflow-x-hidden">
+    <div className="bg-gradient-to-br from-sky-100 via-sky-50 to-cyan-100 relative overflow-x-hidden">
       <Hero userRole={userRole} />
-      <TopEmployers />
       <div className="mt-8">
         <LatestJobs />
       </div>
-      <PromoBanners />
       <JobMarketDashboard />
       <Categories />
       <HowItWorks />
@@ -254,36 +250,36 @@ function Hero({ userRole }) {
             Đăng tin tuyển dụng ngay
           </button>
         ) : (
-          <div className="bg-white/20 backdrop-blur-xl border border-white/30 p-3 sm:p-4 rounded-3xl shadow-2xl max-w-4xl mx-auto">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <div className="flex-1 flex items-center bg-white rounded-2xl px-5 py-4 w-full shadow-inner">
-                <span className="material-symbols-outlined text-slate-400 !text-2xl mr-3">search</span>
+          <div className="bg-white/20 backdrop-blur-xl border border-white/30 p-2 sm:p-2.5 rounded-[1.75rem] shadow-2xl max-w-5xl mx-auto mt-2">
+            <div className="flex flex-col sm:flex-row items-stretch gap-2.5">
+              <div className="flex-[2] flex items-center bg-white rounded-2xl px-4 py-3 sm:py-3.5 w-full shadow-inner transition-all hover:shadow-md focus-within:ring-2 focus-within:ring-primary/20">
+                <span className="material-symbols-outlined text-slate-400 !text-xl mr-2.5">search</span>
                 <input
                   type="text"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   placeholder="Vị trí ứng tuyển, công ty..."
-                  className="w-full bg-transparent text-slate-800 focus:outline-none placeholder:text-slate-400 font-semibold text-lg"
+                  className="w-full bg-transparent text-slate-800 focus:outline-none placeholder:text-slate-400 font-semibold text-base"
                 />
               </div>
 
-              <div className="relative flex-1 w-full sm:w-[300px]" ref={locationRef}>
+              <div className="relative flex-[1] w-full sm:w-auto min-w-[220px]" ref={locationRef}>
                 <button
                   onClick={() => setShowLocationCard(!showLocationCard)}
-                  className="flex items-center justify-between bg-white rounded-2xl px-5 py-4 w-full shadow-inner hover:bg-slate-50 transition"
+                  className="flex items-center justify-between bg-white rounded-2xl px-4 py-3 sm:py-3.5 w-full h-full shadow-inner hover:bg-slate-50 transition"
                 >
                   <div className="flex items-center">
-                    <span className="material-symbols-outlined text-slate-400 !text-2xl mr-3">location_on</span>
-                    <span className={`font-semibold text-lg truncate max-w-[160px] ${selectedLabel ? 'text-slate-800' : 'text-slate-400'}`}>
+                    <span className="material-symbols-outlined text-slate-400 !text-xl mr-2.5">location_on</span>
+                    <span className={`font-semibold text-base truncate max-w-[140px] ${selectedLabel ? 'text-slate-800' : 'text-slate-400'}`}>
                       {displayLocationLabel || "Tất cả địa điểm"}
                     </span>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">expand_more</span>
+                  <span className="material-symbols-outlined text-slate-400 !text-xl">expand_more</span>
                 </button>
 
                 {showLocationCard && (
                   <div className="absolute top-full left-0 mt-3 w-full sm:w-[350px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-5 z-50 text-left">
-                    <div className="text-sm font-black mb-4 uppercase tracking-widest text-slate-500">Tỉnh/Thành phố</div>
+                    <div className="text-sm font-black mb-4 uppercase tracking-widest text-primary">Tỉnh/Thành phố</div>
                     <div className="flex flex-wrap gap-2 mb-5">
                       {QUICK_CITIES.map(city => (
                         <button key={city.label} onClick={() => handleQuickCitySelect(city.value, city.label)} className="px-4 py-2 text-sm font-bold bg-slate-100 hover:bg-primary hover:text-white rounded-xl transition">
@@ -295,8 +291,8 @@ function Hero({ userRole }) {
                 )}
               </div>
 
-              <button onClick={handleSearch} className="w-full sm:w-auto bg-primary text-white font-black px-10 py-4 rounded-2xl hover:bg-primary-dk transition shadow-xl text-lg flex items-center justify-center gap-2">
-                Tìm kiếm <span className="material-symbols-outlined !text-[20px]">arrow_forward</span>
+              <button onClick={handleSearch} className="w-full sm:w-auto bg-primary text-white font-black px-8 py-3 sm:py-3.5 rounded-2xl hover:bg-primary-dk transition shadow-xl text-base flex items-center justify-center gap-2 whitespace-nowrap">
+                Tìm kiếm <span className="material-symbols-outlined !text-[18px]">arrow_forward</span>
               </button>
             </div>
           </div>
@@ -580,98 +576,92 @@ function Categories() {
   }
 
   return (
-    <section className="home-section home-slide-categories mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <SectionHeader
-        title="Top danh mục nổi bật"
-        titleClassName="!text-2xl lg:!text-3xl !text-[#1392ec]"
-        actionHref="/jobs"
-        actionLabel="Xem tất cả"
-      />
+    <section className="home-section relative w-full py-16 lg:py-24 bg-gradient-to-br from-[#f0f9ff] via-[#e0f2fe] to-[#f8fafc] border-y border-sky-100 overflow-hidden mt-4 mb-10 lg:mt-4 lg:mb-16">
+      
+      {/* Decorative full-width background blobs (Crystal effect) */}
+      <div className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[600px] h-[600px] rounded-full bg-blue-300/20 blur-[100px] pointer-events-none mix-blend-multiply"></div>
+      <div className="absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 w-[500px] h-[500px] rounded-full bg-emerald-200/20 blur-[100px] pointer-events-none mix-blend-multiply"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-[100%] bg-white/40 blur-[80px] pointer-events-none"></div>
 
-      {loading ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {[...Array(8)].map((_, index) => (
-            <div key={index} className="home-category-skeleton" />
-          ))}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 lg:mb-14">
+          <div className="flex flex-col items-start">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-md px-3.5 py-1.5 text-sm font-bold text-[#1392ec] mb-4 shadow-sm border border-white">
+              <span className="material-symbols-outlined !text-[16px]">category</span>
+              Đa dạng lĩnh vực
+            </span>
+            <h2 className="text-[2.25rem] lg:text-[3rem] font-black tracking-tight text-slate-900 leading-[1.1]">
+              Top danh mục <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1392ec] to-blue-600 drop-shadow-sm">nổi bật</span>
+            </h2>
+          </div>
+          
+          <a href="/jobs" className="group mt-6 md:mt-0 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-6 py-3 text-sm font-bold text-slate-700 hover:text-[#1392ec] shadow-sm border border-white hover:border-[#1392ec]/30 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+            Khám phá tất cả 
+            <span className="material-symbols-outlined !text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </a>
         </div>
-      ) : categories.length === 0 ? (
-        <EmptyState icon="category" title="Chưa có danh mục nào" text="Danh mục sẽ xuất hiện khi admin cập nhật dữ liệu." />
-      ) : (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
-          {categories.slice(0, 8).map((category, index) => {
-            const categoryName = category.categoryName || category.name;
-            const jobCount = categoryCounts[category.categoryId] || 0;
 
-            const CATEGORY_IMAGES = [
-              "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-            ];
+        <div className="relative z-20">
+        {loading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="home-category-skeleton bg-white rounded-[1.5rem]" />
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
+          <EmptyState icon="category" title="Chưa có danh mục nào" text="Danh mục sẽ xuất hiện khi admin cập nhật dữ liệu." />
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
+            {categories.slice(0, 8).map((category, index) => {
+              const categoryName = category.categoryName || category.name;
+              const jobCount = categoryCounts[category.categoryId] || 0;
 
-            const imgSrc = CATEGORY_IMAGES[index % CATEGORY_IMAGES.length];
+              const CATEGORY_IMAGES = [
+                'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=400', // Code/IT
+                'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&q=80&w=400', // Marketing
+                'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=400', // Retail
+                'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=400', // Support
+                'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400', // Finance
+                'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=400', // F&B
+                'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=400', // Logistics
+                'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=400'  // Design
+              ];
 
-            return (
-              <a
-                key={category.categoryId}
-                className="group relative flex flex-col justify-end p-6 rounded-3xl overflow-hidden min-h-[220px] shadow-sm hover:shadow-2xl hover:shadow-[#1392ec]/20 transition-all duration-500 hover:-translate-y-2 border border-slate-200/50 hover:border-transparent"
-                href={`/jobs?category=${category.categoryId}`}
-                style={{
-                  '--home-delay': `${index * 55}ms`
-                }}
-              >
-                {/* Background Image */}
-                <div className="absolute inset-0">
-                  <img
-                    src={imgSrc}
-                    alt={categoryName}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
+              const image = CATEGORY_IMAGES[index % CATEGORY_IMAGES.length];
 
-                {/* Subtle Overlay for Text Readability */}
-                <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-[#1392ec]/50 transition-colors duration-500" />
+              return (
+                <a
+                  key={category.categoryId}
+                  className="group flex flex-col rounded-[1.5rem] bg-white border border-slate-200/70 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden h-[240px]"
+                  href={`/jobs?category=${category.categoryId}`}
+                >
+                  {/* Top Image Part (60%) */}
+                  <div className="h-[140px] w-full overflow-hidden relative">
+                    <img src={image} alt={categoryName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
+                  </div>
 
-                {/* Content - Centered to fix empty space */}
-                <div className="relative z-10 flex flex-col h-full justify-center items-center text-center p-4">
-                  <div className="transform transition-transform duration-500 group-hover:-translate-y-2">
-                    <h3 className="text-xl sm:text-2xl font-black text-white mb-3 drop-shadow-lg leading-tight">
+                  {/* Bottom Text Part (40%) */}
+                  <div className="p-4 lg:p-5 flex flex-col justify-between flex-1 bg-white relative z-10">
+                    <h3 className="text-base lg:text-lg font-bold text-slate-800 leading-snug group-hover:text-[#1392ec] transition-colors line-clamp-1">
                       {translateCategory(categoryName)}
                     </h3>
-
-                    <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full backdrop-blur-md bg-white/20 border border-white/30 shadow-sm transition-all duration-300 group-hover:bg-white group-hover:text-[#1392ec] text-white">
-                      <span className="text-xs font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-sm font-semibold text-slate-500">
                         {jobCount.toLocaleString('vi-VN')} việc làm
-                      </span>
+                      </p>
+                      <div className="w-8 h-8 rounded-full bg-sky-50 text-[#1392ec] flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shadow-sm">
+                         <span className="material-symbols-outlined !text-[15px]">arrow_forward</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </a>
-            );
-          })}
-
-          {/* Padding Card if exactly 7 categories to balance the grid */}
-          {categories.length === 7 && (
-            <a
-              className="group relative flex flex-col justify-center items-center p-6 rounded-3xl overflow-hidden min-h-[220px] shadow-sm hover:shadow-2xl hover:shadow-[#1392ec]/20 transition-all duration-500 hover:-translate-y-2 border-2 border-dashed border-sky-200 hover:border-transparent bg-sky-50/30 hover:bg-sky-50"
-              href="/jobs"
-              style={{ '--home-delay': `385ms` }}
-            >
-              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md mb-3 group-hover:scale-110 transition-transform duration-500">
-                <span className="material-symbols-outlined !text-3xl text-[#1392ec]">arrow_forward</span>
-              </div>
-              <h3 className="text-lg font-black text-slate-700 group-hover:text-[#1392ec] transition-colors">
-                Khám phá thêm
-              </h3>
-              <p className="text-xs font-bold text-slate-700 mt-1">Xem tất cả ngành nghề</p>
-            </a>
-          )}
+                </a>
+              );
+            })}
+          </div>
+        )}
         </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -681,23 +671,17 @@ function HowItWorks() {
     {
       title: 'Tạo hồ sơ',
       text: 'Đăng ký và xây dựng hồ sơ sinh viên của bạn chỉ trong 3 phút. Nêu bật kỹ năng và lịch rảnh.',
-      icon: 'assignment_ind',
-      color: 'from-sky-400 to-blue-600',
-      iconColor: 'text-blue-500'
+      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Khám phá việc làm',
       text: 'Tìm kiếm vị trí bán thời gian phù hợp với lịch trình, địa điểm và sở thích của bạn.',
-      icon: 'travel_explore',
-      color: 'from-emerald-400 to-teal-600',
-      iconColor: 'text-emerald-500'
+      image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Ứng tuyển & Nhận việc',
       text: 'Ứng tuyển chỉ với một cú nhấp. Nhà tuyển dụng phản hồi nhanh — phần lớn trong vòng 48 giờ.',
-      icon: 'handshake',
-      color: 'from-violet-400 to-purple-600',
-      iconColor: 'text-violet-500'
+      image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=800'
     },
   ];
 
@@ -733,19 +717,9 @@ function HowItWorks() {
 
               {/* Graphic Block */}
               <div className={`w-full lg:w-1/2 pl-24 lg:pl-0 ${isEven ? 'lg:pl-16' : 'lg:pr-16'}`}>
-                <div className="group relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden bg-white border border-slate-200/60 shadow-2xl shadow-slate-200/40 flex flex-col items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-sky-200/60">
-                  {/* Background decoration */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500`} />
-                  <div className={`absolute -right-16 -top-16 w-56 h-56 bg-gradient-to-br ${step.color} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
-                  <div className={`absolute -left-16 -bottom-16 w-56 h-56 bg-gradient-to-br ${step.color} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
-
-                  {/* Inner Grid Pattern */}
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
-
-                  {/* Icon Container */}
-                  <div className={`relative z-10 w-28 h-28 rounded-3xl bg-white shadow-xl border border-slate-100 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ${step.iconColor}`}>
-                    <span className="material-symbols-outlined !text-6xl">{step.icon}</span>
-                  </div>
+                <div className="group relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 border-4 border-white shadow-2xl shadow-slate-200/40 flex flex-col items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-sky-200/60">
+                  <img src={step.image} alt={step.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
               </div>
             </div>
@@ -859,8 +833,11 @@ function LatestJobs() {
   };
 
   return (
-    <section className="home-section home-jobs-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="home-jobs-content space-y-6">
+    <section className="home-section home-jobs-section relative w-full py-16 lg:py-24 bg-gradient-to-br from-[#fffbeb] via-[#fff7ed] to-[#fff1f2] border-y-2 border-amber-200 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden mb-6 mt-8 z-10">
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="home-jobs-content space-y-6">
+
 
         {/* REDESIGNED HEADER */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-5">
@@ -881,24 +858,7 @@ function LatestJobs() {
               <span className="material-symbols-outlined !text-base">arrow_forward</span>
             </a>
 
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="home-best-header-arrow"
-                aria-label="Trang trước"
-              >
-                <span className="material-symbols-outlined !text-lg">chevron_left</span>
-              </button>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="home-best-header-arrow"
-                aria-label="Trang sau"
-              >
-                <span className="material-symbols-outlined !text-lg">chevron_right</span>
-              </button>
-            </div>
+            {/* Pagination moved to bottom */}
           </div>
         </div>
 
@@ -979,32 +939,33 @@ function LatestJobs() {
         )}
 
         {/* BOTTOM PAGINATION FOOTER */}
-        {totalPages > 1 && (
-          <div className="home-best-footer-pagination">
+        {totalPages > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="home-best-page-btn"
+              className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Trang trước"
             >
-              <span className="material-symbols-outlined !text-base">chevron_left</span>
+              <span className="material-symbols-outlined !text-xl">chevron_left</span>
             </button>
 
-            <p className="home-best-page-text">
-              Trang <span>{page}</span> / {totalPages}
-            </p>
+            <span className="text-sm font-bold text-slate-400 mx-4">
+              <span className="text-primary text-base">{page}</span> / {totalPages} trang
+            </span>
 
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="home-best-page-btn"
+              className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Trang sau"
             >
-              <span className="material-symbols-outlined !text-base">chevron_right</span>
+              <span className="material-symbols-outlined !text-xl">chevron_right</span>
             </button>
           </div>
         )}
 
+      </div>
       </div>
     </section>
   );
@@ -1101,10 +1062,10 @@ function FeaturedJobCard({ job, isSaved, onToggleSave }) {
 function Testimonials() {
   const testimonials = [
     {
-      initials: 'AT',
-      name: 'Trần Văn An',
-      role: 'Sinh viên CNTT • ĐH Bách Khoa',
-      text: '"Tìm được công việc gia sư hoàn hảo phù hợp lịch học. Nộp đơn thứ Hai, được nhận việc thứ Tư!"'
+      image: '/huynh-tien-duy.jpg',
+      name: 'Huỳnh Tiến Duy',
+      role: 'Sinh viên CNTT • ĐH FPT Đà Nẵng',
+      text: '"Tìm được công việc thực tập IT hoàn hảo phù hợp lịch học ở trường. Nộp đơn thứ Hai, được công ty công nghệ nhận thực tập thứ Tư!"'
     },
     {
       initials: 'ML',
@@ -1113,9 +1074,9 @@ function Testimonials() {
       text: '"Chất lượng nhà tuyển dụng ở đây tốt hơn nhiều so với các nền tảng khác. Tôi đã làm ở một quán cà phê tuyệt vời 3 tháng — tìm được ở đây."'
     },
     {
-      initials: 'TH',
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200',
       name: 'Phạm Thanh Hà',
-      role: 'Thiết kế • RMIT',
+      role: 'Marketing • ĐH FPT',
       text: '"Yêu thích tính năng ứng tuyển nhanh! Ứng tuyển 5 vị trí trong một buổi tối và có 3 buổi phỏng vấn vào cuối tuần."'
     },
   ];
@@ -1139,10 +1100,16 @@ function Testimonials() {
             style={{ '--home-delay': `${index * 110}ms` }}
           >
             <div className="flex items-center gap-3">
-              {/* White-bordered circular avatar badge matching HowItWorks */}
-              <div className="relative shrink-0 w-11 h-11 rounded-full border-2 border-white bg-sky-50 shadow-sm shadow-sky-200/40 flex items-center justify-center font-black text-xs text-[#1392ec] transition-all duration-300 group-hover:bg-white group-hover:shadow-md">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#1392ec]/10 to-transparent opacity-60 pointer-events-none rounded-full" />
-                <span className="relative z-10">{item.initials}</span>
+              {/* Avatar renderer */}
+              <div className="relative shrink-0 w-11 h-11 rounded-full border-2 border-white bg-sky-50 shadow-sm shadow-sky-200/40 flex items-center justify-center font-black text-xs text-[#1392ec] transition-all duration-300 group-hover:shadow-md overflow-hidden">
+                {item.image ? (
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#1392ec]/10 to-transparent opacity-60 pointer-events-none rounded-full" />
+                    <span className="relative z-10">{item.initials}</span>
+                  </>
+                )}
               </div>
               <div>
                 <h3 className="group-hover:text-[#1392ec] transition-colors">{item.name}</h3>
@@ -1179,50 +1146,39 @@ function CTA() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
-      {/* Outer wrapper for absolute-positioning the illustration outside the panel */}
       <div className="relative">
 
-        {/* Panel — right padding on lg to leave space for the floating illustration */}
-        <div className="home-cta-panel lg:pr-72 xl:pr-80">
-          <img src="/workbridge-mark.png" alt="" className="home-cta-mark" aria-hidden="true" />
+        <div className="flex flex-col items-center text-center pt-8 pb-16 lg:pt-12 lg:pb-20 w-full relative">
 
-          <div className="relative z-10 flex flex-1 flex-col gap-5">
-            <div>
-              <h2 className="home-section-title mt-3 text-slate-950">
-                Sẵn sàng tìm cơ hội?
+          <div className="flex flex-1 flex-col items-center gap-6 max-w-6xl mx-auto w-full">
+            <div className="w-full">
+              <h2 className="home-section-title mt-3 flex flex-row flex-wrap items-center justify-center gap-x-4 lg:gap-x-6 gap-y-2">
+                <span className="whitespace-nowrap bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent py-2">Sẵn sàng</span>
+                <img
+                  src="/cta-illustration.png"
+                  alt=""
+                  draggable="false"
+                  className="pointer-events-none select-none h-48 lg:h-80 w-auto object-contain mix-blend-multiply"
+                  style={{ mixBlendMode: 'multiply' }}
+                />
+                <span className="whitespace-nowrap bg-gradient-to-r from-primary to-sky-400 bg-clip-text text-transparent drop-shadow-sm py-2">tìm cơ hội?</span>
               </h2>
-              <p className="mt-4 text-base font-semibold leading-7 text-slate-800">
+              <p className="mt-6 text-base font-semibold leading-7 text-slate-800 max-w-2xl mx-auto">
                 Tham gia cùng hàng nghìn sinh viên đang vừa học vừa làm. Tạo tài khoản miễn phí và bắt đầu ứng tuyển ngay hôm nay.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <a href={getStartedHref} className="button-swipe home-cta-primary">
+            <div className="flex flex-col gap-3 sm:flex-row justify-center w-full sm:w-auto">
+              <a href={getStartedHref} className="button-swipe home-cta-primary justify-center">
                 Bắt đầu miễn phí
                 <span className="material-symbols-outlined !text-xl">arrow_forward</span>
               </a>
-              <a href="/jobs" className="home-cta-secondary">
+              <a href="/jobs" className="home-cta-secondary justify-center">
                 Tìm việc
               </a>
             </div>
           </div>
         </div>
 
-        {/* Illustration — OUTSIDE the panel, floating freely on the right */}
-        <img
-          src="/cta-illustration.png"
-          alt=""
-          aria-hidden="true"
-          draggable="false"
-          className="pointer-events-none select-none hidden lg:block"
-          style={{
-            position: 'absolute',
-            right: '0px',
-            bottom: '0px',
-            height: '320px',
-            width: 'auto',
-            mixBlendMode: 'multiply',
-          }}
-        />
       </div>
     </section>
   );

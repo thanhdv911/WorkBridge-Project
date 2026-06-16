@@ -599,7 +599,7 @@ export default function JobMarketDashboard() {
                     </button>
                     {showDropdown && (
                       <div className="absolute right-0 mt-1 w-28 rounded-lg border border-slate-200 bg-white p-1 shadow-xl text-[10px] font-black text-slate-700 z-50">
-                        {['Ngành nghề', 'Khu vực', 'Hình thức'].map((opt) => (
+                        {['Ngành nghề', 'Khu vực'].map((opt) => (
                           <button
                             key={opt}
                             onClick={() => {

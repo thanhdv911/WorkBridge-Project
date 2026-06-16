@@ -408,7 +408,7 @@ export default function AuthModal() {
                 <input
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-11 pr-4 text-sm placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -445,7 +445,7 @@ export default function AuthModal() {
                 <input
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-center text-xl font-black tracking-[0.3em] placeholder:tracking-normal placeholder:text-xs placeholder:font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-center text-xl font-black tracking-[0.3em] placeholder:tracking-normal placeholder:text-xs placeholder:font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Nhập 6 số"
                   type="text"
                   inputMode="numeric"
@@ -495,7 +495,7 @@ export default function AuthModal() {
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-4 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-4 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -520,7 +520,7 @@ export default function AuthModal() {
                 <input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-10 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-10 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Mật khẩu của bạn"
                   type={showLoginPassword ? 'text' : 'password'}
                   required
@@ -615,7 +615,7 @@ export default function AuthModal() {
                 <input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Nguyễn"
                   type="text"
                   required
@@ -626,7 +626,7 @@ export default function AuthModal() {
                 <input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Văn A"
                   type="text"
                   required
@@ -642,7 +642,7 @@ export default function AuthModal() {
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-4 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-4 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -658,7 +658,7 @@ export default function AuthModal() {
                 <input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Tối thiểu 8 ký tự"
                   type={showRegisterPassword ? 'text' : 'password'}
                   required
@@ -681,7 +681,7 @@ export default function AuthModal() {
                 <input
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-800 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-400 transition-colors"
                   placeholder="Nhập lại mật khẩu"
                   type={showConfirmPassword ? 'text' : 'password'}
                   required

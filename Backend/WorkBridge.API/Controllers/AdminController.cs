@@ -128,5 +128,24 @@ namespace WorkBridge.API.Controllers
             if (!result) return NotFound(new { message = "Không tìm thấy báo cáo." });
             return Ok(new { message = "Đã cập nhật trạng thái báo cáo." });
         }
+
+        // Employer Verifications
+        [HttpGet("employers/verifications/pending")]
+        public async Task<IActionResult> GetPendingVerifications()
+        {
+            var result = await _adminService.GetPendingVerificationsAsync();
+            return Ok(result);
+        }
+
+        [HttpPatch("employers/verifications/{id}/review")]
+        public async Task<IActionResult> ReviewVerification(int id, [FromBody] AdminReviewVerificationRequest request)
+        {
+            if (request.Status != "Verified" && request.Status != "Rejected")
+                return BadRequest(new { message = "Trạng thái không hợp lệ." });
+
+            var result = await _adminService.ReviewEmployerVerificationAsync(id, request.Status);
+            if (!result) return NotFound(new { message = "Không tìm thấy hồ sơ doanh nghiệp." });
+            return Ok(new { message = "Đã cập nhật trạng thái xác thực." });
+        }
     }
 }

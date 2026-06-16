@@ -1892,8 +1892,8 @@ const EmployerShifts = () => {
                             {editTemplates.map((t, idx) => (
                                 <div key={idx} className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200/50">
                                     <span className="text-xs font-black text-slate-700 uppercase tracking-wider">{getShiftDisplayName(t.shiftName)}</span>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        <div className="space-y-0.5">
+                                    <div className="grid grid-cols-[1fr_1fr_1.2fr] gap-3">
+                                        <div className="flex flex-col justify-end space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-700 uppercase">Bắt đầu</label>
                                             <input
                                                 type="time"
@@ -1903,10 +1903,10 @@ const EmployerShifts = () => {
                                                     updated[idx].startTime = e.target.value;
                                                     setEditTemplates(updated);
                                                 }}
-                                                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-primary"
+                                                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 transition-all bg-white"
                                             />
                                         </div>
-                                        <div className="space-y-0.5">
+                                        <div className="flex flex-col justify-end space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-700 uppercase">Kết thúc</label>
                                             <input
                                                 type="time"
@@ -1916,11 +1916,11 @@ const EmployerShifts = () => {
                                                     updated[idx].endTime = e.target.value;
                                                     setEditTemplates(updated);
                                                 }}
-                                                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-primary"
+                                                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 transition-all bg-white"
                                             />
                                         </div>
-                                        <div className="space-y-0.5">
-                                            <label className="text-[10px] font-bold text-slate-700 uppercase">Số nhân viên mặc định</label>
+                                        <div className="flex flex-col justify-end space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-700 uppercase">SL mặc định</label>
                                             <input
                                                 type="number"
                                                 min="1"
@@ -1930,7 +1930,7 @@ const EmployerShifts = () => {
                                                     updated[idx].requiredPeople = Math.max(1, Number(e.target.value));
                                                     setEditTemplates(updated);
                                                 }}
-                                                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-primary"
+                                                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 transition-all bg-white"
                                             />
                                         </div>
                                     </div>

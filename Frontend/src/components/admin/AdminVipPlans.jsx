@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import Pagination from '../shared/Pagination';
+import HeaderActions from './HeaderActions';
 
 const TRANSACTIONS_PER_PAGE = 10;
 
@@ -176,24 +177,18 @@ export default function AdminVipPlans() {
 
   return (
     <div className="space-y-5 anim-fadeUp">
-      <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-          <div>
-            <h2 className="text-xl font-black tracking-tight text-slate-950">Quản lý gói VIP</h2>
-            <p className="mt-1 text-sm font-medium text-slate-700">
-              Tạo và chỉnh giá gói cá nhân/doanh nghiệp. Hệ thống hỗ trợ 7 ngày, 1 tháng và 1 năm.
-            </p>
+      <HeaderActions>
+          <div className="flex items-center gap-3 justify-end w-full">
+              <button
+                type="button"
+                onClick={startCreate}
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-black text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary-dk active:translate-y-0"
+              >
+                <span className="material-symbols-outlined !text-[18px]">add</span>
+                Tạo gói mới
+              </button>
           </div>
-          <button
-            type="button"
-            onClick={startCreate}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary-dk active:translate-y-0"
-          >
-            <span className="material-symbols-outlined !text-[20px]">add</span>
-            Tạo gói mới
-          </button>
-        </div>
-      </section>
+      </HeaderActions>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[

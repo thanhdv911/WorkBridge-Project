@@ -37,6 +37,8 @@ public partial class JobPost
 
     public string? Benefits { get; set; }
 
+    public string? WorkingHours { get; set; }
+
     public string Status { get; set; } = null!;
 
     public int? BranchId { get; set; }

@@ -16,6 +16,15 @@ namespace WorkBridge.Application.DTOs
         public int ReputationScore { get; set; }
         public int ReportCount { get; set; }
         public string Status { get; set; } = null!;
+        public string VerificationStatus { get; set; } = "Pending";
+        public string? BusinessLicenseUrl { get; set; }
+        public string? TaxId { get; set; }
+    }
+
+    public class SubmitVerificationRequest
+    {
+        public string TaxId { get; set; } = null!;
+        public Microsoft.AspNetCore.Http.IFormFile BusinessLicenseFile { get; set; } = null!;
     }
 
     public class UpdateEmployerProfileRequest
@@ -45,7 +54,8 @@ namespace WorkBridge.Application.DTOs
         public string Description { get; set; } = null!;
         public string? Requirements { get; set; }
         public string? Benefits { get; set; }
-        public List<int>? ShiftIds { get; set; }
+        public string? WorkingHours { get; set; }
+        public List<int> ShiftIds { get; set; } = new();
     }
 
     public class EmployerDashboardStats

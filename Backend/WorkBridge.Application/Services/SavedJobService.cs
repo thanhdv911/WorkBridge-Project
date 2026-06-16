@@ -74,6 +74,7 @@ namespace WorkBridge.Application.Services
                     Description = s.JobPost.Description,
                     Requirements = s.JobPost.Requirements,
                     Benefits = s.JobPost.Benefits,
+                    WorkingHours = s.JobPost.WorkingHours,
                     Status = s.JobPost.Status,
                     CreatedAt = s.JobPost.CreatedAt,
                     IsFeatured = s.JobPost.IsFeatured,

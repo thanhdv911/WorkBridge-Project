@@ -45,6 +45,9 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
     description: '',
     requirements: '',
     benefits: '',
+    workingHours: '',
+    customStartTime: '',
+    customEndTime: '',
     shiftIds: [],
     position: '',
     vacancies: ''
@@ -164,6 +167,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
           description: params.get('description') || '',
           requirements: params.get('requirements') || '',
           benefits: params.get('benefits') || '',
+          workingHours: params.get('workingHours') || '',
           shiftIds: params.get('shiftIds') ? params.get('shiftIds').split(',').map(Number) : [],
           position: params.get('position') || '',
           vacancies: params.get('vacancies') || ''
@@ -237,6 +241,9 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
           description: job.description || '',
           requirements: job.requirements || '',
           benefits: job.benefits || '',
+          workingHours: job.workingHours || '',
+          customStartTime: job.workingHours?.split(' - ')[0] || '',
+          customEndTime: job.workingHours?.split(' - ')[1] || '',
           shiftIds: job.shifts ? job.shifts.map(s => s.shiftId) : [],
           position: job.position || '',
           vacancies: job.vacancies ? String(job.vacancies) : ''
@@ -318,6 +325,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
       branchId: jobForm.branchId ? parseInt(jobForm.branchId) : null,
       payRate: jobForm.payRate ? parseVND(jobForm.payRate) : null,
       applicationDeadline: jobForm.applicationDeadline ? new Date(jobForm.applicationDeadline).toISOString() : null,
+      workingHours: (jobForm.customStartTime && jobForm.customEndTime) ? `${jobForm.customStartTime} - ${jobForm.customEndTime}` : (jobForm.workingHours || null),
       shiftIds: jobForm.shiftIds,
       position: jobForm.position || null,
       vacancies: jobForm.vacancies ? parseInt(jobForm.vacancies, 10) : null
@@ -656,7 +664,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
         <div className="space-y-4 pt-2">
           <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">Ca làm việc</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {availableShifts.map(shift => (
+            {availableShifts.filter(s => s.shiftName !== 'Weekend' && s.shiftName !== 'Ca Cuối Tuần').map(shift => (
               <label
                 key={shift.shiftId}
                 className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
@@ -691,6 +699,33 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
             {availableShifts.length === 0 && (
               <p className="text-sm text-slate-800 italic">Đang tải các ca làm việc...</p>
             )}
+          </div>
+          <div className="mt-4">
+            <label className="text-sm font-semibold text-slate-700 block mb-2">Thời gian làm việc cụ thể (Tùy chọn)</label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Từ</span>
+                <input
+                  type="time"
+                  name="customStartTime"
+                  value={jobForm.customStartTime}
+                  onChange={handleChange}
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                />
+              </div>
+              <span className="text-slate-400 font-medium">-</span>
+              <div className="flex-1 relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Đến</span>
+                <input
+                  type="time"
+                  name="customEndTime"
+                  value={jobForm.customEndTime}
+                  onChange={handleChange}
+                  className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2 italic">* Nếu chọn khung giờ này, ứng viên sẽ thấy ca làm việc là từ giờ bắt đầu đến giờ kết thúc.</p>
           </div>
         </div>
 

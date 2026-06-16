@@ -364,27 +364,34 @@ const JobDetails = () => {
                     </div>
 
                     {/* Shifts */}
-                    {job.shifts && job.shifts.length > 0 && (
+                    {(job.shifts?.length > 0 || job.workingHours) && (
                         <div className="profile-panel rounded-2xl p-6 lg:p-8 animate-fadeInUp delay-150">
                             <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-primary !text-xl">schedule</span>
-                                Ca làm việc
+                                Ca làm việc & Thời gian
                             </h2>
-                            <div className="grid sm:grid-cols-2 gap-3">
-                                {job.shifts.map(shift => (
-                                    <div key={shift.shiftId} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-primary">
-                                            <span className="material-symbols-outlined !text-xl">timer</span>
+                            {job.shifts?.length > 0 && (
+                                <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                                    {job.shifts.map(shift => (
+                                        <div key={shift.shiftId} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                            <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-primary">
+                                                <span className="material-symbols-outlined !text-xl">timer</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">{shift.shiftName}</p>
+                                                {shift.startTime && (
+                                                    <p className="text-xs text-slate-700">{shift.startTime} - {shift.endTime}</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-800">{shift.shiftName}</p>
-                                            {shift.startTime && (
-                                                <p className="text-xs text-slate-700">{shift.startTime} - {shift.endTime}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
+                            {job.workingHours && (
+                                <div className="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100/50 text-sm text-slate-800">
+                                    <span className="font-semibold mr-1">Giờ làm việc cụ thể:</span> {job.workingHours}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -465,7 +472,7 @@ const JobDetails = () => {
 
                     {/* Employer Reputation & Trust Card */}
                     <div className="profile-sidebar-card rounded-2xl p-6 animate-fadeInUp delay-75">
-                        <h3 className="text-xs font-bold text-slate-450 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined !text-[18px] text-primary">verified_user</span>
                             Độ uy tín tuyển dụng
                         </h3>

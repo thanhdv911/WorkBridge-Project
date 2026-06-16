@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory, translateJobType } from '../../utils/translate';
+import HeaderActions from './HeaderActions';
 
 const formatVND = (value) => {
     if (value === undefined || value === null || value === '') return 'Thỏa thuận';
@@ -95,32 +96,27 @@ const AdminJobs = () => {
 
     return (
         <div className="space-y-5 anim-fadeUp">
-            <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <h2 className="text-xl font-black tracking-tight text-slate-950">Kiểm duyệt việc làm</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-700">
-                            Đọc nhanh nội dung tin, duyệt hoặc từ chối trước khi xuất bản.
-                        </p>
-                    </div>
+            <HeaderActions>
+                <div className="flex items-center gap-3">
+                    <label className="relative block">
+                        <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
+                        <input
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            className="h-10 w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+                            placeholder="Tìm việc, công ty, địa điểm"
+                        />
+                    </label>
 
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <label className="relative block min-w-0 sm:w-[300px]">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
-                            <input
-                                value={query}
-                                onChange={(event) => setQuery(event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
-                                placeholder="Tìm theo tin, công ty, địa điểm"
-                            />
-                        </label>
-                        <div className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary/10 px-4 text-xs font-black text-primary ring-1 ring-primary/15">
-                            <span className="material-symbols-outlined !text-[18px]">pending_actions</span>
-                            Chờ duyệt: {jobs.length}
-                        </div>
+                    <div className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">
+                        <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+                        </span>
+                        Chờ duyệt: {jobs.length}
                     </div>
                 </div>
-            </section>
+            </HeaderActions>
 
             {jobs.length === 0 ? (
                 <div className="rounded-[28px] border border-white/80 bg-white px-6 py-16 text-center shadow-sm">

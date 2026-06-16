@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import Pagination from '../shared/Pagination';
+import HeaderActions from './HeaderActions';
 
 const USERS_PER_PAGE = 8;
 
@@ -226,50 +227,41 @@ const AdminUsers = () => {
 
     return (
         <div className="space-y-5 anim-fadeUp">
-            <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                    <div>
-                        <h2 className="text-xl font-black tracking-tight text-slate-950">Người dùng hệ thống</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-700">
-                            Khóa tài khoản, điều chỉnh điểm uy tín và nâng VIP thủ công cho doanh nghiệp hoặc cá nhân.
-                        </p>
-                    </div>
+            <HeaderActions>
+                <div className="flex items-center gap-3">
+                    <label className="relative block">
+                        <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
+                        <input
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            className="h-10 w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+                            placeholder="Tìm tên, email, trạng thái"
+                        />
+                    </label>
 
-                    <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
-                        <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
-                            <input
-                                value={query}
-                                onChange={(event) => setQuery(event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
-                                placeholder="Tìm tên, email, trạng thái"
-                            />
-                        </label>
-
-                        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
-                            {[
-                                ['All', 'Tất cả'],
-                                ['Applicant', 'Cá nhân'],
-                                ['Employer', 'Doanh nghiệp'],
-                                ['Admin', 'Admin']
-                            ].map(([value, label]) => (
-                                <button
-                                    key={value}
-                                    type="button"
-                                    onClick={() => setRoleFilter(value)}
-                                    className={`h-9 rounded-lg px-3 text-xs font-black transition ${
-                                        roleFilter === value
-                                            ? 'bg-white text-primary shadow-sm'
-                                            : 'text-slate-700 hover:text-slate-900'
-                                    }`}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
+                    <div className="hidden sm:inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                        {[
+                            ['All', 'Tất cả'],
+                            ['Applicant', 'Cá nhân'],
+                            ['Employer', 'Doanh nghiệp'],
+                            ['Admin', 'Admin']
+                        ].map(([value, label]) => (
+                            <button
+                                key={value}
+                                type="button"
+                                onClick={() => setRoleFilter(value)}
+                                className={`h-8 rounded-lg px-3 text-xs font-black transition ${
+                                    roleFilter === value
+                                        ? 'bg-white text-primary shadow-sm'
+                                        : 'text-slate-700 hover:text-slate-900'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
                     </div>
                 </div>
-            </section>
+            </HeaderActions>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 {[
@@ -328,8 +320,13 @@ const AdminUsers = () => {
                                     <section className="min-w-0">
                                         <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Người dùng</span>
                                         <div className="flex min-w-0 items-center gap-3">
-                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-sm font-black text-slate-800">
-                                                {(user.fullName || user.email || '?').slice(0, 2).toUpperCase()}
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                                                <img
+                                                    src={user.avatarUrl || "/default-avatar.png"}
+                                                    alt={user.fullName || 'Avatar'}
+                                                    className="h-full w-full object-cover"
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                                                />
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="truncate font-black text-slate-900" title={user.fullName || 'Chưa cập nhật tên'}>

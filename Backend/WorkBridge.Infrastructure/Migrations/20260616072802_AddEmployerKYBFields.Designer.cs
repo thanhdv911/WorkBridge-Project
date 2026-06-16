@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkBridge.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using WorkBridge.Infrastructure.Data;
 namespace WorkBridge.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkBridgeContext))]
-    partial class WorkBridgeContextModelSnapshot : ModelSnapshot
+    [Migration("20260616072802_AddEmployerKYBFields")]
+    partial class AddEmployerKYBFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -776,9 +779,6 @@ namespace WorkBridge.Infrastructure.Migrations
 
                     b.Property<int?>("Vacancies")
                         .HasColumnType("int");
-
-                    b.Property<string>("WorkingHours")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("JobPostId")
                         .HasName("PK__JobPosts__57689C3A02B54011");

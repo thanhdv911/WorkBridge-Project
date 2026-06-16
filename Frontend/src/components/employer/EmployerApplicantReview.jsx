@@ -433,9 +433,18 @@ const EmployerApplicantReview = () => {
                                 <div className="grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_auto] gap-4 md:items-center min-w-0">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-black shrink-0">
-                                                {app.applicantName?.charAt(0) || 'A'}
-                                            </div>
+                                            {app.applicantAvatarUrl ? (
+                                                <img 
+                                                    src={app.applicantAvatarUrl.startsWith('http') ? app.applicantAvatarUrl : `${API_BASE_URL}${app.applicantAvatarUrl}`} 
+                                                    alt={app.applicantName} 
+                                                    className="w-11 h-11 rounded-xl object-cover shrink-0 shadow-sm border border-slate-200" 
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }} 
+                                                />
+                                            ) : (
+                                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-black shrink-0 shadow-sm">
+                                                    {app.applicantName?.charAt(0) || 'A'}
+                                                </div>
+                                            )}
                                             <div className="min-w-0">
                                                 <p className="font-bold text-slate-800 truncate">{app.applicantName}</p>
                                                 <p className="text-xs text-slate-800 truncate">{app.applicantEmail}</p>
@@ -464,9 +473,18 @@ const EmployerApplicantReview = () => {
                 {selectedApp ? (
                     <div className="space-y-6">
                         <div className="text-center">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl font-black mx-auto mb-4 shadow-lg shadow-primary/20">
-                                {selectedApp.applicantName?.charAt(0) || 'A'}
-                            </div>
+                            {selectedApp.applicantAvatarUrl ? (
+                                <img 
+                                    src={selectedApp.applicantAvatarUrl.startsWith('http') ? selectedApp.applicantAvatarUrl : `${API_BASE_URL}${selectedApp.applicantAvatarUrl}`} 
+                                    alt={selectedApp.applicantName} 
+                                    className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 shadow-lg shadow-slate-200/50 border border-slate-200" 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }} 
+                                />
+                            ) : (
+                                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl font-black mx-auto mb-4 shadow-lg shadow-primary/20">
+                                    {selectedApp.applicantName?.charAt(0) || 'A'}
+                                </div>
+                            )}
                             <h3 className="text-xl font-black text-slate-800 tracking-tight break-words">{selectedApp.applicantName}</h3>
                             <p className="text-slate-800 text-sm font-medium break-all">{selectedApp.applicantEmail}</p>
                             <div className="mt-3 flex flex-col items-center gap-1.5">
@@ -491,7 +509,7 @@ const EmployerApplicantReview = () => {
 
                         <div className="space-y-4">
                             <section>
-                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Lời nhắn kèm theo</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Lời nhắn kèm theo</label>
                                 <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-800 leading-relaxed italic border border-slate-100/80 break-words">
                                     "{selectedApp.coverMessage || 'Không có lời nhắn kèm theo.'}"
                                 </div>
@@ -499,7 +517,7 @@ const EmployerApplicantReview = () => {
 
                             {selectedApp.cvUrl && (
                                 <section>
-                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">CV / Hồ sơ</label>
+                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">CV / Hồ sơ</label>
                                     <a
                                         href={`${API_BASE_URL}${selectedApp.cvUrl}`}
                                         target="_blank"
@@ -521,7 +539,7 @@ const EmployerApplicantReview = () => {
                             )}
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Kỹ năng</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Kỹ năng</label>
                                 {skills.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {skills.slice(0, 8).map((skill, index) => (
@@ -536,7 +554,7 @@ const EmployerApplicantReview = () => {
                             </section>
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Kinh nghiệm</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Kinh nghiệm</label>
                                 {experiences.length > 0 ? (
                                     <div className="space-y-2">
                                         {experiences.slice(0, 3).map((experience, index) => (
@@ -552,7 +570,7 @@ const EmployerApplicantReview = () => {
                             </section>
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Đánh giá gần đây</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Đánh giá gần đây</label>
                                 {recentReviews.length > 0 ? (
                                     <div className="space-y-2">
                                         {recentReviews.slice(0, 2).map((review, index) => (
@@ -761,7 +779,7 @@ const EmployerApplicantReview = () => {
                                         <input type="number" min="1" max="28" value={offerForm.paydayOfMonth} onChange={(e) => setOfferForm(prev => ({ ...prev, paydayOfMonth: e.target.value }))} placeholder="Ngày nhận lương trong tháng (1 - 28)" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block">
+                                            <label className="text-[10px] font-black text-primary uppercase tracking-widest block">
                                                 Ca làm việc dự kiến
                                             </label>
                                             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-slate-50 rounded-2xl border border-slate-100">

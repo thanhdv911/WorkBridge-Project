@@ -52,6 +52,7 @@ namespace WorkBridge.Application.DTOs
         public int ApplicantId { get; set; }
         public string ApplicantName { get; set; } = string.Empty;
         public string ApplicantEmail { get; set; } = string.Empty;
+        public string? ApplicantAvatarUrl { get; set; }
         public string? ApplicantMajor { get; set; }
         public string? StudyYear { get; set; }
         public string? CoverMessage { get; set; }

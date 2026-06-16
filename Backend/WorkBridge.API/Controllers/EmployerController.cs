@@ -163,5 +163,37 @@ namespace WorkBridge.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpPost("verify")]
+        public async Task<IActionResult> SubmitVerification([FromForm] SubmitVerificationRequest request)
+        {
+            if (request.BusinessLicenseFile == null || request.BusinessLicenseFile.Length == 0) 
+                return BadRequest(new { message = "Vui lòng đính kèm Giấy phép kinh doanh." });
+            
+            if (string.IsNullOrWhiteSpace(request.TaxId))
+                return BadRequest(new { message = "Mã số thuế không được để trống." });
+
+            const long maxImageSizeBytes = 5 * 1024 * 1024; // 5MB
+            if (request.BusinessLicenseFile.Length > maxImageSizeBytes) 
+                return BadRequest(new { message = "File Giấy phép kinh doanh phải có dung lượng tối đa 5MB." });
+
+            var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".pdf", ".webp" };
+            var ext = System.IO.Path.GetExtension(request.BusinessLicenseFile.FileName).ToLower();
+            if (!allowedExtensions.Contains(ext))
+                return BadRequest(new { message = "Chỉ hỗ trợ định dạng ảnh (.png, .jpg) hoặc file PDF." });
+
+            try
+            {
+                var userId = GetUserId();
+                var success = await _employerService.SubmitVerificationAsync(userId, request);
+                if (!success) return NotFound(new { message = "Không tìm thấy hồ sơ nhà tuyển dụng." });
+
+                return Ok(new { message = "Hồ sơ xác thực đã được gửi và đang chờ duyệt." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

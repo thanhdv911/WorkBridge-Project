@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import HeaderActions from './HeaderActions';
 
 const statusLabel = (status) => {
     if (status === 'Resolved') return 'Đã giải quyết';
@@ -88,50 +89,41 @@ const AdminReports = () => {
 
     return (
         <div className="space-y-5 anim-fadeUp">
-            <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                    <div>
-                        <h2 className="text-xl font-black tracking-tight text-slate-950">Báo cáo hệ thống</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-700">
-                            Quản lý khiếu nại của người dùng và nội dung cần kiểm tra.
-                        </p>
-                    </div>
+            <HeaderActions>
+                <div className="flex items-center gap-3">
+                    <label className="relative block">
+                        <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
+                        <input
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            className="h-10 w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+                            placeholder="Tìm báo cáo, người gửi, lý do"
+                        />
+                    </label>
 
-                    <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
-                        <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
-                            <input
-                                value={query}
-                                onChange={(event) => setQuery(event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
-                                placeholder="Tìm báo cáo, người gửi, lý do"
-                            />
-                        </label>
-
-                        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
-                            {[
-                                ['All', 'Tất cả'],
-                                ['Pending', 'Chờ'],
-                                ['Resolved', 'Xong'],
-                                ['Ignored', 'Bỏ qua']
-                            ].map(([value, label]) => (
-                                <button
-                                    key={value}
-                                    type="button"
-                                    onClick={() => setStatusFilter(value)}
-                                    className={`h-9 rounded-lg px-3 text-xs font-black transition ${
-                                        statusFilter === value
-                                            ? 'bg-white text-primary shadow-sm'
-                                            : 'text-slate-700 hover:text-slate-900'
-                                    }`}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
+                    <div className="hidden sm:inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                        {[
+                            ['All', 'Tất cả'],
+                            ['Pending', 'Chờ'],
+                            ['Resolved', 'Xong'],
+                            ['Ignored', 'Bỏ qua']
+                        ].map(([value, label]) => (
+                            <button
+                                key={value}
+                                type="button"
+                                onClick={() => setStatusFilter(value)}
+                                className={`h-8 rounded-lg px-3 text-xs font-black transition ${
+                                    statusFilter === value
+                                        ? 'bg-white text-primary shadow-sm'
+                                        : 'text-slate-700 hover:text-slate-900'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
                     </div>
                 </div>
-            </section>
+            </HeaderActions>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {[

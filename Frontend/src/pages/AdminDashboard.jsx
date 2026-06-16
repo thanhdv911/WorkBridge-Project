@@ -7,6 +7,7 @@ import AdminOverview from '../components/admin/AdminOverview';
 import AdminReports from '../components/admin/AdminReports';
 import AdminVipPlans from '../components/admin/AdminVipPlans';
 import AdminOperations from '../components/admin/AdminOperations';
+import AdminEmployerVerifications from '../components/admin/AdminEmployerVerifications';
 
 const tabs = [
     {
@@ -64,6 +65,14 @@ const tabs = [
         icon: 'report_problem',
         description: 'Xử lý khiếu nại và nội dung cần kiểm tra.',
         metric: 'Review'
+    },
+    {
+        id: 'verifications',
+        label: 'Duyệt KYB',
+        shortLabel: 'KYB',
+        icon: 'verified_user',
+        description: 'Phê duyệt giấy phép kinh doanh của nhà tuyển dụng.',
+        metric: 'KYB'
     }
 ];
 
@@ -72,6 +81,8 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const isAdmin = localStorage.getItem('role') === 'Admin';
+
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -91,101 +102,83 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="admin-shell">
-            <div className="admin-ambient" aria-hidden="true" />
+        <div className="min-h-screen bg-slate-50 flex">
+            {/* Overlay for mobile menu */}
+            {isMobileMenuOpen && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
 
-            <div className="admin-layout">
-                <aside className="admin-sidebar" aria-label="Khu vực quản trị">
-                    <div className="admin-sidebar-card">
-                        <div className="admin-brand-panel">
-                            <div className="admin-brand-icon">
-                                <span className="material-symbols-outlined">admin_panel_settings</span>
-                            </div>
-                            <div>
-                                <p>WorkBridge Admin</p>
-                                <h1>Quản trị hệ thống</h1>
-                            </div>
-                        </div>
-
-                        <nav className="admin-nav">
-                            {tabs.map((tab) => {
-                                const isActive = activeTab === tab.id;
-
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        type="button"
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`admin-nav-item ${isActive ? 'is-active' : ''}`}
-                                        aria-current={isActive ? 'page' : undefined}
-                                    >
-                                        <span className="admin-nav-icon material-symbols-outlined">{tab.icon}</span>
-                                        <span className="admin-nav-copy">
-                                            <span>{tab.label}</span>
-                                            <small>{tab.metric}</small>
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </nav>
-                    </div>
-                </aside>
-
-                <div className="admin-content">
-                    <nav className="admin-mobile-tabs" aria-label="Khu vực quản trị trên di động">
-                        {tabs.map((tab) => {
-                            const isActive = activeTab === tab.id;
-
-                            return (
-                                <button
-                                    key={tab.id}
-                                    type="button"
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={isActive ? 'is-active' : ''}
-                                >
-                                    <span className="material-symbols-outlined">{tab.icon}</span>
-                                    {tab.shortLabel}
-                                </button>
-                            );
-                        })}
-                    </nav>
-
-                    <section className="admin-page-header">
-                        <div className="admin-page-title">
-                            <span className="admin-section-pill">
-                                <span className="material-symbols-outlined">{activeTabConfig.icon}</span>
-                                {activeTabConfig.shortLabel}
-                            </span>
-                            <h2>{activeTabConfig.label}</h2>
-                            <p>{activeTabConfig.description}</p>
-                        </div>
-
-                        <div className="admin-actions">
-                            <button type="button" onClick={() => navigate('/')}>
-                                <span className="material-symbols-outlined">home</span>
-                                Trang chính
-                            </button>
-                            <button type="button" onClick={() => setActiveTab('jobs')}>
-                                <span className="material-symbols-outlined">fact_check</span>
-                                Duyệt tin
-                            </button>
-                            <button type="button" className="is-primary" onClick={() => setActiveTab('reports')}>
-                                <span className="material-symbols-outlined">report_problem</span>
-                                Báo cáo
-                            </button>
-                        </div>
-                    </section>
-
-                    <main className="admin-panel">
-                        {activeTab === 'overview' && <AdminOverview />}
-                        {activeTab === 'users' && <AdminUsers />}
-                        {activeTab === 'jobs' && <AdminJobs />}
-                        {activeTab === 'categories' && <AdminCategories />}
-                        {activeTab === 'vip-plans' && <AdminVipPlans />}
-                        {activeTab === 'operations' && <AdminOperations />}
-                        {activeTab === 'reports' && <AdminReports />}
-                    </main>
+            {/* Fixed Sidebar */}
+            <aside className={`w-64 fixed inset-y-0 left-0 bg-white border-r border-slate-200 shadow-sm z-50 flex flex-col transform transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 shrink-0">
+                    <span className="text-xl font-black text-primary tracking-tight">WorkBridge <span className="text-slate-800">Admin</span></span>
+                    <button 
+                        className="lg:hidden p-1 text-slate-500 hover:text-slate-800"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                 </div>
+                <nav className="flex-1 overflow-y-auto p-4 flex flex-col gap-1.5 scrollbar-none">
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => {
+                                    setActiveTab(tab.id);
+                                    setIsMobileMenuOpen(false);
+                                }}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                                    isActive 
+                                    ? 'bg-primary/10 text-primary' 
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
+                            >
+                                <span className={`material-symbols-outlined !text-[18px] ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+                                    {tab.icon}
+                                </span>
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </nav>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1 lg:ml-64 flex flex-col min-h-screen relative w-full">
+                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <button 
+                            className="lg:hidden p-1 text-slate-500 hover:text-slate-800 flex items-center justify-center"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <span className="material-symbols-outlined !text-2xl">menu</span>
+                        </button>
+                        <div className="flex flex-col">
+                            <h2 className="text-lg font-bold text-slate-800 leading-tight">{activeTabConfig.label}</h2>
+                            <p className="text-xs font-medium text-slate-500 hidden sm:block">{activeTabConfig.description}</p>
+                        </div>
+                    </div>
+                    <div id="admin-header-actions" className="flex items-center gap-2 sm:gap-3">
+                    </div>
+                </header>
+
+                {/* Page Content */}
+                <main className="p-6 flex-1 max-w-[1400px] w-full mx-auto">
+                    {activeTab === 'overview' && <AdminOverview />}
+                    {activeTab === 'users' && <AdminUsers />}
+                    {activeTab === 'jobs' && <AdminJobs />}
+                    {activeTab === 'categories' && <AdminCategories />}
+                    {activeTab === 'vip-plans' && <AdminVipPlans />}
+                    {activeTab === 'operations' && <AdminOperations />}
+                    {activeTab === 'reports' && <AdminReports />}
+                    {activeTab === 'verifications' && <AdminEmployerVerifications />}
+                </main>
             </div>
         </div>
     );

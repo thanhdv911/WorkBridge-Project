@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import api, { getApiErrorMessage } from '../../services/api';
 import toast from 'react-hot-toast';
 import { translateCategory } from '../../utils/translate';
+import HeaderActions from './HeaderActions';
 
 const AdminCategories = () => {
     const [categories, setCategories] = useState([]);
@@ -103,36 +104,27 @@ const AdminCategories = () => {
 
     return (
         <div className="space-y-5 anim-fadeUp">
-            <section className="rounded-[24px] border border-white/80 bg-white p-5 shadow-sm">
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                    <div>
-                        <h2 className="text-xl font-black tracking-tight text-slate-950">Danh mục công việc</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-700">
-                            Quản lý nhóm ngành để người tìm việc lọc tin nhanh và chính xác hơn.
-                        </p>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
-                        <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
-                            <input
-                                value={query}
-                                onChange={(event) => setQuery(event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
-                                placeholder="Tìm danh mục"
-                            />
-                        </label>
-                        <button
-                            type="button"
-                            onClick={() => handleOpenModal()}
-                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary-dk active:translate-y-0"
-                        >
-                            <span className="material-symbols-outlined !text-[20px]">add</span>
-                            Danh mục mới
-                        </button>
-                    </div>
+            <HeaderActions>
+                <div className="flex items-center gap-3">
+                    <label className="relative block">
+                        <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
+                        <input
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            className="h-10 w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+                            placeholder="Tìm danh mục"
+                        />
+                    </label>
+                    <button
+                        type="button"
+                        onClick={() => handleOpenModal()}
+                        className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-black text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary-dk active:translate-y-0"
+                    >
+                        <span className="material-symbols-outlined !text-[18px]">add</span>
+                        Danh mục mới
+                    </button>
                 </div>
-            </section>
+            </HeaderActions>
 
             {filteredCategories.length === 0 ? (
                 <div className="rounded-[28px] border border-white/80 bg-white px-6 py-16 text-center shadow-sm">
@@ -141,39 +133,44 @@ const AdminCategories = () => {
                     <p className="mt-1 text-xs font-semibold text-slate-800">Tạo danh mục mới hoặc đổi từ khóa tìm kiếm.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                     {filteredCategories.map((category) => (
-                        <article key={category.categoryId} className="group rounded-[24px] border border-white/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                        <article 
+                            key={category.categoryId} 
+                            className="group flex items-center justify-between rounded-[20px] border border-slate-100 bg-white p-3 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                        >
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-slate-50 to-slate-100 text-slate-500 transition-colors group-hover:from-primary/10 group-hover:to-primary/5 group-hover:text-primary">
                                     <span className="material-symbols-outlined !text-[24px]">category</span>
                                 </div>
-                                <div className="flex gap-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenModal(category)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-700 ring-1 ring-slate-100 transition hover:bg-primary/10 hover:text-primary"
-                                        aria-label="Chỉnh sửa danh mục"
-                                    >
-                                        <span className="material-symbols-outlined !text-[18px]">edit</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(category.categoryId)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-600 hover:text-white"
-                                        aria-label="Xóa danh mục"
-                                    >
-                                        <span className="material-symbols-outlined !text-[18px]">delete</span>
-                                    </button>
+                                <div className="min-w-0">
+                                    <h3 className="truncate text-sm font-black text-slate-900 group-hover:text-primary transition-colors">
+                                        {translateCategory(category.name)}
+                                    </h3>
+                                    <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500">
+                                        {category.description || 'Chưa có mô tả'}
+                                    </p>
                                 </div>
                             </div>
-
-                            <h3 className="mt-5 text-lg font-black tracking-tight text-slate-950">
-                                {translateCategory(category.name)}
-                            </h3>
-                            <p className="mt-2 line-clamp-3 min-h-[3.9rem] text-sm font-medium leading-relaxed text-slate-700">
-                                {category.description || 'Chưa có mô tả.'}
-                            </p>
+                            
+                            <div className="ml-3 flex shrink-0 items-center gap-1 opacity-100 transition-opacity xl:opacity-0 xl:group-hover:opacity-100">
+                                <button
+                                    type="button"
+                                    onClick={() => handleOpenModal(category)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-600"
+                                    aria-label="Chỉnh sửa"
+                                >
+                                    <span className="material-symbols-outlined !text-[16px]">edit</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleDelete(category.categoryId)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                    aria-label="Xóa"
+                                >
+                                    <span className="material-symbols-outlined !text-[16px]">delete</span>
+                                </button>
+                            </div>
                         </article>
                     ))}
                 </div>

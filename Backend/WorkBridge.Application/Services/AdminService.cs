@@ -58,6 +58,7 @@ namespace WorkBridge.Application.Services
                     Email = u.Email,
                     FullName = u.FullName,
                     RoleName = roleName,
+                    AvatarUrl = u.AvatarUrl,
                     Status = u.Status,
                     ReputationScore = roleName == "Employer"
                         ? u.EmployerProfile != null ? u.EmployerProfile.ReputationScore : null
@@ -373,6 +374,51 @@ namespace WorkBridge.Application.Services
 
             report.Status = status;
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Employer Verifications
+        public async Task<IEnumerable<AdminEmployerVerificationResponse>> GetPendingVerificationsAsync()
+        {
+            var pending = await _context.EmployerProfiles
+                .Include(p => p.Employer)
+                .Where(p => p.VerificationStatus == "Pending" && p.TaxId != null && p.BusinessLicenseUrl != null)
+                .OrderBy(p => p.Employer.CreatedAt)
+                .Select(p => new AdminEmployerVerificationResponse
+                {
+                    EmployerId = p.EmployerId,
+                    CompanyName = p.CompanyName,
+                    ContactEmail = p.ContactEmail,
+                    TaxId = p.TaxId,
+                    BusinessLicenseUrl = p.BusinessLicenseUrl,
+                    VerificationStatus = p.VerificationStatus,
+                    CreatedAt = p.Employer.CreatedAt
+                })
+                .ToListAsync();
+
+            return pending;
+        }
+
+        public async Task<bool> ReviewEmployerVerificationAsync(int employerId, string status)
+        {
+            var profile = await _context.EmployerProfiles.FindAsync(employerId);
+            if (profile == null) return false;
+
+            profile.VerificationStatus = status;
+            await _context.SaveChangesAsync();
+
+            // Notify employer
+            string title = status == "Verified" ? "Xác thực doanh nghiệp thành công" : "Xác thực doanh nghiệp bị từ chối";
+            string msg = status == "Verified" 
+                ? "Hồ sơ doanh nghiệp của bạn đã được xác thực thành công. Bạn hiện có thể đăng tin tuyển dụng." 
+                : "Hồ sơ doanh nghiệp của bạn không hợp lệ hoặc thiếu thông tin. Vui lòng cập nhật lại giấy phép kinh doanh.";
+            
+            try 
+            {
+                await _notificationService.CreateNotificationAsync(employerId, title, msg);
+            } 
+            catch { }
+
             return true;
         }
     }

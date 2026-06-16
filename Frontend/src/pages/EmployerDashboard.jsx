@@ -15,6 +15,7 @@ import EmployerShifts from '../components/employer/EmployerShifts';
 import EmployerPayroll from '../components/employer/EmployerPayroll';
 import EmployerInterviews from '../components/employer/EmployerInterviews';
 import EmployerVipTab from '../components/employer/EmployerVipTab';
+import EmployerVerification from '../components/employer/EmployerVerification';
 
 export default function EmployerDashboard() {
   const { logoutUser } = useAuthModal();
@@ -40,8 +41,7 @@ export default function EmployerDashboard() {
 
   const [statsData, setStatsData] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
-
-  // VIP Promo Banner States removed
+  const [profileData, setProfileData] = useState(null);
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -61,10 +61,6 @@ export default function EmployerDashboard() {
         const response = await api.get('/subscriptions/status');
         const vip = response.data.isVip;
         localStorage.setItem('isVip', vip ? 'true' : 'false');
-
-        if (!vip) {
-          // VIP banner logic removed
-        }
       } catch (error) {
         console.error('Error checking VIP for banner:', error);
       }
@@ -72,10 +68,10 @@ export default function EmployerDashboard() {
 
     if (token && isEmployer) {
       fetchDashboardStats();
+      fetchProfileData();
       checkVipAndShowBanner();
     }
   }, [token, isEmployer]);
-
 
   const fetchDashboardStats = async () => {
     try {
@@ -85,6 +81,15 @@ export default function EmployerDashboard() {
       console.error('Error fetching dashboard stats:', error);
     } finally {
       setLoadingStats(false);
+    }
+  };
+
+  const fetchProfileData = async () => {
+    try {
+      const response = await api.get('/employer/profile');
+      setProfileData(response.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
@@ -165,6 +170,24 @@ export default function EmployerDashboard() {
       </section>
 
       <div className="applicant-page-content mx-auto mb-8 w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        {profileData && profileData.verificationStatus !== 'Verified' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-amber-500 mt-0.5">warning</span>
+              <div>
+                <h3 className="text-amber-800 font-semibold text-sm">Hồ sơ doanh nghiệp chưa được xác thực</h3>
+                <p className="text-amber-700 text-sm mt-0.5">Bạn cần tải lên Giấy phép kinh doanh để được xác thực tài khoản. Tài khoản chưa xác thực sẽ không thể đăng tin tuyển dụng công khai.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => handleTabChange('verification')}
+              className="whitespace-nowrap px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition-colors shadow-sm shadow-amber-500/20"
+            >
+              Xác thực ngay
+            </button>
+          </div>
+        )}
+
         <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4 pb-4 lg:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {stats.map((stat, idx) => (
             <div key={idx} className="applicant-card anim-fadeUp card-lift p-6 flex flex-col justify-center gap-1.5 flex-shrink-0 snap-start w-[260px] lg:w-auto border border-slate-200/60 bg-white/50 backdrop-blur-xl" style={{animationDelay: `${idx * 0.12}s`}}>
@@ -178,7 +201,7 @@ export default function EmployerDashboard() {
       <div className="mx-auto grid w-full max-w-[1440px] min-w-0 gap-6 px-4 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8">
         <aside className="profile-sidebar-card h-fit rounded-2xl p-2 lg:p-3 lg:sticky lg:top-24 flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           
-          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-2 pb-1">Quản lý chung</div>
+          <div className="hidden lg:block text-[10px] font-black text-primary uppercase tracking-widest px-4 pt-2 pb-1">Quản lý chung</div>
           
           <button
             onClick={() => handleTabChange('profile')}
@@ -194,7 +217,14 @@ export default function EmployerDashboard() {
             <span className="material-symbols-outlined !text-lg text-inherit">workspace_premium</span>Doanh nghiệp VIP
           </button>
 
-          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Tuyển dụng</div>
+          <button
+            onClick={() => handleTabChange('verification')}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'verification' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">verified_user</span>Xác thực (KYB)
+          </button>
+
+          <div className="hidden lg:block text-[10px] font-black text-primary uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Tuyển dụng</div>
 
           <button
             onClick={() => handleTabChange('post-job')}
@@ -231,7 +261,7 @@ export default function EmployerDashboard() {
             <span className="material-symbols-outlined !text-lg text-inherit">contract</span>Lời mời
           </button>
 
-          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Vận hành nội bộ</div>
+          <div className="hidden lg:block text-[10px] font-black text-primary uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Vận hành nội bộ</div>
 
           <button
             onClick={() => handleTabChange('branches')}
@@ -274,6 +304,7 @@ export default function EmployerDashboard() {
 
         <main className="min-w-0">
           {activeTab === 'profile' && <EmployerProfileTab />}
+          {activeTab === 'verification' && <EmployerVerification />}
           {activeTab === 'post-job' && (
             <EmployerJobForm
               editingJobId={searchParams.get('editId')}

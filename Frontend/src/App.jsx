@@ -158,9 +158,10 @@ function App() {
   const isAuthPage = ['/login', '/signup', '/auth', '/reset-password'].includes(location.pathname);
   const isSystemPage = location.pathname === '/maintenance';
   const appShellRoutes = ['/messages', '/employer-dashboard', '/admin-dashboard'];
+  const userRole = localStorage.getItem('role');
   const hideHeader = isAuthPage || isSystemPage;
   const hideFooter = isAuthPage || isSystemPage || appShellRoutes.includes(location.pathname);
-  const hideAiWidget = isAuthPage || isSystemPage || location.pathname === '/messages';
+  const hideAiWidget = isAuthPage || isSystemPage || location.pathname === '/messages' || userRole === 'Admin';
   const hideVipPromo = isAuthPage || isSystemPage || location.pathname === '/admin-dashboard';
 
   return (

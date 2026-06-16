@@ -267,6 +267,7 @@ namespace WorkBridge.Application.Services
                     ApplicantId = a.ApplicantId,
                     ApplicantName = a.Applicant.Applicant.FullName,
                     ApplicantEmail = a.Applicant.Applicant.Email,
+                    ApplicantAvatarUrl = a.Applicant.Applicant.AvatarUrl,
                     ApplicantMajor = a.Applicant.Major,
                     StudyYear = a.Applicant.StudyYear,
                     CoverMessage = a.CoverMessage,

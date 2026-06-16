@@ -264,6 +264,9 @@ public partial class WorkBridgeContext : DbContext, IWorkBridgeContext
             entity.Property(e => e.ContactEmail).HasMaxLength(255);
             entity.Property(e => e.ContactPhone).HasMaxLength(20);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.VerificationStatus).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.TaxId).HasMaxLength(50);
+            entity.Property(e => e.BusinessLicenseUrl).HasMaxLength(500);
 
             entity.HasOne(d => d.Employer).WithOne(p => p.EmployerProfile)
                 .HasForeignKey<EmployerProfile>(d => d.EmployerId)

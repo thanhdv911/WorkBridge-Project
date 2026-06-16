@@ -318,12 +318,14 @@ export default function Header() {
 
           {/* ── Desktop Nav ── */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
-            <Link
-              to="/"
-              className={`${NAV_LINK_BASE} ${isActive('/') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-800 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
-            >
-              Trang chủ
-            </Link>
+            {userRole !== 'Admin' && (
+              <Link
+                to="/"
+                className={`${NAV_LINK_BASE} ${isActive('/') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
+              >
+                Trang chủ
+              </Link>
+            )}
 
             {userRole !== 'Employer' && userRole !== 'Admin' && (
               <>
@@ -347,7 +349,7 @@ export default function Header() {
 
                   <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1.5 block">
+                      <span className="text-[9px] font-black text-primary uppercase tracking-widest px-2.5 mb-1.5 block">
                         Danh mục việc làm
                       </span>
                       {categories.length > 0 ? (
@@ -392,7 +394,7 @@ export default function Header() {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Job Hunting */}
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1 block">
+                      <span className="text-[9px] font-black text-primary uppercase tracking-widest px-2.5 mb-1 block">
                         Tìm việc
                       </span>
                       {[
@@ -417,7 +419,7 @@ export default function Header() {
                     </div>
                     {/* Active Work */}
                     <div className="flex flex-col gap-1.5 border-l border-sky-100/80 pl-4">
-                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1 block">
+                      <span className="text-[9px] font-black text-primary uppercase tracking-widest px-2.5 mb-1 block">
                         Công việc
                       </span>
                       {[
@@ -446,7 +448,7 @@ export default function Header() {
               <>
                 <Link
                   to="/employer-dashboard"
-                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-800 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
+                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
                 >
                   Quản lý tuyển dụng
                 </Link>
@@ -501,7 +503,7 @@ export default function Header() {
                     className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                       isActive('/messages')
                         ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
-                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-800' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
                     }`}
                     title="Tin nhắn"
                   >
@@ -518,7 +520,7 @@ export default function Header() {
                     className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                       showNotifDropdown
                         ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
-                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-800' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
                     }`}
                     title="Thông báo"
                   >
@@ -641,7 +643,7 @@ export default function Header() {
             )}
 
             {/* Are you an employer? CTA */}
-            {isLoggedIn && userRole !== 'Employer' && (
+            {isLoggedIn && userRole !== 'Employer' && userRole !== 'Admin' && (
               <>
                 <div className="h-8 w-px bg-slate-200/80 mx-1 hidden sm:block"></div>
                 <Link
@@ -699,7 +701,9 @@ export default function Header() {
 
         {/* Drawer Nav */}
         <nav className="px-4 py-4 flex flex-col gap-1">
-          <MobileNavLink to="/" icon="home" label="Trang chủ" active={isActive('/')} />
+          {userRole !== 'Admin' && (
+            <MobileNavLink to="/" icon="home" label="Trang chủ" active={isActive('/')} />
+          )}
 
           {userRole !== 'Employer' && userRole !== 'Admin' && (
             <>
@@ -760,13 +764,13 @@ export default function Header() {
 
                 <div className={`overflow-hidden transition-all duration-300 ${mobileWorkspaceOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="pl-4 pt-1 pb-2 flex flex-col gap-0.5">
-                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-3 py-2">Tìm việc</span>
+                    <span className="text-[9px] font-black text-primary uppercase tracking-widest px-3 py-2">Tìm việc</span>
                     <MobileNavLink to="/my-applications" icon="assignment" label="Đơn ứng tuyển" active={isActive('/my-applications')} indent />
                     <MobileNavLink to="/saved-jobs" icon="bookmark" label="Việc đã lưu" active={isActive('/saved-jobs')} indent />
                     <MobileNavLink to="/offers" icon="local_offer" label="Lời mời nhận việc" active={isActive('/offers')} indent />
                     <MobileNavLink to="/interviews" icon="event_available" label="Phỏng vấn" active={isActive('/interviews')} indent />
 
-                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-3 py-2 mt-1">Công việc</span>
+                    <span className="text-[9px] font-black text-primary uppercase tracking-widest px-3 py-2 mt-1">Công việc</span>
                     <MobileNavLink to="/my-work" icon="calendar_month" label="Ca của tôi" active={isActive('/my-work')} indent />
                     <MobileNavLink to="/payslips" icon="receipt_long" label="Phiếu lương" active={isActive('/payslips')} indent />
                   </div>

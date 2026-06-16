@@ -54,7 +54,7 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
     <aside className="profile-sidebar-card anim-fadeUp h-fit rounded-2xl p-5">
       <div className="space-y-5">
         <section className="space-y-3">
-          <h3 className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-700">
+          <h3 className="flex items-center gap-1.5 text-xs font-black uppercase text-primary">
             <span className="material-symbols-outlined text-primary !text-lg">contact_mail</span>
             Thông tin liên hệ
           </h3>
@@ -80,7 +80,7 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
 
         {isOwnProfile && (
           <section className="space-y-3 border-t border-slate-200/70 pt-5">
-            <h3 className="text-xs font-black uppercase text-slate-700">Điều hướng nhanh</h3>
+            <h3 className="text-xs font-black uppercase text-primary">Điều hướng nhanh</h3>
             <nav className="space-y-1">
               {userRole !== 'Admin' && quickLinks.map((link) => (
                 <NavLink

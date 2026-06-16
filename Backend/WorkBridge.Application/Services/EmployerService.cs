@@ -137,6 +137,11 @@ namespace WorkBridge.Application.Services
                 throw new Exception("Doanh nghiệp của bạn đã bị tạm ngưng hoạt động do điểm uy tín quá thấp.");
             }
 
+            if (profile.VerificationStatus != "Verified")
+            {
+                throw new Exception("Tài khoản doanh nghiệp chưa được xác thực (KYB). Vui lòng tải lên Giấy phép kinh doanh để được đăng tin tuyển dụng.");
+            }
+
             // Enforce maximum 2 jobs posted for standard (non-VIP) employers
             var now = DateTime.UtcNow;
             var isVip = await HasActiveEmployerVipAsync(userId, now);
@@ -171,6 +176,7 @@ namespace WorkBridge.Application.Services
                 Description = request.Description,
                 Requirements = request.Requirements,
                 Benefits = request.Benefits,
+                WorkingHours = request.WorkingHours,
                 Status = canAutoPublishJob ? "Published" : "Pending",
                 IsDeleted = false,
                 IsFeatured = isVip,
@@ -244,6 +250,7 @@ namespace WorkBridge.Application.Services
                      PayRate = j.PayRate,
                      PayUnit = j.PayUnit,
                      Description = j.Description,
+                     WorkingHours = j.WorkingHours,
                      Status = j.Status,
                      CreatedAt = j.CreatedAt,
                      IsFeatured = j.IsFeatured || isVip,
@@ -270,6 +277,11 @@ namespace WorkBridge.Application.Services
                 throw new Exception("Doanh nghiệp của bạn đã bị tạm ngưng hoạt động do điểm uy tín quá thấp.");
             }
 
+            if (profile.VerificationStatus != "Verified")
+            {
+                throw new Exception("Tài khoản doanh nghiệp chưa được xác thực (KYB). Vui lòng tải lên Giấy phép kinh doanh để được quản lý tin tuyển dụng.");
+            }
+
             var job = await _context.JobPosts
                 .Include(j => j.Shifts)
                 .FirstOrDefaultAsync(j => j.JobPostId == jobId && j.EmployerId == profile.EmployerId && !j.IsDeleted);
@@ -294,6 +306,7 @@ namespace WorkBridge.Application.Services
             job.Description = request.Description;
             job.Requirements = request.Requirements;
             job.Benefits = request.Benefits;
+            job.WorkingHours = request.WorkingHours;
             var now = DateTime.UtcNow;
             var isVip = await HasActiveEmployerVipAsync(userId, now);
             var canAutoPublishJob = await HasActiveAnnualEmployerVipAsync(userId, now);
@@ -443,6 +456,39 @@ namespace WorkBridge.Application.Services
             await _context.SaveChangesAsync();
 
             return relativeUrl;
+        }
+
+        public async Task<bool> SubmitVerificationAsync(int userId, SubmitVerificationRequest request)
+        {
+            var user = await _context.Users
+                .Include(u => u.EmployerProfile)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null || user.EmployerProfile == null) return false;
+
+            if (request.BusinessLicenseFile != null)
+            {
+                var ext = System.IO.Path.GetExtension(request.BusinessLicenseFile.FileName).ToLower();
+                var fileName = $"license_{userId}_{System.Guid.NewGuid()}{ext}";
+
+                var uploadsFolder = System.IO.Path.Combine(UploadStorage.ResolveUploadsRoot(_hostEnvironment.ContentRootPath), "verifications");
+                if (!System.IO.Directory.Exists(uploadsFolder))
+                    System.IO.Directory.CreateDirectory(uploadsFolder);
+
+                var filePath = System.IO.Path.Combine(uploadsFolder, fileName);
+                using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+                {
+                    await request.BusinessLicenseFile.CopyToAsync(stream);
+                }
+
+                user.EmployerProfile.BusinessLicenseUrl = $"/uploads/verifications/{fileName}";
+            }
+
+            user.EmployerProfile.TaxId = request.TaxId;
+            user.EmployerProfile.VerificationStatus = "Pending";
+            
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
