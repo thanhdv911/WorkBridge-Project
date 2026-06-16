@@ -256,6 +256,18 @@ namespace WorkBridge.Application.Services
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                var webAppUrl = (_config["Email:WebAppUrl"] ?? "http://127.0.0.1:5173").TrimEnd('/');
+                _emailQueue.QueueNotificationEmail(
+                    user.Email,
+                    user.FullName,
+                    "Chào mừng bạn đến với WorkBridge!",
+                    $@"Chúc mừng {user.FullName}! Bạn đã đăng ký tài khoản thành công.
+Chúng tôi rất vui mừng được đồng hành cùng bạn trên nền tảng kết nối việc làm WorkBridge.
+Hãy cập nhật hồ sơ và bắt đầu khám phá các cơ hội tuyệt vời ngay hôm nay!",
+                    $"{webAppUrl}",
+                    "Khám phá ngay"
+                );
+
                 var token = GenerateJwtToken(user, role.RoleName);
                 return (new AuthResponse
                 {
