@@ -5364,8 +5364,8 @@
 }
 
 .home-best-card-title {
-  font-size: 1.1rem;
-  font-weight: 850;
+  font-size: 1rem;
+  font-weight: 700;
   color: #0f172a;
   line-height: 1.35;
   display: -webkit-box;
@@ -5381,7 +5381,7 @@
 }
 
 .home-best-card-company {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #64748b;
   overflow: hidden;

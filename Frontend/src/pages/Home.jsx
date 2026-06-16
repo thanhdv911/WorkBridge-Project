@@ -1319,10 +1319,10 @@ function FeaturedJobCard({ job, isSaved, onToggleSave }) {
               e.stopPropagation();
               onToggleSave(job.jobPostId);
             }}
-            className={`home-best-save-btn ${isSaved ? 'is-saved' : ''}`}
+            className={`jobs-save-button ${isSaved ? 'is-saved' : ''}`}
             aria-label={isSaved ? "Bỏ lưu việc làm" : "Lưu việc làm"}
           >
-            <span className="material-symbols-outlined !text-4xl">
+            <span className="material-symbols-outlined !text-xl">
               {isSaved ? 'bookmark' : 'bookmark_border'}
             </span>
           </button>

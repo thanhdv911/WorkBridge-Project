@@ -121,11 +121,7 @@ namespace WorkBridge.Application.Services
                     <a href=""{safeUrl}"" style=""display: inline-block; background-color: #0f8fe8; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(15, 143, 232, 0.25);"">{safeActionText}</a>
                   </td>
                 </tr>
-              </table>
-              <p style=""margin: 0; font-size: 13px; color: #94a3b8; text-align: center;"">
-                Hoặc truy cập liên kết:<br>
-                <a href=""{safeUrl}"" style=""color: #0f8fe8; text-decoration: none;"">{safeUrl}</a>
-              </p>";
+              </table>";
 
             return $@"
 <!doctype html>
@@ -145,8 +141,8 @@ namespace WorkBridge.Application.Services
         <table width=""100%"" max-width=""600"" cellpadding=""0"" cellspacing=""0"" style=""max-width: 600px; margin-bottom: 24px;"">
           <tr>
             <td align=""center"">
-              <a href=""{webAppUrl}"" target=""_blank"">
-                <img src=""{webAppUrl}/workbridge-mark.png"" alt=""WorkBridge"" height=""45"" style=""display: block; border: none;"" />
+              <a href=""{webAppUrl}"" target=""_blank"" style=""text-decoration: none;"">
+                <h2 style=""margin: 0; color: #0f8fe8; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;"">WorkBridge</h2>
               </a>
             </td>
           </tr>
