@@ -41,7 +41,7 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
   const payRate = job.payRate?.toLocaleString('vi-VN') || 0;
 
   return (
-    <Link to={`/jobs/${job.jobPostId}`} className={`jobs-card !min-h-0 !h-fit ${job.isFeatured ? 'is-featured' : ''}`}>
+    <Link to={`/jobs/${job.jobPostId}`} className={`jobs-card ${job.isFeatured ? 'is-featured' : ''}`}>
       {job.isFeatured && (
         <span
           title="Tin đăng từ doanh nghiệp VIP"
@@ -98,7 +98,7 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         {job.vacancies && <span className="jobs-chip is-rose">Tuyển: {job.vacancies}</span>}
       </div>
 
-      <p className="mt-2.5 text-[13px] font-semibold text-slate-700 overflow-hidden text-ellipsis whitespace-nowrap">{job.description}</p>
+      <p className="jobs-card-description mt-2.5 text-[13px] font-semibold text-slate-700 overflow-hidden text-ellipsis whitespace-nowrap">{job.description}</p>
 
       <div className="jobs-card-footer">
         <div className="jobs-card-pay">
