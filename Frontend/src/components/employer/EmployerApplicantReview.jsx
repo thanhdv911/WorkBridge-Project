@@ -378,7 +378,7 @@ const EmployerApplicantReview = () => {
             case 'Rejected':
                 return 'bg-red-50 text-red-700 border-red-100';
             default:
-                return 'bg-slate-50 text-slate-600 border-slate-100';
+                return 'bg-slate-50 text-slate-800 border-slate-100';
         }
     };
 
@@ -397,7 +397,7 @@ const EmployerApplicantReview = () => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-12 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto"></div>
-                <p className="text-slate-500 mt-4 font-medium">Đang tải danh sách ứng viên...</p>
+                <p className="text-slate-700 mt-4 font-medium">Đang tải danh sách ứng viên...</p>
             </div>
         );
     }
@@ -408,7 +408,7 @@ const EmployerApplicantReview = () => {
             <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden anim-fadeUp flex flex-col h-full min-w-0">
                 <div className="px-5 sm:px-6 py-5 border-b border-slate-100 shrink-0">
                     <h2 className="text-xl font-bold text-slate-800">Đánh giá ứng viên</h2>
-                    <p className="text-slate-500 text-sm mt-1">Xem thông tin ứng viên, phê duyệt hồ sơ và trò chuyện.</p>
+                    <p className="text-slate-700 text-sm mt-1">Xem thông tin ứng viên, phê duyệt hồ sơ và trò chuyện.</p>
                 </div>
 
                 {applications.length === 0 ? (
@@ -417,7 +417,7 @@ const EmployerApplicantReview = () => {
                             <span className="material-symbols-outlined text-slate-300">group_off</span>
                         </div>
                         <h3 className="text-lg font-bold text-slate-700">Chưa có ứng viên nào</h3>
-                        <p className="text-slate-500 mt-1">Khi sinh viên nộp hồ sơ, họ sẽ xuất hiện tại đây.</p>
+                        <p className="text-slate-700 mt-1">Khi sinh viên nộp hồ sơ, họ sẽ xuất hiện tại đây.</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-100 overflow-y-auto flex-1 min-h-0">
@@ -438,14 +438,14 @@ const EmployerApplicantReview = () => {
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="font-bold text-slate-800 truncate">{app.applicantName}</p>
-                                                <p className="text-xs text-slate-400 truncate">{app.applicantEmail}</p>
+                                                <p className="text-xs text-slate-800 truncate">{app.applicantEmail}</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="min-w-0">
                                         <p className="text-sm font-semibold text-slate-700 truncate">{app.jobTitle}</p>
-                                        <p className="text-xs text-slate-400 truncate">{app.applicantMajor || app.university || 'Hồ sơ chưa hoàn thiện'}</p>
+                                        <p className="text-xs text-slate-800 truncate">{app.applicantMajor || app.university || 'Hồ sơ chưa hoàn thiện'}</p>
                                     </div>
 
                                     <div className="flex md:justify-end">
@@ -468,19 +468,19 @@ const EmployerApplicantReview = () => {
                                 {selectedApp.applicantName?.charAt(0) || 'A'}
                             </div>
                             <h3 className="text-xl font-black text-slate-800 tracking-tight break-words">{selectedApp.applicantName}</h3>
-                            <p className="text-slate-400 text-sm font-medium break-all">{selectedApp.applicantEmail}</p>
+                            <p className="text-slate-800 text-sm font-medium break-all">{selectedApp.applicantEmail}</p>
                             <div className="mt-3 flex flex-col items-center gap-1.5">
                                 <div className="flex items-center gap-2 justify-center">
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${getStatusColor(selectedApp.status)}`}>
                                         {getStatusText(selectedApp.status)}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-semibold">
+                                    <span className="text-xs text-slate-800 font-semibold">
                                         {Number(selectedApp.averageRating || 0).toFixed(1)} sao / {selectedApp.totalReviews || 0} đánh giá
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1.5 mt-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                                     <span className="material-symbols-outlined text-amber-500 !text-sm filled">verified_user</span>
-                                    <span className="text-xs font-black text-slate-600">
+                                    <span className="text-xs font-black text-slate-800">
                                         Uy tín: <span className={selectedApp.reputationScore >= 80 ? "text-emerald-600" : "text-rose-500"}>{selectedApp.reputationScore ?? 100} / 100</span>
                                     </span>
                                 </div>
@@ -491,15 +491,15 @@ const EmployerApplicantReview = () => {
 
                         <div className="space-y-4">
                             <section>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Lời nhắn kèm theo</label>
-                                <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-600 leading-relaxed italic border border-slate-100/80 break-words">
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Lời nhắn kèm theo</label>
+                                <div className="p-4 rounded-2xl bg-slate-50 text-sm text-slate-800 leading-relaxed italic border border-slate-100/80 break-words">
                                     "{selectedApp.coverMessage || 'Không có lời nhắn kèm theo.'}"
                                 </div>
                             </section>
 
                             {selectedApp.cvUrl && (
                                 <section>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">CV / Hồ sơ</label>
+                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">CV / Hồ sơ</label>
                                     <a
                                         href={`${API_BASE_URL}${selectedApp.cvUrl}`}
                                         target="_blank"
@@ -521,7 +521,7 @@ const EmployerApplicantReview = () => {
                             )}
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Kỹ năng</label>
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Kỹ năng</label>
                                 {skills.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {skills.slice(0, 8).map((skill, index) => (
@@ -531,39 +531,39 @@ const EmployerApplicantReview = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-slate-400">Chưa bổ sung kỹ năng.</p>
+                                    <p className="text-sm text-slate-800">Chưa bổ sung kỹ năng.</p>
                                 )}
                             </section>
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Kinh nghiệm</label>
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Kinh nghiệm</label>
                                 {experiences.length > 0 ? (
                                     <div className="space-y-2">
                                         {experiences.slice(0, 3).map((experience, index) => (
                                             <div key={experience.experienceId || index} className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
                                                 <p className="text-sm font-bold text-slate-700">{experience.title || 'Kinh nghiệm'}</p>
-                                                <p className="text-xs text-slate-400">{experience.companyName || experience.company || 'Chưa ghi rõ công ty'}</p>
+                                                <p className="text-xs text-slate-800">{experience.companyName || experience.company || 'Chưa ghi rõ công ty'}</p>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-slate-400">Chưa bổ sung kinh nghiệm.</p>
+                                    <p className="text-sm text-slate-800">Chưa bổ sung kinh nghiệm.</p>
                                 )}
                             </section>
 
                             <section>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Đánh giá gần đây</label>
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-2">Đánh giá gần đây</label>
                                 {recentReviews.length > 0 ? (
                                     <div className="space-y-2">
                                         {recentReviews.slice(0, 2).map((review, index) => (
                                             <div key={review.reviewId || index} className="rounded-2xl bg-amber-50/50 border border-amber-100 p-3">
                                                 <p className="text-xs font-black text-amber-600">{review.rating || 0}/5 sao</p>
-                                                <p className="text-xs text-slate-600 mt-1 break-words">{review.comment || 'Không có nhận xét.'}</p>
+                                                <p className="text-xs text-slate-800 mt-1 break-words">{review.comment || 'Không có nhận xét.'}</p>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-slate-400">Chưa có đánh giá nào.</p>
+                                    <p className="text-sm text-slate-800">Chưa có đánh giá nào.</p>
                                 )}
                             </section>
                         </div>
@@ -596,7 +596,7 @@ const EmployerApplicantReview = () => {
                                     {selectedApp.status !== 'Under Review' && (
                                         <button
                                             onClick={() => handleUpdateStatus(selectedApp.applicationId, 'Under Review')}
-                                            className="w-full h-11 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-200 transition-all"
+                                            className="w-full h-11 rounded-xl bg-slate-100 text-slate-800 font-bold text-sm hover:bg-slate-200 transition-all"
                                         >
                                             Đánh dấu đang xem xét
                                         </button>
@@ -701,7 +701,7 @@ const EmployerApplicantReview = () => {
                                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                         <div>
                                             <h3 className="text-xl font-bold text-slate-800">Lên lịch phỏng vấn trực tiếp</h3>
-                                            <p className="text-sm text-slate-500">Ứng viên có thể chấp nhận hoặc từ chối từ phòng chat.</p>
+                                            <p className="text-sm text-slate-700">Ứng viên có thể chấp nhận hoặc từ chối từ phòng chat.</p>
                                         </div>
                                         <button type="button" onClick={() => setShowInterviewModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
                                             <span className="material-symbols-outlined">close</span>
@@ -737,7 +737,7 @@ const EmployerApplicantReview = () => {
                                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                         <div>
                                             <h3 className="text-xl font-bold text-slate-800">Gửi lời mời nhận việc chính thức</h3>
-                                            <p className="text-sm text-slate-500">Hợp đồng lao động chỉ được tạo sau khi ứng viên chấp nhận.</p>
+                                            <p className="text-sm text-slate-700">Hợp đồng lao động chỉ được tạo sau khi ứng viên chấp nhận.</p>
                                         </div>
                                         <button type="button" onClick={() => setShowOfferModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
                                             <span className="material-symbols-outlined">close</span>
@@ -761,7 +761,7 @@ const EmployerApplicantReview = () => {
                                         <input type="number" min="1" max="28" value={offerForm.paydayOfMonth} onChange={(e) => setOfferForm(prev => ({ ...prev, paydayOfMonth: e.target.value }))} placeholder="Ngày nhận lương trong tháng (1 - 28)" className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm" />
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block">
                                                 Ca làm việc dự kiến
                                             </label>
                                             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-slate-50 rounded-2xl border border-slate-100">
@@ -774,7 +774,7 @@ const EmployerApplicantReview = () => {
                                                             className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
                                                                 isChecked
                                                                     ? 'bg-primary/5 border-primary/20 text-primary'
-                                                                    : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'
+                                                                    : 'bg-white border-slate-100 text-slate-800 hover:bg-slate-50'
                                                             }`}
                                                         >
                                                             <input
@@ -810,7 +810,7 @@ const EmployerApplicantReview = () => {
                 ) : (
                     <div className="h-96 flex flex-col items-center justify-center text-center opacity-50">
                         <span className="material-symbols-outlined !text-6xl text-slate-300 mb-4 font-thin">contact_page</span>
-                        <p className="font-bold text-slate-400">Chọn một ứng viên để xem chi tiết hồ sơ</p>
+                        <p className="font-bold text-slate-800">Chọn một ứng viên để xem chi tiết hồ sơ</p>
                     </div>
                 )}
             </aside>

@@ -44,7 +44,7 @@ export default function Contact() {
                 <span className="material-symbols-outlined !text-3xl">{icon}</span>
               </div>
               <h3 className="mb-3 text-lg font-bold text-slate-900">{title}</h3>
-              <p className="text-sm font-medium leading-relaxed text-slate-500">{text}</p>
+              <p className="text-sm font-medium leading-relaxed text-slate-700">{text}</p>
             </article>
           ))}
         </section>
@@ -57,7 +57,7 @@ export default function Contact() {
               <h2 className="mb-4 text-3xl font-black tracking-tight text-slate-900">
                 Trực tiếp với Quản trị viên
               </h2>
-              <p className="mb-8 text-base font-medium leading-relaxed text-slate-500">
+              <p className="mb-8 text-base font-medium leading-relaxed text-slate-700">
                 Đội ngũ Admin sẵn sàng hỗ trợ kiểm tra tài khoản, giải quyết khiếu nại, và hướng dẫn tính năng. Nút nhắn tin sẽ kết nối thẳng vào hệ thống trò chuyện nội bộ của WorkBridge.
               </p>
               <div className="flex flex-wrap items-center gap-4">
@@ -105,7 +105,7 @@ export default function Contact() {
         <div className="flex justify-center mt-12">
           <Link 
             to="/about" 
-            className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-5 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+            className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-5 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:bg-slate-200 hover:text-slate-900"
           >
             <span className="material-symbols-outlined !text-[18px]">arrow_back</span>
             Về trang Giới Thiệu

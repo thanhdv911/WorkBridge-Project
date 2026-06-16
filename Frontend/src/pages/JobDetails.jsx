@@ -222,7 +222,7 @@ const JobDetails = () => {
         <div className="applicant-shell min-h-screen pb-16 font-display text-slate-900 antialiased">
             {/* Breadcrumb */}
             <div className="mx-auto w-full max-w-[1440px] px-4 pt-6 sm:px-6 lg:px-8">
-                <nav className="flex items-center gap-2 text-sm text-slate-400">
+                <nav className="flex items-center gap-2 text-sm text-slate-800">
                     <Link to="/" className="hover:text-primary transition-colors">Trang chủ</Link>
                     <span className="material-symbols-outlined !text-[16px]">chevron_right</span>
                     <Link to="/jobs" className="hover:text-primary transition-colors">Tìm việc</Link>
@@ -262,7 +262,7 @@ const JobDetails = () => {
                                         </span>
                                     )}
                                 </h1>
-                                <p className="text-[13px] font-medium text-slate-500 mt-1.5 flex flex-wrap items-center gap-1.5">
+                                <p className="text-[13px] font-medium text-slate-700 mt-1.5 flex flex-wrap items-center gap-1.5">
                                     <span className="material-symbols-outlined !text-[16px]">apartment</span>{job.companyName}
                                     {job.branchName && (
                                         <>
@@ -297,22 +297,22 @@ const JobDetails = () => {
                         {/* Quick stats */}
                         <div className="mt-6 grid grid-cols-2 gap-3 border-t border-slate-200/60 pt-5 sm:grid-cols-4">
                             <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
-                                <p className="mb-1 text-xs font-medium text-slate-500">Mức lương</p>
+                                <p className="mb-1 text-xs font-medium text-slate-700">Mức lương</p>
                                 <p className="text-[17px] font-semibold tracking-tight text-slate-800">
                                     {job.payRate?.toLocaleString()}₫
-                                    <span className="text-xs font-normal text-slate-500">/{(() => { const u = translatePayUnit(job.payUnit); return u.startsWith('đ/') ? u.slice(2) : u; })()}</span>
+                                    <span className="text-xs font-normal text-slate-700">/{(() => { const u = translatePayUnit(job.payUnit); return u.startsWith('đ/') ? u.slice(2) : u; })()}</span>
                                 </p>
                             </div>
                             <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
-                                <p className="mb-1 text-xs font-medium text-slate-500">Đăng tuyển</p>
+                                <p className="mb-1 text-xs font-medium text-slate-700">Đăng tuyển</p>
                                 <p className="text-[15px] font-semibold text-slate-700 tracking-tight">{new Date(job.createdAt).toLocaleDateString('vi-VN')}</p>
                             </div>
                             <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
-                                <p className="mb-1 text-xs font-medium text-slate-500">Hạn chót</p>
+                                <p className="mb-1 text-xs font-medium text-slate-700">Hạn chót</p>
                                 <p className="text-[15px] font-semibold text-slate-700 tracking-tight">{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}</p>
                             </div>
                             <div className="rounded-2xl border border-slate-200/60 bg-white/50 p-4">
-                                <p className="mb-1 text-xs font-medium text-slate-500">Trạng thái</p>
+                                <p className="mb-1 text-xs font-medium text-slate-700">Trạng thái</p>
                                 <p className="text-[15px] font-semibold text-emerald-600 tracking-tight">Đang nhận hồ sơ</p>
                             </div>
                         </div>
@@ -324,7 +324,7 @@ const JobDetails = () => {
                             <span className="material-symbols-outlined text-primary !text-xl">description</span>
                             Mô tả công việc
                         </h2>
-                        <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                        <div className="text-sm text-slate-800 leading-relaxed whitespace-pre-line">
                             {job.description}
                         </div>
                     </div>
@@ -353,7 +353,7 @@ const JobDetails = () => {
                                         Chi nhánh: {job.branchName}
                                     </p>
                                 )}
-                                <p className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">
+                                <p className="text-sm text-slate-800 group-hover:text-slate-900 transition-colors">
                                     {job.address ? `${job.address}, ` : ''}{job.district ? `${job.district}, ` : ''}{job.city}
                                 </p>
                                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary group-hover:text-blue-600 mt-2 uppercase tracking-wider transition-colors">
@@ -379,7 +379,7 @@ const JobDetails = () => {
                                         <div>
                                             <p className="text-sm font-bold text-slate-800">{shift.shiftName}</p>
                                             {shift.startTime && (
-                                                <p className="text-xs text-slate-500">{shift.startTime} - {shift.endTime}</p>
+                                                <p className="text-xs text-slate-700">{shift.startTime} - {shift.endTime}</p>
                                             )}
                                         </div>
                                     </div>
@@ -395,7 +395,7 @@ const JobDetails = () => {
                                 <span className="material-symbols-outlined text-primary !text-xl">checklist</span>
                                 Yêu cầu công việc
                             </h2>
-                            <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                            <div className="text-sm text-slate-800 leading-relaxed whitespace-pre-line">
                                 {job.requirements}
                             </div>
                         </div>
@@ -408,7 +408,7 @@ const JobDetails = () => {
                                 <span className="material-symbols-outlined text-primary !text-xl">redeem</span>
                                 Quyền lợi
                             </h2>
-                            <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                            <div className="text-sm text-slate-800 leading-relaxed whitespace-pre-line">
                                 {job.benefits}
                             </div>
                         </div>
@@ -420,11 +420,11 @@ const JobDetails = () => {
                     {/* Apply card */}
                     <div className="profile-sidebar-card sticky top-24 rounded-2xl p-6 animate-fadeInUp">
                         <div className="text-center mb-5">
-                            <p className="text-sm font-medium text-slate-500 mb-1">Mức lương</p>
+                            <p className="text-sm font-medium text-slate-700 mb-1">Mức lương</p>
                             <p className="text-[32px] font-bold tracking-tight text-slate-800">
                                 {job.payRate?.toLocaleString()}₫
                             </p>
-                            <p className="text-[13px] font-medium text-slate-500 mt-0.5">{translatePayUnit(job.payUnit)}</p>
+                            <p className="text-[13px] font-medium text-slate-700 mt-0.5">{translatePayUnit(job.payUnit)}</p>
                         </div>
                         <button
                             onClick={handleApplyClick}
@@ -445,7 +445,7 @@ const JobDetails = () => {
                                 onClick={handleToggleSave}
                                 className={`w-full h-11 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${isSaved
                                         ? 'bg-sky-50 text-[#1392ec] border border-sky-100 shadow-sm'
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                                     }`}
                             >
                                 <span className={`material-symbols-outlined !text-xl ${isSaved ? 'filled' : ''}`}>
@@ -456,7 +456,7 @@ const JobDetails = () => {
                         )}
                         <button
                             onClick={() => setShowReportModal(true)}
-                            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest"
+                            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-800 hover:text-rose-500 transition-colors uppercase tracking-widest"
                         >
                             <span className="material-symbols-outlined !text-sm">flag</span>
                             Báo cáo việc làm này
@@ -473,7 +473,7 @@ const JobDetails = () => {
                             {/* Reputation score display */}
                             <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                                 <div className="space-y-0.5">
-                                    <p className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold">Điểm uy tín</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-slate-800 font-extrabold">Điểm uy tín</p>
                                     <p className="text-sm font-bold text-slate-700">Doanh nghiệp</p>
                                 </div>
                                 <div className="flex items-baseline gap-0.5">
@@ -486,13 +486,13 @@ const JobDetails = () => {
                                     }`}>
                                         {job.employerReputationScore ?? 100}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-medium">/100</span>
+                                    <span className="text-xs text-slate-800 font-medium">/100</span>
                                 </div>
                             </div>
 
                             {/* Status Indicator */}
                             <div className="flex items-center justify-between text-xs pt-1">
-                                <span className="text-slate-400 font-medium">Trạng thái:</span>
+                                <span className="text-slate-800 font-medium">Trạng thái:</span>
                                 {job.employerStatus === 'Suspended' ? (
                                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 border border-rose-100 animate-pulse">
                                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
@@ -517,7 +517,7 @@ const JobDetails = () => {
                                     <span className="material-symbols-outlined text-rose-500 !text-[18px] mt-0.5 animate-bounce">warning</span>
                                     <div className="text-xs">
                                         <p className="font-bold text-rose-700">Có nhiều báo cáo cần lưu ý</p>
-                                        <p className="text-slate-500 mt-1 leading-relaxed">
+                                        <p className="text-slate-700 mt-1 leading-relaxed">
                                             Doanh nghiệp này đã nhận nhiều phản ánh đáng tin cậy từ người lao động. Vui lòng xem xét kỹ trước khi hợp tác.
                                         </p>
                                     </div>
@@ -574,7 +574,7 @@ const JobDetails = () => {
                                         </>
                                     )}
                                 </button>
-                                <p className="text-[10px] text-center text-slate-400 mt-4 px-4 uppercase tracking-widest font-bold">
+                                <p className="text-[10px] text-center text-slate-800 mt-4 px-4 uppercase tracking-widest font-bold">
                                     Nhà tuyển dụng sẽ nhận được thông tin hồ sơ của bạn
                                 </p>
                             </div>
@@ -614,14 +614,14 @@ const JobDetails = () => {
                                     <p className="text-sm font-bold text-slate-700">Điểm uy tín hiện tại</p>
                                     <span className="text-2xl font-black text-primary">{profileUpdatePrompt.reputationScore ?? 80}/100</span>
                                 </div>
-                                <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-500">
+                                <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-700">
                                     {profileUpdatePrompt.message}
                                 </p>
                             </div>
 
                             {profileUpdatePrompt.missingFields?.length > 0 && (
                                 <div>
-                                    <p className="mb-2 text-xs font-black uppercase text-slate-400">Còn thiếu</p>
+                                    <p className="mb-2 text-xs font-black uppercase text-slate-800">Còn thiếu</p>
                                     <div className="flex flex-wrap gap-2">
                                         {profileUpdatePrompt.missingFields.map((field) => (
                                             <span key={field} className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">
@@ -636,7 +636,7 @@ const JobDetails = () => {
                                 <button
                                     type="button"
                                     onClick={() => setProfileUpdatePrompt(null)}
-                                    className="h-11 flex-1 rounded-xl bg-slate-100 text-sm font-bold text-slate-600 transition hover:bg-slate-200"
+                                    className="h-11 flex-1 rounded-xl bg-slate-100 text-sm font-bold text-slate-800 transition hover:bg-slate-200"
                                 >
                                     Để sau
                                 </button>

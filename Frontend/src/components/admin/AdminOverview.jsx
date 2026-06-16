@@ -173,7 +173,7 @@ const AdminOverview = () => {
                                 {card.value}
                             </p>
                             <h3 className="mt-1 text-sm font-black text-slate-700">{card.label}</h3>
-                            <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-400">{card.note}</p>
+                            <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-800">{card.note}</p>
                         </div>
                     </article>
                 ))}
@@ -184,11 +184,11 @@ const AdminOverview = () => {
                     <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h3 className="text-lg font-black tracking-tight text-slate-950">Xu hướng hoạt động</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-500">
+                            <p className="mt-1 text-sm font-medium text-slate-700">
                                 Số lượng tin tuyển dụng mới theo thời gian.
                             </p>
                         </div>
-                        <div className="inline-flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-black text-slate-500 ring-1 ring-slate-100">
+                        <div className="inline-flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-black text-slate-700 ring-1 ring-slate-100">
                             <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                             Tin tuyển dụng
                         </div>
@@ -222,8 +222,8 @@ const AdminOverview = () => {
                         ) : (
                             <div className="flex h-full flex-col items-center justify-center rounded-2xl bg-slate-50 text-center">
                                 <span className="material-symbols-outlined !text-[34px] text-slate-300">monitoring</span>
-                                <p className="mt-2 text-sm font-black text-slate-500">Chưa có dữ liệu biểu đồ</p>
-                                <p className="mt-1 text-xs font-semibold text-slate-400">Dữ liệu sẽ xuất hiện khi API trả về lịch sử tin tuyển dụng.</p>
+                                <p className="mt-2 text-sm font-black text-slate-700">Chưa có dữ liệu biểu đồ</p>
+                                <p className="mt-1 text-xs font-semibold text-slate-800">Dữ liệu sẽ xuất hiện khi API trả về lịch sử tin tuyển dụng.</p>
                             </div>
                         )}
                     </div>
@@ -232,13 +232,13 @@ const AdminOverview = () => {
                 <section className="rounded-[28px] border border-white/80 bg-white p-5 shadow-sm">
                     <div>
                         <h3 className="text-lg font-black tracking-tight text-slate-950">Cơ cấu người dùng</h3>
-                        <p className="mt-1 text-sm font-medium text-slate-500">Tỷ trọng cá nhân và doanh nghiệp.</p>
+                        <p className="mt-1 text-sm font-medium text-slate-700">Tỷ trọng cá nhân và doanh nghiệp.</p>
                     </div>
 
                     <div className="relative mt-6 flex h-52 items-center justify-center">
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-3xl font-black tabular-nums text-slate-950">{formatNumber(totalRoleUsers)}</span>
-                            <span className="mt-1 text-xs font-black text-slate-400">Người dùng</span>
+                            <span className="mt-1 text-xs font-black text-slate-800">Người dùng</span>
                         </div>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>

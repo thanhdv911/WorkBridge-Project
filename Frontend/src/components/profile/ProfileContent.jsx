@@ -226,12 +226,12 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
         </h2>
 
         {employmentsLoading ? (
-          <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-10 text-slate-800">
             <div className="w-7 h-7 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-3"></div>
             <p className="text-xs font-semibold">Đang tải lịch sử làm việc...</p>
           </div>
         ) : !employments || employments.length === 0 ? (
-          <div className="space-y-3 text-center py-10 text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+          <div className="space-y-3 text-center py-10 text-slate-800 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
             <span className="material-symbols-outlined !text-3xl text-slate-350">work_off</span>
             <p className="text-xs font-semibold">Không tìm thấy lịch sử làm việc chính thức.</p>
           </div>
@@ -267,18 +267,18 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
                           isActive
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                            : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200'
                         }`}>
                           {isActive ? 'Đang làm việc' : 'Đã kết thúc'}
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-600 font-bold mt-1 flex items-center gap-1.5">
-                        <span className="material-symbols-outlined !text-[14px] text-slate-400">domain</span>
-                        {emp.companyName} <span className="text-slate-300 font-normal">|</span> <span className="font-medium text-slate-400">{emp.branchName}</span>
+                      <p className="text-xs text-slate-800 font-bold mt-1 flex items-center gap-1.5">
+                        <span className="material-symbols-outlined !text-[14px] text-slate-800">domain</span>
+                        {emp.companyName} <span className="text-slate-300 font-normal">|</span> <span className="font-medium text-slate-800">{emp.branchName}</span>
                       </p>
 
-                      <div className="mt-2.5 flex items-center gap-3 text-[10px] font-bold text-slate-400 flex-wrap">
+                      <div className="mt-2.5 flex items-center gap-3 text-[10px] font-bold text-slate-800 flex-wrap">
                         <span className="flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-100 shadow-sm">
                           <span className="material-symbols-outlined !text-[12px]">calendar_month</span>
                           {startDateFormatted} – {endDateFormatted}
@@ -291,7 +291,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                     </div>
 
                      <div className="sm:text-right shrink-0 mt-1 sm:mt-0 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Lương theo giờ</div>
+                      <div className="text-[9px] font-black text-slate-800 uppercase tracking-widest">Lương theo giờ</div>
                       <div className="text-sm font-black text-primary mt-0.5">
                         {(emp.currentHourlyRate || 0).toLocaleString('vi-VN')} ₫/giờ
                       </div>
@@ -323,7 +323,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
               </span>
             )}
           </div>
-          <p className="mt-1 truncate text-xs font-semibold text-slate-500">
+          <p className="mt-1 truncate text-xs font-semibold text-slate-700">
             {user?.cvUrl ? cvFileName : 'Tải file PDF có chữ để AI đọc, chấm điểm và gợi ý cải thiện.'}
           </p>
         </div>
@@ -388,7 +388,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
               <div className="flex h-[72vh] min-h-[620px] flex-col items-center justify-center bg-white px-6 text-center">
                 <span className="material-symbols-outlined !text-5xl text-amber-500">draft_orders</span>
                 <h3 className="mt-4 text-lg font-black text-slate-900">Không tìm thấy file CV trên máy chủ</h3>
-                <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-slate-500">
+                <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-slate-700">
                   Hồ sơ vẫn còn tên CV trong dữ liệu, nhưng file PDF không còn trong kho lưu trữ. Hãy tải lại CV để xem và dùng AI chấm điểm.
                 </p>
                 {isOwnProfile && (
@@ -475,7 +475,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   ].map(([label, value, colorClass]) => (
                     <div key={label} className="rounded-xl border border-slate-200 bg-white px-2 py-3 shadow-sm">
                       <p className={`text-xl font-black ${colorClass}`}>{value}</p>
-                      <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                      <p className="text-[10px] font-black uppercase text-slate-800">{label}</p>
                     </div>
                   ))}
                 </div>
@@ -513,7 +513,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
           />
           <span className="material-symbols-outlined !text-5xl text-slate-300">{cvLoading ? 'progress_activity' : 'upload_file'}</span>
           <p className="mt-3 text-sm font-black text-slate-700">{cvLoading ? 'Đang tải CV...' : 'Tải CV PDF'}</p>
-          <p className="mt-1 max-w-sm text-xs font-semibold leading-relaxed text-slate-400">
+          <p className="mt-1 max-w-sm text-xs font-semibold leading-relaxed text-slate-800">
             Dùng file PDF dưới 5MB. File có chữ sẽ giúp AI đọc nội dung và chấm CV chính xác.
           </p>
         </label>
@@ -627,7 +627,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
               </button>
               <button
                 onClick={onCancel}
-                className="h-11 px-6 rounded-xl bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition-colors"
+                className="h-11 px-6 rounded-xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition-colors"
               >
                 Hủy
               </button>
@@ -649,9 +649,9 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
               <span className="material-symbols-outlined text-primary !text-lg">person</span>Giới thiệu bản thân
             </h2>
             {user?.aboutMe ? (
-              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap font-medium">{user.aboutMe}</p>
+              <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap font-medium">{user.aboutMe}</p>
             ) : (
-              <p className="text-sm text-slate-400 italic">Chưa có phần giới thiệu bản thân.</p>
+              <p className="text-sm text-slate-800 italic">Chưa có phần giới thiệu bản thân.</p>
             )}
           </div>
 
@@ -700,15 +700,15 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             <div className="flex-1 space-y-5 overflow-y-auto bg-[#f5f8fb] p-5 sm:p-6">
               <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Điểm CV</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-800">Điểm CV</div>
                   <div className="mt-3 flex items-end gap-1">
                     <span className="text-5xl font-black leading-none text-slate-950">{cvScore || cvAnalysisData.score}</span>
-                    <span className="pb-1 text-sm font-black text-slate-400">/10</span>
+                    <span className="pb-1 text-sm font-black text-slate-800">/10</span>
                   </div>
                   <div className="mt-4 h-2 rounded-full bg-slate-100">
                     <div className="h-full rounded-full bg-gradient-to-r from-[#1687d9] to-emerald-400" style={{ width: cvScorePercent }} />
                   </div>
-                  <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-500">
+                  <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-700">
                     AI chấm theo độ rõ ràng, bố cục, nội dung PDF và mức phù hợp với việc bán thời gian.
                   </p>
                 </div>
@@ -733,7 +733,7 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                         <span className="material-symbols-outlined !text-[16px]">visibility</span>
                         Góc nhìn nhà tuyển dụng
                       </div>
-                      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{cvAnalysisData.recruiterNote}</p>
+                      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-800">{cvAnalysisData.recruiterNote}</p>
                     </div>
                   )}
                 </div>
@@ -747,12 +747,12 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   </h4>
                   <div className="mt-3 space-y-2.5">
                     {cvDetectedContent.length > 0 ? cvDetectedContent.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-600">
+                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-800">
                         <span className="material-symbols-outlined !text-[15px] text-[#1687d9]">check</span>
                         <span>{item}</span>
                       </div>
                     )) : (
-                      <p className="text-xs font-medium italic text-slate-400">AI chưa tách riêng nội dung đã có.</p>
+                      <p className="text-xs font-medium italic text-slate-800">AI chưa tách riêng nội dung đã có.</p>
                     )}
                   </div>
                 </div>
@@ -764,12 +764,12 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   </h4>
                   <div className="mt-3 space-y-2.5">
                     {cvMissingInformation.length > 0 ? cvMissingInformation.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-600">
+                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-800">
                         <span className="material-symbols-outlined !text-[15px] text-amber-500">add_circle</span>
                         <span>{item}</span>
                       </div>
                     )) : (
-                      <p className="text-xs font-medium italic text-slate-400">CV chưa thiếu thông tin lớn theo AI.</p>
+                      <p className="text-xs font-medium italic text-slate-800">CV chưa thiếu thông tin lớn theo AI.</p>
                     )}
                   </div>
                 </div>
@@ -783,12 +783,12 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   </h4>
                   <div className="mt-3 space-y-2.5">
                     {cvStrengths.length > 0 ? cvStrengths.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-600">
+                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-800">
                         <span className="material-symbols-outlined !text-[15px] text-emerald-500">check_circle</span>
                         <span>{item}</span>
                       </div>
                     )) : (
-                      <p className="text-xs font-medium italic text-slate-400">AI chưa tách riêng điểm mạnh.</p>
+                      <p className="text-xs font-medium italic text-slate-800">AI chưa tách riêng điểm mạnh.</p>
                     )}
                   </div>
                 </div>
@@ -800,30 +800,30 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
                   </h4>
                   <div className="mt-3 space-y-2.5">
                     {cvIssues.length > 0 ? cvIssues.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-600">
+                      <div key={idx} className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-slate-800">
                         <span className="material-symbols-outlined !text-[15px] text-rose-500">error</span>
                         <span>{item}</span>
                       </div>
                     )) : (
-                      <p className="text-xs font-medium italic text-slate-400">AI không thấy lỗi lớn cần cảnh báo.</p>
+                      <p className="text-xs font-medium italic text-slate-800">AI không thấy lỗi lớn cần cảnh báo.</p>
                     )}
                   </div>
                 </div>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-slate-500">
+                <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-slate-700">
                   <span className="material-symbols-outlined !text-[17px] text-[#1687d9]">tips_and_updates</span>
                   Gợi ý cải thiện nhanh
                 </h4>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {cvSuggestions.length > 0 ? cvSuggestions.map((sug, idx) => (
-                    <div key={idx} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs font-semibold leading-relaxed text-slate-600">
+                    <div key={idx} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs font-semibold leading-relaxed text-slate-800">
                       <span className="mb-2 inline-flex h-6 w-6 items-center justify-center rounded-lg bg-[#1687d9] text-[11px] font-black text-white">{idx + 1}</span>
                       <p>{sug}</p>
                     </div>
                   )) : (
-                    <p className="text-xs font-medium italic text-slate-400">Chưa có gợi ý cụ thể.</p>
+                    <p className="text-xs font-medium italic text-slate-800">Chưa có gợi ý cụ thể.</p>
                   )}
                 </div>
               </div>
@@ -831,14 +831,14 @@ export default function ProfileContent({ user, setUser, isEditing, editForm, set
             </div>
 
             <div className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-xs font-medium text-slate-400">
+              <span className="text-xs font-medium text-slate-800">
                 AI chỉ đánh giá và gợi ý nội dung. Bạn cập nhật CV trong file gốc rồi tải lại bản PDF mới khi cần.
               </span>
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => setShowCvAnalysisModal(false)}
-                  className="h-10 rounded-xl bg-slate-100 px-5 text-xs font-black text-slate-600 transition-all hover:bg-slate-200"
+                  className="h-10 rounded-xl bg-slate-100 px-5 text-xs font-black text-slate-800 transition-all hover:bg-slate-200"
                 >
                   Đóng
                 </button>

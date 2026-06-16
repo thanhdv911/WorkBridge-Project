@@ -33,7 +33,7 @@ export default class ErrorBoundary extends React.Component {
               <span className="material-symbols-outlined !text-3xl">refresh</span>
             </div>
             <h1 className="text-2xl font-black text-slate-800">Đã xảy ra lỗi</h1>
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-sm text-slate-700 mt-2">
               Trang gặp lỗi hiển thị, nhưng ứng dụng vẫn đang hoạt động.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-7">
@@ -46,7 +46,7 @@ export default class ErrorBoundary extends React.Component {
               </button>
               <a
                 href="/"
-                className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors"
+                className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-800 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors"
               >
                 Trang chủ
               </a>

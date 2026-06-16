@@ -169,13 +169,13 @@ const EmployerInterviews = () => {
         <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden min-w-0">
             <div className="px-5 sm:px-6 py-5 border-b border-slate-100">
                 <h2 className="text-xl font-bold text-slate-800">Lịch phỏng vấn</h2>
-                <p className="text-sm text-slate-500 mt-1">Theo dõi các cuộc phỏng vấn trực tiếp và tuyển dụng sau khi hoàn thành buổi phỏng vấn.</p>
+                <p className="text-sm text-slate-700 mt-1">Theo dõi các cuộc phỏng vấn trực tiếp và tuyển dụng sau khi hoàn thành buổi phỏng vấn.</p>
             </div>
 
             {loading ? (
-                <div className="p-10 text-center text-slate-400">Đang tải lịch phỏng vấn...</div>
+                <div className="p-10 text-center text-slate-800">Đang tải lịch phỏng vấn...</div>
             ) : interviews.length === 0 ? (
-                <div className="p-10 text-center text-slate-400">Chưa có lịch hẹn phỏng vấn nào.</div>
+                <div className="p-10 text-center text-slate-800">Chưa có lịch hẹn phỏng vấn nào.</div>
             ) : (
                 <div className="divide-y divide-slate-100">
                     {paginatedInterviews.map(interview => (
@@ -186,22 +186,22 @@ const EmployerInterviews = () => {
                                         {getStatusText(interview.status)}
                                     </span>
                                     {interview.result && (
-                                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-slate-50 text-slate-600 border-slate-100">
+                                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-slate-50 text-slate-800 border-slate-100">
                                             {getResultText(interview.result)}
                                         </span>
                                     )}
                                 </div>
                                 <p className="font-black text-slate-800 truncate">{interview.applicantName}</p>
-                                <p className="text-sm text-slate-500 truncate">{interview.jobTitle}</p>
-                                <p className="text-sm text-slate-600 mt-1">
+                                <p className="text-sm text-slate-700 truncate">{interview.jobTitle}</p>
+                                <p className="text-sm text-slate-800 mt-1">
                                     {new Date(interview.scheduledAt).toLocaleString()} tại {interview.location}
                                 </p>
-                                {interview.note && <p className="text-xs text-slate-500 mt-2 break-words">{interview.note}</p>}
+                                {interview.note && <p className="text-xs text-slate-700 mt-2 break-words">{interview.note}</p>}
                                 {interview.status === 'Confirmed' && !interview.canEmployerMarkResult && !interview.result && (
-                                    <p className="text-xs font-semibold text-slate-400 mt-2">Ứng viên đã xác nhận tham gia. Kết quả sẽ được cập nhật sau khi buổi phỏng vấn diễn ra.</p>
+                                    <p className="text-xs font-semibold text-slate-800 mt-2">Ứng viên đã xác nhận tham gia. Kết quả sẽ được cập nhật sau khi buổi phỏng vấn diễn ra.</p>
                                 )}
                                 {interview.status === 'Scheduled' && !interview.result && (
-                                    <p className="text-xs font-semibold text-slate-400 mt-2">Đang chờ ứng viên phản hồi.</p>
+                                    <p className="text-xs font-semibold text-slate-800 mt-2">Đang chờ ứng viên phản hồi.</p>
                                 )}
                             </div>
 
@@ -240,7 +240,7 @@ const EmployerInterviews = () => {
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 className="text-xl font-bold text-slate-800">Phê duyệt & Tuyển dụng</h3>
-                                <p className="text-sm text-slate-500">Tạo hồ sơ nhân viên và thiết lập mức lương theo giờ.</p>
+                                <p className="text-sm text-slate-700">Tạo hồ sơ nhân viên và thiết lập mức lương theo giờ.</p>
                             </div>
                             <button type="button" onClick={() => setShowHireModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
                                 <span className="material-symbols-outlined">close</span>

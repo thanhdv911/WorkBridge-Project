@@ -288,7 +288,7 @@ const EmployerEmployees = () => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-12 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto"></div>
-                <p className="text-slate-500 mt-4 font-medium">Đang tải danh sách nhân viên...</p>
+                <p className="text-slate-700 mt-4 font-medium">Đang tải danh sách nhân viên...</p>
             </div>
         );
     }
@@ -298,7 +298,7 @@ const EmployerEmployees = () => {
             <div className="px-5 sm:px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-bold text-slate-800">Nhân viên</h2>
-                    <p className="text-slate-500 text-sm mt-1">
+                    <p className="text-slate-700 text-sm mt-1">
                         {selectedBranchId === null
                             ? 'Quản lý nhân viên theo từng chi nhánh của công ty/cửa hàng của bạn.'
                             : 'Xem, cập nhật thông tin chức vụ, mức lương và tình trạng hoạt động của nhân viên.'
@@ -312,10 +312,10 @@ const EmployerEmployees = () => {
                     {branches.length === 0 ? (
                         <div className="p-16 text-center">
                             <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                <span className="material-symbols-outlined text-slate-400">storefront</span>
+                                <span className="material-symbols-outlined text-slate-800">storefront</span>
                             </div>
                             <h3 className="text-lg font-bold text-slate-700">Chưa có chi nhánh nào</h3>
-                            <p className="text-slate-500 mt-1 max-w-sm mx-auto text-sm leading-relaxed">
+                            <p className="text-slate-700 mt-1 max-w-sm mx-auto text-sm leading-relaxed">
                                 Vui lòng tạo ít nhất một chi nhánh trong phần quản lý chi nhánh trước khi xem hoặc quản lý nhân viên.
                             </p>
                         </div>
@@ -345,7 +345,7 @@ const EmployerEmployees = () => {
                                                         {activeCount} đang làm
                                                     </span>
                                                     {totalCount > activeCount && (
-                                                        <span className="text-[10px] font-semibold text-slate-400">
+                                                        <span className="text-[10px] font-semibold text-slate-800">
                                                             Tổng {totalCount} nhân viên
                                                         </span>
                                                     )}
@@ -357,14 +357,14 @@ const EmployerEmployees = () => {
                                             </h3>
                                         </div>
 
-                                        <div className="space-y-1.5 text-xs text-slate-500 mt-4 w-full relative z-10">
+                                        <div className="space-y-1.5 text-xs text-slate-700 mt-4 w-full relative z-10">
                                             <div className="flex items-center gap-1.5 truncate">
-                                                <span className="material-symbols-outlined !text-sm text-slate-400">location_on</span>
+                                                <span className="material-symbols-outlined !text-sm text-slate-800">location_on</span>
                                                 <span className="truncate">{branch.address}</span>
                                             </div>
                                             {branch.phone && (
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="material-symbols-outlined !text-sm text-slate-400">call</span>
+                                                    <span className="material-symbols-outlined !text-sm text-slate-800">call</span>
                                                     <span>{branch.phone}</span>
                                                 </div>
                                             )}
@@ -380,7 +380,7 @@ const EmployerEmployees = () => {
                     <button
                         type="button"
                         onClick={() => setSelectedBranchId(null)}
-                        className="flex items-center gap-2 text-slate-500 hover:text-primary font-bold text-sm transition-colors py-2 px-3.5 hover:bg-slate-100 rounded-xl w-fit mb-6 cursor-pointer"
+                        className="flex items-center gap-2 text-slate-700 hover:text-primary font-bold text-sm transition-colors py-2 px-3.5 hover:bg-slate-100 rounded-xl w-fit mb-6 cursor-pointer"
                     >
                         <span className="material-symbols-outlined !text-lg">arrow_back</span>
                         Quay lại danh sách chi nhánh
@@ -403,7 +403,7 @@ const EmployerEmployees = () => {
                                                 <span className="material-symbols-outlined text-primary">storefront</span>
                                                 <h3 className="text-lg font-black text-slate-800">{currentBranch.name}</h3>
                                             </div>
-                                            <p className="text-xs text-slate-500 flex items-center gap-1">
+                                            <p className="text-xs text-slate-700 flex items-center gap-1">
                                                 <span className="material-symbols-outlined !text-xs">location_on</span>
                                                 {currentBranch.address}
                                             </p>
@@ -418,7 +418,7 @@ const EmployerEmployees = () => {
                                                 <span className="material-symbols-outlined !text-sm animate-pulse">analytics</span>
                                                 AI Báo cáo nhân sự
                                             </button>
-                                            <span className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-1.5 shadow-sm">
+                                            <span className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm">
                                                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                                                 {branchEmployees.filter(e => e.status === 'Active').length} Nhân viên đang làm
                                             </span>
@@ -429,10 +429,10 @@ const EmployerEmployees = () => {
                                 {branchEmployees.length === 0 ? (
                                     <div className="p-16 text-center border border-dashed border-slate-200 rounded-2xl">
                                         <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                            <span className="material-symbols-outlined text-slate-400">badge</span>
+                                            <span className="material-symbols-outlined text-slate-800">badge</span>
                                         </div>
                                         <h3 className="text-lg font-bold text-slate-700">Chưa có nhân viên tại chi nhánh này</h3>
-                                        <p className="text-slate-500 mt-1 max-w-sm mx-auto text-sm leading-relaxed">
+                                        <p className="text-slate-700 mt-1 max-w-sm mx-auto text-sm leading-relaxed">
                                             Gửi lời mời nhận việc chính thức và chỉ định chi nhánh <strong>{currentBranch?.name}</strong> cho ứng viên. Sau khi họ đồng ý, họ sẽ xuất hiện tại đây.
                                         </p>
                                     </div>
@@ -447,29 +447,29 @@ const EmployerEmployees = () => {
                                                         </div>
                                                         <div className="min-w-0">
                                                             <p className="font-bold text-slate-800 truncate">{employee.employeeName}</p>
-                                                            <p className="text-xs text-slate-400 truncate">{employee.employeeEmail}</p>
+                                                            <p className="text-xs text-slate-800 truncate">{employee.employeeEmail}</p>
                                                             <div className="flex items-center gap-1.5 mt-1.5">
-                                                                <span className="material-symbols-outlined !text-sm text-slate-400">work</span>
-                                                                <span className="text-xs text-slate-600 truncate font-semibold">{employee.position}</span>
+                                                                <span className="material-symbols-outlined !text-sm text-slate-800">work</span>
+                                                                <span className="text-xs text-slate-800 truncate font-semibold">{employee.position}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="text-sm text-slate-600 min-w-0 space-y-1">
+                                                <div className="text-sm text-slate-800 min-w-0 space-y-1">
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="material-symbols-outlined !text-sm text-slate-400">storefront</span>
+                                                        <span className="material-symbols-outlined !text-sm text-slate-800">storefront</span>
                                                         <span className="font-bold text-slate-700 truncate">{employee.branchName}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="material-symbols-outlined !text-sm text-slate-400">payments</span>
-                                                        <span className="text-xs text-slate-500 font-medium">
+                                                        <span className="material-symbols-outlined !text-sm text-slate-800">payments</span>
+                                                        <span className="text-xs text-slate-700 font-medium">
                                                             {Number(employee.currentHourlyRate).toLocaleString()} VNĐ/giờ
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 lg:justify-end items-center">
                                                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                                                        employee.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'
+                                                        employee.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-50 text-slate-700 border-slate-100'
                                                     }`}>
                                                         {employee.status === 'Active' ? 'Đang hoạt động' : employee.status === 'Inactive' ? 'Ngưng hoạt động' : 'Đã nghỉ việc'}
                                                     </span>
@@ -504,7 +504,7 @@ const EmployerEmployees = () => {
                                                         <button
                                                             type="button"
                                                             onClick={() => updateStatus(employee, 'Inactive')}
-                                                            className="h-9 px-4 rounded-xl bg-slate-50 text-slate-500 hover:text-red-500 text-xs font-bold hover:bg-red-50 border border-slate-200/60 hover:border-red-100 transition-all"
+                                                            className="h-9 px-4 rounded-xl bg-slate-50 text-slate-700 hover:text-red-500 text-xs font-bold hover:bg-red-50 border border-slate-200/60 hover:border-red-100 transition-all"
                                                             title="Chuyển trạng thái sang ngưng hoạt động"
                                                         >
                                                             Tạm dừng
@@ -522,7 +522,7 @@ const EmployerEmployees = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleOpenRemove(employee)}
-                                                        className="h-9 w-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border hover:border-red-100 transition-all"
+                                                        className="h-9 w-9 rounded-xl flex items-center justify-center text-slate-800 hover:text-red-600 hover:bg-red-50 hover:border hover:border-red-100 transition-all"
                                                         title="Cho thôi việc và xóa khỏi danh sách"
                                                     >
                                                         <span className="material-symbols-outlined !text-[18px]">delete</span>
@@ -560,7 +560,7 @@ const EmployerEmployees = () => {
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
                                 <h3 className="text-xl font-bold text-slate-800">Chỉnh sửa thông tin nhân viên</h3>
-                                <p className="text-xs text-slate-400 mt-1">Cập nhật chi tiết về chức vụ và mức lương.</p>
+                                <p className="text-xs text-slate-800 mt-1">Cập nhật chi tiết về chức vụ và mức lương.</p>
                             </div>
                             <button type="button" onClick={() => setShowEditModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
                                 <span className="material-symbols-outlined">close</span>
@@ -568,10 +568,10 @@ const EmployerEmployees = () => {
                         </div>
                         <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
                             <div>
-                                <p className="text-sm font-semibold text-slate-500 mb-2">Tên nhân viên: <span className="text-slate-800 font-bold">{selectedEmployee?.employeeName}</span></p>
+                                <p className="text-sm font-semibold text-slate-700 mb-2">Tên nhân viên: <span className="text-slate-800 font-bold">{selectedEmployee?.employeeName}</span></p>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Chức vụ / Vị trí</label>
+                                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">Chức vụ / Vị trí</label>
                                 <input
                                     type="text"
                                     value={editForm.position}
@@ -581,7 +581,7 @@ const EmployerEmployees = () => {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Lương theo giờ (VNĐ/giờ)</label>
+                                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">Lương theo giờ (VNĐ/giờ)</label>
                                 <input
                                     type="text"
                                     value={editForm.hourlyRate}
@@ -591,7 +591,7 @@ const EmployerEmployees = () => {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Chi nhánh làm việc</label>
+                                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">Chi nhánh làm việc</label>
                                 <select
                                     value={editForm.branchId}
                                     onChange={(e) => setEditForm(prev => ({ ...prev, branchId: e.target.value }))}
@@ -635,10 +635,10 @@ const EmployerEmployees = () => {
                             </div>
                             <div className="space-y-1.5">
                                 <h3 className="text-xl font-bold text-slate-800">Xóa nhân viên?</h3>
-                                <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto">
+                                <p className="text-slate-700 text-sm leading-relaxed max-w-xs mx-auto">
                                     Bạn có chắc chắn muốn cho nhân viên <strong>{employeeToRemove?.employeeName}</strong> nghỉ việc?
                                 </p>
-                                <p className="text-slate-400 text-xs leading-relaxed max-w-xs mx-auto bg-slate-50 border border-slate-100 rounded-xl p-3 mt-2">
+                                <p className="text-slate-800 text-xs leading-relaxed max-w-xs mx-auto bg-slate-50 border border-slate-100 rounded-xl p-3 mt-2">
                                     Họ sẽ bị xóa khỏi danh sách nhân viên đang hoạt động của bạn. Lịch sử bảng lương và hồ sơ công việc trước đây vẫn được lưu trữ an toàn.
                                 </p>
                             </div>
@@ -647,7 +647,7 @@ const EmployerEmployees = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowRemoveModal(false)}
-                                className="h-10 px-4 rounded-xl text-slate-500 font-bold text-xs hover:bg-slate-100 border border-slate-200 transition-all"
+                                className="h-10 px-4 rounded-xl text-slate-700 font-bold text-xs hover:bg-slate-100 border border-slate-200 transition-all"
                             >
                                 Hủy
                             </button>
@@ -695,7 +695,7 @@ const EmployerEmployees = () => {
                         <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-slate-50/50">
                             {/* Summary */}
                             <div className="space-y-2">
-                                <h4 className="text-xs font-black uppercase text-slate-400 tracking-wide flex items-center gap-1">
+                                <h4 className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1">
                                     <span className="material-symbols-outlined !text-sm text-indigo-500">summarize</span>
                                     Đánh giá chung
                                 </h4>
@@ -708,7 +708,7 @@ const EmployerEmployees = () => {
                             <div className="grid md:grid-cols-2 gap-5">
                                 {/* Reliable */}
                                 <div className="space-y-2">
-                                    <h4 className="text-xs font-black uppercase text-slate-400 tracking-wide flex items-center gap-1">
+                                    <h4 className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1">
                                         <span className="material-symbols-outlined !text-sm text-emerald-500">verified</span>
                                         Nhân viên đáng tin cậy
                                     </h4>
@@ -721,14 +721,14 @@ const EmployerEmployees = () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-slate-400 italic text-xs">Không có dữ liệu</p>
+                                            <p className="text-slate-800 italic text-xs">Không có dữ liệu</p>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Warnings */}
                                 <div className="space-y-2">
-                                    <h4 className="text-xs font-black uppercase text-slate-400 tracking-wide flex items-center gap-1">
+                                    <h4 className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1">
                                         <span className="material-symbols-outlined !text-sm text-rose-500">warning</span>
                                         Cảnh báo rủi ro (Muộn/Vắng)
                                     </h4>
@@ -740,11 +740,11 @@ const EmployerEmployees = () => {
                                                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                                                         {warn.name}
                                                     </div>
-                                                    <p className="text-[11px] text-slate-500 pl-3 leading-relaxed font-medium">{warn.issue}</p>
+                                                    <p className="text-[11px] text-slate-700 pl-3 leading-relaxed font-medium">{warn.issue}</p>
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-slate-400 italic text-xs">Không phát hiện rủi ro đi muộn hay bỏ ca đáng kể.</p>
+                                            <p className="text-slate-800 italic text-xs">Không phát hiện rủi ro đi muộn hay bỏ ca đáng kể.</p>
                                         )}
                                     </div>
                                 </div>
@@ -752,7 +752,7 @@ const EmployerEmployees = () => {
 
                             {/* Recommendations */}
                             <div className="space-y-2">
-                                <h4 className="text-xs font-black uppercase text-slate-400 tracking-wide flex items-center gap-1">
+                                <h4 className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1">
                                     <span className="material-symbols-outlined !text-sm text-indigo-500">lightbulb</span>
                                     Gợi ý tối ưu phân bổ nhân sự
                                 </h4>
@@ -765,7 +765,7 @@ const EmployerEmployees = () => {
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-slate-400 italic text-xs">Không có đề xuất</p>
+                                        <p className="text-slate-800 italic text-xs">Không có đề xuất</p>
                                     )}
                                 </div>
                             </div>

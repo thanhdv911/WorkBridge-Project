@@ -506,7 +506,7 @@ const AiChatWidget = () => {
                 <h4 className="line-clamp-2 text-sm font-black text-slate-900 group-hover:text-[#1687d9]">
                   {job.title}
                 </h4>
-                <p className="mt-1 truncate text-xs font-semibold text-slate-500">
+                <p className="mt-1 truncate text-xs font-semibold text-slate-700">
                   {job.companyName}{job.branchName ? ` - ${job.branchName}` : ''}
                 </p>
               </div>
@@ -514,18 +514,18 @@ const AiChatWidget = () => {
                 arrow_forward
               </span>
             </div>
-            <div className="mt-2 grid gap-1 text-xs text-slate-600">
+            <div className="mt-2 grid gap-1 text-xs text-slate-800">
               <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined !text-[15px] text-slate-400">payments</span>
+                <span className="material-symbols-outlined !text-[15px] text-slate-800">payments</span>
                 <span className="font-bold text-[#1687d9]">{formatJobPay(job)}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined !text-[15px] text-slate-400">location_on</span>
+                <span className="material-symbols-outlined !text-[15px] text-slate-800">location_on</span>
                 <span className="truncate">{job.location || job.address || 'Chưa rõ địa điểm'}</span>
               </div>
               {(job.position || job.vacancies) && (
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined !text-[15px] text-slate-400">badge</span>
+                  <span className="material-symbols-outlined !text-[15px] text-slate-800">badge</span>
                   <span className="truncate">
                     {job.position || 'Nhân viên'}{job.vacancies ? ` - tuyển ${job.vacancies} người` : ''}
                   </span>
@@ -555,7 +555,7 @@ const AiChatWidget = () => {
           }`}
         >
           <div className="whitespace-pre-wrap break-words leading-relaxed">{content}</div>
-          <div className={`mt-1 text-right text-[10px] ${isOwn ? 'text-white/75' : 'text-slate-400'}`}>
+          <div className={`mt-1 text-right text-[10px] ${isOwn ? 'text-white/75' : 'text-slate-800'}`}>
             {formatClock(getValue(message, 'sentAt'))}
           </div>
         </div>
@@ -614,7 +614,7 @@ const AiChatWidget = () => {
                   onClick={() => setShowSupportPanel(false)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
                 >
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">chat</span>
+                  <span className="material-symbols-outlined text-slate-800 group-hover:text-[#1392ec] !text-lg">chat</span>
                   <span className="flex-1">Hỗ trợ qua Zalo</span>
                 </a>
 
@@ -626,7 +626,7 @@ const AiChatWidget = () => {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left text-slate-700 hover:bg-slate-50 transition-colors font-bold group"
                 >
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-[#1392ec] !text-lg">call</span>
+                  <span className="material-symbols-outlined text-slate-800 group-hover:text-[#1392ec] !text-lg">call</span>
                   <span className="flex-1">Liên hệ WorkBridge</span>
                 </button>
               </div>
@@ -712,7 +712,7 @@ const AiChatWidget = () => {
               </div>
               <div className="min-w-0">
                 <h3 className="truncate text-sm font-black text-slate-900">WorkBridge Chat</h3>
-                <p className="text-[11px] font-medium text-slate-400">Tin nhắn và AI trong một popup</p>
+                <p className="text-[11px] font-medium text-slate-800">Tin nhắn và AI trong một popup</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -720,7 +720,7 @@ const AiChatWidget = () => {
                 type="button"
                 onClick={() => navigate('/messages')}
                 title="Mở trang tin nhắn"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-blue-50 hover:text-[#1687d9]"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-800 hover:bg-blue-50 hover:text-[#1687d9]"
               >
                 <span className="material-symbols-outlined !text-[19px]">open_in_full</span>
               </button>
@@ -728,7 +728,7 @@ const AiChatWidget = () => {
                 type="button"
                 onClick={closeWidget}
                 title="Thu nhỏ"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-800 hover:bg-slate-100 hover:text-slate-700"
               >
                 <span className="material-symbols-outlined !text-[20px]">close</span>
               </button>
@@ -742,7 +742,7 @@ const AiChatWidget = () => {
               className={`flex h-9 items-center justify-center gap-2 rounded-lg text-sm font-black transition ${
                 activeTab === 'messages'
                   ? 'bg-white text-[#1687d9] shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
+                  : 'text-slate-700 hover:text-slate-800'
               }`}
             >
               <span className="material-symbols-outlined !text-[18px]">chat_bubble</span>
@@ -759,7 +759,7 @@ const AiChatWidget = () => {
               className={`flex h-9 items-center justify-center gap-2 rounded-lg text-sm font-black transition ${
                 activeTab === 'ai'
                   ? 'bg-white text-[#1687d9] shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
+                  : 'text-slate-700 hover:text-slate-800'
               }`}
             >
               <span className={`material-symbols-outlined !text-[18px] ${showAiGate ? 'animate-pulse' : ''}`}>
@@ -778,26 +778,26 @@ const AiChatWidget = () => {
             <div className="flex min-h-0 flex-1 bg-[#f4f8fc]">
               <aside className={`${selectedConversation ? 'hidden sm:flex' : 'flex'} min-h-0 w-full flex-col border-r border-slate-100 bg-white sm:w-[270px]`}>
                 <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-100 px-3">
-                  <p className="text-xs font-black uppercase tracking-wide text-slate-400">Hội thoại</p>
+                  <p className="text-xs font-black uppercase tracking-wide text-slate-800">Hội thoại</p>
                   <button
                     type="button"
                     onClick={fetchConversations}
                     title="Làm mới"
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-blue-50 hover:text-[#1687d9]"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-800 hover:bg-blue-50 hover:text-[#1687d9]"
                   >
                     <span className="material-symbols-outlined !text-[17px]">sync</span>
                   </button>
                 </div>
                 <div className="scrollbar-none min-h-0 flex-1 overflow-y-auto">
                   {conversationsLoading && conversations.length === 0 ? (
-                    <div className="p-5 text-center text-xs font-semibold text-slate-400">Đang tải hội thoại...</div>
+                    <div className="p-5 text-center text-xs font-semibold text-slate-800">Đang tải hội thoại...</div>
                   ) : conversations.length === 0 ? (
                     <div className="px-5 py-10 text-center">
                       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-[#1687d9]">
                         <span className="material-symbols-outlined">forum</span>
                       </div>
                       <p className="text-sm font-bold text-slate-700">Chưa có hội thoại</p>
-                      <p className="mt-1 text-xs text-slate-400">Khi có trao đổi tuyển dụng, hội thoại sẽ hiện ở đây.</p>
+                      <p className="mt-1 text-xs text-slate-800">Khi có trao đổi tuyển dụng, hội thoại sẽ hiện ở đây.</p>
                     </div>
                   ) : conversations.map(conversation => {
                     const isActive = Number(selectedConversation?.contactId) === Number(conversation.contactId);
@@ -825,10 +825,10 @@ const AiChatWidget = () => {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-start justify-between gap-2">
                               <h4 className="truncate text-sm font-black text-slate-800">{conversation.contactName}</h4>
-                              <span className="shrink-0 text-[10px] font-medium text-slate-400">{formatConversationTime(conversation.lastMessageAt)}</span>
+                              <span className="shrink-0 text-[10px] font-medium text-slate-800">{formatConversationTime(conversation.lastMessageAt)}</span>
                             </div>
                             <div className="mt-0.5 flex items-center justify-between gap-2">
-                              <p className={`truncate text-xs ${conversation.unreadCount > 0 ? 'font-bold text-slate-800' : 'text-slate-500'}`}>
+                              <p className={`truncate text-xs ${conversation.unreadCount > 0 ? 'font-bold text-slate-800' : 'text-slate-700'}`}>
                                 {conversation.lastMessage || 'Mở hội thoại'}
                               </p>
                               {conversation.unreadCount > 0 && (
@@ -853,7 +853,7 @@ const AiChatWidget = () => {
                         type="button"
                         onClick={() => setSelectedConversation(null)}
                         title="Quay lại danh sách"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 sm:hidden"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 sm:hidden"
                       >
                         <span className="material-symbols-outlined !text-[20px]">arrow_back</span>
                       </button>
@@ -870,7 +870,7 @@ const AiChatWidget = () => {
                       </div>
                       <div className="min-w-0">
                         <h4 className="truncate text-sm font-black text-slate-900">{selectedConversation.contactName}</h4>
-                        <p className={`text-[11px] font-bold ${selectedConversation.isOnline ? 'text-emerald-600' : 'text-slate-400'}`}>
+                        <p className={`text-[11px] font-bold ${selectedConversation.isOnline ? 'text-emerald-600' : 'text-slate-800'}`}>
                           {formatLastSeen(selectedConversation)}
                         </p>
                       </div>
@@ -878,14 +878,14 @@ const AiChatWidget = () => {
 
                     <div className="scrollbar-none min-h-0 flex-1 overflow-y-auto px-3 py-4">
                       {threadLoading ? (
-                        <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-400">Đang tải tin nhắn...</div>
+                        <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-800">Đang tải tin nhắn...</div>
                       ) : threadMessages.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center text-center">
                           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#1687d9] shadow-sm">
                             <span className="material-symbols-outlined">chat</span>
                           </div>
                           <p className="text-sm font-black text-slate-800">Bắt đầu hội thoại</p>
-                          <p className="mt-1 max-w-[260px] text-xs text-slate-400">Bạn có thể nhắn trực tiếp tại popup, không cần mở trang riêng.</p>
+                          <p className="mt-1 max-w-[260px] text-xs text-slate-800">Bạn có thể nhắn trực tiếp tại popup, không cần mở trang riêng.</p>
                         </div>
                       ) : (
                         <div className="flex flex-col gap-2.5">
@@ -912,7 +912,7 @@ const AiChatWidget = () => {
                             }
                           }}
                           placeholder="Nhập tin nhắn..."
-                          className="max-h-20 min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+                          className="max-h-20 min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-sm text-slate-700 placeholder:text-slate-800 focus:outline-none"
                         />
                         <button
                           type="submit"
@@ -921,7 +921,7 @@ const AiChatWidget = () => {
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition ${
                             chatInput.trim() && !chatSending
                               ? 'bg-[#1687d9] text-white hover:bg-[#0f75c2]'
-                              : 'bg-slate-200 text-slate-400'
+                              : 'bg-slate-200 text-slate-800'
                           }`}
                         >
                           <span className="material-symbols-outlined !text-[19px]">send</span>
@@ -935,7 +935,7 @@ const AiChatWidget = () => {
                       <span className="material-symbols-outlined !text-[32px]">mark_unread_chat_alt</span>
                     </div>
                     <p className="text-sm font-black text-slate-800">Chọn một hội thoại</p>
-                    <p className="mt-1 max-w-[260px] text-xs text-slate-400">Popup này dùng cùng dữ liệu realtime với trang Tin nhắn.</p>
+                    <p className="mt-1 max-w-[260px] text-xs text-slate-800">Popup này dùng cùng dữ liệu realtime với trang Tin nhắn.</p>
                   </div>
                 )}
               </section>
@@ -1005,7 +1005,7 @@ const AiChatWidget = () => {
                             {isOwn ? message.text : renderFormattedText(message.text)}
                           </div>
                           {!isOwn && renderJobRecommendationCards(message.jobRecommendations)}
-                          <div className={`mt-1 text-right text-[10px] ${isOwn ? 'text-white/75' : 'text-slate-400'}`}>
+                          <div className={`mt-1 text-right text-[10px] ${isOwn ? 'text-white/75' : 'text-slate-800'}`}>
                             {formatClock(message.time)}
                           </div>
                         </div>
@@ -1054,7 +1054,7 @@ const AiChatWidget = () => {
                     onChange={(event) => setAiInput(event.target.value)}
                     placeholder="Hỏi WorkBridge AI..."
                     disabled={aiLoading}
-                    className="min-w-0 flex-1 bg-transparent px-1 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none disabled:opacity-50"
+                    className="min-w-0 flex-1 bg-transparent px-1 text-sm text-slate-700 placeholder:text-slate-800 focus:outline-none disabled:opacity-50"
                   />
                   <button
                     type="submit"
@@ -1062,7 +1062,7 @@ const AiChatWidget = () => {
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition ${
                       aiInput.trim() && !aiLoading
                         ? 'bg-[#1687d9] text-white hover:bg-[#0f75c2]'
-                        : 'bg-slate-200 text-slate-400'
+                        : 'bg-slate-200 text-slate-800'
                     }`}
                   >
                     <span className="material-symbols-outlined !text-[19px]">send</span>
@@ -1082,7 +1082,7 @@ const AiChatWidget = () => {
               <button
                 type="button"
                 onClick={() => setShowFeedbackChoiceModal(false)}
-                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-800 hover:text-slate-800 flex items-center justify-center transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -1104,7 +1104,7 @@ const AiChatWidget = () => {
                 <h4 className="text-base font-black text-slate-800 mt-4 group-hover:text-emerald-600 transition-colors">
                   Góp ý sản phẩm
                 </h4>
-                <p className="text-xs text-slate-500 mt-2 font-semibold leading-relaxed">
+                <p className="text-xs text-slate-700 mt-2 font-semibold leading-relaxed">
                   Chia sẻ ý kiến, đề xuất và nhận xét về sản phẩm
                 </p>
               </button>
@@ -1123,7 +1123,7 @@ const AiChatWidget = () => {
                 <h4 className="text-base font-black text-slate-800 mt-4 group-hover:text-[#0084FF] transition-colors">
                   Chat Zalo để được hỗ trợ
                 </h4>
-                <p className="text-xs text-slate-500 mt-2 font-semibold leading-relaxed">
+                <p className="text-xs text-slate-700 mt-2 font-semibold leading-relaxed">
                   Yêu cầu hỗ trợ liên quan đến sản phẩm hoặc dịch vụ
                 </p>
               </a>
@@ -1139,12 +1139,12 @@ const AiChatWidget = () => {
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-lg font-black text-slate-900">Gửi góp ý của bạn</h3>
-                <p className="text-xs font-semibold text-slate-500 mt-1">Chúng tôi luôn trân trọng ý kiến góp ý của bạn để cải thiện WorkBridge.</p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">Chúng tôi luôn trân trọng ý kiến góp ý của bạn để cải thiện WorkBridge.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFeedbackModal(false)}
-                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-800 hover:text-slate-800 flex items-center justify-center transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -1153,7 +1153,7 @@ const AiChatWidget = () => {
             <div className="space-y-4">
               {/* Rating stars */}
               <div>
-                <label className="text-xs font-black text-slate-400 uppercase tracking-wide">Đánh giá độ hài lòng</label>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wide">Đánh giá độ hài lòng</label>
                 <div className="flex items-center gap-1.5 mt-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -1174,13 +1174,13 @@ const AiChatWidget = () => {
 
               {/* Feedback Comment */}
               <div>
-                <label className="text-xs font-black text-slate-400 uppercase tracking-wide">Ý kiến đóng góp</label>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wide">Ý kiến đóng góp</label>
                 <textarea
                   rows={4}
                   value={feedbackComment}
                   onChange={(e) => setFeedbackComment(e.target.value)}
                   placeholder="Hãy chia sẻ trải nghiệm của bạn hoặc những tính năng bạn muốn cải thiện..."
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-3 mt-1.5 text-sm placeholder:text-slate-400 focus:outline-none focus:border-[#1392ec] focus:bg-white focus:ring-2 focus:ring-[#1392ec]/15 resize-none transition-all"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-3 mt-1.5 text-sm placeholder:text-slate-800 focus:outline-none focus:border-[#1392ec] focus:bg-white focus:ring-2 focus:ring-[#1392ec]/15 resize-none transition-all"
                   required
                 />
               </div>
@@ -1190,7 +1190,7 @@ const AiChatWidget = () => {
                 <button
                   type="button"
                   onClick={() => setShowFeedbackModal(false)}
-                  className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                  className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors"
                 >
                   Hủy
                 </button>

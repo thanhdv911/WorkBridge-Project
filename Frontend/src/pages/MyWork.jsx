@@ -89,7 +89,7 @@ const attendanceMeta = (status) => {
         case 'Rejected':
             return { label: 'Từ chối công', className: 'bg-rose-50 text-rose-700 border-rose-100' };
         default:
-            return { label: 'Chưa bắt đầu', className: 'bg-slate-50 text-slate-600 border-slate-100' };
+            return { label: 'Chưa bắt đầu', className: 'bg-slate-50 text-slate-800 border-slate-100' };
     }
 };
 
@@ -100,7 +100,7 @@ const passRequestMeta = (status) => {
         case 'Rejected':
             return { label: 'Đã từ chối', className: 'bg-rose-50 text-rose-700 border-rose-100' };
         case 'Expired':
-            return { label: 'Đã hết hạn', className: 'bg-slate-100 text-slate-500 border-slate-200' };
+            return { label: 'Đã hết hạn', className: 'bg-slate-100 text-slate-700 border-slate-200' };
         default:
             return { label: 'Đang chờ', className: 'bg-amber-50 text-amber-700 border-amber-100' };
     }
@@ -254,7 +254,7 @@ const WorkStat = ({ label, value, icon, tone = 'slate' }) => {
         <div className="rounded-[22px] border border-white/80 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-black text-slate-400">{label}</p>
+                    <p className="text-xs font-black text-slate-800">{label}</p>
                     <p className="mt-1 text-2xl font-black tabular-nums text-slate-950">{value}</p>
                 </div>
                 <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tones[tone] || tones.slate}`}>
@@ -271,7 +271,7 @@ const EmptyState = ({ icon, title, description, action }) => (
             <span className="material-symbols-outlined !text-[30px]">{icon}</span>
         </div>
         <h3 className="mt-4 text-base font-black text-slate-800">{title}</h3>
-        <p className="mx-auto mt-1 max-w-md text-sm font-medium leading-relaxed text-slate-500">{description}</p>
+        <p className="mx-auto mt-1 max-w-md text-sm font-medium leading-relaxed text-slate-700">{description}</p>
         {action}
     </div>
 );
@@ -723,7 +723,7 @@ const MyWork = () => {
                             ? isCheckout
                                 ? 'bg-sky-600 text-white shadow-lg shadow-sky-500/20 hover:bg-sky-700'
                                 : 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary-dk'
-                            : 'border border-slate-200 bg-slate-100 text-slate-400'
+                            : 'border border-slate-200 bg-slate-100 text-slate-800'
                     }`}
                 >
                     <span className="material-symbols-outlined !text-[18px]">
@@ -732,7 +732,7 @@ const MyWork = () => {
                     {processingId === assignment.shiftAssignmentId ? 'Đang xử lý...' : action.label}
                 </button>
                 {action.hint && (
-                    <span className="max-w-[210px] text-[11px] font-semibold text-slate-400 lg:text-right">
+                    <span className="max-w-[210px] text-[11px] font-semibold text-slate-800 lg:text-right">
                         {action.hint}
                     </span>
                 )}
@@ -760,7 +760,7 @@ const MyWork = () => {
                             <span className={`rounded-full border px-3 py-1 text-[10px] font-black ${meta.className}`}>
                                 {meta.label}
                             </span>
-                            <span className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-[10px] font-black text-slate-500">
+                            <span className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-[10px] font-black text-slate-700">
                                 {assignmentSourceLabel(assignment?.assignmentSource)}
                             </span>
                             {needsAction && (
@@ -773,17 +773,17 @@ const MyWork = () => {
                         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
                             <div className="min-w-0">
                                 <h3 className="truncate text-base font-black tracking-tight text-slate-950">{getShiftDisplayName(shift.title)}</h3>
-                                <p className="mt-1 truncate text-sm font-semibold text-slate-500">{shift.branchName}</p>
-                                <p className="mt-1 text-xs font-bold text-slate-400">{formatFullDate(shift.startTime)}</p>
+                                <p className="mt-1 truncate text-sm font-semibold text-slate-700">{shift.branchName}</p>
+                                <p className="mt-1 text-xs font-bold text-slate-800">{formatFullDate(shift.startTime)}</p>
                             </div>
                             <div className="rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2 sm:text-right">
-                                <p className="text-[10px] font-black text-slate-400">Giờ ca</p>
+                                <p className="text-[10px] font-black text-slate-800">Giờ ca</p>
                                 <p className="mt-0.5 text-sm font-black tabular-nums text-slate-900">{formatTime(shift.startTime)} đến {formatTime(shift.endTime)}</p>
                             </div>
                         </div>
 
                         {!compact && (
-                            <div className="mt-4 grid gap-2 text-xs text-slate-500 sm:grid-cols-3">
+                            <div className="mt-4 grid gap-2 text-xs text-slate-700 sm:grid-cols-3">
                                 <span className="rounded-xl bg-slate-50 px-3 py-2">
                                     Check-in: <b className="text-slate-700">{formatDateTime(assignment?.checkInAt)}</b>
                                 </span>
@@ -845,7 +845,7 @@ const MyWork = () => {
                             <span className={`rounded-xl border px-3 py-1 text-xs font-black ${
                                 registrationWindow.canSubmit
                                     ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
-                                    : 'border-slate-200 bg-slate-100 text-slate-600'
+                                    : 'border-slate-200 bg-slate-100 text-slate-800'
                             }`}>
                                 {registrationWindow.canSubmit ? 'Đang mở đăng ký' : registrationWindow.status}
                             </span>
@@ -853,7 +853,7 @@ const MyWork = () => {
                         <h3 className="text-lg font-black tracking-tight text-slate-950">
                             Tuần bắt đầu {new Date(registrationWindow.weekStartDate).toLocaleDateString('vi-VN')}
                         </h3>
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                        <p className="mt-1 text-sm font-medium text-slate-700">
                             Mở từ {formatDateTime(registrationWindow.openAt)} đến {formatDateTime(registrationWindow.closeAt)}
                         </p>
                     </div>
@@ -879,7 +879,7 @@ const MyWork = () => {
                 <div className="space-y-5 p-5">
                     <div className="grid gap-3 lg:grid-cols-[1.3fr_0.7fr]">
                         <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                            <p className="text-xs font-black text-slate-400">Cách chọn ca</p>
+                            <p className="text-xs font-black text-slate-800">Cách chọn ca</p>
                             <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-700">
                                 Chọn các ca bạn có thể làm trong tuần sau. Hệ thống kiểm tra trùng lịch và ưu tiên người gửi sớm hơn khi doanh nghiệp chốt ca.
                             </p>
@@ -907,7 +907,7 @@ const MyWork = () => {
                                         }`}>
                                             <div className="min-w-0">
                                                 <p className={`truncate text-[11px] font-black ${
-                                                    isToday(day) ? 'text-primary' : 'text-slate-400'
+                                                    isToday(day) ? 'text-primary' : 'text-slate-800'
                                                 }`}>
                                                     {getDayName(day.getDay())}
                                                 </p>
@@ -915,7 +915,7 @@ const MyWork = () => {
                                                     {day.getDate()}/{day.getMonth() + 1}
                                                 </p>
                                             </div>
-                                            <span className="shrink-0 rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-black tabular-nums text-slate-500">
+                                            <span className="shrink-0 rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-black tabular-nums text-slate-700">
                                                 {dayShifts.length}
                                             </span>
                                         </div>
@@ -954,7 +954,7 @@ const MyWork = () => {
                                                     >
                                                         <div className="flex items-start justify-between gap-1.5">
                                                             <div className="min-w-0">
-                                                                <p className="truncate text-[9px] font-black tabular-nums text-slate-400">
+                                                                <p className="truncate text-[9px] font-black tabular-nums text-slate-800">
                                                                     {formatTime(shift.startTime)}-{formatTime(shift.endTime)}
                                                                 </p>
                                                                 <h4 className="mt-0.5 truncate text-[11px] font-black leading-4 text-slate-950">
@@ -974,7 +974,7 @@ const MyWork = () => {
                                                                     ? 'bg-primary text-white'
                                                                     : preferredCount > 0
                                                                         ? 'bg-amber-50 text-amber-700'
-                                                                        : 'bg-slate-100 text-slate-500'
+                                                                        : 'bg-slate-100 text-slate-700'
                                                             }`}>
                                                                 {isSelected ? 'Đã chọn' : preferredCount > 0 ? `${preferredCount} đăng ký` : 'Chọn ca'}
                                                             </span>
@@ -1000,7 +1000,7 @@ const MyWork = () => {
                 </div>
 
                 <div className="grid gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                    <p className="text-xs font-semibold leading-relaxed text-slate-500">
+                    <p className="text-xs font-semibold leading-relaxed text-slate-700">
                         Sau lần gửi đầu, bạn chỉ được lưu chỉnh sửa tối đa 2 lần trước khi doanh nghiệp chốt ca hoặc AI tự động xếp lịch.
                     </p>
                     <button
@@ -1025,7 +1025,7 @@ const MyWork = () => {
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                         <h4 className="truncate text-sm font-black text-slate-900">{request.shiftTitle}</h4>
-                        <p className="mt-1 text-xs font-semibold text-slate-500">
+                        <p className="mt-1 text-xs font-semibold text-slate-700">
                             {isIncoming ? `${request.fromEmployeeName} muốn nhường ca này cho bạn` : `Gửi đến ${request.toEmployeeName}`}
                         </p>
                     </div>
@@ -1033,7 +1033,7 @@ const MyWork = () => {
                         {meta.label}
                     </span>
                 </div>
-                <p className="mt-3 text-xs font-semibold text-slate-400">
+                <p className="mt-3 text-xs font-semibold text-slate-800">
                     {formatDateTime(request.shiftStartTime)} · hết hạn {formatDateTime(request.expiresAt)}
                 </p>
 
@@ -1139,15 +1139,15 @@ const MyWork = () => {
                                     <p className="text-sm font-black text-slate-900">{primaryShift.shift.branchName}</p>
                                     <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
                                         <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-400">Check-in</p>
+                                            <p className="font-black text-slate-800">Check-in</p>
                                             <p className="mt-1 font-black text-slate-800">{formatTime(primaryShift.assignment.checkInAt)}</p>
                                         </div>
                                         <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-400">Check-out</p>
+                                            <p className="font-black text-slate-800">Check-out</p>
                                             <p className="mt-1 font-black text-slate-800">{formatTime(primaryShift.assignment.checkOutAt)}</p>
                                         </div>
                                         <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-400">Đã làm</p>
+                                            <p className="font-black text-slate-800">Đã làm</p>
                                             <p className="mt-1 font-black text-slate-800">{formatMinutes(primaryShift.assignment.workedMinutes || 0)}</p>
                                         </div>
                                     </div>
@@ -1178,7 +1178,7 @@ const MyWork = () => {
                         <div className="mb-5 flex items-start justify-between gap-3">
                             <div>
                                 <h2 className="text-lg font-black tracking-tight text-slate-950">Công việc đang làm</h2>
-                                <p className="mt-1 text-sm font-medium text-slate-500">Thông tin nhân viên chính thức.</p>
+                                <p className="mt-1 text-sm font-medium text-slate-700">Thông tin nhân viên chính thức.</p>
                             </div>
                             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                 <span className="material-symbols-outlined">badge</span>
@@ -1188,7 +1188,7 @@ const MyWork = () => {
                         {activeEmployments.length === 0 ? (
                             <div className="rounded-2xl bg-slate-50 p-5 text-center">
                                 <p className="text-sm font-black text-slate-700">Chưa có công việc nào</p>
-                                <p className="mt-1 text-xs font-semibold text-slate-500">Bạn cần chấp nhận lời mời nhận việc chính thức trước.</p>
+                                <p className="mt-1 text-xs font-semibold text-slate-700">Bạn cần chấp nhận lời mời nhận việc chính thức trước.</p>
                                 <Link to="/offers" className="mt-4 inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-black text-white">
                                     Xem lời mời
                                 </Link>
@@ -1200,7 +1200,7 @@ const MyWork = () => {
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate text-base font-black text-slate-900">{employment.position}</p>
-                                                <p className="mt-1 truncate text-sm font-semibold text-slate-500">{employment.branchName}</p>
+                                                <p className="mt-1 truncate text-sm font-semibold text-slate-700">{employment.branchName}</p>
                                             </div>
                                             <span className="rounded-xl bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">
                                                 Đang làm
@@ -1208,7 +1208,7 @@ const MyWork = () => {
                                         </div>
 
                                         {employment.expectedShifts && (
-                                            <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                                            <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-slate-700">
                                                 <span className="material-symbols-outlined !text-[15px]">schedule</span>
                                                 Ca: {employment.expectedShifts}
                                             </p>
@@ -1227,7 +1227,7 @@ const MyWork = () => {
                                                     });
                                                     setShowReportModal(true);
                                                 }}
-                                                className="inline-flex items-center gap-1 text-xs font-black text-slate-400 transition hover:text-rose-600"
+                                                className="inline-flex items-center gap-1 text-xs font-black text-slate-800 transition hover:text-rose-600"
                                                 title="Báo cáo doanh nghiệp này"
                                             >
                                                 <span className="material-symbols-outlined !text-[14px]">flag</span>
@@ -1251,7 +1251,7 @@ const MyWork = () => {
                                 { to: '/payslips', label: 'Phiếu lương', icon: 'receipt_long' }
                             ].map(({ to, sectionId, tab, label, icon }) => (
                                 to ? (
-                                    <Link key={label} to={to} className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-black text-slate-600 transition hover:bg-slate-50 hover:text-primary">
+                                    <Link key={label} to={to} className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-black text-slate-800 transition hover:bg-slate-50 hover:text-primary">
                                         <span className="material-symbols-outlined !text-[20px]">{icon}</span>
                                         {label}
                                     </Link>
@@ -1263,7 +1263,7 @@ const MyWork = () => {
                                         className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition ${
                                             tab && activeTab === tab
                                                 ? 'bg-primary/10 text-primary'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-primary'
+                                                : 'text-slate-800 hover:bg-slate-50 hover:text-primary'
                                         }`}
                                     >
                                         <span className="material-symbols-outlined !text-[20px]">{icon}</span>
@@ -1301,14 +1301,14 @@ const MyWork = () => {
                         <div className="grid gap-4 border-b border-slate-100 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                             <div>
                                 <h2 className="text-xl font-black tracking-tight text-slate-950">Lịch làm việc và chấm công</h2>
-                                <p className="mt-1 text-sm font-medium text-slate-500">Xem lịch tuần, vào ca/ra ca và kiểm tra lịch sử công.</p>
+                                <p className="mt-1 text-sm font-medium text-slate-700">Xem lịch tuần, vào ca/ra ca và kiểm tra lịch sử công.</p>
                             </div>
                             <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('mylist')}
                                     className={`h-10 rounded-lg px-4 text-xs font-black transition ${
-                                        activeTab === 'mylist' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                                        activeTab === 'mylist' ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                                     }`}
                                 >
                                     Chấm công
@@ -1317,7 +1317,7 @@ const MyWork = () => {
                                     type="button"
                                     onClick={() => setActiveTab('history')}
                                     className={`h-10 rounded-lg px-4 text-xs font-black transition ${
-                                        activeTab === 'history' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                                        activeTab === 'history' ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                                     }`}
                                 >
                                     Lịch sử
@@ -1326,7 +1326,7 @@ const MyWork = () => {
                                     type="button"
                                     onClick={() => setActiveTab('timetable')}
                                     className={`h-10 rounded-lg px-4 text-xs font-black transition ${
-                                        activeTab === 'timetable' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                                        activeTab === 'timetable' ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                                     }`}
                                 >
                                     Lưới tuần
@@ -1341,7 +1341,7 @@ const MyWork = () => {
                                         <button
                                             type="button"
                                             onClick={() => navigateWeek(-1)}
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-50"
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-800 transition hover:bg-slate-50"
                                         >
                                             <span className="material-symbols-outlined !text-[20px]">chevron_left</span>
                                         </button>
@@ -1351,19 +1351,19 @@ const MyWork = () => {
                                         <button
                                             type="button"
                                             onClick={() => navigateWeek(1)}
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-50"
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-800 transition hover:bg-slate-50"
                                         >
                                             <span className="material-symbols-outlined !text-[20px]">chevron_right</span>
                                         </button>
                                     </div>
-                                    <span className="text-xs font-black text-slate-400">{shifts.length} ca đang hoạt động</span>
+                                    <span className="text-xs font-black text-slate-800">{shifts.length} ca đang hoạt động</span>
                                 </div>
                                 <div className="overflow-hidden">
                                     <div className="w-full bg-white">
                                         <div className="grid grid-cols-[44px_repeat(7,minmax(0,1fr))] border-b border-slate-100 bg-slate-50/60 py-3 text-center sm:grid-cols-[64px_repeat(7,minmax(0,1fr))] sm:py-4">
-                                            <div className="flex items-center justify-center text-xs font-black text-slate-400">Giờ</div>
+                                            <div className="flex items-center justify-center text-xs font-black text-slate-800">Giờ</div>
                                             {weekDays.map((day) => (
-                                                <div key={getDateKey(day)} className={`min-w-0 text-[10px] sm:text-xs ${isToday(day) ? 'font-black text-primary' : 'font-bold text-slate-500'}`}>
+                                                <div key={getDateKey(day)} className={`min-w-0 text-[10px] sm:text-xs ${isToday(day) ? 'font-black text-primary' : 'font-bold text-slate-700'}`}>
                                                     <div className="truncate px-0.5">{getDayName(day.getDay())}</div>
                                                     <div className="mt-0.5 text-sm font-black sm:text-base">{day.getDate()}</div>
                                                 </div>
@@ -1377,7 +1377,7 @@ const MyWork = () => {
                                                 ))}
                                             </div>
 
-                                            <div className="flex h-full select-none flex-col justify-between border-r border-slate-100 bg-slate-50/50 py-1 text-[9px] font-black text-slate-400 sm:text-[10px]">
+                                            <div className="flex h-full select-none flex-col justify-between border-r border-slate-100 bg-slate-50/50 py-1 text-[9px] font-black text-slate-800 sm:text-[10px]">
                                                 {Array.from({ length: 15 }).map((_, hour) => (
                                                     <div key={hour} className="flex h-5 items-center justify-center text-center">
                                                         {String(8 + hour).padStart(2, '0')}:00
@@ -1450,7 +1450,7 @@ const MyWork = () => {
                                                                                         );
                                                                                     })
                                                                                 ) : (
-                                                                                    <span className="rounded-md border border-dashed border-slate-200 bg-white/70 px-1.5 py-0.5 text-[8px] font-bold text-slate-400">
+                                                                                    <span className="rounded-md border border-dashed border-slate-200 bg-white/70 px-1.5 py-0.5 text-[8px] font-bold text-slate-800">
                                                                                         Chưa xếp
                                                                                     </span>
                                                                                 )}
@@ -1482,14 +1482,14 @@ const MyWork = () => {
                                     <div className="grid gap-3 border-b border-slate-100 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                                         <div>
                                             <h3 className="text-base font-black text-slate-950">Lịch sử đã làm</h3>
-                                            <p className="mt-0.5 text-sm font-medium text-slate-500">
+                                            <p className="mt-0.5 text-sm font-medium text-slate-700">
                                                 Danh sách được phân trang để kiểm tra công gọn hơn.
                                             </p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTab('mylist')}
-                                            className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-600 transition hover:border-primary/30 hover:text-primary"
+                                            className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-800 transition hover:border-primary/30 hover:text-primary"
                                         >
                                             <span className="material-symbols-outlined !text-[17px]">fact_check</span>
                                             Về chấm công
@@ -1541,7 +1541,7 @@ const MyWork = () => {
                                                     <h3 className="text-base font-black text-slate-950">
                                                         {focusDate && isSameCalendarDay(focusDate, now) ? 'Ca cần xử lý hôm nay' : 'Ngày làm việc tiếp theo'}
                                                     </h3>
-                                                    <p className="mt-0.5 text-sm font-medium text-slate-500">
+                                                    <p className="mt-0.5 text-sm font-medium text-slate-700">
                                                         {focusDate ? formatFullDate(focusDate) : 'Chưa có ca sắp tới'}
                                                     </p>
                                                 </div>
@@ -1570,12 +1570,12 @@ const MyWork = () => {
                                             className="flex w-full items-center justify-between gap-4 rounded-[24px] border border-slate-200/70 bg-white px-5 py-4 text-left transition hover:border-primary/25 hover:shadow-sm"
                                         >
                                             <span className="flex min-w-0 items-center gap-3">
-                                                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                                                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
                                                     <span className="material-symbols-outlined !text-[22px]">history</span>
                                                 </span>
                                                 <span className="min-w-0">
                                                     <span className="block text-sm font-black text-slate-950">Xem lịch sử đã làm</span>
-                                                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">
+                                                    <span className="mt-0.5 block text-xs font-semibold text-slate-700">
                                                         {historyItems.length} ca, phân trang {HISTORY_PAGE_SIZE} ca mỗi lần xem.
                                                     </span>
                                                 </span>
@@ -1593,11 +1593,11 @@ const MyWork = () => {
                     <section id="pass-requests" className="scroll-mt-24 overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-sm">
                         <div className="border-b border-slate-100 p-5">
                             <h2 className="text-xl font-black tracking-tight text-slate-950">Yêu cầu nhường ca</h2>
-                            <p className="mt-1 text-sm font-medium text-slate-500">Yêu cầu tự động hết hạn 2 giờ trước khi ca bắt đầu.</p>
+                            <p className="mt-1 text-sm font-medium text-slate-700">Yêu cầu tự động hết hạn 2 giờ trước khi ca bắt đầu.</p>
                         </div>
                         <div className="grid divide-y divide-slate-100 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
                             <div className="p-5">
-                                <h3 className="mb-3 text-sm font-black text-slate-500">Yêu cầu nhận từ đồng nghiệp</h3>
+                                <h3 className="mb-3 text-sm font-black text-slate-700">Yêu cầu nhận từ đồng nghiệp</h3>
                                 {incomingRequests.length === 0 ? (
                                     <EmptyState icon="inbox" title="Không có yêu cầu gửi đến" description="Khi đồng nghiệp muốn nhường ca cho bạn, yêu cầu sẽ xuất hiện ở đây." />
                                 ) : (
@@ -1607,7 +1607,7 @@ const MyWork = () => {
                                 )}
                             </div>
                             <div className="p-5">
-                                <h3 className="mb-3 text-sm font-black text-slate-500">Yêu cầu bạn đã gửi</h3>
+                                <h3 className="mb-3 text-sm font-black text-slate-700">Yêu cầu bạn đã gửi</h3>
                                 {outgoingRequests.length === 0 ? (
                                     <EmptyState icon="outbox" title="Bạn chưa gửi yêu cầu nào" description="Khi cần đổi ca, dùng nút nhường ca trong thẻ chấm công." />
                                 ) : (
@@ -1630,14 +1630,14 @@ const MyWork = () => {
                                     {selectedShiftForDetails.branchName}
                                 </span>
                                 <h3 className="mt-2 text-xl font-black tracking-tight text-slate-950">{getShiftDisplayName(selectedShiftForDetails.title)}</h3>
-                                <p className="mt-1 text-xs font-bold text-slate-500">
+                                <p className="mt-1 text-xs font-bold text-slate-700">
                                     {formatDateTime(selectedShiftForDetails.startTime)} đến {formatDateTime(selectedShiftForDetails.endTime)}
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setSelectedShiftForDetails(null)}
-                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-800"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-800"
                                 aria-label="Đóng chi tiết ca"
                             >
                                 <span className="material-symbols-outlined !text-[21px]">close</span>
@@ -1646,14 +1646,14 @@ const MyWork = () => {
 
                         <div className="flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
                             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                                <span className="text-xs font-black text-slate-400">Yêu cầu chức vụ</span>
+                                <span className="text-xs font-black text-slate-800">Yêu cầu chức vụ</span>
                                 <p className="mt-1 text-sm font-black text-slate-800">{selectedShiftForDetails.requiredRole || 'Nhân viên'}</p>
                             </div>
 
                             <section className="space-y-3">
-                                <h4 className="text-sm font-black text-slate-500">Thành viên trong ca làm</h4>
+                                <h4 className="text-sm font-black text-slate-700">Thành viên trong ca làm</h4>
                                 {getActiveAssignments(selectedShiftForDetails).length === 0 ? (
-                                    <p className="rounded-2xl bg-slate-50 p-4 text-xs font-semibold text-slate-400">Chưa có nhân viên nào được phân công.</p>
+                                    <p className="rounded-2xl bg-slate-50 p-4 text-xs font-semibold text-slate-800">Chưa có nhân viên nào được phân công.</p>
                                 ) : (
                                     <div className="space-y-3">
                                         {getActiveAssignments(selectedShiftForDetails).map((assignment) => {
@@ -1665,7 +1665,7 @@ const MyWork = () => {
                                                 <article key={assignment.shiftAssignmentId} className={`rounded-2xl border p-4 ${isMe ? 'border-primary/20 bg-primary/5' : 'border-slate-100 bg-slate-50/60'}`}>
                                                     <div className="flex items-center justify-between gap-3">
                                                         <div className="flex min-w-0 items-center gap-3">
-                                                            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-xs font-black ${isMe ? 'bg-primary text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                                            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-xs font-black ${isMe ? 'bg-primary text-white' : 'bg-slate-200 text-slate-800'}`}>
                                                                 {employeeName.substring(0, 1).toUpperCase()}
                                                             </div>
                                                             <div className="min-w-0">
@@ -1689,15 +1689,15 @@ const MyWork = () => {
                                                             )}
                                                             <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-100 bg-white p-3 text-xs">
                                                                 <div>
-                                                                    <span className="block font-black text-slate-400">Check-in</span>
+                                                                    <span className="block font-black text-slate-800">Check-in</span>
                                                                     <span className="mt-1 block font-black text-slate-800">{formatTime(assignment.checkInAt)}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="block font-black text-slate-400">Check-out</span>
+                                                                    <span className="block font-black text-slate-800">Check-out</span>
                                                                     <span className="mt-1 block font-black text-slate-800">{formatTime(assignment.checkOutAt)}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="block font-black text-slate-400">Đã làm</span>
+                                                                    <span className="block font-black text-slate-800">Đã làm</span>
                                                                     <span className="mt-1 block font-black text-slate-800">{formatMinutes(assignment.workedMinutes || 0)}</span>
                                                                 </div>
                                                             </div>
@@ -1735,17 +1735,17 @@ const MyWork = () => {
                         <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-slate-50 p-6">
                             <div>
                                 <h3 className="text-xl font-black tracking-tight text-slate-950">Nhường ca làm việc</h3>
-                                <p className="mt-1 text-sm font-medium leading-relaxed text-slate-500">
+                                <p className="mt-1 text-sm font-medium leading-relaxed text-slate-700">
                                     Nếu đồng nghiệp từ chối hoặc yêu cầu hết hạn, ca làm việc vẫn thuộc về bạn.
                                 </p>
                             </div>
-                            <button type="button" onClick={closePassModal} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-100">
+                            <button type="button" onClick={closePassModal} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100">
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
                         <div className="space-y-4 p-6">
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Chọn đồng nghiệp</span>
+                                <span className="text-xs font-black text-slate-700">Chọn đồng nghiệp</span>
                                 <select
                                     value={passModal.toEmployeeUserId}
                                     onChange={(event) => setPassModal((prev) => ({ ...prev, toEmployeeUserId: event.target.value }))}
@@ -1759,7 +1759,7 @@ const MyWork = () => {
                                 </select>
                             </label>
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Lý do</span>
+                                <span className="text-xs font-black text-slate-700">Lý do</span>
                                 <textarea
                                     value={passModal.reason}
                                     onChange={(event) => setPassModal((prev) => ({ ...prev, reason: event.target.value }))}

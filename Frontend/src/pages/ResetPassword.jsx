@@ -57,7 +57,7 @@ export default function ResetPassword() {
             <WorkBridgeLogo imageClassName="h-[52px] w-auto max-w-[210px] drop-shadow-[0_6px_14px_rgba(37,99,235,0.14)]" />
           </Link>
           <h1 className="mt-6 text-2xl font-black text-slate-900">Tạo mật khẩu mới</h1>
-          <p className="mt-2 text-sm text-slate-500">Liên kết đặt lại mật khẩu chỉ dùng được một lần và sẽ hết hạn sau 30 phút.</p>
+          <p className="mt-2 text-sm text-slate-700">Liên kết đặt lại mật khẩu chỉ dùng được một lần và sẽ hết hạn sau 30 phút.</p>
         </div>
 
         {invalidLink ? (
@@ -72,16 +72,16 @@ export default function ResetPassword() {
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email</label>
               <input
                 value={email}
                 readOnly
-                className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500"
+                className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-700"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật khẩu mới</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Mật khẩu mới</label>
               <input
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -94,7 +94,7 @@ export default function ResetPassword() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nhập lại mật khẩu</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nhập lại mật khẩu</label>
               <input
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

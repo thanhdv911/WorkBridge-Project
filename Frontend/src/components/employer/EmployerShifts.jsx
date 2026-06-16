@@ -1194,7 +1194,7 @@ const EmployerShifts = () => {
             case 'Approved': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
             case 'Rejected': return 'bg-red-50 text-red-700 border-red-100';
             case 'Preferred': return 'bg-emerald-50 text-emerald-600 border-emerald-200 animate-pulse';
-            default: return 'bg-slate-50 text-slate-600 border-slate-100';
+            default: return 'bg-slate-50 text-slate-800 border-slate-100';
         }
     };
 
@@ -1202,7 +1202,7 @@ const EmployerShifts = () => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200/60 p-12 text-center shadow-sm">
                 <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-slate-500 font-bold text-sm">Đang kiểm tra đặc quyền Doanh nghiệp...</p>
+                <p className="text-slate-700 font-bold text-sm">Đang kiểm tra đặc quyền Doanh nghiệp...</p>
             </div>
         );
     }
@@ -1216,7 +1216,7 @@ const EmployerShifts = () => {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800">Lịch Làm Việc Hàng Tuần</h3>
-                            <p className="text-sm text-slate-500 mt-1">Quản lý ca làm việc hàng tuần từ Thứ Hai đến Chủ Nhật. Nhấp vào ô trống để xếp lịch ca làm việc.</p>
+                            <p className="text-sm text-slate-700 mt-1">Quản lý ca làm việc hàng tuần từ Thứ Hai đến Chủ Nhật. Nhấp vào ô trống để xếp lịch ca làm việc.</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -1257,7 +1257,7 @@ const EmployerShifts = () => {
                         <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-1 shrink-0">
                             <button
                                 onClick={() => navigateWeek(-1)}
-                                className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-slate-600 transition-all border border-transparent hover:border-slate-100"
+                                className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-slate-800 transition-all border border-transparent hover:border-slate-100"
                             >
                                 <span className="material-symbols-outlined text-lg">chevron_left</span>
                             </button>
@@ -1266,7 +1266,7 @@ const EmployerShifts = () => {
                             </span>
                             <button
                                 onClick={() => navigateWeek(1)}
-                                className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-slate-600 transition-all border border-transparent hover:border-slate-100"
+                                className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-slate-800 transition-all border border-transparent hover:border-slate-100"
                             >
                                 <span className="material-symbols-outlined text-lg">chevron_right</span>
                             </button>
@@ -1277,13 +1277,13 @@ const EmployerShifts = () => {
                             <select
                                 value={selectedBranchId}
                                 onChange={(e) => setSelectedBranchId(e.target.value)}
-                                className="h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 bg-white"
+                                className="h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
                             >
                                 <option value="">Tất cả Chi nhánh</option>
                                 {branches.map(b => <option key={b.branchId} value={b.branchId}>{b.name}</option>)}
                             </select>
                             <div className="relative flex-1 min-w-0">
-                                <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
+                                <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-800 text-lg">search</span>
                                 <input
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -1341,7 +1341,7 @@ const EmployerShifts = () => {
                                 <div className="rounded-2xl border border-amber-200 bg-white px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-sm">
                                     <div>
                                         <p className="text-base font-black text-slate-900">Tài khoản thường: quản lý ca thủ công</p>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-700 mt-1">
                                             Bạn vẫn có thể tạo ca, công bố lịch tuần tới, để nhân viên tự đăng ký lịch rảnh và chốt đăng ký. Các tính năng AI như tư vấn xếp ca, tự động xếp ca và đề xuất tuyển dụng đang bị khóa.
                                         </p>
                                     </div>
@@ -1362,7 +1362,7 @@ const EmployerShifts = () => {
                             </div>
                         ) : visibleWeekShifts.length === 0 ? (
                             <div className="px-5 py-5 text-center space-y-3 bg-[#fffdf7]">
-                                <p className="text-[11px] font-semibold text-slate-500">
+                                <p className="text-[11px] font-semibold text-slate-700">
                                     Chưa có ca làm việc nào tuần này
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 justify-center">
@@ -1399,7 +1399,7 @@ const EmployerShifts = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-3">
                                     {/* Score */}
                                     <div className="bg-white border border-amber-100 rounded-2xl p-4 text-center shadow-sm">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Độ phủ nhân sự</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-800 tracking-wider block">Độ phủ nhân sự</span>
                                         <span className={`text-3xl font-black block mt-1 ${
                                             coverageScore === 100 ? 'text-emerald-500' : coverageScore >= 80 ? 'text-amber-500' : 'text-red-500'
                                         }`}>{coverageScore}%</span>
@@ -1414,21 +1414,21 @@ const EmployerShifts = () => {
                                     </div>
                                     {/* Shifts count */}
                                     <div className="bg-white border border-amber-100 rounded-2xl p-4 text-center shadow-sm">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Tổng ca</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-800 tracking-wider block">Tổng ca</span>
                                         <span className="text-3xl font-black text-slate-800 block mt-1">{totalShiftsCount}</span>
-                                        <span className="text-[11px] text-slate-400 font-medium">ca/tuần</span>
+                                        <span className="text-[11px] text-slate-800 font-medium">ca/tuần</span>
                                     </div>
                                     {/* Hours */}
                                     <div className="bg-white border border-amber-100 rounded-2xl p-4 text-center shadow-sm">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Giờ làm</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-800 tracking-wider block">Giờ làm</span>
                                         <span className="text-3xl font-black text-slate-800 block mt-1">{totalHours}</span>
-                                        <span className="text-[11px] text-slate-400 font-medium">giờ</span>
+                                        <span className="text-[11px] text-slate-800 font-medium">giờ</span>
                                     </div>
                                     {/* Cost */}
                                     <div className="bg-white border border-amber-100 rounded-2xl p-4 text-center shadow-sm">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Chi phí dự tính</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-800 tracking-wider block">Chi phí dự tính</span>
                                         <span className="text-2xl font-black text-emerald-600 block mt-2">{(estimatedCost).toLocaleString('vi-VN')}₫</span>
-                                        <span className="text-[11px] text-slate-400 font-medium">theo lương giờ</span>
+                                        <span className="text-[11px] text-slate-800 font-medium">theo lương giờ</span>
                                     </div>
                                 </div>
 
@@ -1442,7 +1442,7 @@ const EmployerShifts = () => {
                                             <span className="material-symbols-outlined !text-[18px] text-amber-600 mt-0.5">{item.icon}</span>
                                             <div>
                                                 <p className="text-xs font-black text-slate-800">{item.title}</p>
-                                                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{item.text}</p>
+                                                <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed">{item.text}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -1451,7 +1451,7 @@ const EmployerShifts = () => {
                                 {/* Compact recruitment suggestions */}
                                 <div className="bg-white border border-amber-100 rounded-2xl p-3.5 mb-3 shadow-sm">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+                                        <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
                                             <span className="material-symbols-outlined !text-sm text-amber-600">workspace_premium</span>
                                             Đề xuất tuyển dụng VIP AI
                                         </span>
@@ -1479,7 +1479,7 @@ const EmployerShifts = () => {
                                                         <div className="min-w-0 flex items-center gap-1.5">
                                                             <span className="material-symbols-outlined !text-sm text-amber-600">group</span>
                                                             <span className="text-[10px] font-semibold text-slate-700 truncate">{group.role}</span>
-                                                            <span className="text-[8px] text-slate-400 font-medium shrink-0">({group.shiftsCount} ca thiếu)</span>
+                                                            <span className="text-[8px] text-slate-800 font-medium shrink-0">({group.shiftsCount} ca thiếu)</span>
                                                             <span className="shrink-0 bg-amber-100 text-amber-800 text-[8px] font-black px-1.5 py-px rounded">
                                                                 +{group.optimalHires} người
                                                             </span>
@@ -1487,7 +1487,7 @@ const EmployerShifts = () => {
                                                         <div className="flex gap-1 shrink-0">
                                                             <button
                                                                 onClick={() => window.location.href = getAiPrefillLink(group)}
-                                                                className="h-5.5 px-2 rounded text-[8px] font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all flex items-center gap-0.5"
+                                                                className="h-5.5 px-2 rounded text-[8px] font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 transition-all flex items-center gap-0.5"
                                                             >
                                                                 Soạn
                                                             </button>
@@ -1504,7 +1504,7 @@ const EmployerShifts = () => {
                                             })()}
                                         </div>
                                     ) : (
-                                        <p className="text-slate-400 text-[10px] italic py-1">
+                                        <p className="text-slate-800 text-[10px] italic py-1">
                                             ✓ Lịch tuần đầy đủ nhân sự, không cần tuyển thêm.
                                         </p>
                                     )}
@@ -1514,7 +1514,7 @@ const EmployerShifts = () => {
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     {/* Trust scores compact */}
                                     <div className="flex-1 bg-white border border-amber-100 rounded-2xl p-3 shadow-sm">
-                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5 mb-2">
+                                        <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5 mb-2">
                                             <span className="material-symbols-outlined !text-sm text-amber-600">analytics</span>
                                             Uy tín nhân viên
                                         </span>
@@ -1534,7 +1534,7 @@ const EmployerShifts = () => {
                                                 </div>
                                             ))}
                                             {employeePerformance.length === 0 && (
-                                                <span className="text-[9px] text-slate-400 italic">Chưa có dữ liệu</span>
+                                                <span className="text-[9px] text-slate-800 italic">Chưa có dữ liệu</span>
                                             )}
                                         </div>
                                     </div>
@@ -1559,7 +1559,7 @@ const EmployerShifts = () => {
                                         </button>
                                         <button
                                             onClick={handlePrintSchedule}
-                                            className="h-9 px-4 rounded-xl border border-amber-200 bg-white hover:bg-amber-50 text-slate-600 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
+                                            className="h-9 px-4 rounded-xl border border-amber-200 bg-white hover:bg-amber-50 text-slate-800 text-[10px] font-bold transition-all flex items-center justify-center gap-1"
                                         >
                                             <span className="material-symbols-outlined !text-xs">print</span>
                                             Xuất báo cáo
@@ -1572,15 +1572,15 @@ const EmployerShifts = () => {
                 </div>
 
                 {loading ? (
-                    <div className="p-14 text-center text-slate-400">Đang tải lịch làm việc...</div>
+                    <div className="p-14 text-center text-slate-800">Đang tải lịch làm việc...</div>
                 ) : (
                     <div className="flex-1 overflow-x-auto min-w-0">
                         <div className="w-full min-w-[800px] lg:min-w-0 bg-white">
                             {/* Mon-Sun Day Headers */}
                             <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-slate-100 bg-slate-50/50 text-center py-4">
-                                <div className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center justify-center">Giờ</div>
+                                <div className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center justify-center">Giờ</div>
                                 {weekDays.map((day, idx) => (
-                                    <div key={idx} className={`text-xs ${isToday(day) ? 'text-primary font-black' : 'text-slate-500 font-bold'}`}>
+                                    <div key={idx} className={`text-xs ${isToday(day) ? 'text-primary font-black' : 'text-slate-700 font-bold'}`}>
                                         <div className="uppercase tracking-wide text-[10px] opacity-75">{getDayName(day.getDay())}</div>
                                         <div className="text-base font-black mt-0.5">{day.getDate()}</div>
                                     </div>
@@ -1597,7 +1597,7 @@ const EmployerShifts = () => {
                                 </div>
 
                                 {/* Hour Labels Column */}
-                                <div className="flex flex-col justify-between text-[10px] font-black text-slate-400 py-1 bg-slate-50/30 border-r border-slate-100 h-full select-none">
+                                <div className="flex flex-col justify-between text-[10px] font-black text-slate-800 py-1 bg-slate-50/30 border-r border-slate-100 h-full select-none">
                                     {Array.from({ length: 15 }).map((_, h) => (
                                         <div key={h} className="text-center h-5 flex items-center justify-center">
                                             {String(8 + h).padStart(2, '0')}:00
@@ -1696,7 +1696,7 @@ const EmployerShifts = () => {
                                                                             <span>{preferredAssignments(shift).length} người đăng ký rảnh</span>
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="inline-flex items-center gap-1 bg-slate-100/50 border border-dashed border-slate-200 rounded-md px-1.5 py-0.5 text-slate-400 font-bold text-[9px]">
+                                                                        <div className="inline-flex items-center gap-1 bg-slate-100/50 border border-dashed border-slate-200 rounded-md px-1.5 py-0.5 text-slate-800 font-bold text-[9px]">
                                                                             <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0"></span>
                                                                             <span>Chưa Phân Công</span>
                                                                         </div>
@@ -1740,11 +1740,11 @@ const EmployerShifts = () => {
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-extrabold text-slate-800">Tạo ca làm việc</h3>
-                                <p className="text-sm text-slate-500 mt-0.5">Lên lịch ca làm việc mới cho nhân viên.</p>
+                                <p className="text-sm text-slate-700 mt-0.5">Lên lịch ca làm việc mới cho nhân viên.</p>
                             </div>
                             <button
                                 onClick={() => setIsCreateModalOpen(false)}
-                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400"
+                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800"
                             >
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
@@ -1757,7 +1757,7 @@ const EmployerShifts = () => {
                             className="p-6 space-y-4"
                         >
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Chi nhánh</label>
+                                <label className="text-xs font-bold text-slate-700 uppercase">Chi nhánh</label>
                                 <select
                                     value={form.branchId}
                                     onChange={(e) => setForm(prev => ({ ...prev, branchId: e.target.value }))}
@@ -1770,7 +1770,7 @@ const EmployerShifts = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Loại ca mẫu</label>
+                                <label className="text-xs font-bold text-slate-700 uppercase">Loại ca mẫu</label>
                                 <select
                                     value={form.templateType}
                                     onChange={(e) => setForm(prev => ({ ...prev, templateType: e.target.value }))}
@@ -1786,7 +1786,7 @@ const EmployerShifts = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Tên ca làm</label>
+                                <label className="text-xs font-bold text-slate-700 uppercase">Tên ca làm</label>
                                 <input
                                     value={form.title}
                                     onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
@@ -1797,7 +1797,7 @@ const EmployerShifts = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Ngày</label>
+                                <label className="text-xs font-bold text-slate-700 uppercase">Ngày</label>
                                 <input
                                     type="date"
                                     value={form.date}
@@ -1809,30 +1809,30 @@ const EmployerShifts = () => {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Giờ bắt đầu</label>
+                                    <label className="text-xs font-bold text-slate-700 uppercase">Giờ bắt đầu</label>
                                     <input
                                         type="time"
                                         value={form.startTime}
                                         disabled={form.templateType !== 'Custom'}
                                         onChange={(e) => setForm(prev => ({ ...prev, startTime: e.target.value }))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 disabled:bg-slate-50 disabled:text-slate-400"
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 disabled:bg-slate-50 disabled:text-slate-800"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Giờ kết thúc</label>
+                                    <label className="text-xs font-bold text-slate-700 uppercase">Giờ kết thúc</label>
                                     <input
                                         type="time"
                                         value={form.endTime}
                                         disabled={form.templateType !== 'Custom'}
                                         onChange={(e) => setForm(prev => ({ ...prev, endTime: e.target.value }))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 disabled:bg-slate-50 disabled:text-slate-400"
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 disabled:bg-slate-50 disabled:text-slate-800"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Chức vụ yêu cầu</label>
+                                    <label className="text-xs font-bold text-slate-700 uppercase">Chức vụ yêu cầu</label>
                                     <input
                                         value={form.requiredRole}
                                         onChange={(e) => setForm(prev => ({ ...prev, requiredRole: e.target.value }))}
@@ -1841,7 +1841,7 @@ const EmployerShifts = () => {
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Số lượng nhân viên</label>
+                                    <label className="text-xs font-bold text-slate-700 uppercase">Số lượng nhân viên</label>
                                     <input
                                         type="number"
                                         min="1"
@@ -1879,11 +1879,11 @@ const EmployerShifts = () => {
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-extrabold text-slate-800">Cấu hình Ca làm việc mẫu</h3>
-                                <p className="text-sm text-slate-500 mt-0.5">Định nghĩa 3 khung giờ làm việc mặc định cho doanh nghiệp của bạn.</p>
+                                <p className="text-sm text-slate-700 mt-0.5">Định nghĩa 3 khung giờ làm việc mặc định cho doanh nghiệp của bạn.</p>
                             </div>
                             <button
                                 onClick={() => setIsTemplateModalOpen(false)}
-                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400"
+                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800"
                             >
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
@@ -1894,7 +1894,7 @@ const EmployerShifts = () => {
                                     <span className="text-xs font-black text-slate-700 uppercase tracking-wider">{getShiftDisplayName(t.shiftName)}</span>
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="space-y-0.5">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Bắt đầu</label>
+                                            <label className="text-[10px] font-bold text-slate-700 uppercase">Bắt đầu</label>
                                             <input
                                                 type="time"
                                                 value={t.startTime}
@@ -1907,7 +1907,7 @@ const EmployerShifts = () => {
                                             />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Kết thúc</label>
+                                            <label className="text-[10px] font-bold text-slate-700 uppercase">Kết thúc</label>
                                             <input
                                                 type="time"
                                                 value={t.endTime}
@@ -1920,7 +1920,7 @@ const EmployerShifts = () => {
                                             />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Số nhân viên mặc định</label>
+                                            <label className="text-[10px] font-bold text-slate-700 uppercase">Số nhân viên mặc định</label>
                                             <input
                                                 type="number"
                                                 min="1"
@@ -1967,7 +1967,7 @@ const EmployerShifts = () => {
                                     {selectedShiftForDetails.branchName}
                                 </span>
                                 <h3 className="text-xl font-black text-slate-800 mt-1.5">{getShiftDisplayName(selectedShiftForDetails.title)}</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-xs text-slate-700 mt-0.5">
                                     Thời gian: {formatDateTime(selectedShiftForDetails.startTime)} - {formatDateTime(selectedShiftForDetails.endTime)}
                                 </p>
                             </div>
@@ -1984,7 +1984,7 @@ const EmployerShifts = () => {
                                         cancelReplaceAssignment();
                                         setSelectedShiftForDetails(null);
                                     }}
-                                    className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400"
+                                    className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800"
                                 >
                                     <span className="material-symbols-outlined text-xl">close</span>
                                 </button>
@@ -1996,17 +1996,17 @@ const EmployerShifts = () => {
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="bg-slate-50 rounded-2xl border border-slate-200/50 p-4 text-center">
-                                    <span className="text-[10px] font-black uppercase text-slate-400">Chức vụ yêu cầu</span>
+                                    <span className="text-[10px] font-black uppercase text-slate-800">Chức vụ yêu cầu</span>
                                     <p className="text-sm font-extrabold text-slate-700 mt-1">{selectedShiftForDetails.requiredRole || 'Không có'}</p>
                                 </div>
                                 <div className="bg-slate-50 rounded-2xl border border-slate-200/50 p-4 text-center">
-                                    <span className="text-[10px] font-black uppercase text-slate-400">Đã đăng ký</span>
+                                    <span className="text-[10px] font-black uppercase text-slate-800">Đã đăng ký</span>
                                     <p className="text-sm font-extrabold text-slate-700 mt-1">
                                         {assignedCount(selectedShiftForDetails)} / {selectedShiftForDetails.requiredPeople} nhân viên
                                     </p>
                                 </div>
                                 <div className="bg-slate-50 rounded-2xl border border-slate-200/50 p-4 text-center">
-                                    <span className="text-[10px] font-black uppercase text-slate-400">Trạng thái ca</span>
+                                    <span className="text-[10px] font-black uppercase text-slate-800">Trạng thái ca</span>
                                     <p className={`text-sm font-extrabold mt-1 ${
                                         missingCount(selectedShiftForDetails) > 0 ? 'text-red-600' : 'text-slate-700'
                                     }`}>
@@ -2031,7 +2031,7 @@ const EmployerShifts = () => {
                             {assignedCount(selectedShiftForDetails) < selectedShiftForDetails.requiredPeople && (
                                 <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-4 space-y-3">
                                     <h5 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                        <span className="material-symbols-outlined !text-base text-slate-500">group</span>
+                                        <span className="material-symbols-outlined !text-base text-slate-700">group</span>
                                         Nhân viên phù hợp để xếp thủ công
                                     </h5>
                                     {(() => {
@@ -2071,7 +2071,7 @@ const EmployerShifts = () => {
                                         });
 
                                         if (sortedCandidates.length === 0) {
-                                            return <p className="text-[11px] text-slate-500 italic">Không tìm thấy nhân viên nào đang rảnh và phù hợp cho khung giờ này.</p>;
+                                            return <p className="text-[11px] text-slate-700 italic">Không tìm thấy nhân viên nào đang rảnh và phù hợp cho khung giờ này.</p>;
                                         }
 
                                         return (
@@ -2086,11 +2086,11 @@ const EmployerShifts = () => {
                                                                         ⭐ Rảnh
                                                                     </span>
                                                                 )}
-                                                                <span className="text-[9px] font-bold text-slate-400">
+                                                                <span className="text-[9px] font-bold text-slate-800">
                                                                     ({cand.weekShiftCount} ca/tuần)
                                                                 </span>
                                                             </p>
-                                                            <p className="text-[10px] text-slate-500 mt-0.5">{cand.position || 'Nhân viên'}</p>
+                                                            <p className="text-[10px] text-slate-700 mt-0.5">{cand.position || 'Nhân viên'}</p>
                                                         </div>
                                                         <button
                                                             onClick={async () => {
@@ -2156,7 +2156,7 @@ const EmployerShifts = () => {
                             <div className="space-y-3">
                                 <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">Danh sách nhân viên phân công</h4>
                                 {selectedShiftForDetails.assignments?.length === 0 ? (
-                                    <p className="text-xs text-slate-400 italic">Chưa có nhân viên nào được phân công cho ca này.</p>
+                                    <p className="text-xs text-slate-800 italic">Chưa có nhân viên nào được phân công cho ca này.</p>
                                 ) : (
                                     <div className="grid gap-3">
                                         {selectedShiftForDetails.assignments?.map(assignment => {
@@ -2184,11 +2184,11 @@ const EmployerShifts = () => {
                                                                     </span>
                                                                 )}
                                                             </p>
-                                                            <p className="text-xs text-slate-400 mt-0.5">
+                                                            <p className="text-xs text-slate-800 mt-0.5">
                                                                 {assignment.status === 'Preferred' || assignment.assignmentSource === 'EmployeeRegistration' ? 'Đăng ký lúc' : 'Phân công lúc'}: {formatDateTime(assignment.assignedAt)}
                                                             </p>
                                                             {assignment.schedulingReason && (
-                                                                <p className="text-[11px] text-slate-500 mt-1 font-medium">
+                                                                <p className="text-[11px] text-slate-700 mt-1 font-medium">
                                                                     {assignment.schedulingReason}
                                                                 </p>
                                                             )}
@@ -2256,31 +2256,31 @@ const EmployerShifts = () => {
                                                                         type="button"
                                                                         onClick={cancelReplaceAssignment}
                                                                         disabled={assignmentActionId === assignment.shiftAssignmentId}
-                                                                        className="h-10 px-3 rounded-xl border border-slate-200 text-slate-600 text-xs font-black hover:bg-slate-50 disabled:opacity-50"
+                                                                        className="h-10 px-3 rounded-xl border border-slate-200 text-slate-800 text-xs font-black hover:bg-slate-50 disabled:opacity-50"
                                                                     >
                                                                         Hủy
                                                                     </button>
                                                                 </div>
                                                             </div>
                                                             {replacementCandidates.length === 0 && (
-                                                                <p className="text-[11px] text-slate-500">
+                                                                <p className="text-[11px] text-slate-700">
                                                                     Không còn nhân viên cùng chi nhánh và rảnh trong khung giờ này.
                                                                 </p>
                                                             )}
                                                         </div>
                                                     )}
 
-                                                    <div className="grid grid-cols-3 gap-2 text-xs text-slate-600">
+                                                    <div className="grid grid-cols-3 gap-2 text-xs text-slate-800">
                                                         <div className="bg-white p-2 rounded-xl border border-slate-100 text-center">
-                                                            <div className="text-[9px] font-bold text-slate-400 uppercase">Giờ vào</div>
+                                                            <div className="text-[9px] font-bold text-slate-800 uppercase">Giờ vào</div>
                                                             <div className="font-bold text-slate-700 mt-0.5">{formatTime(assignment.checkInAt)}</div>
                                                         </div>
                                                         <div className="bg-white p-2 rounded-xl border border-slate-100 text-center">
-                                                            <div className="text-[9px] font-bold text-slate-400 uppercase">Giờ ra</div>
+                                                            <div className="text-[9px] font-bold text-slate-800 uppercase">Giờ ra</div>
                                                             <div className="font-bold text-slate-700 mt-0.5">{formatTime(assignment.checkOutAt)}</div>
                                                         </div>
                                                         <div className="bg-white p-2 rounded-xl border border-slate-100 text-center">
-                                                            <div className="text-[9px] font-bold text-slate-400 uppercase">Giờ công</div>
+                                                            <div className="text-[9px] font-bold text-slate-800 uppercase">Giờ công</div>
                                                             <div className="font-bold text-slate-700 mt-0.5">{formatMinutes(assignment.workedMinutes)}</div>
                                                         </div>
                                                     </div>
@@ -2330,14 +2330,14 @@ const EmployerShifts = () => {
                                     <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                                     <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
                                 </div>
-                                <span className="text-xs font-black text-slate-400 font-mono tracking-wider ml-2">
+                                <span className="text-xs font-black text-slate-800 font-mono tracking-wider ml-2">
                                     WORKBRIDGE AI CORE v2.5 - SCHEDULE OPTIMIZER
                                 </span>
                             </div>
                             {!isAiScheduling && (
                                 <button
                                     onClick={() => setShowAiSchedulerModal(false)}
-                                    className="text-slate-400 hover:text-white transition-all text-xs font-bold font-mono border border-slate-800 hover:border-slate-700 bg-slate-950 px-2.5 py-1 rounded-lg"
+                                    className="text-slate-800 hover:text-white transition-all text-xs font-bold font-mono border border-slate-800 hover:border-slate-700 bg-slate-950 px-2.5 py-1 rounded-lg"
                                 >
                                     Esc_
                                 </button>
@@ -2363,7 +2363,7 @@ const EmployerShifts = () => {
                             })}
 
                             {isAiScheduling && (
-                                <div className="flex items-center gap-2 pt-2 text-slate-500 animate-pulse">
+                                <div className="flex items-center gap-2 pt-2 text-slate-700 animate-pulse">
                                     <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
                                     <span>AI đang tính toán mô hình tối ưu...</span>
                                 </div>
@@ -2374,7 +2374,7 @@ const EmployerShifts = () => {
                         <div className="bg-slate-900/60 p-5 border-t border-slate-800/80 flex items-center justify-between shrink-0">
                             <div className="flex items-center gap-2">
                                 <span className={`w-2.5 h-2.5 rounded-full ${isAiScheduling ? 'bg-indigo-500 animate-ping' : 'bg-emerald-500'}`}></span>
-                                <span className="text-[10px] text-slate-400 font-bold font-mono">
+                                <span className="text-[10px] text-slate-800 font-bold font-mono">
                                     {isAiScheduling ? "AI SOLVER STATUS: COMPUTING..." : "AI SOLVER STATUS: READY"}
                                 </span>
                             </div>

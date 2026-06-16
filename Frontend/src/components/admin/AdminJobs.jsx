@@ -99,14 +99,14 @@ const AdminJobs = () => {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h2 className="text-xl font-black tracking-tight text-slate-950">Kiểm duyệt việc làm</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                        <p className="mt-1 text-sm font-medium text-slate-700">
                             Đọc nhanh nội dung tin, duyệt hoặc từ chối trước khi xuất bản.
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <label className="relative block min-w-0 sm:w-[300px]">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-400">search</span>
+                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
                             <input
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
@@ -126,7 +126,7 @@ const AdminJobs = () => {
                 <div className="rounded-[28px] border border-white/80 bg-white px-6 py-16 text-center shadow-sm">
                     <span className="material-symbols-outlined !text-[46px] text-emerald-500">check_circle</span>
                     <h3 className="mt-4 text-base font-black text-slate-800">Không còn tin nào chờ duyệt</h3>
-                    <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+                    <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
                         Hàng đợi kiểm duyệt đang sạch. Tin tuyển dụng mới sẽ xuất hiện tại đây.
                     </p>
                 </div>
@@ -134,7 +134,7 @@ const AdminJobs = () => {
                 <div className="rounded-[28px] border border-white/80 bg-white px-6 py-14 text-center shadow-sm">
                     <span className="material-symbols-outlined !text-[42px] text-slate-300">search_off</span>
                     <h3 className="mt-3 text-sm font-black text-slate-700">Không tìm thấy tin phù hợp</h3>
-                    <p className="mt-1 text-xs font-semibold text-slate-400">Thử đổi từ khóa hoặc xóa bộ lọc tìm kiếm.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-800">Thử đổi từ khóa hoặc xóa bộ lọc tìm kiếm.</p>
                 </div>
             ) : (
                 <div className="grid gap-4">
@@ -142,7 +142,7 @@ const AdminJobs = () => {
                         <article key={job.jobPostId} className="group rounded-[24px] border border-white/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_24px_70px_rgba(15,23,42,0.10)] sm:p-5">
                             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                                 <div className="flex min-w-0 gap-4">
-                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 ring-1 ring-slate-100 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-800 ring-1 ring-slate-100 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <span className="material-symbols-outlined !text-[29px]">work</span>
                                     </div>
 
@@ -155,7 +155,7 @@ const AdminJobs = () => {
                                                 Chờ duyệt
                                             </span>
                                         </div>
-                                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-400">
+                                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-800">
                                             <span className="inline-flex items-center gap-1">
                                                 <span className="material-symbols-outlined !text-[14px]">business</span>
                                                 {job.companyName}
@@ -177,7 +177,7 @@ const AdminJobs = () => {
                                         type="button"
                                         onClick={() => handleViewJob(job.jobPostId)}
                                         disabled={previewingJobId === job.jobPostId}
-                                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-600 transition-all hover:border-primary/30 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-800 transition-all hover:border-primary/30 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <span className="material-symbols-outlined !text-[18px]">
                                             {previewingJobId === job.jobPostId ? 'progress_activity' : 'visibility'}
@@ -220,7 +220,7 @@ const AdminJobs = () => {
                             <div className="min-w-0">
                                 <p className="text-xs font-black text-primary">Chi tiết tin tuyển dụng</p>
                                 <h3 className="mt-1 text-xl font-black tracking-tight text-slate-950">{selectedJob.title}</h3>
-                                <p className="mt-1 flex items-center gap-1 text-xs font-bold text-slate-500">
+                                <p className="mt-1 flex items-center gap-1 text-xs font-bold text-slate-700">
                                     <span className="material-symbols-outlined !text-[15px]">business</span>
                                     {selectedJob.companyName}
                                 </p>
@@ -228,7 +228,7 @@ const AdminJobs = () => {
                             <button
                                 type="button"
                                 onClick={() => setSelectedJob(null)}
-                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-800"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-800"
                                 aria-label="Đóng chi tiết tin tuyển dụng"
                             >
                                 <span className="material-symbols-outlined !text-[21px]">close</span>
@@ -262,7 +262,7 @@ const AdminJobs = () => {
 
                             {selectedJob.shifts && selectedJob.shifts.length > 0 && (
                                 <section className="space-y-3">
-                                    <h4 className="text-xs font-black text-slate-500">Ca làm việc dự kiến</h4>
+                                    <h4 className="text-xs font-black text-slate-700">Ca làm việc dự kiến</h4>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedJob.shifts.map((shift) => (
                                             <span key={shift.shiftId} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm">
@@ -290,7 +290,7 @@ const AdminJobs = () => {
                             <button
                                 type="button"
                                 onClick={() => setSelectedJob(null)}
-                                className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-xs font-black text-slate-600 transition hover:bg-slate-100"
+                                className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-xs font-black text-slate-800 transition hover:bg-slate-100"
                             >
                                 Đóng
                             </button>
@@ -328,7 +328,7 @@ function InfoItem({ icon, label, value, wide = false }) {
         <div className={`flex items-start gap-3 ${wide ? 'sm:col-span-2' : ''}`}>
             <span className="material-symbols-outlined !text-[20px] text-primary">{icon}</span>
             <div className="min-w-0">
-                <p className="text-[11px] font-black text-slate-400">{label}</p>
+                <p className="text-[11px] font-black text-slate-800">{label}</p>
                 <p className="mt-0.5 text-sm font-bold leading-relaxed text-slate-800">{value || 'Chưa cập nhật'}</p>
             </div>
         </div>
@@ -338,8 +338,8 @@ function InfoItem({ icon, label, value, wide = false }) {
 function TextBlock({ title, content }) {
     return (
         <section className="space-y-2">
-            <h4 className="text-xs font-black text-slate-500">{title}</h4>
-            <p className="whitespace-pre-line rounded-2xl bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-600 ring-1 ring-slate-100">
+            <h4 className="text-xs font-black text-slate-700">{title}</h4>
+            <p className="whitespace-pre-line rounded-2xl bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-800 ring-1 ring-slate-100">
                 {content || 'Chưa cập nhật'}
             </p>
         </section>

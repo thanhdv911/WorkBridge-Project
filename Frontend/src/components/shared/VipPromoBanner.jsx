@@ -170,7 +170,7 @@ export default function VipPromoBanner({ disabled = false }) {
                 <span className="material-symbols-outlined !text-[14px]">auto_awesome</span>
                 WorkBridge VIP
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wide text-slate-400">
+              <span className="text-[11px] font-black uppercase tracking-wide text-slate-800">
                 {audience === 'Employer' ? 'Dành cho doanh nghiệp' : 'Dành cho cá nhân'}
               </span>
             </div>
@@ -179,14 +179,14 @@ export default function VipPromoBanner({ disabled = false }) {
                 ? 'Tăng tốc tuyển dụng với bộ quyền VIP'
                 : 'Mở trợ lý AI để tìm việc, sửa CV và luyện phỏng vấn'}
             </h3>
-            <p className="mt-1 max-w-2xl text-sm font-semibold leading-relaxed text-slate-500">
+            <p className="mt-1 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700">
               {audience === 'Employer'
                 ? 'Chọn gói phù hợp để tin tuyển dụng nổi bật hơn, quy trình gọn hơn và AI hỗ trợ vận hành hằng ngày.'
                 : 'Một lời nhắc nhỏ để bạn thử các công cụ giúp hồ sơ sáng hơn và tìm việc chủ động hơn.'}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {getAudienceHighlights(audience).map(item => (
-                <span key={item} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-white/80 px-3 py-1 text-[11px] font-black text-slate-600 shadow-sm">
+                <span key={item} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-white/80 px-3 py-1 text-[11px] font-black text-slate-800 shadow-sm">
                   <span className="material-symbols-outlined !text-[14px] text-[#1687d9]">check_circle</span>
                   {item}
                 </span>
@@ -197,7 +197,7 @@ export default function VipPromoBanner({ disabled = false }) {
             type="button"
             onClick={closeBanner}
             title="Đóng banner"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 transition hover:border-slate-300 hover:text-slate-700"
           >
             <span className="material-symbols-outlined !text-[20px]">close</span>
           </button>
@@ -233,13 +233,13 @@ export default function VipPromoBanner({ disabled = false }) {
                     <span className={`ml-1 text-[10px] font-black uppercase ${style.text}`}>{plan.currency || 'VND'}</span>
                     <p className={`mt-0.5 text-[10px] font-black uppercase ${style.text}`}>cho {formatDuration(plan.durationDays)}</p>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-xs font-semibold leading-relaxed text-slate-500">
+                  <p className="mt-3 line-clamp-2 text-xs font-semibold leading-relaxed text-slate-700">
                     {plan.description || 'Mở quyền VIP WorkBridge theo loại tài khoản.'}
                   </p>
 
                   <div className="mt-3 grid gap-1.5">
                     {perks.map(perk => (
-                      <div key={perk} className="flex items-center gap-2 text-[11px] font-bold text-slate-600">
+                      <div key={perk} className="flex items-center gap-2 text-[11px] font-bold text-slate-800">
                         <span className={`material-symbols-outlined !text-[14px] ${style.text}`}>check_circle</span>
                         <span>{perk}</span>
                       </div>
@@ -257,7 +257,7 @@ export default function VipPromoBanner({ disabled = false }) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-200/70 bg-sky-50/75 px-5 py-3 sm:px-6">
-          <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold text-slate-500">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold text-slate-700">
             <input
               type="checkbox"
               checked={hideFor24h}

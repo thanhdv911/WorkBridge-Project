@@ -901,18 +901,18 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         </span>
                     </div>
                     <div className="space-y-3 p-4">
-                        <div className="grid gap-2 text-sm text-slate-600">
+                        <div className="grid gap-2 text-sm text-slate-800">
                             <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined !text-[18px] text-slate-400">schedule</span>
+                                <span className="material-symbols-outlined !text-[18px] text-slate-800">schedule</span>
                                 <span>{formatDateTime(interview.scheduledAt)}</span>
                             </div>
                             <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined !text-[18px] text-slate-400">location_on</span>
+                                <span className="material-symbols-outlined !text-[18px] text-slate-800">location_on</span>
                                 <span className="break-words">{interview.location}</span>
                             </div>
                             {interview.note && (
                                 <div className="flex items-start gap-2">
-                                    <span className="material-symbols-outlined !text-[18px] text-slate-400">notes</span>
+                                    <span className="material-symbols-outlined !text-[18px] text-slate-800">notes</span>
                                     <span className="break-words">{interview.note}</span>
                                 </div>
                             )}
@@ -941,13 +941,13 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         )}
 
                         {isEmployer && interview.status === 'Confirmed' && !interview.canEmployerMarkResult && !interview.result && (
-                            <p className="text-xs font-semibold text-slate-400">Ứng viên đã xác nhận. Có thể nhập kết quả sau giờ phỏng vấn.</p>
+                            <p className="text-xs font-semibold text-slate-800">Ứng viên đã xác nhận. Có thể nhập kết quả sau giờ phỏng vấn.</p>
                         )}
                         {isEmployer && interview.status === 'Scheduled' && !interview.result && (
-                            <p className="text-xs font-semibold text-slate-400">Đang chờ ứng viên phản hồi.</p>
+                            <p className="text-xs font-semibold text-slate-800">Đang chờ ứng viên phản hồi.</p>
                         )}
 
-                        <div className={`text-[10px] text-slate-400 ${isOwn ? 'text-right' : 'text-left'}`}>
+                        <div className={`text-[10px] text-slate-800 ${isOwn ? 'text-right' : 'text-left'}`}>
                             {formatClock(getMessageSentAt(message))}
                         </div>
                     </div>
@@ -963,12 +963,12 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
         if (!offer) {
             return (
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    <div className="w-full max-w-[460px] rounded-lg border border-blue-100 bg-white p-4 text-sm text-slate-600 shadow-sm">
+                    <div className="w-full max-w-[460px] rounded-lg border border-blue-100 bg-white p-4 text-sm text-slate-800 shadow-sm">
                         <div className="mb-3 flex items-center gap-2">
                             <span className="material-symbols-outlined !text-[20px] text-[#1687d9]">contract</span>
                             <div>
                                 <p className="font-black text-slate-800">Lời mời nhận việc</p>
-                                <p className="text-xs text-slate-500">Nhà tuyển dụng đã gửi lời mời. Mở mục Lời mời để xem chi tiết.</p>
+                                <p className="text-xs text-slate-700">Nhà tuyển dụng đã gửi lời mời. Mở mục Lời mời để xem chi tiết.</p>
                             </div>
                         </div>
                         <button type="button" onClick={() => navigate('/offers')} className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50">
@@ -991,18 +991,18 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             {offer.status}
                         </span>
                     </div>
-                    <div className="space-y-3 p-4 text-sm text-slate-600">
+                    <div className="space-y-3 p-4 text-sm text-slate-800">
                         <div className="grid gap-2">
                             <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined !text-[18px] text-slate-400">work</span>
+                                <span className="material-symbols-outlined !text-[18px] text-slate-800">work</span>
                                 <span>{offer.position} tại {offer.branchName}</span>
                             </div>
                             <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined !text-[18px] text-slate-400">payments</span>
+                                <span className="material-symbols-outlined !text-[18px] text-slate-800">payments</span>
                                 <span>{Number(offer.hourlyRate || 0).toLocaleString('vi-VN')} VND/giờ</span>
                             </div>
                             <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined !text-[18px] text-slate-400">event_available</span>
+                                <span className="material-symbols-outlined !text-[18px] text-slate-800">event_available</span>
                                 <span>Bắt đầu {formatDate(offer.startDate)}</span>
                             </div>
                         </div>
@@ -1030,7 +1030,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         : 'rounded-bl-sm border border-slate-100 bg-white text-slate-700'
                 }`}>
                     <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
-                    <div className={`mt-1 flex items-center gap-1 text-[10px] ${isOwn ? 'justify-end text-white/75' : 'justify-start text-slate-400'}`}>
+                    <div className={`mt-1 flex items-center gap-1 text-[10px] ${isOwn ? 'justify-end text-white/75' : 'justify-start text-slate-800'}`}>
                         <span>{formatClock(getMessageSentAt(message))}</span>
                         {isOwn && (
                             <span className="material-symbols-outlined !text-[13px]">
@@ -1058,19 +1058,19 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                     <div className="mb-4 flex items-center justify-between">
                         <div>
                             <h1 className="text-lg font-black tracking-tight text-slate-900">Tin nhắn</h1>
-                            <p className="text-xs font-medium text-slate-400">Trao đổi tuyển dụng và vận hành</p>
+                            <p className="text-xs font-medium text-slate-800">Trao đổi tuyển dụng và vận hành</p>
                         </div>
-                        <button type="button" title="Đồng bộ" onClick={fetchConversations} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-primary">
+                        <button type="button" title="Đồng bộ" onClick={fetchConversations} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-800 hover:bg-slate-50 hover:text-primary">
                             <span className="material-symbols-outlined !text-xl">sync</span>
                         </button>
                     </div>
 
                     <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 focus-within:border-[#1687d9] focus-within:bg-white">
-                        <span className="material-symbols-outlined !text-[19px] text-slate-400">search</span>
+                        <span className="material-symbols-outlined !text-[19px] text-slate-800">search</span>
                         <input
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.target.value)}
-                            className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400"
+                            className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-800"
                             placeholder="Tìm theo tên hoặc nội dung"
                         />
                     </div>
@@ -1084,13 +1084,13 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                 className={`flex h-9 items-center justify-center gap-1.5 rounded-md text-xs font-bold transition ${
                                     activeFilter === filter.id
                                         ? 'bg-white text-[#1687d9] shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-800'
+                                        : 'text-slate-700 hover:text-slate-800'
                                 }`}
                             >
                                 <span className="material-symbols-outlined !text-[16px]">{filter.icon}</span>
                                 <span>{filter.label}</span>
                                 {filterCounts[filter.id] > 0 && (
-                                    <span className="text-[10px] text-slate-400">{filterCounts[filter.id]}</span>
+                                    <span className="text-[10px] text-slate-800">{filterCounts[filter.id]}</span>
                                 )}
                             </button>
                         ))}
@@ -1104,7 +1104,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                 <span className="material-symbols-outlined text-slate-300">forum</span>
                             </div>
                             <p className="text-sm font-bold text-slate-700">Không có hội thoại phù hợp</p>
-                            <p className="mt-1 text-xs text-slate-400">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+                            <p className="mt-1 text-xs text-slate-800">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
                         </div>
                     ) : (
                         filteredConversations.map((conv) => {
@@ -1137,10 +1137,10 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                     <h3 className="truncate text-sm font-black text-slate-800">{conv.contactName}</h3>
                                                     {isPinned && <span className="material-symbols-outlined !text-[14px] text-[#1687d9]">keep</span>}
                                                 </div>
-                                                <span className="shrink-0 text-[10px] font-medium text-slate-400">{formatConversationTime(conv.lastMessageAt)}</span>
+                                                <span className="shrink-0 text-[10px] font-medium text-slate-800">{formatConversationTime(conv.lastMessageAt)}</span>
                                             </div>
                                             <div className="flex items-center justify-between gap-2">
-                                                <p className={`truncate text-xs ${conv.unreadCount > 0 ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
+                                                <p className={`truncate text-xs ${conv.unreadCount > 0 ? 'font-bold text-slate-900' : 'text-slate-700'}`}>
                                                     {conv.lastMessage || 'Mở hội thoại'}
                                                 </p>
                                                 {conv.unreadCount > 0 && (
@@ -1162,7 +1162,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                 {selectedContact ? (
                     <>
                         <div className="flex h-[64px] shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4">
-                            <button type="button" onClick={() => setSelectedContact(null)} title="Quay lại" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 md:hidden">
+                            <button type="button" onClick={() => setSelectedContact(null)} title="Quay lại" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-50 md:hidden">
                                 <span className="material-symbols-outlined !text-xl">arrow_back</span>
                             </button>
                             <div className="relative shrink-0">
@@ -1178,12 +1178,12 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             </div>
                             <div className="min-w-0">
                                 <h2 className="truncate text-sm font-black text-slate-900">{selectedContact.contactName}</h2>
-                                <p className={`text-[11px] font-bold ${selectedContact.isOnline ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                <p className={`text-[11px] font-bold ${selectedContact.isOnline ? 'text-emerald-600' : 'text-slate-800'}`}>
                                     {formatLastSeen(selectedContact)}
                                 </p>
                             </div>
                             <div className="ml-auto flex items-center gap-1.5">
-                                <button type="button" onClick={() => togglePinned(selectedContact.contactId)} title="Ghim hội thoại" className={`flex h-9 w-9 items-center justify-center rounded-lg ${pinnedIds.includes(Number(selectedContact.contactId)) ? 'bg-blue-50 text-[#1687d9]' : 'text-slate-400 hover:bg-slate-50'}`}>
+                                <button type="button" onClick={() => togglePinned(selectedContact.contactId)} title="Ghim hội thoại" className={`flex h-9 w-9 items-center justify-center rounded-lg ${pinnedIds.includes(Number(selectedContact.contactId)) ? 'bg-blue-50 text-[#1687d9]' : 'text-slate-800 hover:bg-slate-50'}`}>
                                     <span className="material-symbols-outlined !text-xl">keep</span>
                                 </button>
                                 {isEmployer && chatApplications.length > 0 && (
@@ -1198,7 +1198,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                         </button>
                                     </>
                                 )}
-                                <button type="button" onClick={() => setShowReportModal(true)} title="Báo cáo" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-500">
+                                <button type="button" onClick={() => setShowReportModal(true)} title="Báo cáo" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-800 hover:bg-rose-50 hover:text-rose-500">
                                     <span className="material-symbols-outlined !text-xl">flag</span>
                                 </button>
                             </div>
@@ -1221,7 +1221,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                 <span className="material-symbols-outlined !text-3xl">chat</span>
                                             </div>
                                             <h3 className="text-sm font-black text-slate-800">Bắt đầu hội thoại</h3>
-                                            <p className="mt-1 max-w-sm text-xs text-slate-400">Tin nhắn sẽ được đồng bộ realtime khi hai bên đang online.</p>
+                                            <p className="mt-1 max-w-sm text-xs text-slate-800">Tin nhắn sẽ được đồng bộ realtime khi hai bên đang online.</p>
                                         </div>
                                     ) : (
                                         <div className="mx-auto flex w-full max-w-[860px] flex-col gap-3">
@@ -1236,7 +1236,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
 
                                 {peerIsTyping && (
                                     <div className="bg-[#f4f8fc] px-4 pb-2 sm:px-6">
-                                        <div className="mx-auto flex max-w-[860px] items-center gap-2 text-xs font-medium text-slate-400">
+                                        <div className="mx-auto flex max-w-[860px] items-center gap-2 text-xs font-medium text-slate-800">
                                             <div className="flex items-center gap-1">
                                                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
                                                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:150ms]" />
@@ -1254,16 +1254,16 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                 <div className="mb-2 flex items-center justify-between gap-3">
                                                     <div className="flex items-center gap-2">
                                                         <span className="material-symbols-outlined !text-[18px] text-[#1687d9]">auto_awesome</span>
-                                                        <p className="text-xs font-black uppercase tracking-wide text-slate-500">
+                                                        <p className="text-xs font-black uppercase tracking-wide text-slate-700">
                                                             {aiMode === 'summarize' ? 'AI tóm tắt' : aiMode === 'interview' ? 'AI phỏng vấn' : 'AI gợi ý trả lời'}
                                                         </p>
                                                     </div>
-                                                    <button type="button" onClick={() => setAiOpen(false)} title="Đóng" className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-white">
+                                                    <button type="button" onClick={() => setAiOpen(false)} title="Đóng" className="flex h-7 w-7 items-center justify-center rounded-md text-slate-800 hover:bg-white">
                                                         <span className="material-symbols-outlined !text-[17px]">close</span>
                                                     </button>
                                                 </div>
                                                 {aiLoading ? (
-                                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                                    <div className="flex items-center gap-2 text-sm text-slate-700">
                                                         <span className="h-2 w-2 animate-pulse rounded-full bg-[#1687d9]" />
                                                         Đang soạn gợi ý...
                                                     </div>
@@ -1275,7 +1275,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                             className="min-h-28 w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700"
                                                         />
                                                         <div className="mt-2 flex justify-end gap-2">
-                                                            <button type="button" onClick={() => handleAiAssist(aiMode)} className="h-8 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 hover:bg-white">
+                                                            <button type="button" onClick={() => handleAiAssist(aiMode)} className="h-8 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-800 hover:bg-white">
                                                                 Tạo lại
                                                             </button>
                                                             <button type="button" onClick={applyAiDraft} className="h-8 rounded-lg bg-[#1687d9] px-3 text-xs font-bold text-white hover:bg-[#0f75c2]">
@@ -1293,7 +1293,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                     type="button"
                                                     key={reply}
                                                     onClick={() => setNewMessage(reply)}
-                                                    className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-[#1687d9]"
+                                                    className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-blue-200 hover:bg-blue-50 hover:text-[#1687d9]"
                                                 >
                                                     {reply.length > 44 ? `${reply.slice(0, 44)}...` : reply}
                                                 </button>
@@ -1301,7 +1301,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                         </div>
 
                                         <form onSubmit={handleSendMessage} className="flex items-end gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 focus-within:border-[#1687d9] focus-within:bg-white">
-                                            <button type="button" onClick={isEmployer ? openInterviewModal : undefined} title={isEmployer ? 'Hẹn phỏng vấn' : 'Tùy chọn'} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-[#1687d9]">
+                                            <button type="button" onClick={isEmployer ? openInterviewModal : undefined} title={isEmployer ? 'Hẹn phỏng vấn' : 'Tùy chọn'} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-800 hover:bg-white hover:text-[#1687d9]">
                                                 <span className="material-symbols-outlined">add_circle</span>
                                             </button>
                                             <textarea
@@ -1315,16 +1315,16 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                     }
                                                 }}
                                                 placeholder="Nhập tin nhắn..."
-                                                className="max-h-28 min-h-10 min-w-0 flex-1 resize-none bg-transparent py-2 text-sm leading-relaxed text-slate-700 placeholder:text-slate-400"
+                                                className="max-h-28 min-h-10 min-w-0 flex-1 resize-none bg-transparent py-2 text-sm leading-relaxed text-slate-700 placeholder:text-slate-800"
                                             />
                                             <div className="flex shrink-0 items-center gap-1">
-                                                <button type="button" onClick={() => handleAiAssist('reply')} title="AI gợi ý trả lời" className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 hover:bg-blue-50 hover:text-[#1687d9]">
+                                                <button type="button" onClick={() => handleAiAssist('reply')} title="AI gợi ý trả lời" className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-800 hover:bg-blue-50 hover:text-[#1687d9]">
                                                     <span className="material-symbols-outlined">auto_awesome</span>
                                                 </button>
                                                 <button type="submit" disabled={!newMessage.trim() || sending} title="Gửi" className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
                                                     newMessage.trim() && !sending
                                                         ? 'bg-[#1687d9] text-white hover:bg-[#0f75c2]'
-                                                        : 'bg-slate-200 text-slate-400'
+                                                        : 'bg-slate-200 text-slate-800'
                                                 }`}>
                                                     <span className="material-symbols-outlined !text-[20px]">send</span>
                                                 </button>
@@ -1347,7 +1347,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="truncate text-sm font-black text-slate-900">{selectedContact.contactName}</h3>
-                                            <p className="text-xs font-medium text-slate-400">{formatLastSeen(selectedContact)}</p>
+                                            <p className="text-xs font-medium text-slate-800">{formatLastSeen(selectedContact)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1355,7 +1355,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                 <div className="space-y-5 p-4">
                                     <section>
                                         <div className="mb-2 flex items-center justify-between">
-                                            <h4 className="text-xs font-black uppercase tracking-wide text-slate-400">Hồ sơ liên quan</h4>
+                                            <h4 className="text-xs font-black uppercase tracking-wide text-slate-800">Hồ sơ liên quan</h4>
                                             {isEmployer && chatApplications.length > 0 && (
                                                 <div className="flex items-center gap-2">
                                                     <button type="button" onClick={openOfferModal} className="text-xs font-bold text-[#1687d9]">Gửi lời mời</button>
@@ -1368,7 +1368,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                 {chatApplications.map(app => (
                                                     <div key={app.applicationId} className="rounded-lg border border-slate-200 p-3">
                                                         <p className="line-clamp-2 text-sm font-black text-slate-800">{app.jobTitle}</p>
-                                                        <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                                                        <div className="mt-2 flex items-center justify-between text-xs text-slate-700">
                                                             <span>{app.status}</span>
                                                             <span>{formatDate(app.appliedAt)}</span>
                                                         </div>
@@ -1381,15 +1381,15 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="rounded-lg bg-slate-50 p-3 text-xs leading-relaxed text-slate-500">
+                                            <p className="rounded-lg bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
                                                 {isEmployer ? 'Chưa có hồ sơ đang mở cho hội thoại này.' : 'Nhà tuyển dụng sẽ gửi lịch phỏng vấn hoặc offer trực tiếp trong khung chat.'}
                                             </p>
                                         )}
                                     </section>
 
                                     <section>
-                                        <h4 className="mb-2 text-xs font-black uppercase tracking-wide text-slate-400">Trạng thái gần nhất</h4>
-                                        <div className="space-y-2 rounded-lg border border-slate-200 p-3 text-xs text-slate-600">
+                                        <h4 className="mb-2 text-xs font-black uppercase tracking-wide text-slate-800">Trạng thái gần nhất</h4>
+                                        <div className="space-y-2 rounded-lg border border-slate-200 p-3 text-xs text-slate-800">
                                             <div className="flex items-center justify-between gap-3">
                                                 <span>Phỏng vấn</span>
                                                 <span className="font-bold text-slate-800">{latestInterview ? latestInterview.result || latestInterview.status : 'Chưa có'}</span>
@@ -1402,7 +1402,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                     </section>
 
                                     <section>
-                                        <h4 className="mb-2 text-xs font-black uppercase tracking-wide text-slate-400">Công cụ nhanh</h4>
+                                        <h4 className="mb-2 text-xs font-black uppercase tracking-wide text-slate-800">Công cụ nhanh</h4>
                                         <div className="grid gap-2">
                                             {isEmployer && chatApplications.length > 0 && (
                                                 <button type="button" onClick={openOfferModal} className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-left text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-[#1687d9]">
@@ -1434,7 +1434,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             <span className="material-symbols-outlined !text-5xl text-slate-300">forum</span>
                         </div>
                         <h2 className="text-xl font-black text-slate-800">Chọn một hội thoại</h2>
-                        <p className="mt-2 max-w-sm text-sm text-slate-500">Danh sách bên trái giống một inbox vận hành: lọc nhanh, ghim người quan trọng và xử lý hồ sơ ngay trong chat.</p>
+                        <p className="mt-2 max-w-sm text-sm text-slate-700">Danh sách bên trái giống một inbox vận hành: lọc nhanh, ghim người quan trọng và xử lý hồ sơ ngay trong chat.</p>
                     </div>
                 )}
             </main>
@@ -1445,7 +1445,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         <div className="flex items-center justify-between gap-4 border-b border-slate-100 p-6">
                             <div className="min-w-0">
                                 <h3 className="text-xl font-bold text-slate-800">Gửi lời mời nhận việc</h3>
-                                <p className="text-sm text-slate-500">Ứng viên sẽ nhận offer trực tiếp trong đoạn chat.</p>
+                                <p className="text-sm text-slate-700">Ứng viên sẽ nhận offer trực tiếp trong đoạn chat.</p>
                             </div>
                             <button type="button" onClick={() => setShowOfferModal(false)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-slate-100">
                                 <span className="material-symbols-outlined">close</span>
@@ -1458,7 +1458,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             </div>
 
                             <label className="block">
-                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Hồ sơ</span>
+                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Hồ sơ</span>
                                 <select
                                     value={offerForm.applicationId}
                                     onChange={(event) => {
@@ -1487,7 +1487,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                             )}
 
                             <label className="block">
-                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Chi nhánh</span>
+                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Chi nhánh</span>
                                 <select value={offerForm.branchId} onChange={(event) => setOfferForm(prev => ({ ...prev, branchId: event.target.value }))} className="h-11 w-full rounded-lg border border-slate-200 px-4 text-sm" required>
                                     {branches.map(branch => (
                                         <option key={branch.branchId} value={branch.branchId}>{branch.name}</option>
@@ -1497,25 +1497,25 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
 
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <label className="block">
-                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Vị trí</span>
+                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Vị trí</span>
                                     <input value={offerForm.position} onChange={(event) => setOfferForm(prev => ({ ...prev, position: event.target.value }))} placeholder="Vị trí làm việc" className="h-11 w-full rounded-lg border border-slate-200 px-4 text-sm" required />
                                 </label>
                                 <label className="block">
-                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Lương theo giờ</span>
+                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Lương theo giờ</span>
                                     <input type="text" inputMode="numeric" value={formatVND(offerForm.hourlyRate)} onChange={(event) => setOfferForm(prev => ({ ...prev, hourlyRate: formatVND(event.target.value) }))} placeholder="VD: 25.000" className="h-11 w-full rounded-lg border border-slate-200 px-4 text-sm" required />
                                 </label>
                                 <label className="block">
-                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Ngày bắt đầu</span>
+                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Ngày bắt đầu</span>
                                     <input type="date" value={offerForm.startDate} onChange={(event) => setOfferForm(prev => ({ ...prev, startDate: event.target.value }))} className="h-11 w-full rounded-lg border border-slate-200 px-4 text-sm" required />
                                 </label>
                                 <label className="block">
-                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Ngày trả lương</span>
+                                    <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Ngày trả lương</span>
                                     <input type="number" min="1" max="28" value={offerForm.paydayOfMonth} onChange={(event) => setOfferForm(prev => ({ ...prev, paydayOfMonth: event.target.value }))} placeholder="1 - 28" className="h-11 w-full rounded-lg border border-slate-200 px-4 text-sm" required />
                                 </label>
                             </div>
 
                             <label className="block">
-                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-400">Ca làm dự kiến</span>
+                                <span className="mb-1 block text-[11px] font-black uppercase tracking-wide text-slate-800">Ca làm dự kiến</span>
                                 <textarea value={offerForm.expectedShifts} onChange={(event) => setOfferForm(prev => ({ ...prev, expectedShifts: event.target.value }))} placeholder="VD: Ca tối 18:00 - 22:00, 4 buổi/tuần" className="min-h-20 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-sm" />
                             </label>
 
@@ -1533,7 +1533,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         <div className="flex items-center justify-between gap-4 border-b border-slate-100 p-6">
                             <div className="min-w-0">
                                 <h3 className="text-xl font-bold text-slate-800">Hẹn phỏng vấn offline</h3>
-                                <p className="text-sm text-slate-500">Ứng viên sẽ phản hồi trực tiếp trong khung chat.</p>
+                                <p className="text-sm text-slate-700">Ứng viên sẽ phản hồi trực tiếp trong khung chat.</p>
                             </div>
                             <button type="button" onClick={() => setShowInterviewModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
                                 <span className="material-symbols-outlined">close</span>
@@ -1576,7 +1576,7 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                         <div className="flex items-center justify-between gap-4 border-b border-slate-100 p-6">
                             <div className="min-w-0">
                                 <h3 className="text-xl font-bold text-slate-800">Nhận vào làm</h3>
-                                <p className="text-sm text-slate-500">Thao tác này tạo hồ sơ nhân sự chính thức.</p>
+                                <p className="text-sm text-slate-700">Thao tác này tạo hồ sơ nhân sự chính thức.</p>
                             </div>
                             <button type="button" onClick={() => setShowHireModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
                                 <span className="material-symbols-outlined">close</span>

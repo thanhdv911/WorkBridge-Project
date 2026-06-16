@@ -52,11 +52,11 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                 <div className="flex shrink-0 justify-between items-start border-b border-slate-100 px-5 py-5 sm:px-6">
                     <div>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">Báo cáo nội dung</h2>
-                        <p className="text-sm text-slate-400 font-bold uppercase tracking-wider mt-1">
+                        <p className="text-sm text-slate-800 font-bold uppercase tracking-wider mt-1">
                             Báo cáo: <span className="text-primary">{entityTitle}</span>
                         </p>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all group">
+                    <button onClick={onClose} className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-800 hover:bg-rose-50 hover:text-rose-500 transition-all group">
                         <span className="material-symbols-outlined group-hover:rotate-90 transition-transform">close</span>
                     </button>
                 </div>
@@ -64,7 +64,7 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                 <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
                     <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
                         <div className="space-y-2">
-                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Chọn lý do</label>
+                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">Chọn lý do</label>
                             <div className="grid grid-cols-1 gap-2">
                                 {reasons.map((r) => (
                                     <button
@@ -74,7 +74,7 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                                         className={`min-h-12 rounded-2xl border px-5 py-3 text-left text-sm font-bold transition-all ${
                                             reason === r
                                             ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
-                                            : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-primary/30'
+                                            : 'bg-slate-50 border-slate-100 text-slate-800 hover:border-primary/30'
                                         }`}
                                     >
                                         {r}
@@ -84,7 +84,7 @@ const ReportModal = ({ isOpen, onClose, entityId, entityType, entityTitle }) => 
                         </div>
 
                         <div className="space-y-2">
-                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Chi tiết bổ sung (Tùy chọn)</label>
+                            <label className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">Chi tiết bổ sung (Tùy chọn)</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}

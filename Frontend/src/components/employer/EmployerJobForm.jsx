@@ -406,7 +406,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/70 p-12 text-center shadow-sm">
         <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-slate-500 font-bold text-sm">Đang kiểm tra giới hạn tin đăng của doanh nghiệp...</p>
+        <p className="text-slate-700 font-bold text-sm">Đang kiểm tra giới hạn tin đăng của doanh nghiệp...</p>
       </div>
     );
   }
@@ -421,26 +421,26 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
         </div>
 
         <h3 className="text-2xl font-black text-slate-800 tracking-tight mb-3">Đã Đạt Giới Hạn Đăng Tin Tuyển Dụng</h3>
-        <p className="text-sm text-slate-500 max-w-xl mx-auto mb-8">
+        <p className="text-sm text-slate-700 max-w-xl mx-auto mb-8">
           Tài khoản doanh nghiệp thường của bạn hiện đã đăng {jobCount}/{STANDARD_JOB_LIMIT} tin. Bạn cần nâng cấp lên gói VIP Doanh nghiệp để đăng tin tuyển dụng không giới hạn, có huy hiệu lửa VIP và luôn được ưu tiên hiển thị trước tin thường.
         </p>
 
         <div className="grid sm:grid-cols-2 gap-4 max-w-md mx-auto text-left mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-100">
           <div className="flex gap-2">
             <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-            <span className="text-xs text-slate-600 font-bold">Đăng tin tuyển dụng KHÔNG giới hạn</span>
+            <span className="text-xs text-slate-800 font-bold">Đăng tin tuyển dụng KHÔNG giới hạn</span>
           </div>
           <div className="flex gap-2">
             <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-            <span className="text-xs text-slate-600 font-bold">Tin đăng luôn tự động ghim lên top 1</span>
+            <span className="text-xs text-slate-800 font-bold">Tin đăng luôn tự động ghim lên top 1</span>
           </div>
           <div className="flex gap-2">
             <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-            <span className="text-xs text-slate-600 font-bold">Tự động xếp ca trực thông minh AI</span>
+            <span className="text-xs text-slate-800 font-bold">Tự động xếp ca trực thông minh AI</span>
           </div>
           <div className="flex gap-2">
             <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-            <span className="text-xs text-slate-600 font-bold">Tính lương & quản lý bảng công tự động</span>
+            <span className="text-xs text-slate-800 font-bold">Tính lương & quản lý bảng công tự động</span>
           </div>
         </div>
 
@@ -470,7 +470,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
             </span>
             {editingJobId ? 'Chỉnh sửa bài tuyển dụng' : 'Đăng tin tuyển dụng mới'}
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-700 mt-1">
             {editingJobId
               ? 'Thay đổi thông tin chi tiết của bài tuyển dụng và lưu lại.'
               : 'Điền đầy đủ thông tin bên dưới để công bố một vị trí làm việc bán thời gian mới.'}
@@ -683,13 +683,13 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{shift.shiftName}</p>
                   {shift.startTime && (
-                    <p className="text-xs text-slate-500">{shift.startTime} - {shift.endTime}</p>
+                    <p className="text-xs text-slate-700">{shift.startTime} - {shift.endTime}</p>
                   )}
                 </div>
               </label>
             ))}
             {availableShifts.length === 0 && (
-              <p className="text-sm text-slate-400 italic">Đang tải các ca làm việc...</p>
+              <p className="text-sm text-slate-800 italic">Đang tải các ca làm việc...</p>
             )}
           </div>
         </div>
@@ -706,7 +706,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
               className={`text-xs flex items-center gap-1.5 font-bold border rounded-lg px-3 py-1.5 transition-all shadow-sm ${
                 isVip
                   ? 'text-indigo-600 hover:text-indigo-500 bg-indigo-50 hover:bg-indigo-100 border-indigo-200/50'
-                  : 'text-slate-400 bg-slate-100 border-slate-200 cursor-not-allowed'
+                  : 'text-slate-800 bg-slate-100 border-slate-200 cursor-not-allowed'
               }`}
             >
               <span className="material-symbols-outlined !text-sm">{isVip ? 'auto_awesome' : 'lock'}</span>
@@ -776,7 +776,7 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
             <button
               type="button"
               onClick={onSuccess}
-              className="h-12 px-6 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all"
+              className="h-12 px-6 rounded-xl text-sm font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-all"
             >
               Hủy
             </button>
@@ -824,10 +824,10 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
             <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-slate-50/50">
               {/* Compare Title */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wide">Tiêu đề công việc</h4>
+                <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide">Tiêu đề công việc</h4>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-500">
-                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-400">Bản gốc</span>
+                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-700">
+                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-800">Bản gốc</span>
                     {jobForm.title}
                   </div>
                   <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 text-sm text-indigo-900 font-medium">
@@ -839,10 +839,10 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
 
               {/* Compare Description */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wide">Mô tả công việc</h4>
+                <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide">Mô tả công việc</h4>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-500 whitespace-pre-wrap">
-                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-400">Bản gốc</span>
+                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-700 whitespace-pre-wrap">
+                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-800">Bản gốc</span>
                     {jobForm.description}
                   </div>
                   <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 text-sm text-indigo-900 whitespace-pre-wrap leading-relaxed">
@@ -854,10 +854,10 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
 
               {/* Compare Requirements */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wide">Yêu cầu tuyển dụng</h4>
+                <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide">Yêu cầu tuyển dụng</h4>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-500 whitespace-pre-wrap">
-                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-400">Bản gốc</span>
+                  <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-700 whitespace-pre-wrap">
+                    <span className="text-[10px] font-bold uppercase block mb-1 text-slate-800">Bản gốc</span>
                     {jobForm.requirements || 'Chưa nhập'}
                   </div>
                   <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 text-sm text-indigo-900 whitespace-pre-wrap leading-relaxed">
@@ -870,14 +870,14 @@ export default function EmployerJobForm({ onSuccess, editingJobId }) {
 
             {/* Footer */}
             <div className="bg-white p-5 border-t border-slate-100 flex items-center justify-between shrink-0">
-              <span className="text-xs text-slate-400 italic">
+              <span className="text-xs text-slate-800 italic">
                 * Bạn có thể tiếp tục chỉnh sửa nội dung sau khi áp dụng.
               </span>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowOptimizeModal(false)}
-                  className="h-10 px-5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all"
+                  className="h-10 px-5 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-all"
                 >
                   Giữ nguyên bản gốc
                 </button>

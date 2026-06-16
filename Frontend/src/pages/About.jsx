@@ -52,7 +52,7 @@ export default function About() {
           <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">bán thời gian thông minh</span>
         </h1>
         
-        <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-slate-500 sm:text-lg">
+        <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-slate-700 sm:text-lg">
           Làm cho việc tìm kiếm ca làm việc và tuyển dụng nhân sự trở nên gọn gàng, minh bạch và đáng tin cậy hơn bao giờ hết.
         </p>
 
@@ -75,7 +75,7 @@ export default function About() {
             <div key={idx} className="flex flex-col items-center justify-center rounded-2xl bg-white py-6 text-center shadow-sm">
               <span className={`material-symbols-outlined mb-2 !text-3xl text-slate-300`}>{stat.icon}</span>
               <strong className="text-3xl font-black tracking-tight text-slate-800">{stat.value}</strong>
-              <span className="mt-1 text-xs font-bold text-slate-500">{stat.label}</span>
+              <span className="mt-1 text-xs font-bold text-slate-700">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -85,7 +85,7 @@ export default function About() {
       <section className="mx-auto mt-24 max-w-5xl px-6">
         <div className="text-center">
           <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Thiết kế cho tất cả mọi người</h2>
-          <p className="mt-2 text-sm font-semibold text-slate-500">Hệ sinh thái WorkBridge kết nối chặt chẽ ba góc nhìn khác biệt.</p>
+          <p className="mt-2 text-sm font-semibold text-slate-700">Hệ sinh thái WorkBridge kết nối chặt chẽ ba góc nhìn khác biệt.</p>
         </div>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -95,7 +95,7 @@ export default function About() {
                 <span className="material-symbols-outlined !text-3xl">{aud.icon}</span>
               </div>
               <h3 className="text-lg font-black text-slate-900">{aud.title}</h3>
-              <p className="mt-3 text-sm font-medium leading-relaxed text-slate-500">{aud.desc}</p>
+              <p className="mt-3 text-sm font-medium leading-relaxed text-slate-700">{aud.desc}</p>
             </div>
           ))}
         </div>

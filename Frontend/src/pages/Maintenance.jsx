@@ -167,7 +167,7 @@ const Maintenance = () => {
                         <div className="rounded-[26px] bg-white p-5 text-slate-950 shadow-2xl">
                             <div className="flex items-center justify-between gap-4">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-wide text-slate-400">Thời gian dự kiến</p>
+                                    <p className="text-xs font-black uppercase tracking-wide text-slate-800">Thời gian dự kiến</p>
                                     <p className="mt-2 text-3xl font-black text-slate-950">{formatRemaining(remainingSeconds)}</p>
                                 </div>
                                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-primary ring-1 ring-sky-100">
@@ -184,7 +184,7 @@ const Maintenance = () => {
                                     <div key={label} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-100">
                                         <span className="material-symbols-outlined !text-[20px] text-primary">{icon}</span>
                                         <div className="min-w-0">
-                                            <p className="text-xs font-black text-slate-400">{label}</p>
+                                            <p className="text-xs font-black text-slate-800">{label}</p>
                                             <p className="truncate text-sm font-black text-slate-800">{value}</p>
                                         </div>
                                     </div>

@@ -150,7 +150,7 @@ export default function Header() {
       toast(
         <div className="flex flex-col gap-1 text-left">
           <span className="font-semibold text-slate-800 text-sm">{title}</span>
-          <span className="text-xs text-slate-500 line-clamp-2">{msg}</span>
+          <span className="text-xs text-slate-700 line-clamp-2">{msg}</span>
         </div>,
         {
           icon: '🔔',
@@ -320,7 +320,7 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link
               to="/"
-              className={`${NAV_LINK_BASE} ${isActive('/') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-primary')}`}
+              className={`${NAV_LINK_BASE} ${isActive('/') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-800 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
             >
               Trang chủ
             </Link>
@@ -329,7 +329,7 @@ export default function Header() {
               <>
                 <Link
                   to="/jobs"
-                  className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+                  className={`${NAV_LINK_BASE} ${isActive('/jobs') ? NAV_LINK_ACTIVE : 'text-slate-700 hover:text-primary'}`}
                 >
                   Tìm việc
                 </Link>
@@ -337,7 +337,7 @@ export default function Header() {
                 {/* Categories Dropdown */}
                 <div className="relative group py-5">
                   <button
-                    className={`${NAV_LINK_BASE} flex items-center gap-1.5 text-slate-500 hover:text-primary`}
+                    className={`${NAV_LINK_BASE} flex items-center gap-1.5 text-slate-700 hover:text-primary`}
                   >
                     Danh mục
                     <span className="material-symbols-outlined !text-[16px] group-hover:rotate-180 transition-transform duration-200">
@@ -347,7 +347,7 @@ export default function Header() {
 
                   <div className="absolute top-[calc(100%-8px)] left-0 w-[220px] bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-sky-900/10 border border-sky-100/80 p-3 opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 transition-all duration-300 z-50 origin-top">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1.5 block">
+                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1.5 block">
                         Danh mục việc làm
                       </span>
                       {categories.length > 0 ? (
@@ -357,15 +357,15 @@ export default function Header() {
                             <Link
                               key={cat.categoryId}
                               to={`/jobs?category=${getCategorySlug(cat.categoryId)}`}
-                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-sky-50/80 hover:text-primary transition-all"
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-sky-50/80 hover:text-primary transition-all"
                             >
-                              <span className="material-symbols-outlined !text-[16px] text-slate-400">{icon}</span>
+                              <span className="material-symbols-outlined !text-[16px] text-slate-800">{icon}</span>
                               {translateCategory(cat.name)}
                             </Link>
                           );
                         })
                       ) : (
-                        <span className="text-xs text-slate-400 px-3 py-2">Đang tải...</span>
+                        <span className="text-xs text-slate-800 px-3 py-2">Đang tải...</span>
                       )}
                     </div>
                   </div>
@@ -378,7 +378,7 @@ export default function Header() {
                   className={`${NAV_LINK_BASE} flex items-center gap-1.5 ${
                     WORKSPACE_PATHS.includes(location.pathname)
                       ? 'text-primary'
-                      : 'text-slate-500 hover:text-primary'
+                      : 'text-slate-700 hover:text-primary'
                   }`}
                 >
                   Không gian làm việc
@@ -392,7 +392,7 @@ export default function Header() {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Job Hunting */}
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1 block">
+                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1 block">
                         Tìm việc
                       </span>
                       {[
@@ -407,7 +407,7 @@ export default function Header() {
                           className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
                             isActive(item.to)
                               ? 'bg-primary/10 text-primary'
-                              : 'text-slate-600 hover:bg-sky-50/80 hover:text-primary'
+                              : 'text-slate-800 hover:bg-sky-50/80 hover:text-primary'
                           }`}
                         >
                           <span className="material-symbols-outlined !text-[16px]">{item.icon}</span>
@@ -417,7 +417,7 @@ export default function Header() {
                     </div>
                     {/* Active Work */}
                     <div className="flex flex-col gap-1.5 border-l border-sky-100/80 pl-4">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2.5 mb-1 block">
+                      <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-2.5 mb-1 block">
                         Công việc
                       </span>
                       {[
@@ -430,7 +430,7 @@ export default function Header() {
                           className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold transition-all ${
                             isActive(item.to)
                               ? 'bg-primary/10 text-primary'
-                              : 'text-slate-600 hover:bg-sky-50/80 hover:text-primary'
+                              : 'text-slate-800 hover:bg-sky-50/80 hover:text-primary'
                           }`}
                         >
                           <span className="material-symbols-outlined !text-[16px]">{item.icon}</span>
@@ -446,7 +446,7 @@ export default function Header() {
               <>
                 <Link
                   to="/employer-dashboard"
-                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-primary')}`}
+                  className={`${NAV_LINK_BASE} ${isActive('/employer-dashboard') ? (isEmployerMode ? 'text-white relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-white after:rounded' : NAV_LINK_ACTIVE) : (isEmployerMode ? 'text-slate-800 hover:text-white' : 'text-slate-700 hover:text-primary')}`}
                 >
                   Quản lý tuyển dụng
                 </Link>
@@ -485,7 +485,7 @@ export default function Header() {
             {userRole === 'Admin' && (
               <Link
                 to="/admin-dashboard"
-                className={`${NAV_LINK_BASE} ${isActive('/admin-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-500 hover:text-primary'}`}
+                className={`${NAV_LINK_BASE} ${isActive('/admin-dashboard') ? NAV_LINK_ACTIVE : 'text-slate-700 hover:text-primary'}`}
               >
                 Quản trị hệ thống
               </Link>
@@ -501,7 +501,7 @@ export default function Header() {
                     className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                       isActive('/messages')
                         ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
-                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-400' : 'bg-sky-50 hover:bg-sky-100 text-slate-500')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-800' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
                     }`}
                     title="Tin nhắn"
                   >
@@ -518,7 +518,7 @@ export default function Header() {
                     className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                       showNotifDropdown
                         ? (isEmployerMode ? 'bg-slate-800 text-white' : 'bg-primary/10 text-primary')
-                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-400' : 'bg-sky-50 hover:bg-sky-100 text-slate-500')
+                        : (isEmployerMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-800' : 'bg-sky-50 hover:bg-sky-100 text-slate-700')
                     }`}
                     title="Thông báo"
                   >
@@ -556,22 +556,22 @@ export default function Header() {
                                 className="group/notif relative p-4 cursor-pointer hover:bg-slate-50 transition-colors flex gap-3 pr-10"
                                 style={{ opacity: n.isRead ? 0.7 : 1 }}
                               >
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.isRead ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.isRead ? 'bg-slate-100 text-slate-800' : 'bg-primary/10 text-primary'}`}>
                                   <span className="material-symbols-outlined !text-[16px]">
                                       {n.title.includes('Success') || n.title.includes('Accepted') || n.title.includes('Paid') ? 'check_circle' :
                                        n.title.includes('Rejected') || n.title.includes('Fired') || n.title.includes('Ended') ? 'cancel' : 'info'}
                                   </span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className={`text-sm ${n.isRead ? 'text-slate-600 font-medium' : 'text-slate-800 font-bold'}`}>{n.title}</p>
-                                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{n.message}</p>
-                                  <p className="text-[10px] text-slate-400 font-medium mt-2">{new Date(n.createdAt).toLocaleDateString()}</p>
+                                  <p className={`text-sm ${n.isRead ? 'text-slate-800 font-medium' : 'text-slate-800 font-bold'}`}>{n.title}</p>
+                                  <p className="text-xs text-slate-700 mt-1 line-clamp-2">{n.message}</p>
+                                  <p className="text-[10px] text-slate-800 font-medium mt-2">{new Date(n.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 {!n.isRead && <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0"></div>}
 
                                 <button
                                   onClick={(e) => handleDeleteNotif(n.notificationId, e)}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/notif:opacity-100 w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/notif:opacity-100 w-7 h-7 rounded-full flex items-center justify-center text-slate-800 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
                                   title="Xóa thông báo"
                                 >
                                   <span className="material-symbols-outlined !text-[16px]">delete</span>
@@ -582,13 +582,13 @@ export default function Header() {
                         ) : (
                           <div className="text-center p-8">
                             <span className="material-symbols-outlined text-slate-300 !text-3xl mb-2">notifications_off</span>
-                            <p className="text-sm text-slate-500 font-medium">Không có thông báo mới</p>
+                            <p className="text-sm text-slate-700 font-medium">Không có thông báo mới</p>
                           </div>
                         )}
                       </div>
 
                       <div className="px-4 pt-3 mt-1 border-t border-sky-100 text-center">
-                        <Link to="/notifications" onClick={() => setShowNotifDropdown(false)} className="text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+                        <Link to="/notifications" onClick={() => setShowNotifDropdown(false)} className="text-xs font-bold text-slate-700 hover:text-primary transition-colors">
                           Xem tất cả thông báo
                         </Link>
                       </div>
@@ -619,7 +619,7 @@ export default function Header() {
                     )}
                   </Link>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 pointer-events-none">
-                    <span className="material-symbols-outlined !text-[9px] text-slate-500 font-bold">keyboard_arrow_down</span>
+                    <span className="material-symbols-outlined !text-[9px] text-slate-700 font-bold">keyboard_arrow_down</span>
                   </div>
                 </div>
               </>
@@ -649,7 +649,7 @@ export default function Header() {
                   onClick={handleEmployerCtaClick}
                   className="hidden sm:flex flex-col text-left leading-tight group select-none pl-1"
                 >
-                  <span className="text-[11px] font-medium text-slate-400">Bạn là nhà tuyển dụng?</span>
+                  <span className="text-[11px] font-medium text-slate-800">Bạn là nhà tuyển dụng?</span>
                   <span className="text-xs font-bold text-slate-800 group-hover:text-primary transition-colors flex items-center gap-0.5 mt-0.5">
                     Đăng tuyển ngay
                     <span className="text-primary font-bold ml-1 transition-transform group-hover:translate-x-0.5">»</span>
@@ -664,7 +664,7 @@ export default function Header() {
               className="lg:hidden w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
               aria-label="Toggle menu"
             >
-              <span className="material-symbols-outlined !text-xl text-slate-600">
+              <span className="material-symbols-outlined !text-xl text-slate-800">
                 {mobileOpen ? 'close' : 'menu'}
               </span>
             </button>
@@ -693,7 +693,7 @@ export default function Header() {
             onClick={() => setMobileOpen(false)}
             className="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors"
           >
-            <span className="material-symbols-outlined !text-xl text-slate-600">close</span>
+            <span className="material-symbols-outlined !text-xl text-slate-800">close</span>
           </button>
         </div>
 
@@ -760,13 +760,13 @@ export default function Header() {
 
                 <div className={`overflow-hidden transition-all duration-300 ${mobileWorkspaceOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="pl-4 pt-1 pb-2 flex flex-col gap-0.5">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Tìm việc</span>
+                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-3 py-2">Tìm việc</span>
                     <MobileNavLink to="/my-applications" icon="assignment" label="Đơn ứng tuyển" active={isActive('/my-applications')} indent />
                     <MobileNavLink to="/saved-jobs" icon="bookmark" label="Việc đã lưu" active={isActive('/saved-jobs')} indent />
                     <MobileNavLink to="/offers" icon="local_offer" label="Lời mời nhận việc" active={isActive('/offers')} indent />
                     <MobileNavLink to="/interviews" icon="event_available" label="Phỏng vấn" active={isActive('/interviews')} indent />
 
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-2 mt-1">Công việc</span>
+                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest px-3 py-2 mt-1">Công việc</span>
                     <MobileNavLink to="/my-work" icon="calendar_month" label="Ca của tôi" active={isActive('/my-work')} indent />
                     <MobileNavLink to="/payslips" icon="receipt_long" label="Phiếu lương" active={isActive('/payslips')} indent />
                   </div>
@@ -884,7 +884,7 @@ export default function Header() {
             {/* Close X */}
             <button
               onClick={() => setShowEmployerConfirm(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-800 hover:text-slate-800 transition-colors"
             >
               <span className="material-symbols-outlined !text-lg">close</span>
             </button>
@@ -897,7 +897,7 @@ export default function Header() {
             <h3 className="text-xl font-black text-slate-900 tracking-tight">
               Chuyển sang Nhà tuyển dụng?
             </h3>
-            <p className="text-[15px] text-slate-500 mt-2 leading-relaxed px-4 text-balance mx-auto">
+            <p className="text-[15px] text-slate-700 mt-2 leading-relaxed px-4 text-balance mx-auto">
               Bạn đang đăng nhập bằng tài khoản <strong>Người tìm việc</strong>. Để đăng tin tuyển dụng, bạn cần sử dụng tài khoản <strong>Nhà tuyển dụng</strong>. Hệ thống sẽ đăng xuất tài khoản hiện tại để tiếp tục.
             </p>
 
@@ -905,7 +905,7 @@ export default function Header() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowEmployerConfirm(false)}
-                className="flex-1 h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-bold transition-all text-slate-500"
+                className="flex-1 h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-bold transition-all text-slate-700"
               >
                 Hủy bỏ
               </button>

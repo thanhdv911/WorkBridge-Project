@@ -9,7 +9,7 @@ export default function NotFound() {
           <span className="material-symbols-outlined !text-3xl">explore</span>
         </div>
         <h1 className="text-2xl font-black text-slate-800">Không tìm thấy trang</h1>
-        <p className="text-sm text-slate-500 mt-2">
+        <p className="text-sm text-slate-700 mt-2">
           Trang này không tồn tại. Bạn có thể quay lại trang chính.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 mt-7">
@@ -21,7 +21,7 @@ export default function NotFound() {
           </Link>
           <Link
             to="/login"
-            className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors"
+            className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-800 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors"
           >
             Đăng nhập
           </Link>

@@ -168,7 +168,7 @@ export default function EmployerDashboard() {
         <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4 pb-4 lg:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {stats.map((stat, idx) => (
             <div key={idx} className="applicant-card anim-fadeUp card-lift p-6 flex flex-col justify-center gap-1.5 flex-shrink-0 snap-start w-[260px] lg:w-auto border border-slate-200/60 bg-white/50 backdrop-blur-xl" style={{animationDelay: `${idx * 0.12}s`}}>
-               <p className="text-sm font-medium text-slate-500">{stat.label}</p>
+               <p className="text-sm font-medium text-slate-700">{stat.label}</p>
                <p className="text-2xl font-semibold tracking-tight text-slate-800">{stat.value}</p>
             </div>
           ))}
@@ -178,85 +178,85 @@ export default function EmployerDashboard() {
       <div className="mx-auto grid w-full max-w-[1440px] min-w-0 gap-6 px-4 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8">
         <aside className="profile-sidebar-card h-fit rounded-2xl p-2 lg:p-3 lg:sticky lg:top-24 flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           
-          <div className="hidden lg:block text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 pt-2 pb-1">Quản lý chung</div>
+          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-2 pb-1">Quản lý chung</div>
           
           <button
             onClick={() => handleTabChange('profile')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'profile' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'profile' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">domain</span>Hồ sơ công ty
           </button>
 
           <button
             onClick={() => handleTabChange('vip')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'vip' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'vip' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">workspace_premium</span>Doanh nghiệp VIP
           </button>
 
-          <div className="hidden lg:block text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Tuyển dụng</div>
+          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Tuyển dụng</div>
 
           <button
             onClick={() => handleTabChange('post-job')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'post-job' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'post-job' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">post_add</span>Đăng tin
           </button>
 
           <button
             onClick={() => handleTabChange('manage-posts')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'manage-posts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'manage-posts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">list_alt</span>Quản lý tin
           </button>
 
           <button
             onClick={() => handleTabChange('review-applicants')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'review-applicants' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'review-applicants' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">group</span>Duyệt ứng viên
           </button>
 
           <button
             onClick={() => handleTabChange('interviews')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'interviews' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'interviews' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">event</span>Phỏng vấn
           </button>
 
           <button
             onClick={() => handleTabChange('offers')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'offers' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'offers' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">contract</span>Lời mời
           </button>
 
-          <div className="hidden lg:block text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Vận hành nội bộ</div>
+          <div className="hidden lg:block text-[10px] font-black text-slate-800 uppercase tracking-widest px-4 pt-4 pb-1 mt-2 border-t border-slate-100/50">Vận hành nội bộ</div>
 
           <button
             onClick={() => handleTabChange('branches')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'branches' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'branches' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">storefront</span>Chi nhánh
           </button>
 
           <button
             onClick={() => handleTabChange('employees')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'employees' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'employees' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">badge</span>Nhân viên
           </button>
 
           <button
             onClick={() => handleTabChange('shifts')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'shifts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'shifts' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">calendar_month</span>Ca làm việc
           </button>
 
           <button
             onClick={() => handleTabChange('payroll')}
-            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'payroll' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'payroll' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
           >
             <span className="material-symbols-outlined !text-lg text-inherit">payments</span>Bảng lương
           </button>

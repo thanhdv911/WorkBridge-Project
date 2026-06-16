@@ -19,7 +19,7 @@ const statusColor = (status) => {
   switch (status) {
     case 'Paid': return 'text-emerald-600';
     case 'Locked': return 'text-amber-600';
-    default: return 'text-slate-400';
+    default: return 'text-slate-800';
   }
 };
 
@@ -94,7 +94,7 @@ const Payslips = () => {
               <span className="material-symbols-outlined !text-4xl">receipt_long</span>
             </div>
             <h2 className="text-xl font-black text-slate-800">Chưa có phiếu lương</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
               Phiếu lương sẽ xuất hiện sau khi nhà tuyển dụng khóa bảng lương cho kỳ làm việc của bạn.
             </p>
           </div>
@@ -105,7 +105,7 @@ const Payslips = () => {
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                   <div>
                     <p className="text-lg font-black text-slate-900">Kỳ lương {period.month}/{period.year}</p>
-                    <p className="mt-1 text-xs font-bold text-slate-400">
+                    <p className="mt-1 text-xs font-bold text-slate-800">
                       Ngày trả lương: {new Date(period.payday).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
@@ -120,15 +120,15 @@ const Payslips = () => {
                     <div key={item.payrollItemId} className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm sm:grid-cols-4">
                       <span>
                         <b className="block text-slate-800">Số giờ</b>
-                        <span className="text-slate-500">{(item.totalApprovedMinutes / 60).toFixed(2)}</span>
+                        <span className="text-slate-700">{(item.totalApprovedMinutes / 60).toFixed(2)}</span>
                       </span>
                       <span>
                         <b className="block text-slate-800">Mức lương</b>
-                        <span className="text-slate-500">{Number(item.hourlyRateSnapshot).toLocaleString('vi-VN')} đ/giờ</span>
+                        <span className="text-slate-700">{Number(item.hourlyRateSnapshot).toLocaleString('vi-VN')} đ/giờ</span>
                       </span>
                       <span>
                         <b className="block text-slate-800">Lương cơ bản</b>
-                        <span className="text-slate-500">{Number(item.baseSalary).toLocaleString('vi-VN')} đ</span>
+                        <span className="text-slate-700">{Number(item.baseSalary).toLocaleString('vi-VN')} đ</span>
                       </span>
                       <span>
                         <b className="block text-slate-800">Thực nhận</b>

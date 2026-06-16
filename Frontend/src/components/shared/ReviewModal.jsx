@@ -43,8 +43,8 @@ const ReviewModal = ({ isOpen, onClose, revieweeId, revieweeName, jobPostId, job
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
             <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">Đánh giá cho: <span className="text-slate-800 font-bold">{jobTitle}</span></p>
-              <p className="text-sm font-medium text-slate-500">Đối tượng: <span className="text-primary font-bold">{revieweeName}</span></p>
+              <p className="text-sm font-medium text-slate-700 mb-1">Đánh giá cho: <span className="text-slate-800 font-bold">{jobTitle}</span></p>
+              <p className="text-sm font-medium text-slate-700">Đối tượng: <span className="text-primary font-bold">{revieweeName}</span></p>
             </div>
 
             <div className="space-y-2">

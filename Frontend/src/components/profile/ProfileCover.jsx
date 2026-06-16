@@ -74,7 +74,7 @@ export default function ProfileCover({ user, onEditClick, isOwnProfile = true, r
               </div>
               {userRole !== 'Admin' && (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
                     <span className="material-symbols-outlined !text-[16px] text-primary">school</span>
                     {translateStudyYear(user?.studyYear)} · {user?.university || 'Chưa cập nhật trường'} {user?.major ? `(${user.major})` : ''}
                   </p>

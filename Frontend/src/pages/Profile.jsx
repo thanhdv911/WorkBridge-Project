@@ -120,7 +120,7 @@ export default function Profile() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
         <span className="material-symbols-outlined !text-6xl text-slate-300 mb-4">person_off</span>
         <h2 className="text-2xl font-bold text-slate-700 mb-2">Không tìm thấy hồ sơ</h2>
-        <p className="text-slate-500 mb-6 text-center max-w-md">Không tìm thấy hồ sơ bạn đang tìm, hoặc bạn không có quyền xem.</p>
+        <p className="text-slate-700 mb-6 text-center max-w-md">Không tìm thấy hồ sơ bạn đang tìm, hoặc bạn không có quyền xem.</p>
         <button onClick={() => navigate(userRole === 'Employer' ? '/employer-dashboard' : '/')} className="px-6 py-2 bg-primary text-white rounded-xl font-bold">Về trang chủ</button>
       </div>
     );
@@ -165,7 +165,7 @@ export default function Profile() {
                     Đánh giá
                     {ratingStats?.totalReviews > 0 && (
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                        activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
                       }`}>
                         {ratingStats.totalReviews}
                       </span>
@@ -221,7 +221,7 @@ export default function Profile() {
                   <span className="material-symbols-outlined text-amber-500 filled">star</span>
                   Đánh giá
                 </h3>
-                <span className="text-xs font-bold text-slate-400 capitalize bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">
+                <span className="text-xs font-bold text-slate-800 capitalize bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">
                   {ratingStats?.totalReviews || 0} đánh giá
                 </span>
               </div>
@@ -229,7 +229,7 @@ export default function Profile() {
               {!reviews || reviews.length === 0 ? (
                 <div className="py-14 text-center opacity-40">
                   <span className="material-symbols-outlined !text-5xl text-slate-300 mb-3 font-thin">rate_review</span>
-                  <p className="font-bold text-slate-400 text-sm">Chưa có đánh giá</p>
+                  <p className="font-bold text-slate-800 text-sm">Chưa có đánh giá</p>
                 </div>
               ) : (
                 <div className="space-y-5">
@@ -246,7 +246,7 @@ export default function Profile() {
                           </div>
                           <div>
                             <div className="font-bold text-slate-700 text-sm">{review.reviewerName || 'Người dùng ẩn danh'}</div>
-                            <div className="text-[11px] text-slate-400 font-semibold">Về: {review.jobTitle || 'Đơn ứng tuyển'}</div>
+                            <div className="text-[11px] text-slate-800 font-semibold">Về: {review.jobTitle || 'Đơn ứng tuyển'}</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded-lg border border-slate-100 shadow-sm">
@@ -254,7 +254,7 @@ export default function Profile() {
                           <span className="text-[11px] font-black text-slate-700">{review.rating || 0}.0</span>
                         </div>
                       </div>
-                      <p className="text-sm text-slate-600 leading-relaxed italic">
+                      <p className="text-sm text-slate-800 leading-relaxed italic">
                         "{review.comment || (review.rating >= 4 ? "Tuyệt vời" : "Không có nhận xét.")}"
                       </p>
                       <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">

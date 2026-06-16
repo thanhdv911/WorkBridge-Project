@@ -151,7 +151,7 @@ const EmployerPayroll = () => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200/60 p-12 text-center shadow-sm">
                 <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-slate-500 font-bold text-sm">Đang kiểm tra đặc quyền Doanh nghiệp...</p>
+                <p className="text-slate-700 font-bold text-sm">Đang kiểm tra đặc quyền Doanh nghiệp...</p>
             </div>
         );
     }
@@ -167,26 +167,26 @@ const EmployerPayroll = () => {
                 </div>
 
                 <h3 className="text-2xl font-black text-slate-800 tracking-tight mb-3">Chức Năng Tính Lương VIP Doanh Nghiệp</h3>
-                <p className="text-sm text-slate-500 max-w-xl mx-auto mb-8">
+                <p className="text-sm text-slate-700 max-w-xl mx-auto mb-8">
                     Khởi tạo bảng tính lương tự động, thống kê giờ công và thanh toán một chạm. Bạn cần đăng ký gói VIP Doanh nghiệp để mở khóa tính năng cao cấp này.
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto text-left mb-8">
                     <div className="flex gap-2">
                         <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-                        <span className="text-xs text-slate-600 font-bold">Tính lương & Quản lý bảng lương tự động</span>
+                        <span className="text-xs text-slate-800 font-bold">Tính lương & Quản lý bảng lương tự động</span>
                     </div>
                     <div className="flex gap-2">
                         <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-                        <span className="text-xs text-slate-600 font-bold">Thuật toán AI tự động tính khấu trừ phạt đi muộn</span>
+                        <span className="text-xs text-slate-800 font-bold">Thuật toán AI tự động tính khấu trừ phạt đi muộn</span>
                     </div>
                     <div className="flex gap-2">
                         <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-                        <span className="text-xs text-slate-600 font-bold">Tin tuyển dụng luôn ghim hàng đầu</span>
+                        <span className="text-xs text-slate-800 font-bold">Tin tuyển dụng luôn ghim hàng đầu</span>
                     </div>
                     <div className="flex gap-2">
                         <span className="material-symbols-outlined text-amber-500 !text-lg">check_circle</span>
-                        <span className="text-xs text-slate-600 font-bold">Huy hiệu VIP Doanh nghiệp sang trọng</span>
+                        <span className="text-xs text-slate-800 font-bold">Huy hiệu VIP Doanh nghiệp sang trọng</span>
                     </div>
                 </div>
 
@@ -210,7 +210,7 @@ const EmployerPayroll = () => {
         <div className="space-y-6 min-w-0">
             <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6">
                 <h2 className="text-xl font-bold text-slate-800">Bảng tính lương</h2>
-                <p className="text-sm text-slate-500 mt-1">Khởi tạo bảng lương từ danh sách giờ công đã duyệt. Ngày phát lương mặc định là ngày 5 của tháng tiếp theo.</p>
+                <p className="text-sm text-slate-700 mt-1">Khởi tạo bảng lương từ danh sách giờ công đã duyệt. Ngày phát lương mặc định là ngày 5 của tháng tiếp theo.</p>
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                     <input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} className="h-11 px-4 rounded-xl border border-slate-200 text-sm" />
                     <input type="number" value={year} onChange={(e) => setYear(e.target.value)} className="h-11 px-4 rounded-xl border border-slate-200 text-sm" />
@@ -225,9 +225,9 @@ const EmployerPayroll = () => {
                     <h3 className="text-lg font-bold text-slate-800">Các kỳ tính lương</h3>
                 </div>
                 {loading ? (
-                    <div className="p-10 text-center text-slate-400">Đang tải bảng tính lương...</div>
+                    <div className="p-10 text-center text-slate-800">Đang tải bảng tính lương...</div>
                 ) : periods.length === 0 ? (
-                    <div className="p-10 text-center text-slate-400">Chưa có kỳ tính lương nào.</div>
+                    <div className="p-10 text-center text-slate-800">Chưa có kỳ tính lương nào.</div>
                 ) : (
                     <div className="divide-y divide-slate-100">
                         {paginatedPeriods.map(period => {
@@ -242,11 +242,11 @@ const EmployerPayroll = () => {
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                     <div>
                                         <p className="font-bold text-slate-800">Tháng {period.month}/{period.year}</p>
-                                        <p className="text-xs text-slate-400">Ngày phát lương: {new Date(period.payday).toLocaleDateString()}</p>
+                                        <p className="text-xs text-slate-800">Ngày phát lương: {new Date(period.payday).toLocaleDateString()}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="font-black text-primary">{Number(period.totalSalary).toLocaleString()} VNĐ</p>
-                                        <p className="text-xs text-slate-400">{getPeriodStatusText(period.status)}</p>
+                                        <p className="text-xs text-slate-800">{getPeriodStatusText(period.status)}</p>
                                     </div>
                                 </div>
                                 <div className="mt-4 flex flex-wrap gap-2">
@@ -266,11 +266,11 @@ const EmployerPayroll = () => {
                                         {paginatedItems.map(item => (
                                             <div key={item.payrollItemId} className="rounded-xl bg-slate-50 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
                                                 <span className="font-bold text-slate-700">{item.employeeName}</span>
-                                                <span className="text-slate-500">{Math.round(item.totalApprovedMinutes / 60)} giờ làm</span>
-                                                <span className="text-slate-500">Thưởng: +{Number(item.bonus).toLocaleString()}đ / Phạt: -{(Number(item.penalty) + Number(item.deduction)).toLocaleString()}đ</span>
+                                                <span className="text-slate-700">{Math.round(item.totalApprovedMinutes / 60)} giờ làm</span>
+                                                <span className="text-slate-700">Thưởng: +{Number(item.bonus).toLocaleString()}đ / Phạt: -{(Number(item.penalty) + Number(item.deduction)).toLocaleString()}đ</span>
                                                 <span className="font-bold text-slate-800">{Number(item.finalSalary).toLocaleString()} VNĐ</span>
                                                 {period.status === 'Draft' && (
-                                                    <button onClick={() => adjustItem(item)} className="h-8 px-3 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-600">
+                                                    <button onClick={() => adjustItem(item)} className="h-8 px-3 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-800">
                                                         Điều chỉnh
                                                     </button>
                                                 )}

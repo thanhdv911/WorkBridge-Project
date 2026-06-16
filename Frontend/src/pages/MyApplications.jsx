@@ -92,8 +92,8 @@ const MyApplications = () => {
       case 'Offered': return 'bg-violet-50 text-violet-600 border-violet-100';
       case 'Hired': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
       case 'Rejected': return 'bg-red-50 text-red-600 border-red-100';
-      case 'Ended': return 'bg-slate-100 text-slate-500 border-slate-200';
-      default: return 'bg-slate-50 text-slate-600 border-slate-100';
+      case 'Ended': return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-slate-50 text-slate-800 border-slate-100';
     }
   };
 
@@ -132,7 +132,7 @@ const MyApplications = () => {
               <span className="material-symbols-outlined !text-4xl">folder_open</span>
             </div>
             <h2 className="text-xl font-black text-slate-800">Chưa có đơn ứng tuyển</h2>
-            <p className="mx-auto mb-8 mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+            <p className="mx-auto mb-8 mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
               Bạn chưa ứng tuyển việc nào. Hãy bắt đầu tìm cơ hội phù hợp ngay hôm nay.
             </p>
             <Link
@@ -145,7 +145,7 @@ const MyApplications = () => {
           </div>
         ) : (
           <div className="grid animate-fadeInUp gap-4">
-            <div className="applicant-table-head mb-2 hidden grid-cols-[1fr_200px_160px_120px_120px] rounded-2xl px-8 py-4 text-xs font-bold uppercase text-slate-500 md:grid">
+            <div className="applicant-table-head mb-2 hidden grid-cols-[1fr_200px_160px_120px_120px] rounded-2xl px-8 py-4 text-xs font-bold uppercase text-slate-700 md:grid">
               <div>Việc làm</div>
               <div>Công ty</div>
               <div>Ngày ứng tuyển</div>
@@ -162,19 +162,19 @@ const MyApplications = () => {
                   <Link to={`/jobs/${app.jobPostId}`} className="block truncate text-lg font-black leading-tight text-slate-900 transition-colors hover:text-primary">
                     {app.jobTitle}
                   </Link>
-                  <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-800">
                     <span className="material-symbols-outlined !text-[16px]">location_on</span>
                     <span className="truncate">{app.location || 'Chưa cập nhật địa điểm'}</span>
                   </div>
                 </div>
 
-                <div className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600">
-                  <span className="text-xs font-black uppercase text-slate-400 md:hidden">Công ty:</span>
+                <div className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-800">
+                  <span className="text-xs font-black uppercase text-slate-800 md:hidden">Công ty:</span>
                   <span className="truncate">{app.companyName}</span>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
-                  <span className="text-xs font-black uppercase text-slate-400 md:hidden">Ngày:</span>
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <span className="text-xs font-black uppercase text-slate-800 md:hidden">Ngày:</span>
                   {new Date(app.appliedAt).toLocaleDateString('vi-VN')}
                 </div>
 

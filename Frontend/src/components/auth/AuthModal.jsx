@@ -329,7 +329,7 @@ export default function AuthModal() {
             <h2 className="text-2xl font-black text-slate-800 leading-tight mb-2">
               Chào mừng đến<br/><span className="text-[#1392ec]">WorkBridge</span>
             </h2>
-            <p className="text-sm text-slate-500 leading-relaxed max-w-[220px]">
+            <p className="text-sm text-slate-700 leading-relaxed max-w-[220px]">
               Tìm việc làm thêm linh hoạt, ca ngắn phù hợp với lịch học của bạn.
             </p>
 
@@ -342,7 +342,7 @@ export default function AuthModal() {
         {/* Close Button X */}
         <button
           onClick={closeAuth}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-800 hover:text-slate-800 transition-colors"
           title="Đóng"
         >
           <span className="material-symbols-outlined !text-lg">close</span>
@@ -365,7 +365,7 @@ export default function AuthModal() {
               ? 'Đăng nhập' 
               : 'Tạo tài khoản'}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-800 mt-1">
             {isForgotMode
               ? 'Nhập email để nhận liên kết khôi phục mật khẩu.'
               : pendingRegistrationEmail
@@ -382,7 +382,7 @@ export default function AuthModal() {
             <button
               onClick={() => setMode('login')}
               className={`flex-1 h-full rounded-lg text-[13px] font-bold transition-all ${
-                mode === 'login' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                mode === 'login' ? 'bg-white text-primary shadow-sm' : 'text-slate-800 hover:text-slate-800'
               }`}
             >
               Đăng nhập
@@ -390,7 +390,7 @@ export default function AuthModal() {
             <button
               onClick={() => setMode('signup')}
               className={`flex-1 h-full rounded-lg text-[13px] font-bold transition-all ${
-                mode === 'signup' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                mode === 'signup' ? 'bg-white text-primary shadow-sm' : 'text-slate-800 hover:text-slate-800'
               }`}
             >
               Đăng ký
@@ -402,13 +402,13 @@ export default function AuthModal() {
         {isForgotMode && (
           <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email đăng ký</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Địa chỉ Email đăng ký</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
+                <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
                 <input
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-11 pr-4 text-sm placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-11 pr-4 text-sm placeholder:text-slate-800 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -428,7 +428,7 @@ export default function AuthModal() {
             <button
               type="button"
               onClick={() => setIsForgotMode(false)}
-              className="text-xs font-bold text-slate-400 hover:text-slate-600 text-center mt-2 transition-colors uppercase tracking-wider"
+              className="text-xs font-bold text-slate-800 hover:text-slate-800 text-center mt-2 transition-colors uppercase tracking-wider"
             >
               Quay lại Đăng nhập
             </button>
@@ -439,13 +439,13 @@ export default function AuthModal() {
         {pendingRegistrationEmail && !isForgotMode && (
           <form onSubmit={handleVerifyRegistration} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block text-center">Mã xác thực email</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block text-center">Mã xác thực email</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">pin</span>
+                <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3.5 top-1/2 -translate-y-1/2">pin</span>
                 <input
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-center text-xl font-black tracking-[0.3em] placeholder:tracking-normal placeholder:text-xs placeholder:font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-12 pl-11 pr-4 text-center text-xl font-black tracking-[0.3em] placeholder:tracking-normal placeholder:text-xs placeholder:font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Nhập 6 số"
                   type="text"
                   inputMode="numeric"
@@ -468,7 +468,7 @@ export default function AuthModal() {
               <button
                 type="button"
                 onClick={() => setPendingRegistrationEmail('')}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-slate-800 hover:text-slate-800 transition-colors"
               >
                 Nhập lại email
               </button>
@@ -489,13 +489,13 @@ export default function AuthModal() {
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {/* Email */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Địa chỉ Email</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
+                <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3.5 top-1/2 -translate-y-1/2">mail</span>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-4 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-4 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -506,7 +506,7 @@ export default function AuthModal() {
             {/* Password */}
             <div className="flex flex-col gap-1">
               <div className="flex justify-between items-center pr-1">
-                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Mật khẩu</label>
+                <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Mật khẩu</label>
                 <button
                   type="button"
                   onClick={() => setIsForgotMode(true)}
@@ -516,11 +516,11 @@ export default function AuthModal() {
                 </button>
               </div>
               <div className="relative">
-                <span className="material-symbols-outlined !text-lg text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2">lock</span>
+                <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3.5 top-1/2 -translate-y-1/2">lock</span>
                 <input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-10 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-11 pl-10 pr-10 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Mật khẩu của bạn"
                   type={showLoginPassword ? 'text' : 'password'}
                   required
@@ -528,7 +528,7 @@ export default function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-800 hover:text-slate-800 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
                 >
                   <span className="material-symbols-outlined !text-lg">{showLoginPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
@@ -547,7 +547,7 @@ export default function AuthModal() {
 
             {/* Google Sign-in */}
             {hasGoogleLogin && (
-              <ErrorBoundary fallback={<p className="text-center text-[10px] text-slate-400">Đăng nhập Google tạm thời không khả dụng.</p>}>
+              <ErrorBoundary fallback={<p className="text-center text-[10px] text-slate-800">Đăng nhập Google tạm thời không khả dụng.</p>}>
                 <div className="relative flex items-center py-1.5 mt-1">
                   <div className="flex-grow border-t border-slate-100"></div>
                   <span className="flex-shrink-0 mx-3 text-slate-450 text-[10px] font-black uppercase tracking-wider">hoặc</span>
@@ -568,7 +568,7 @@ export default function AuthModal() {
             )}
 
             {/* Toggle prompt */}
-            <p className="text-center text-xs text-slate-500 mt-2">
+            <p className="text-center text-xs text-slate-700 mt-2">
               Chưa có tài khoản?{' '}
               <button
                 type="button"
@@ -590,7 +590,7 @@ export default function AuthModal() {
                 type="button"
                 onClick={() => setRole('Applicant')}
                 className={`flex-1 h-full rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  role === 'Applicant' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                  role === 'Applicant' ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-800'
                 }`}
               >
                 <span className="material-symbols-outlined !text-[16px]">person</span>
@@ -600,7 +600,7 @@ export default function AuthModal() {
                 type="button"
                 onClick={() => setRole('Employer')}
                 className={`flex-1 h-full rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  role === 'Employer' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                  role === 'Employer' ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-800'
                 }`}
               >
                 <span className="material-symbols-outlined !text-[16px]">business</span>
@@ -611,22 +611,22 @@ export default function AuthModal() {
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-0.5">
-                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Họ</label>
+                <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Họ</label>
                 <input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Nguyễn"
                   type="text"
                   required
                 />
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Tên</label>
+                <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Tên</label>
                 <input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 px-3 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Văn A"
                   type="text"
                   required
@@ -636,13 +636,13 @@ export default function AuthModal() {
 
             {/* Email */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Địa chỉ Email</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Địa chỉ Email</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">mail</span>
+                <span className="material-symbols-outlined !text-base text-slate-800 absolute left-3 top-1/2 -translate-y-1/2">mail</span>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-4 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-4 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="name@example.com"
                   type="email"
                   required
@@ -652,13 +652,13 @@ export default function AuthModal() {
 
             {/* Password */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Mật khẩu</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Mật khẩu</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock</span>
+                <span className="material-symbols-outlined !text-base text-slate-800 absolute left-3 top-1/2 -translate-y-1/2">lock</span>
                 <input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Tối thiểu 8 ký tự"
                   type={showRegisterPassword ? 'text' : 'password'}
                   required
@@ -666,7 +666,7 @@ export default function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-800 hover:text-slate-800 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
                 >
                   <span className="material-symbols-outlined !text-base">{showRegisterPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
@@ -675,13 +675,13 @@ export default function AuthModal() {
 
             {/* Confirm Password */}
             <div className="flex flex-col gap-0.5">
-              <label className="text-xs font-bold text-slate-600 mb-1 pl-1 block">Xác nhận mật khẩu</label>
+              <label className="text-xs font-bold text-slate-800 mb-1 pl-1 block">Xác nhận mật khẩu</label>
               <div className="relative">
-                <span className="material-symbols-outlined !text-base text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock_reset</span>
+                <span className="material-symbols-outlined !text-base text-slate-800 absolute left-3 top-1/2 -translate-y-1/2">lock_reset</span>
                 <input
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-400 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 h-10 pl-9 pr-9 text-xs font-semibold placeholder:text-slate-800 transition-colors"
                   placeholder="Nhập lại mật khẩu"
                   type={showConfirmPassword ? 'text' : 'password'}
                   required
@@ -689,7 +689,7 @@ export default function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-800 hover:text-slate-800 transition-colors flex items-center justify-center h-8 w-8 rounded-full"
                 >
                   <span className="material-symbols-outlined !text-base">{showConfirmPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
@@ -708,7 +708,7 @@ export default function AuthModal() {
 
             {/* Google Sign-up */}
             {hasGoogleLogin && (
-              <ErrorBoundary fallback={<p className="text-center text-[10px] text-slate-400">Đăng ký Google tạm thời không khả dụng.</p>}>
+              <ErrorBoundary fallback={<p className="text-center text-[10px] text-slate-800">Đăng ký Google tạm thời không khả dụng.</p>}>
                 <div className="relative flex items-center py-1.5 mt-1">
                   <div className="flex-grow border-t border-slate-100"></div>
                   <span className="flex-shrink-0 mx-3 text-slate-450 text-[10px] font-black uppercase tracking-wider">hoặc</span>
@@ -729,7 +729,7 @@ export default function AuthModal() {
             )}
 
             {/* Toggle prompt */}
-            <p className="text-center text-xs text-slate-500 mt-1">
+            <p className="text-center text-xs text-slate-700 mt-1">
               Đã có tài khoản?{' '}
               <button
                 type="button"

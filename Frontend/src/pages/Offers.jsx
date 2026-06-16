@@ -93,7 +93,7 @@ const Offers = () => {
       case 'Accepted': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
       case 'Declined': return 'bg-red-50 text-red-700 border-red-100';
       case 'Sent': return 'bg-blue-50 text-blue-700 border-blue-100';
-      default: return 'bg-slate-50 text-slate-600 border-slate-100';
+      default: return 'bg-slate-50 text-slate-800 border-slate-100';
     }
   };
 
@@ -132,7 +132,7 @@ const Offers = () => {
               <span className="material-symbols-outlined !text-4xl">contract</span>
             </div>
             <h2 className="text-xl font-black text-slate-800">Chưa có lời mời</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
               Khi nhà tuyển dụng gửi lời mời nhận việc, thông tin sẽ xuất hiện tại đây.
             </p>
           </div>
@@ -145,24 +145,24 @@ const Offers = () => {
                     <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase ${statusClass(offer.status)}`}>
                       {translateStatus(offer.status)}
                     </span>
-                    <span className="text-xs font-bold text-slate-400">Ngày trả lương: ngày {offer.paydayOfMonth}</span>
+                    <span className="text-xs font-bold text-slate-800">Ngày trả lương: ngày {offer.paydayOfMonth}</span>
                   </div>
 
                   <h2 className="truncate text-xl font-black text-slate-900">{offer.position}</h2>
-                  <p className="mt-1 truncate text-sm font-semibold text-slate-500">{offer.companyName} - {offer.branchName}</p>
-                  <p className="truncate text-sm font-medium text-slate-500">{offer.jobTitle}</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-slate-700">{offer.companyName} - {offer.branchName}</p>
+                  <p className="truncate text-sm font-medium text-slate-700">{offer.jobTitle}</p>
 
                   <div className="mt-4 flex flex-wrap gap-3 text-sm">
                     <span className="rounded-xl bg-primary/10 px-3 py-2 font-black text-primary">
                       {Number(offer.hourlyRate).toLocaleString('vi-VN')} đ/giờ
                     </span>
-                    <span className="rounded-xl bg-slate-100 px-3 py-2 font-bold text-slate-600">
+                    <span className="rounded-xl bg-slate-100 px-3 py-2 font-bold text-slate-800">
                       Bắt đầu {new Date(offer.startDate).toLocaleDateString('vi-VN')}
                     </span>
                   </div>
 
                   {offer.status === 'Sent' && (
-                    <div className="mt-5 space-y-2 rounded-2xl border border-amber-100/70 bg-amber-50/70 p-4 text-xs leading-relaxed text-slate-600 shadow-sm">
+                    <div className="mt-5 space-y-2 rounded-2xl border border-amber-100/70 bg-amber-50/70 p-4 text-xs leading-relaxed text-slate-800 shadow-sm">
                       <div className="mb-1 flex items-center gap-1.5 font-black text-amber-900">
                         <span className="material-symbols-outlined !text-[18px]">info</span>
                         Cam kết nhận việc

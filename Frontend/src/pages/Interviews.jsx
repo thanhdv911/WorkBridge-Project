@@ -117,7 +117,7 @@ const Interviews = () => {
               <span className="material-symbols-outlined !text-4xl">event_available</span>
             </div>
             <h2 className="text-xl font-black text-slate-800">Chưa có lịch phỏng vấn</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+            <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
               Khi nhà tuyển dụng gửi lịch phỏng vấn, bạn có thể xác nhận hoặc từ chối ngay tại đây.
             </p>
           </div>
@@ -131,22 +131,22 @@ const Interviews = () => {
                       {translateStatus(interview.status)}
                     </span>
                     {interview.result && (
-                      <span className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase text-slate-600">
+                      <span className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase text-slate-800">
                         {translateResult(interview.result)}
                       </span>
                     )}
                   </div>
 
                   <h2 className="truncate text-lg font-black text-slate-900">{interview.jobTitle}</h2>
-                  <p className="truncate text-sm font-semibold text-slate-500">{interview.companyName}</p>
-                  <p className="mt-2 flex flex-wrap items-center gap-1.5 text-sm font-medium text-slate-600">
+                  <p className="truncate text-sm font-semibold text-slate-700">{interview.companyName}</p>
+                  <p className="mt-2 flex flex-wrap items-center gap-1.5 text-sm font-medium text-slate-800">
                     <span className="material-symbols-outlined !text-[17px] text-primary">schedule</span>
                     {new Date(interview.scheduledAt).toLocaleString('vi-VN')}
                     <span className="text-slate-300">•</span>
                     <span>{interview.location}</span>
                   </p>
                   {interview.note && (
-                    <p className="mt-2 break-words rounded-xl bg-slate-50 px-3 py-2 text-sm font-medium text-slate-500">
+                    <p className="mt-2 break-words rounded-xl bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
                       {interview.note}
                     </p>
                   )}

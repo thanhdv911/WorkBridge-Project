@@ -230,14 +230,14 @@ const AdminUsers = () => {
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div>
                         <h2 className="text-xl font-black tracking-tight text-slate-950">Người dùng hệ thống</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                        <p className="mt-1 text-sm font-medium text-slate-700">
                             Khóa tài khoản, điều chỉnh điểm uy tín và nâng VIP thủ công cho doanh nghiệp hoặc cá nhân.
                         </p>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
                         <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-400">search</span>
+                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
                             <input
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
@@ -260,7 +260,7 @@ const AdminUsers = () => {
                                     className={`h-9 rounded-lg px-3 text-xs font-black transition ${
                                         roleFilter === value
                                             ? 'bg-white text-primary shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-900'
+                                            : 'text-slate-700 hover:text-slate-900'
                                     }`}
                                 >
                                     {label}
@@ -281,7 +281,7 @@ const AdminUsers = () => {
                 ].map(([label, value, icon, tone]) => (
                     <div key={label} className="flex items-center justify-between rounded-[22px] border border-white/80 bg-white p-4 shadow-sm">
                         <div>
-                            <p className="text-xs font-black text-slate-400">{label}</p>
+                            <p className="text-xs font-black text-slate-800">{label}</p>
                             <p className="mt-1 text-2xl font-black tabular-nums text-slate-950">{value}</p>
                         </div>
                         <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}>
@@ -296,7 +296,7 @@ const AdminUsers = () => {
                     <div className="px-6 py-16 text-center">
                         <span className="material-symbols-outlined !text-[42px] text-slate-300">person_search</span>
                         <p className="mt-3 text-sm font-black text-slate-700">Không tìm thấy người dùng phù hợp</p>
-                        <p className="mt-1 text-xs font-semibold text-slate-400">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-800">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-100">
@@ -304,7 +304,7 @@ const AdminUsers = () => {
                             {['Người dùng', 'Vai trò', 'Điểm uy tín', 'Quyền VIP', 'Trạng thái'].map((label, index) => (
                                 <div
                                     key={label}
-                                    className={`text-[11px] font-black text-slate-500 ${index === 4 ? 'text-right' : ''}`}
+                                    className={`text-[11px] font-black text-slate-700 ${index === 4 ? 'text-right' : ''}`}
                                 >
                                     {label}
                                 </div>
@@ -326,16 +326,16 @@ const AdminUsers = () => {
                                     className="grid gap-4 p-4 transition-colors hover:bg-slate-50/70 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.62fr)_minmax(0,0.95fr)_minmax(0,1.28fr)_minmax(0,0.82fr)] lg:items-center lg:gap-3"
                                 >
                                     <section className="min-w-0">
-                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Người dùng</span>
+                                        <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Người dùng</span>
                                         <div className="flex min-w-0 items-center gap-3">
-                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-sm font-black text-slate-600">
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-sm font-black text-slate-800">
                                                 {(user.fullName || user.email || '?').slice(0, 2).toUpperCase()}
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="truncate font-black text-slate-900" title={user.fullName || 'Chưa cập nhật tên'}>
                                                     {user.fullName || 'Chưa cập nhật tên'}
                                                 </div>
-                                                <div className="mt-0.5 truncate text-xs font-semibold text-slate-400" title={user.email}>
+                                                <div className="mt-0.5 truncate text-xs font-semibold text-slate-800" title={user.email}>
                                                     {user.email}
                                                 </div>
                                             </div>
@@ -343,14 +343,14 @@ const AdminUsers = () => {
                                     </section>
 
                                     <section className="min-w-0">
-                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Vai trò</span>
+                                        <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Vai trò</span>
                                         <span className={`inline-flex max-w-full rounded-xl px-2.5 py-1 text-[11px] font-black ring-1 ${getRoleClass(user.roleName)}`}>
                                             <span className="truncate">{roleLabel(user.roleName)}</span>
                                         </span>
                                     </section>
 
                                     <section className="min-w-0">
-                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Điểm uy tín</span>
+                                        <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Điểm uy tín</span>
                                         {canEditReputation ? (
                                             <div className={`w-full rounded-2xl p-2.5 ring-1 ${tone.soft}`}>
                                                 <div className="flex min-w-0 items-center gap-1.5">
@@ -381,7 +381,7 @@ const AdminUsers = () => {
                                                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/80">
                                                     <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${Math.max(0, Math.min(100, score))}%` }} />
                                                 </div>
-                                                <div className="mt-2 text-[10px] font-bold text-slate-400">
+                                                <div className="mt-2 text-[10px] font-bold text-slate-800">
                                                     Báo cáo: {user.reportCount ?? 0}
                                                 </div>
                                             </div>
@@ -391,27 +391,27 @@ const AdminUsers = () => {
                                     </section>
 
                                     <section className="min-w-0">
-                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Quyền VIP</span>
+                                        <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Quyền VIP</span>
                                         {canGrantVip ? (
                                             <div className="min-w-0 rounded-2xl bg-slate-50/70 p-2.5 ring-1 ring-slate-100">
                                                 <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                                                     <span className={`inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ${
                                                         user.isVip
                                                             ? 'bg-amber-50 text-amber-700 ring-amber-100'
-                                                            : 'bg-white text-slate-500 ring-slate-100'
+                                                            : 'bg-white text-slate-700 ring-slate-100'
                                                     }`}>
                                                         <span className="material-symbols-outlined !text-[14px]">workspace_premium</span>
                                                         <span className="truncate">{user.isVip ? 'Đang VIP' : 'Chưa VIP'}</span>
                                                     </span>
                                                     {user.isVip && (
-                                                        <span className="text-[11px] font-bold text-slate-400">
+                                                        <span className="text-[11px] font-bold text-slate-800">
                                                             Còn {Math.max(0, user.vipDaysRemaining ?? 0)} ngày
                                                         </span>
                                                     )}
                                                 </div>
 
                                                 {user.isVip && (
-                                                    <p className="mt-1 truncate text-[11px] font-semibold text-slate-500" title={`${user.vipPlanName || 'Gói VIP'} đến ${formatVipDate(user.vipEndDate)}`}>
+                                                    <p className="mt-1 truncate text-[11px] font-semibold text-slate-700" title={`${user.vipPlanName || 'Gói VIP'} đến ${formatVipDate(user.vipEndDate)}`}>
                                                         {user.vipPlanName || 'Gói VIP'} đến {formatVipDate(user.vipEndDate)}
                                                     </p>
                                                 )}
@@ -421,7 +421,7 @@ const AdminUsers = () => {
                                                         value={selectedVipPlanId}
                                                         onChange={(event) => handleVipPlanChange(user.userId, event.target.value)}
                                                         disabled={grantingVipId === user.userId || userVipPlans.length === 0}
-                                                        className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-2 text-[11px] font-bold text-slate-700 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                                                        className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-2 text-[11px] font-bold text-slate-700 outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-800"
                                                     >
                                                         {userVipPlans.length === 0 ? (
                                                             <option value="">Chưa có gói</option>
@@ -450,7 +450,7 @@ const AdminUsers = () => {
                                     </section>
 
                                     <section className="min-w-0">
-                                        <span className="mb-2 block text-[10px] font-black text-slate-400 lg:hidden">Trạng thái</span>
+                                        <span className="mb-2 block text-[10px] font-black text-slate-800 lg:hidden">Trạng thái</span>
                                         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                                             <span className={`inline-flex max-w-full items-center rounded-full px-3 py-1 text-[11px] font-black ring-1 ${
                                                 user.status === 'Active'

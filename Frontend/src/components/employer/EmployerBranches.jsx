@@ -136,7 +136,7 @@ const EmployerBranches = () => {
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6 space-y-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Chi nhánh</h2>
-          <p className="text-sm text-slate-500 mt-1">Tạo cửa hàng/địa điểm trước khi gửi lời mời nhận việc.</p>
+          <p className="text-sm text-slate-700 mt-1">Tạo cửa hàng/địa điểm trước khi gửi lời mời nhận việc.</p>
         </div>
 
         <input
@@ -199,9 +199,9 @@ const EmployerBranches = () => {
           <h3 className="text-lg font-bold text-slate-800">Địa điểm của bạn</h3>
         </div>
         {loading ? (
-          <div className="p-10 text-center text-slate-400">Đang tải chi nhánh...</div>
+          <div className="p-10 text-center text-slate-800">Đang tải chi nhánh...</div>
         ) : branches.length === 0 ? (
-          <div className="p-10 text-center text-slate-400">Chưa có chi nhánh nào.</div>
+          <div className="p-10 text-center text-slate-800">Chưa có chi nhánh nào.</div>
         ) : (
           <div className="divide-y divide-slate-100">
             {branches.map(branch => (
@@ -212,24 +212,24 @@ const EmployerBranches = () => {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-slate-500 hover:text-primary hover:underline truncate block"
+                    className="text-sm text-slate-700 hover:text-primary hover:underline truncate block"
                     title="Xem vị trí & Chỉ đường trên Google Maps"
                   >
                     {branch.address}
                   </a>
-                  {branch.phone && <p className="text-xs text-slate-400 mt-0.5">{branch.phone}</p>}
+                  {branch.phone && <p className="text-xs text-slate-800 mt-0.5">{branch.phone}</p>}
                 </div>
                 <div className="flex items-center gap-3 self-start md:self-center flex-shrink-0">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                     branch.isActive
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                      : 'bg-slate-50 text-slate-500 border-slate-100'
+                      : 'bg-slate-50 text-slate-700 border-slate-100'
                   }`}>
                     {branch.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}
                   </span>
                   <button
                     onClick={() => handleDeleteBranch(branch.branchId)}
-                    className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 active:bg-rose-100 transition-all flex items-center justify-center hover:scale-105 duration-200"
+                    className="h-9 w-9 rounded-xl text-slate-800 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 active:bg-rose-100 transition-all flex items-center justify-center hover:scale-105 duration-200"
                     title="Xóa chi nhánh"
                   >
                     <span className="material-symbols-outlined !text-xl">delete</span>

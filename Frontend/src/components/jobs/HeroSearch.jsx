@@ -206,7 +206,7 @@ export default function HeroSearch({ onSearch, totalJobs, initialKeyword = '', i
                 <div className="jobs-location-body space-y-4">
                   {/* Quick Cities Selection */}
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2 text-left">Chọn nhanh thành phố</span>
+                    <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block mb-2 text-left">Chọn nhanh thành phố</span>
                     <div className="flex flex-wrap gap-2">
                       {QUICK_CITIES.map((city) => {
                         const isActive = city.value === '' ? (!province && !address) : (province === city.value);

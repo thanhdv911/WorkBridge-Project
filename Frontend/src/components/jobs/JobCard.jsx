@@ -98,7 +98,7 @@ export default function JobCard({ job, isSaved = false, onToggleSave }) {
         {job.vacancies && <span className="jobs-chip is-rose">Tuyển: {job.vacancies}</span>}
       </div>
 
-      <p className="mt-2.5 text-[13px] font-semibold text-slate-500 overflow-hidden text-ellipsis whitespace-nowrap">{job.description}</p>
+      <p className="mt-2.5 text-[13px] font-semibold text-slate-700 overflow-hidden text-ellipsis whitespace-nowrap">{job.description}</p>
 
       <div className="jobs-card-footer">
         <div className="jobs-card-pay">

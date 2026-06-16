@@ -76,7 +76,7 @@ const transactionStatusClass = (status) => {
   if (status === 'Active') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
   if (status === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-100';
   if (status === 'Cancelled' || status === 'Expired') return 'bg-rose-50 text-rose-700 ring-rose-100';
-  return 'bg-slate-100 text-slate-600 ring-slate-200';
+  return 'bg-slate-100 text-slate-800 ring-slate-200';
 };
 
 const formatDuration = (days) => {
@@ -787,7 +787,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
         <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-[#1687d9]" />
-        <p className="text-sm font-bold text-slate-500">Đang tải gói VIP...</p>
+        <p className="text-sm font-bold text-slate-700">Đang tải gói VIP...</p>
       </div>
     );
   }
@@ -846,7 +846,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
             type="button"
             onClick={() => cancelCurrentPayment({ reason: 'Người dùng bấm hủy trên màn hình QR.' })}
             disabled={cancelingPayment}
-            className="flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
+            className="flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-800 transition hover:bg-slate-50"
           >
             <span className="material-symbols-outlined !text-base">{cancelingPayment ? 'progress_activity' : 'close'}</span>
             {cancelingPayment ? 'Đang hủy' : 'Hủy'}
@@ -856,7 +856,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
         <div className="grid gap-6 p-6 md:grid-cols-[300px_1fr]">
           <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5 text-center">
             <img src={qrCodeImageUrl} alt="VietQR PayOS" className="mx-auto h-[230px] w-[230px] rounded-xl bg-white p-2 shadow-sm" />
-            <p className="mt-3 text-xs font-bold text-slate-500">Quét mã bằng ứng dụng ngân hàng</p>
+            <p className="mt-3 text-xs font-bold text-slate-700">Quét mã bằng ứng dụng ngân hàng</p>
             <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
               <p className="text-[11px] font-black uppercase tracking-wide">Tự hủy sau</p>
               <p className="mt-0.5 text-2xl font-black tabular-nums">{formatCountdown(paymentCountdown)}</p>
@@ -872,13 +872,13 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-black uppercase text-slate-400">{label}</p>
+                  <p className="text-[11px] font-black uppercase text-slate-800">{label}</p>
                   <p className="truncate text-sm font-black text-slate-800">{value || '-'}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(value, label.toLowerCase())}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 shadow-sm transition hover:text-[#1687d9]"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-slate-700 shadow-sm transition hover:text-[#1687d9]"
                 >
                   <span className="material-symbols-outlined !text-base">content_copy</span>
                 </button>
@@ -978,7 +978,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
               <span className="material-symbols-outlined !text-[23px]">{icon}</span>
             </div>
             <h3 className="mt-4 text-base font-black text-slate-900">{title}</h3>
-            <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-500">{detail}</p>
+            <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-700">{detail}</p>
           </div>
         ))}
       </div>
@@ -1033,7 +1033,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
                   </p>
                 </div>
 
-                <p className="mt-4 min-h-[44px] text-center text-xs font-semibold leading-relaxed text-slate-500">
+                <p className="mt-4 min-h-[44px] text-center text-xs font-semibold leading-relaxed text-slate-700">
                   {plan.description || 'Gói VIP WorkBridge với đầy đủ quyền AI theo loại tài khoản.'}
                 </p>
 
@@ -1046,7 +1046,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
 
                 <div className="mt-4 flex-1 divide-y divide-slate-100">
                   {highlights.map(item => (
-                    <div key={item} className="flex items-start gap-2.5 py-2.5 text-xs font-semibold leading-relaxed text-slate-600">
+                    <div key={item} className="flex items-start gap-2.5 py-2.5 text-xs font-semibold leading-relaxed text-slate-800">
                       <span className={`material-symbols-outlined !text-[16px] ${theme.accentText}`}>check_circle</span>
                       <span>{item}</span>
                     </div>
@@ -1077,7 +1077,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#1687d9]">Lịch sử giao dịch</p>
             <h3 className="mt-1 text-xl font-black text-slate-950">Thanh toán VIP của bạn</h3>
-            <p className="mt-1 text-sm font-semibold text-slate-500">Theo dõi giao dịch PayOS, giao dịch đã hủy và VIP được admin cấp.</p>
+            <p className="mt-1 text-sm font-semibold text-slate-700">Theo dõi giao dịch PayOS, giao dịch đã hủy và VIP được admin cấp.</p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-4">
@@ -1088,7 +1088,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
               ['Đã hủy', transactionSummary?.cancelledTransactions ?? 0]
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-                <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                <p className="text-[10px] font-black uppercase text-slate-800">{label}</p>
                 <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
               </div>
             ))}
@@ -1100,18 +1100,18 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
             <div className="px-5 py-10 text-center">
               <span className="material-symbols-outlined !text-[38px] text-slate-300">receipt_long</span>
               <p className="mt-2 text-sm font-black text-slate-700">Chưa có giao dịch VIP</p>
-              <p className="mt-1 text-xs font-semibold text-slate-400">Khi mua VIP hoặc được admin nâng VIP, giao dịch sẽ xuất hiện ở đây.</p>
+              <p className="mt-1 text-xs font-semibold text-slate-800">Khi mua VIP hoặc được admin nâng VIP, giao dịch sẽ xuất hiện ở đây.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Gói</th>
-                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Nguồn</th>
-                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Số tiền</th>
-                    <th className="px-4 py-3 text-[11px] font-black text-slate-500">Trạng thái</th>
-                    <th className="px-4 py-3 text-right text-[11px] font-black text-slate-500">Thời gian</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-700">Gói</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-700">Nguồn</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-700">Số tiền</th>
+                    <th className="px-4 py-3 text-[11px] font-black text-slate-700">Trạng thái</th>
+                    <th className="px-4 py-3 text-right text-[11px] font-black text-slate-700">Thời gian</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1119,7 +1119,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
                     <tr key={transaction.subscriptionId} className="hover:bg-slate-50/70">
                       <td className="px-4 py-4">
                         <p className="text-sm font-black text-slate-900">{transaction.planName}</p>
-                        <p className="mt-0.5 text-xs font-semibold text-slate-400">
+                        <p className="mt-0.5 text-xs font-semibold text-slate-800">
                           {formatDuration(transaction.durationDays)} {transaction.orderCode ? `• #${transaction.orderCode}` : ''}
                         </p>
                       </td>
@@ -1136,7 +1136,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
                           {transactionStatusLabel(transaction.status)}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-right text-xs font-bold text-slate-500">
+                      <td className="px-4 py-4 text-right text-xs font-bold text-slate-700">
                         {formatDateTime(transaction.createdAt)}
                       </td>
                     </tr>

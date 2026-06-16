@@ -252,7 +252,7 @@ export default function GoongAddressPicker({
 
       {showAdminFields && (
         <div className="space-y-1">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tỉnh / TP → Quận / Huyện → Phường / Xã</span>
+          <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Tỉnh / TP → Quận / Huyện → Phường / Xã</span>
           <VietnamCascadePicker
             value={{
               province: currentCity,
@@ -273,7 +273,7 @@ export default function GoongAddressPicker({
 
       <div className="relative">
         {detailLabel && (
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
             {detailLabel}
           </label>
         )}
@@ -303,12 +303,12 @@ export default function GoongAddressPicker({
                 onClick={() => handleSelectSuggestion(suggestion)}
                 className="px-4 py-3 hover:bg-primary/5 cursor-pointer transition-colors flex items-start gap-3 group"
               >
-                <span className="material-symbols-outlined !text-lg text-slate-400 group-hover:text-primary mt-0.5 flex-shrink-0">location_on</span>
+                <span className="material-symbols-outlined !text-lg text-slate-800 group-hover:text-primary mt-0.5 flex-shrink-0">location_on</span>
                 <div className="min-w-0 flex-1 text-left">
                   <p className="text-sm font-semibold text-slate-700 group-hover:text-primary whitespace-normal break-words">
                     {suggestion.mainText || suggestion.address || suggestion.description}
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5 whitespace-normal break-words">
+                  <p className="text-xs text-slate-800 mt-0.5 whitespace-normal break-words">
                     {suggestion.description}
                   </p>
                 </div>
@@ -320,13 +320,13 @@ export default function GoongAddressPicker({
         {focused && !searching && current.address.trim().length >= 2 && suggestions.length === 0 && (
           <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-4 text-center">
             <span className="material-symbols-outlined !text-3xl text-slate-300 mb-1 block">search_off</span>
-            <p className="text-xs text-slate-400">Không tìm thấy trên Goong. Thử gõ số nhà, tên đường hoặc tên địa điểm gần đó.</p>
+            <p className="text-xs text-slate-800">Không tìm thấy trên Goong. Thử gõ số nhà, tên đường hoặc tên địa điểm gần đó.</p>
           </div>
         )}
       </div>
 
       {showAdminFields && (
-        <p className="text-[11px] text-slate-400">
+        <p className="text-[11px] text-slate-800">
           Nhập tỉnh/thành, quận/huyện, phường/xã trước rồi nhập địa chỉ cụ thể để gợi ý chính xác hơn.
         </p>
       )}

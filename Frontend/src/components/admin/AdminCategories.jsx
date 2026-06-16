@@ -107,14 +107,14 @@ const AdminCategories = () => {
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                     <div>
                         <h2 className="text-xl font-black tracking-tight text-slate-950">Danh mục công việc</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                        <p className="mt-1 text-sm font-medium text-slate-700">
                             Quản lý nhóm ngành để người tìm việc lọc tin nhanh và chính xác hơn.
                         </p>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
                         <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-400">search</span>
+                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
                             <input
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
@@ -138,7 +138,7 @@ const AdminCategories = () => {
                 <div className="rounded-[28px] border border-white/80 bg-white px-6 py-16 text-center shadow-sm">
                     <span className="material-symbols-outlined !text-[42px] text-slate-300">category</span>
                     <h3 className="mt-3 text-sm font-black text-slate-700">Chưa có danh mục phù hợp</h3>
-                    <p className="mt-1 text-xs font-semibold text-slate-400">Tạo danh mục mới hoặc đổi từ khóa tìm kiếm.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-800">Tạo danh mục mới hoặc đổi từ khóa tìm kiếm.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -152,7 +152,7 @@ const AdminCategories = () => {
                                     <button
                                         type="button"
                                         onClick={() => handleOpenModal(category)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 ring-1 ring-slate-100 transition hover:bg-primary/10 hover:text-primary"
+                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-700 ring-1 ring-slate-100 transition hover:bg-primary/10 hover:text-primary"
                                         aria-label="Chỉnh sửa danh mục"
                                     >
                                         <span className="material-symbols-outlined !text-[18px]">edit</span>
@@ -171,7 +171,7 @@ const AdminCategories = () => {
                             <h3 className="mt-5 text-lg font-black tracking-tight text-slate-950">
                                 {translateCategory(category.name)}
                             </h3>
-                            <p className="mt-2 line-clamp-3 min-h-[3.9rem] text-sm font-medium leading-relaxed text-slate-500">
+                            <p className="mt-2 line-clamp-3 min-h-[3.9rem] text-sm font-medium leading-relaxed text-slate-700">
                                 {category.description || 'Chưa có mô tả.'}
                             </p>
                         </article>
@@ -198,7 +198,7 @@ const AdminCategories = () => {
                             <button
                                 type="button"
                                 onClick={handleCloseModal}
-                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 ring-1 ring-slate-100 transition hover:bg-slate-100"
+                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-700 ring-1 ring-slate-100 transition hover:bg-slate-100"
                             >
                                 <span className="material-symbols-outlined !text-[20px]">close</span>
                             </button>
@@ -206,7 +206,7 @@ const AdminCategories = () => {
 
                         <div className="space-y-4">
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Tên danh mục</span>
+                                <span className="text-xs font-black text-slate-700">Tên danh mục</span>
                                 <input
                                     className="mt-1.5 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
                                     placeholder="Ví dụ: Công nghệ thông tin"
@@ -216,7 +216,7 @@ const AdminCategories = () => {
                                 />
                             </label>
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Mô tả</span>
+                                <span className="text-xs font-black text-slate-700">Mô tả</span>
                                 <textarea
                                     className="mt-1.5 min-h-[110px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-800 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
                                     placeholder="Mô tả danh mục"
@@ -230,7 +230,7 @@ const AdminCategories = () => {
                             <button
                                 type="button"
                                 onClick={handleCloseModal}
-                                className="h-12 rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-500 transition hover:bg-slate-50"
+                                className="h-12 rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-50"
                             >
                                 Hủy
                             </button>

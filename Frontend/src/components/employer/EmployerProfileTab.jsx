@@ -167,10 +167,10 @@ export default function EmployerProfileTab() {
               <span className="material-symbols-outlined text-primary">domain</span>
               Hồ sơ công ty
             </h2>
-            <p className="text-sm text-slate-500 mt-1">Cập nhật đầy đủ thông tin để điểm uy tín đạt 100 và thu hút ứng viên tốt hơn.</p>
+            <p className="text-sm text-slate-700 mt-1">Cập nhật đầy đủ thông tin để điểm uy tín đạt 100 và thu hút ứng viên tốt hơn.</p>
           </div>
           <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-right">
-            <p className="text-[10px] font-black uppercase text-slate-400">Điểm uy tín</p>
+            <p className="text-[10px] font-black uppercase text-slate-800">Điểm uy tín</p>
             <p className="text-2xl font-black text-primary">{profile.reputationScore}/100</p>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function EmployerProfileTab() {
           
           <div className="flex-1 text-center sm:text-left space-y-2">
             <h3 className="text-sm font-semibold text-slate-800">Ảnh đại diện / Logo công ty</h3>
-            <p className="text-xs text-slate-500">Chấp nhận định dạng PNG, JPG, JPEG, WEBP. Dung lượng tối đa 2MB.</p>
+            <p className="text-xs text-slate-700">Chấp nhận định dạng PNG, JPG, JPEG, WEBP. Dung lượng tối đa 2MB.</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
               <label className="cursor-pointer inline-flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
                 <span className="material-symbols-outlined !text-base">cloud_upload</span>

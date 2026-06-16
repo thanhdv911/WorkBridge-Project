@@ -182,7 +182,7 @@ const AdminOperations = () => {
                                     {statusTone.label}
                                 </span>
                                 <h3 className="mt-4 text-2xl font-black tracking-tight text-slate-950">Trạng thái vận hành</h3>
-                                <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-slate-500">
+                                <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-slate-700">
                                     Bật bảo trì để tạm khóa các thao tác của người dùng, hiển thị màn hình bảo trì và giữ quyền truy cập cho admin.
                                 </p>
                             </div>
@@ -204,11 +204,11 @@ const AdminOperations = () => {
                             ].map(([label, value, note, icon]) => (
                                 <div key={label} className="rounded-[22px] border border-slate-100 bg-slate-50 p-4">
                                     <div className="flex items-center justify-between gap-3">
-                                        <p className="text-xs font-black uppercase tracking-wide text-slate-400">{label}</p>
+                                        <p className="text-xs font-black uppercase tracking-wide text-slate-800">{label}</p>
                                         <span className="material-symbols-outlined !text-[20px] text-primary">{icon}</span>
                                     </div>
                                     <p className="mt-3 text-base font-black text-slate-950">{value}</p>
-                                    <p className="mt-1 text-xs font-semibold text-slate-400">{note}</p>
+                                    <p className="mt-1 text-xs font-semibold text-slate-800">{note}</p>
                                 </div>
                             ))}
                         </div>
@@ -221,7 +221,7 @@ const AdminOperations = () => {
                                 <h4 className="mt-3 text-xl font-black tracking-tight text-slate-950">
                                     {maintenance?.title || 'WorkBridge đang hoạt động'}
                                 </h4>
-                                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-500">
+                                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                                     {maintenance?.message || 'Người dùng truy cập hệ thống bình thường.'}
                                 </p>
                             </div>
@@ -229,7 +229,7 @@ const AdminOperations = () => {
                                 type="button"
                                 onClick={disableMaintenance}
                                 disabled={!maintenance?.isActive || savingMaintenance}
-                                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+                                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-800"
                             >
                                 <span className="material-symbols-outlined !text-[19px]">power_settings_new</span>
                                 Tắt bảo trì
@@ -247,7 +247,7 @@ const AdminOperations = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-black tracking-tight text-slate-950">Thiết lập bảo trì</h3>
-                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-500">
+                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-700">
                                 Chọn thời lượng, nội dung hiển thị và có gửi email thông báo hay không.
                             </p>
                         </div>
@@ -255,7 +255,7 @@ const AdminOperations = () => {
 
                     <div className="mt-6 grid gap-4 sm:grid-cols-2">
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Thời gian bảo trì (phút)</span>
+                            <span className="text-xs font-black text-slate-700">Thời gian bảo trì (phút)</span>
                             <input
                                 type="number"
                                 min="1"
@@ -267,7 +267,7 @@ const AdminOperations = () => {
                         </label>
 
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Nhóm nhận email</span>
+                            <span className="text-xs font-black text-slate-700">Nhóm nhận email</span>
                             <select
                                 value={maintenanceForm.audience}
                                 onChange={(event) => handleMaintenanceChange('audience', event.target.value)}
@@ -281,7 +281,7 @@ const AdminOperations = () => {
                     </div>
 
                     <label className="mt-4 block">
-                        <span className="text-xs font-black text-slate-500">Tiêu đề màn hình bảo trì</span>
+                        <span className="text-xs font-black text-slate-700">Tiêu đề màn hình bảo trì</span>
                         <input
                             value={maintenanceForm.title}
                             onChange={(event) => handleMaintenanceChange('title', event.target.value)}
@@ -290,7 +290,7 @@ const AdminOperations = () => {
                     </label>
 
                     <label className="mt-4 block">
-                        <span className="text-xs font-black text-slate-500">Nội dung hiển thị</span>
+                        <span className="text-xs font-black text-slate-700">Nội dung hiển thị</span>
                         <textarea
                             rows="4"
                             value={maintenanceForm.message}
@@ -312,7 +312,7 @@ const AdminOperations = () => {
                     {maintenanceForm.sendEmail && (
                         <div className="mt-4 grid gap-4 rounded-[22px] border border-sky-100 bg-sky-50/60 p-4">
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Tiêu đề email</span>
+                                <span className="text-xs font-black text-slate-700">Tiêu đề email</span>
                                 <input
                                     value={maintenanceForm.emailSubject}
                                     onChange={(event) => handleMaintenanceChange('emailSubject', event.target.value)}
@@ -320,7 +320,7 @@ const AdminOperations = () => {
                                 />
                             </label>
                             <label className="block">
-                                <span className="text-xs font-black text-slate-500">Nội dung email thêm</span>
+                                <span className="text-xs font-black text-slate-700">Nội dung email thêm</span>
                                 <textarea
                                     rows="3"
                                     value={maintenanceForm.emailMessage}
@@ -360,7 +360,7 @@ const AdminOperations = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-black tracking-tight text-slate-950">Gửi email vận hành</h3>
-                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-500">
+                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-700">
                                 Dùng cho thông báo bảo trì, nâng cấp web hoặc cập nhật quan trọng.
                             </p>
                         </div>
@@ -368,7 +368,7 @@ const AdminOperations = () => {
 
                     <div className="mt-6 grid gap-4 sm:grid-cols-2">
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Loại email</span>
+                            <span className="text-xs font-black text-slate-700">Loại email</span>
                             <select
                                 value={emailForm.type}
                                 onChange={(event) => handleEmailChange('type', event.target.value)}
@@ -381,7 +381,7 @@ const AdminOperations = () => {
                         </label>
 
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Người nhận</span>
+                            <span className="text-xs font-black text-slate-700">Người nhận</span>
                             <select
                                 value={emailForm.audience}
                                 onChange={(event) => handleEmailChange('audience', event.target.value)}
@@ -395,7 +395,7 @@ const AdminOperations = () => {
                     </div>
 
                     <label className="mt-4 block">
-                        <span className="text-xs font-black text-slate-500">Tiêu đề</span>
+                        <span className="text-xs font-black text-slate-700">Tiêu đề</span>
                         <input
                             value={emailForm.subject}
                             onChange={(event) => handleEmailChange('subject', event.target.value)}
@@ -404,7 +404,7 @@ const AdminOperations = () => {
                     </label>
 
                     <label className="mt-4 block">
-                        <span className="text-xs font-black text-slate-500">Nội dung</span>
+                        <span className="text-xs font-black text-slate-700">Nội dung</span>
                         <textarea
                             rows="7"
                             value={emailForm.message}
@@ -415,7 +415,7 @@ const AdminOperations = () => {
 
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Liên kết nút</span>
+                            <span className="text-xs font-black text-slate-700">Liên kết nút</span>
                             <input
                                 value={emailForm.actionUrl}
                                 onChange={(event) => handleEmailChange('actionUrl', event.target.value)}
@@ -424,7 +424,7 @@ const AdminOperations = () => {
                         </label>
 
                         <label className="block">
-                            <span className="text-xs font-black text-slate-500">Chữ trên nút</span>
+                            <span className="text-xs font-black text-slate-700">Chữ trên nút</span>
                             <input
                                 value={emailForm.actionText}
                                 onChange={(event) => handleEmailChange('actionText', event.target.value)}

@@ -121,10 +121,10 @@ export default function VietnamCascadePicker({ value = {}, onChange, className =
         onClick={openPicker}
         className="w-full flex items-center justify-between gap-2 h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-left transition-all hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
       >
-        <span className={value.province ? 'text-slate-700 font-semibold' : 'text-slate-400'}>
+        <span className={value.province ? 'text-slate-700 font-semibold' : 'text-slate-800'}>
           {displayText}
         </span>
-        <span className="material-symbols-outlined !text-lg text-slate-400 flex-shrink-0">
+        <span className="material-symbols-outlined !text-lg text-slate-800 flex-shrink-0">
           {open ? 'expand_less' : 'expand_more'}
         </span>
       </button>
@@ -138,13 +138,13 @@ export default function VietnamCascadePicker({ value = {}, onChange, className =
               <button
                 type="button"
                 onClick={handleBack}
-                className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700 transition-colors"
               >
                 <span className="material-symbols-outlined !text-lg">arrow_back</span>
               </button>
             )}
             <div className="relative flex-1">
-              <span className="material-symbols-outlined !text-base text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2">
+              <span className="material-symbols-outlined !text-base text-slate-800 absolute left-2.5 top-1/2 -translate-y-1/2">
                 search
               </span>
               <input
@@ -179,7 +179,7 @@ export default function VietnamCascadePicker({ value = {}, onChange, className =
                 </span>
               </li>
             ) : filtered.length === 0 ? (
-              <li className="py-6 text-center text-sm text-slate-400">
+              <li className="py-6 text-center text-sm text-slate-800">
                 Không tìm thấy kết quả
               </li>
             ) : (

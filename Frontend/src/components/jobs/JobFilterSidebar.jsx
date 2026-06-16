@@ -77,7 +77,7 @@ export default function JobFilterSidebar({
         <div className="jobs-filter-section">
           <label>Danh mục công việc</label>
           {loading ? (
-            <div className="py-3 text-xs text-slate-400 animate-pulse text-left">Đang tải danh mục...</div>
+            <div className="py-3 text-xs text-slate-800 animate-pulse text-left">Đang tải danh mục...</div>
           ) : (
             <div className="jobs-filter-list">
               <label className="jobs-filter-option">

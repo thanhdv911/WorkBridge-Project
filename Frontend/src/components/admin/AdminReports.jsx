@@ -10,7 +10,7 @@ const statusLabel = (status) => {
 
 const statusClass = (status) => {
     if (status === 'Resolved') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
-    if (status === 'Ignored') return 'bg-slate-100 text-slate-500 ring-slate-200';
+    if (status === 'Ignored') return 'bg-slate-100 text-slate-700 ring-slate-200';
     return 'bg-amber-50 text-amber-700 ring-amber-100';
 };
 
@@ -92,14 +92,14 @@ const AdminReports = () => {
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div>
                         <h2 className="text-xl font-black tracking-tight text-slate-950">Báo cáo hệ thống</h2>
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                        <p className="mt-1 text-sm font-medium text-slate-700">
                             Quản lý khiếu nại của người dùng và nội dung cần kiểm tra.
                         </p>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-[minmax(0,300px)_auto]">
                         <label className="relative block">
-                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-400">search</span>
+                            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 !text-[19px] -translate-y-1/2 text-slate-800">search</span>
                             <input
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
@@ -122,7 +122,7 @@ const AdminReports = () => {
                                     className={`h-9 rounded-lg px-3 text-xs font-black transition ${
                                         statusFilter === value
                                             ? 'bg-white text-primary shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-900'
+                                            : 'text-slate-700 hover:text-slate-900'
                                     }`}
                                 >
                                     {label}
@@ -138,11 +138,11 @@ const AdminReports = () => {
                     ['Tổng số', summary.total, 'report_problem', 'bg-slate-950 text-white'],
                     ['Chờ xử lý', summary.pending, 'pending_actions', 'bg-amber-50 text-amber-700 ring-1 ring-amber-100'],
                     ['Đã giải quyết', summary.resolved, 'task_alt', 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'],
-                    ['Đã bỏ qua', summary.ignored, 'remove_circle', 'bg-slate-100 text-slate-600 ring-1 ring-slate-200']
+                    ['Đã bỏ qua', summary.ignored, 'remove_circle', 'bg-slate-100 text-slate-800 ring-1 ring-slate-200']
                 ].map(([label, value, icon, tone]) => (
                     <div key={label} className="flex items-center justify-between rounded-[22px] border border-white/80 bg-white p-4 shadow-sm">
                         <div>
-                            <p className="text-xs font-black text-slate-400">{label}</p>
+                            <p className="text-xs font-black text-slate-800">{label}</p>
                             <p className="mt-1 text-2xl font-black tabular-nums text-slate-950">{value}</p>
                         </div>
                         <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}>
@@ -157,18 +157,18 @@ const AdminReports = () => {
                     <div className="px-6 py-16 text-center">
                         <span className="material-symbols-outlined !text-[42px] text-slate-300">fact_check</span>
                         <p className="mt-3 text-sm font-black text-slate-700">Không có báo cáo phù hợp</p>
-                        <p className="mt-1 text-xs font-semibold text-slate-400">Hàng đợi đang trống hoặc bộ lọc chưa có kết quả.</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-800">Hàng đợi đang trống hoặc bộ lọc chưa có kết quả.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[1000px] text-left">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Người báo cáo</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Đối tượng</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Lý do</th>
-                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500">Trạng thái</th>
-                                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500">Thao tác</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-700">Người báo cáo</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-700">Đối tượng</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-700">Lý do</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-700">Trạng thái</th>
+                                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-700">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -176,7 +176,7 @@ const AdminReports = () => {
                                     <tr key={report.reportId} className="transition-colors hover:bg-slate-50/70">
                                         <td className="px-6 py-5">
                                             <p className="text-sm font-black text-slate-800">{report.reporterName}</p>
-                                            <p className="mt-1 text-xs font-semibold text-slate-400">
+                                            <p className="mt-1 text-xs font-semibold text-slate-800">
                                                 {report.createdAt ? new Date(report.createdAt).toLocaleDateString('vi-VN') : 'Chưa rõ ngày'}
                                             </p>
                                         </td>
@@ -187,7 +187,7 @@ const AdminReports = () => {
                                                 </span>
                                                 <div className="min-w-0">
                                                     <p className="truncate text-sm font-black text-slate-900">{report.entityTitle}</p>
-                                                    <p className="mt-1 text-xs font-semibold text-slate-400">
+                                                    <p className="mt-1 text-xs font-semibold text-slate-800">
                                                         {report.entityType === 'Job' ? 'Công việc' : 'Người dùng'} ID: {report.reportedEntityId}
                                                     </p>
                                                 </div>
@@ -198,7 +198,7 @@ const AdminReports = () => {
                                                 {report.reason}
                                             </span>
                                             {report.description && (
-                                                <p className="mt-2 max-w-sm line-clamp-2 text-xs font-medium leading-relaxed text-slate-500">
+                                                <p className="mt-2 max-w-sm line-clamp-2 text-xs font-medium leading-relaxed text-slate-700">
                                                     {report.description}
                                                 </p>
                                             )}
@@ -222,7 +222,7 @@ const AdminReports = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateStatus(report.reportId, 'Ignored')}
-                                                        className="inline-flex h-9 items-center justify-center gap-1 rounded-xl bg-slate-100 px-3 text-xs font-black text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-800 hover:text-white"
+                                                        className="inline-flex h-9 items-center justify-center gap-1 rounded-xl bg-slate-100 px-3 text-xs font-black text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-800 hover:text-white"
                                                     >
                                                         <span className="material-symbols-outlined !text-[16px]">close</span>
                                                         Bỏ qua

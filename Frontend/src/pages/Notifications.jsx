@@ -155,12 +155,12 @@ const Notifications = () => {
                 <div className="max-w-[800px] mx-auto px-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-black text-slate-800 tracking-tight">Thông báo</h1>
-                        <p className="text-slate-500 mt-2">Cập nhật hoạt động mới nhất của bạn.</p>
+                        <p className="text-slate-700 mt-2">Cập nhật hoạt động mới nhất của bạn.</p>
                     </div>
                     {hasReadNotifications && (
                         <button
                             onClick={clearReadNotifications}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-500 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-100 rounded-xl transition-all shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:text-red-500 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-100 rounded-xl transition-all shadow-sm"
                         >
                             <span className="material-symbols-outlined !text-[16px]">clear_all</span>
                             Xóa đã đọc
@@ -176,7 +176,7 @@ const Notifications = () => {
                             <span className="material-symbols-outlined text-slate-300 !text-4xl">notifications_off</span>
                         </div>
                         <h2 className="text-xl font-bold text-slate-700">Không có thông báo</h2>
-                        <p className="text-slate-500 mt-2">Bạn đã xem hết rồi!</p>
+                        <p className="text-slate-700 mt-2">Bạn đã xem hết rồi!</p>
                     </div>
                 ) : (
                     <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
@@ -193,7 +193,7 @@ const Notifications = () => {
                             >
                                 <div className="flex items-start gap-4 pr-8">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                        n.isRead ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary'
+                                        n.isRead ? 'bg-slate-100 text-slate-800' : 'bg-primary/10 text-primary'
                                     }`}>
                                         <span className="material-symbols-outlined !text-[20px]">
                                             {n.title.includes('Success') || n.title.includes('Accepted') || n.title.includes('Paid') ? 'check_circle' :
@@ -202,14 +202,14 @@ const Notifications = () => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between mb-1 gap-4">
-                                            <h3 className={`font-bold transition-colors ${n.isRead ? 'text-slate-600' : 'text-slate-800'} group-hover:text-primary`}>
+                                            <h3 className={`font-bold transition-colors ${n.isRead ? 'text-slate-800' : 'text-slate-800'} group-hover:text-primary`}>
                                                 {n.title}
                                             </h3>
-                                            <span className="text-[11px] font-medium text-slate-400 capitalize whitespace-nowrap">
+                                            <span className="text-[11px] font-medium text-slate-800 capitalize whitespace-nowrap">
                                                 {new Date(n.createdAt).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <p className={`text-sm ${n.isRead ? 'text-slate-500' : 'text-slate-600'}`}>
+                                        <p className={`text-sm ${n.isRead ? 'text-slate-700' : 'text-slate-800'}`}>
                                             {n.message}
                                         </p>
                                     </div>
@@ -221,7 +221,7 @@ const Notifications = () => {
                                 {/* Delete button on hover */}
                                 <button
                                     onClick={(e) => deleteNotification(n.notificationId, e)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-full flex items-center justify-center text-slate-800 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
                                     title="Xóa thông báo"
                                 >
                                     <span className="material-symbols-outlined !text-[18px]">delete</span>

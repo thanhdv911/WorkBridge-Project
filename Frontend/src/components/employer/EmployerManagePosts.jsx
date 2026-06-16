@@ -83,9 +83,9 @@ const EmployerManagePosts = ({ onEditJob }) => {
             case 'Published': return 'bg-green-50 text-green-600 border-green-100';
             case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-100';
             case 'Rejected': return 'bg-rose-50 text-rose-600 border-rose-100';
-            case 'Draft': return 'bg-slate-50 text-slate-500 border-slate-100';
+            case 'Draft': return 'bg-slate-50 text-slate-700 border-slate-100';
             case 'Closed': return 'bg-rose-50 text-rose-600 border-rose-100';
-            default: return 'bg-slate-50 text-slate-500 border-slate-100';
+            default: return 'bg-slate-50 text-slate-700 border-slate-100';
         }
     };
 
@@ -104,7 +104,7 @@ const EmployerManagePosts = ({ onEditJob }) => {
         return (
             <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-12 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto"></div>
-                <p className="text-slate-500 mt-4 font-medium">Đang tải bài tuyển dụng của bạn...</p>
+                <p className="text-slate-700 mt-4 font-medium">Đang tải bài tuyển dụng của bạn...</p>
             </div>
         );
     }
@@ -119,7 +119,7 @@ const EmployerManagePosts = ({ onEditJob }) => {
             <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden anim-fadeUp">
                 <div className="px-8 py-6 border-b border-slate-100">
                     <h2 className="text-xl font-bold text-slate-800">Quản lý bài tuyển dụng</h2>
-                    <p className="text-slate-500 text-sm mt-1">Xem và cập nhật trạng thái của các tin đăng tuyển hiện tại.</p>
+                    <p className="text-slate-700 text-sm mt-1">Xem và cập nhật trạng thái của các tin đăng tuyển hiện tại.</p>
                 </div>
 
                 {jobs.length === 0 ? (
@@ -128,7 +128,7 @@ const EmployerManagePosts = ({ onEditJob }) => {
                             <span className="material-symbols-outlined text-slate-300">work_off</span>
                         </div>
                         <h3 className="text-lg font-bold text-slate-700">Chưa đăng bài tuyển dụng nào</h3>
-                        <p className="text-slate-500 mt-1">Bắt đầu bằng việc tạo tin đăng tuyển đầu tiên.</p>
+                        <p className="text-slate-700 mt-1">Bắt đầu bằng việc tạo tin đăng tuyển đầu tiên.</p>
                     </div>
                 ) : (
                     <>
@@ -136,10 +136,10 @@ const EmployerManagePosts = ({ onEditJob }) => {
                         <table className="w-full text-left">
                             <thead className="bg-slate-50/50">
                                 <tr>
-                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">Thông tin công việc</th>
-                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">Ngày đăng</th>
-                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Trạng thái</th>
-                                    <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-right">Thao tác</th>
+                                    <th className="px-8 py-4 text-xs font-bold text-slate-800 uppercase tracking-widest border-b border-slate-100">Thông tin công việc</th>
+                                    <th className="px-8 py-4 text-xs font-bold text-slate-800 uppercase tracking-widest border-b border-slate-100">Ngày đăng</th>
+                                    <th className="px-8 py-4 text-xs font-bold text-slate-800 uppercase tracking-widest border-b border-slate-100 text-center">Trạng thái</th>
+                                    <th className="px-8 py-4 text-xs font-bold text-slate-800 uppercase tracking-widest border-b border-slate-100 text-right">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -154,12 +154,12 @@ const EmployerManagePosts = ({ onEditJob }) => {
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                            <div className="text-xs text-slate-800 mt-1 flex items-center gap-1">
                                                 <span className="material-symbols-outlined !text-[14px]">location_on</span>
                                                 {job.location}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-sm text-slate-500 whitespace-nowrap">
+                                        <td className="px-8 py-5 text-sm text-slate-700 whitespace-nowrap">
                                             {new Date(job.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-8 py-5 text-center">
@@ -193,7 +193,7 @@ const EmployerManagePosts = ({ onEditJob }) => {
                                                 ) : null}
                                                 <button
                                                     onClick={() => onEditJob && onEditJob(job.jobPostId)}
-                                                    className="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-primary hover:border-primary transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg border border-slate-200 text-slate-800 hover:text-primary hover:border-primary transition-all flex items-center justify-center"
                                                 >
                                                     <span className="material-symbols-outlined !text-[18px]">edit</span>
                                                 </button>

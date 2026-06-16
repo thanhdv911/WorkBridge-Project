@@ -93,7 +93,7 @@ export default function SavedJobs() {
               <span className="material-symbols-outlined !text-4xl">bookmark_border</span>
             </div>
             <h2 className="text-2xl font-black text-slate-800">Chưa có việc đã lưu</h2>
-            <p className="mx-auto mb-8 mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-500">
+            <p className="mx-auto mb-8 mt-2 max-w-md text-sm font-medium leading-relaxed text-slate-700">
               Khám phá các vị trí phù hợp và nhấn biểu tượng lưu để quay lại nhanh hơn.
             </p>
             <Link

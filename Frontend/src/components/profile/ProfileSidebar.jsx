@@ -54,33 +54,33 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
     <aside className="profile-sidebar-card anim-fadeUp h-fit rounded-2xl p-5">
       <div className="space-y-5">
         <section className="space-y-3">
-          <h3 className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-500">
+          <h3 className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-700">
             <span className="material-symbols-outlined text-primary !text-lg">contact_mail</span>
             Thông tin liên hệ
           </h3>
           <div className="space-y-2.5">
             <div className="flex items-center gap-3 rounded-xl bg-white/70 px-3 py-2 text-sm">
-              <span className="material-symbols-outlined text-slate-400 !text-lg">mail</span>
-              <span className="truncate font-semibold text-slate-600 select-all" title={user?.email}>{user?.email || 'Chưa cập nhật'}</span>
+              <span className="material-symbols-outlined text-slate-800 !text-lg">mail</span>
+              <span className="truncate font-semibold text-slate-800 select-all" title={user?.email}>{user?.email || 'Chưa cập nhật'}</span>
             </div>
             <div className="flex items-center gap-3 rounded-xl bg-white/70 px-3 py-2 text-sm">
-              <span className="material-symbols-outlined text-slate-400 !text-lg">phone</span>
-              <span className="font-semibold text-slate-600">{user?.phone || 'Chưa cập nhật'}</span>
+              <span className="material-symbols-outlined text-slate-800 !text-lg">phone</span>
+              <span className="font-semibold text-slate-800">{user?.phone || 'Chưa cập nhật'}</span>
             </div>
             <div className="flex items-center gap-3 rounded-xl bg-white/70 px-3 py-2 text-sm">
-              <span className="material-symbols-outlined text-slate-400 !text-lg">location_on</span>
-              <span className="line-clamp-1 font-semibold text-slate-600" title={user?.address}>{user?.address || 'Chưa cập nhật'}</span>
+              <span className="material-symbols-outlined text-slate-800 !text-lg">location_on</span>
+              <span className="line-clamp-1 font-semibold text-slate-800" title={user?.address}>{user?.address || 'Chưa cập nhật'}</span>
             </div>
             <div className="flex items-center gap-3 rounded-xl bg-white/70 px-3 py-2 text-sm">
-              <span className="material-symbols-outlined text-slate-400 !text-lg">calendar_today</span>
-              <span className="font-medium text-slate-500">Tham gia {formattedDate}</span>
+              <span className="material-symbols-outlined text-slate-800 !text-lg">calendar_today</span>
+              <span className="font-medium text-slate-700">Tham gia {formattedDate}</span>
             </div>
           </div>
         </section>
 
         {isOwnProfile && (
           <section className="space-y-3 border-t border-slate-200/70 pt-5">
-            <h3 className="text-xs font-black uppercase text-slate-500">Điều hướng nhanh</h3>
+            <h3 className="text-xs font-black uppercase text-slate-700">Điều hướng nhanh</h3>
             <nav className="space-y-1">
               {userRole !== 'Admin' && quickLinks.map((link) => (
                 <NavLink
@@ -89,7 +89,7 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
                   className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'text-slate-600 hover:bg-sky-50 hover:text-primary'
+                      : 'text-slate-800 hover:bg-sky-50 hover:text-primary'
                   }`}
                 >
                   <span className="material-symbols-outlined !text-lg">{link.icon}</span>
@@ -102,7 +102,7 @@ export default function ProfileSidebar({ user, isOwnProfile = true }) {
                   className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'text-slate-600 hover:bg-sky-50 hover:text-primary'
+                      : 'text-slate-800 hover:bg-sky-50 hover:text-primary'
                   }`}
                 >
                   <span className="material-symbols-outlined !text-lg">admin_panel_settings</span>

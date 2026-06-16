@@ -367,8 +367,8 @@ export default function JobMarketDashboard() {
                   <div key={i} className="h-16 rounded-xl bg-slate-100/60 animate-pulse border border-slate-200/40" />
                 ))
               ) : latestJobs.length === 0 ? (
-                <div className="py-8 text-center text-xs font-bold text-slate-400">
-                  <span className="material-symbols-outlined !text-3xl text-slate-400 block mb-1">work_off</span>
+                <div className="py-8 text-center text-xs font-bold text-slate-800">
+                  <span className="material-symbols-outlined !text-3xl text-slate-800 block mb-1">work_off</span>
                   Không có tin tuyển dụng mới
                 </div>
               ) : (
@@ -408,7 +408,7 @@ export default function JobMarketDashboard() {
                         <h4 className="truncate text-xs font-black text-slate-800 group-hover:text-[#1392ec] transition-colors leading-snug">
                           {titleStr}
                         </h4>
-                        <p className="truncate text-[10.5px] font-bold text-slate-500 mt-0.5">
+                        <p className="truncate text-[10.5px] font-bold text-slate-700 mt-0.5">
                           {compNameStr}
                         </p>
                       </div>
@@ -418,7 +418,7 @@ export default function JobMarketDashboard() {
                         <span className="text-[10px] font-black text-[#1392ec] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100/60 shadow-sm">
                           {payRateVal ? `${payRateVal.toLocaleString('vi-VN')} ${translatePayUnit(payUnitVal)}` : 'Thỏa thuận'}
                         </span>
-                        <span className="text-[9.5px] font-bold text-slate-500 truncate max-w-[80px]">
+                        <span className="text-[9.5px] font-bold text-slate-700 truncate max-w-[80px]">
                           {locationStr.split(',').pop().trim()}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export default function JobMarketDashboard() {
                 {/* SVG Area (Proportional aspect ratio) */}
                 <div className="relative w-full aspect-[5/2] mt-1 select-none">
                   {loadingStats ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-400">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800">
                       Đang tải dữ liệu...
                     </div>
                   ) : (
@@ -619,7 +619,7 @@ export default function JobMarketDashboard() {
                 {/* SVG Area (Proportional aspect ratio) */}
                 <div className="relative w-full aspect-[5/2] mt-1 select-none">
                   {categories.length === 0 ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-400">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800">
                       Đang phân tích dữ liệu...
                     </div>
                   ) : (
@@ -718,7 +718,7 @@ export default function JobMarketDashboard() {
                 {/* Colored Legend Dots */}
                 <div className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 border-t border-slate-100 pt-2.5 mt-2">
                   {barChartData.map((d, idx) => (
-                    <span key={idx} className="flex items-center gap-1.5 text-[9.5px] font-black text-slate-600">
+                    <span key={idx} className="flex items-center gap-1.5 text-[9.5px] font-black text-slate-800">
                       <span className="h-2 w-2 rounded-full shadow-sm" style={{ backgroundColor: d.legendColor }} />
                       {d.category}
                     </span>

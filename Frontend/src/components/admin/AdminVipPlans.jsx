@@ -41,7 +41,7 @@ const transactionStatusClass = (status) => {
   if (status === 'Active') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
   if (status === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-100';
   if (status === 'Cancelled' || status === 'Expired') return 'bg-rose-50 text-rose-700 ring-rose-100';
-  return 'bg-slate-100 text-slate-600 ring-slate-200';
+  return 'bg-slate-100 text-slate-800 ring-slate-200';
 };
 
 const formatCurrency = (value) => Number(value || 0).toLocaleString('vi-VN');
@@ -180,7 +180,7 @@ export default function AdminVipPlans() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div>
             <h2 className="text-xl font-black tracking-tight text-slate-950">Quản lý gói VIP</h2>
-            <p className="mt-1 text-sm font-medium text-slate-500">
+            <p className="mt-1 text-sm font-medium text-slate-700">
               Tạo và chỉnh giá gói cá nhân/doanh nghiệp. Hệ thống hỗ trợ 7 ngày, 1 tháng và 1 năm.
             </p>
           </div>
@@ -204,7 +204,7 @@ export default function AdminVipPlans() {
         ].map(([label, value, icon, tone]) => (
           <div key={label} className="flex items-center justify-between rounded-[22px] border border-white/80 bg-white p-4 shadow-sm">
             <div>
-              <p className="text-xs font-black text-slate-400">{label}</p>
+              <p className="text-xs font-black text-slate-800">{label}</p>
               <p className="mt-1 text-2xl font-black tabular-nums text-slate-950">{value}</p>
             </div>
             <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}>
@@ -219,7 +219,7 @@ export default function AdminVipPlans() {
           <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-black text-slate-900">Danh sách gói</h3>
-              <p className="mt-0.5 text-xs font-semibold text-slate-400">Chọn một gói để chỉnh nội dung và giá.</p>
+              <p className="mt-0.5 text-xs font-semibold text-slate-800">Chọn một gói để chỉnh nội dung và giá.</p>
             </div>
             <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
               {['All', 'Applicant', 'Employer'].map((item) => (
@@ -228,7 +228,7 @@ export default function AdminVipPlans() {
                   type="button"
                   onClick={() => setAudienceFilter(item)}
                   className={`h-9 rounded-lg px-3 text-xs font-black transition ${
-                    audienceFilter === item ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                    audienceFilter === item ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                   }`}
                 >
                   {item === 'All' ? 'Tất cả' : audienceLabel(item)}
@@ -245,7 +245,7 @@ export default function AdminVipPlans() {
             <div className="px-6 py-16 text-center">
               <span className="material-symbols-outlined !text-[42px] text-slate-300">workspace_premium</span>
               <p className="mt-3 text-sm font-black text-slate-700">Chưa có gói phù hợp</p>
-              <p className="mt-1 text-xs font-semibold text-slate-400">Tạo gói mới hoặc đổi bộ lọc.</p>
+              <p className="mt-1 text-xs font-semibold text-slate-800">Tạo gói mới hoặc đổi bộ lọc.</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -260,7 +260,7 @@ export default function AdminVipPlans() {
                       }`}>
                         {audienceLabel(plan.audience)}
                       </span>
-                      <span className="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-500 ring-1 ring-slate-200">
+                      <span className="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-700 ring-1 ring-slate-200">
                         {durationLabel(plan.durationDays)}
                       </span>
                       <span className={`rounded-xl px-2.5 py-1 text-[11px] font-black ring-1 ${
@@ -272,21 +272,21 @@ export default function AdminVipPlans() {
                       </span>
                     </div>
                     <h4 className="mt-3 truncate text-base font-black text-slate-950">{plan.name}</h4>
-                    <p className="mt-1 line-clamp-2 text-xs font-medium leading-relaxed text-slate-500">
+                    <p className="mt-1 line-clamp-2 text-xs font-medium leading-relaxed text-slate-700">
                       {plan.description || 'Không có mô tả'}
                     </p>
-                    <p className="mt-2 text-[11px] font-bold text-slate-400">Mã gói: {plan.code}</p>
+                    <p className="mt-2 text-[11px] font-bold text-slate-800">Mã gói: {plan.code}</p>
                   </div>
 
                   <div className="flex items-center justify-between gap-4 md:justify-end">
                     <div className="text-right">
                       <p className="text-xl font-black tabular-nums text-slate-950">{formatCurrency(plan.price)}</p>
-                      <p className="text-[11px] font-bold text-slate-400">{plan.currency || 'VND'}</p>
+                      <p className="text-[11px] font-bold text-slate-800">{plan.currency || 'VND'}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => startEdit(plan)}
-                      className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:border-primary/30 hover:text-primary"
+                      className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-800 transition hover:border-primary/30 hover:text-primary"
                     >
                       <span className="material-symbols-outlined !text-[17px]">edit</span>
                       Sửa
@@ -310,7 +310,7 @@ export default function AdminVipPlans() {
               <button
                 type="button"
                 onClick={startCreate}
-                className="h-9 rounded-xl bg-slate-100 px-3 text-xs font-black text-slate-600 transition hover:bg-slate-200"
+                className="h-9 rounded-xl bg-slate-100 px-3 text-xs font-black text-slate-800 transition hover:bg-slate-200"
               >
                 Hủy sửa
               </button>
@@ -319,7 +319,7 @@ export default function AdminVipPlans() {
 
           <div className="space-y-4">
             <label className="block">
-              <span className="text-xs font-black text-slate-500">Loại tài khoản</span>
+              <span className="text-xs font-black text-slate-700">Loại tài khoản</span>
               <select
                 value={form.audience}
                 onChange={(event) => handleChange('audience', event.target.value)}
@@ -331,7 +331,7 @@ export default function AdminVipPlans() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-black text-slate-500">Thời hạn</span>
+              <span className="text-xs font-black text-slate-700">Thời hạn</span>
               <select
                 value={form.durationDays}
                 onChange={(event) => handleChange('durationDays', Number(event.target.value))}
@@ -350,7 +350,7 @@ export default function AdminVipPlans() {
               ['sortOrder', 'Thứ tự hiển thị', '10']
             ].map(([field, label, placeholder]) => (
               <label key={field} className="block">
-                <span className="text-xs font-black text-slate-500">{label}</span>
+                <span className="text-xs font-black text-slate-700">{label}</span>
                 <input
                   type={field === 'price' || field === 'sortOrder' ? 'number' : 'text'}
                   min={field === 'price' ? '1000' : undefined}
@@ -365,7 +365,7 @@ export default function AdminVipPlans() {
             ))}
 
             <label className="block">
-              <span className="text-xs font-black text-slate-500">Mô tả</span>
+              <span className="text-xs font-black text-slate-700">Mô tả</span>
               <textarea
                 value={form.description}
                 onChange={(event) => handleChange('description', event.target.value)}
@@ -400,7 +400,7 @@ export default function AdminVipPlans() {
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Giao dịch VIP</p>
             <h3 className="mt-1 text-lg font-black text-slate-950">Tổng hợp thanh toán và cấp VIP</h3>
-            <p className="mt-1 text-xs font-semibold text-slate-400">Theo dõi PayOS, giao dịch đã hủy, đang chờ và các lượt admin cấp VIP.</p>
+            <p className="mt-1 text-xs font-semibold text-slate-800">Theo dõi PayOS, giao dịch đã hủy, đang chờ và các lượt admin cấp VIP.</p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2">
@@ -411,7 +411,7 @@ export default function AdminVipPlans() {
                   type="button"
                   onClick={() => setTransactionAudience(item)}
                   className={`h-9 rounded-lg px-3 text-xs font-black transition ${
-                    transactionAudience === item ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                    transactionAudience === item ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                   }`}
                 >
                   {item === 'All' ? 'Tất cả' : audienceLabel(item)}
@@ -431,7 +431,7 @@ export default function AdminVipPlans() {
                   type="button"
                   onClick={() => setTransactionStatus(value)}
                   className={`h-9 rounded-lg px-3 text-xs font-black transition ${
-                    transactionStatus === value ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                    transactionStatus === value ? 'bg-white text-primary shadow-sm' : 'text-slate-700 hover:text-slate-900'
                   }`}
                 >
                   {label}
@@ -451,7 +451,7 @@ export default function AdminVipPlans() {
           ].map(([label, value, icon, tone]) => (
             <div key={label} className="flex items-center justify-between rounded-[22px] border border-slate-100 bg-slate-50/60 p-4">
               <div>
-                <p className="text-xs font-black text-slate-400">{label}</p>
+                <p className="text-xs font-black text-slate-800">{label}</p>
                 <p className="mt-1 text-lg font-black tabular-nums text-slate-950">{value}</p>
               </div>
               <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${tone}`}>
@@ -465,12 +465,12 @@ export default function AdminVipPlans() {
           <table className="w-full min-w-[1080px] text-left">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-4 text-[11px] font-black text-slate-500">Người dùng</th>
-                <th className="px-6 py-4 text-[11px] font-black text-slate-500">Gói</th>
-                <th className="px-6 py-4 text-[11px] font-black text-slate-500">Nguồn</th>
-                <th className="px-6 py-4 text-[11px] font-black text-slate-500">Số tiền</th>
-                <th className="px-6 py-4 text-[11px] font-black text-slate-500">Trạng thái</th>
-                <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500">Thời gian</th>
+                <th className="px-6 py-4 text-[11px] font-black text-slate-700">Người dùng</th>
+                <th className="px-6 py-4 text-[11px] font-black text-slate-700">Gói</th>
+                <th className="px-6 py-4 text-[11px] font-black text-slate-700">Nguồn</th>
+                <th className="px-6 py-4 text-[11px] font-black text-slate-700">Số tiền</th>
+                <th className="px-6 py-4 text-[11px] font-black text-slate-700">Trạng thái</th>
+                <th className="px-6 py-4 text-right text-[11px] font-black text-slate-700">Thời gian</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -487,18 +487,18 @@ export default function AdminVipPlans() {
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <span className="material-symbols-outlined !text-[40px] text-slate-300">receipt_long</span>
                     <p className="mt-2 text-sm font-black text-slate-700">Chưa có giao dịch phù hợp</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-400">Thử đổi bộ lọc hoặc chờ giao dịch mới.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-800">Thử đổi bộ lọc hoặc chờ giao dịch mới.</p>
                   </td>
                 </tr>
               ) : transactionData.transactions.map((transaction) => (
                 <tr key={transaction.subscriptionId} className="transition-colors hover:bg-slate-50/70">
                   <td className="px-6 py-5">
                     <p className="truncate text-sm font-black text-slate-900">{transaction.accountName}</p>
-                    <p className="mt-0.5 truncate text-xs font-semibold text-slate-400">{transaction.accountEmail || `User ID ${transaction.userId}`}</p>
+                    <p className="mt-0.5 truncate text-xs font-semibold text-slate-800">{transaction.accountEmail || `User ID ${transaction.userId}`}</p>
                   </td>
                   <td className="px-6 py-5">
                     <p className="text-sm font-black text-slate-900">{transaction.planName}</p>
-                    <p className="mt-0.5 text-xs font-semibold text-slate-400">
+                    <p className="mt-0.5 text-xs font-semibold text-slate-800">
                       {audienceLabel(transaction.audience)} • {durationLabel(transaction.durationDays)}
                     </p>
                   </td>
@@ -515,7 +515,7 @@ export default function AdminVipPlans() {
                       {transactionStatusLabel(transaction.status)}
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-right text-xs font-bold text-slate-500">
+                  <td className="px-6 py-5 text-right text-xs font-bold text-slate-700">
                     {formatDateTime(transaction.createdAt)}
                   </td>
                 </tr>
