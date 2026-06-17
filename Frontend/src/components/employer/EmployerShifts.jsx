@@ -1223,9 +1223,8 @@ const EmployerShifts = () => {
                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800">Lịch Làm Việc Hàng Tuần</h3>
-                            <p className="text-sm text-slate-700 mt-1">Quản lý ca làm việc hàng tuần từ Thứ Hai đến Chủ Nhật. Nhấp vào ô trống để xếp lịch ca làm việc.</p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
                             <button
                                 onClick={() => setIsTemplateModalOpen(true)}
                                 className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-bold bg-slate-50 hover:bg-slate-100 transition-all inline-flex items-center gap-1.5 whitespace-nowrap"
