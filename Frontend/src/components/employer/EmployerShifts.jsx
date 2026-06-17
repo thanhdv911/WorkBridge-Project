@@ -1220,15 +1220,15 @@ const EmployerShifts = () => {
             <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col min-w-0">
                 {/* Header controls */}
                 <div className="px-5 sm:px-6 py-5 border-b border-slate-100 space-y-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800">Lịch Làm Việc Hàng Tuần</h3>
                             <p className="text-sm text-slate-700 mt-1">Quản lý ca làm việc hàng tuần từ Thứ Hai đến Chủ Nhật. Nhấp vào ô trống để xếp lịch ca làm việc.</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <button
                                 onClick={() => setIsTemplateModalOpen(true)}
-                                className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-bold bg-slate-50 hover:bg-slate-100 transition-all inline-flex items-center gap-1.5"
+                                className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-bold bg-slate-50 hover:bg-slate-100 transition-all inline-flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <span className="material-symbols-outlined text-lg">settings</span>
                                 Cấu hình Ca mẫu
@@ -1236,7 +1236,7 @@ const EmployerShifts = () => {
                             <button
                                 onClick={publishNextWeek}
                                 disabled={isPublishingNextWeek}
-                                className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold transition-all inline-flex items-center gap-1.5 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold transition-all inline-flex items-center gap-1.5 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
                             >
                                 <span className="material-symbols-outlined text-lg">publish</span>
                                 {isPublishingNextWeek ? 'Đang công bố...' : 'Công bố Lịch Tuần tới'}
@@ -1244,14 +1244,14 @@ const EmployerShifts = () => {
                             <button
                                 onClick={deleteAllWeekShifts}
                                 disabled={isDeletingWeek || visibleWeekShifts.length === 0}
-                                className="h-10 px-4 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-sm font-bold transition-all inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="h-10 px-4 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-sm font-bold transition-all inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                             >
                                 <span className="material-symbols-outlined text-lg">delete_sweep</span>
                                 {isDeletingWeek ? 'Đang xóa...' : 'Xóa tất cả ca'}
                             </button>
                             <button
                                 onClick={handleAutoAssign}
-                                className="h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-bold transition-all inline-flex items-center gap-1.5 shadow-sm"
+                                className="h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-bold transition-all inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap"
                             >
                                 <span className="material-symbols-outlined text-lg">done_all</span>
                                 Chốt ca tuần
