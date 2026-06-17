@@ -24,11 +24,18 @@ namespace WorkBridge.Application.Services
         private const string FillStatusFull = "Full";
         private const string FillStatusUnderstaffed = "Understaffed";
 
-        public WorkforceService(IWorkBridgeContext context, INotificationService notificationService, IHubNotifier hubNotifier)
+        private readonly IEmailService _emailService;
+
+        public WorkforceService(
+            IWorkBridgeContext context, 
+            INotificationService notificationService, 
+            IHubNotifier hubNotifier,
+            IEmailService emailService)
         {
             _context = context;
             _notificationService = notificationService;
             _hubNotifier = hubNotifier;
+            _emailService = emailService;
         }
 
         public async Task<IEnumerable<EmploymentResponse>> GetEmployerEmployeesAsync(int employerId)
@@ -329,6 +336,26 @@ namespace WorkBridge.Application.Services
 
             _ = Task.Run(async () => { try { await _hubNotifier.NotifyWorkforceChangedAsync(employerId, employment.EmployeeUserId); } catch { } });
 
+            var employeeUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == employment.EmployeeUserId);
+            if (employeeUser != null && !string.IsNullOrEmpty(employeeUser.Email))
+            {
+                var branchName = await _context.Branches.Where(b => b.BranchId == shift.BranchId).Select(b => b.Name).FirstOrDefaultAsync() ?? "Doanh nghiệp";
+                var message = $"Bạn đã được quản lý xếp vào ca làm việc \"{shift.Title}\" lúc {shift.StartTime:dd/MM/yyyy HH:mm} - {shift.EndTime:HH:mm} tại {branchName}.";
+                
+                _ = Task.Run(async () => {
+                    try {
+                        await _emailService.SendNotificationEmailAsync(
+                            toEmail: employeeUser.Email,
+                            toName: employeeUser.FullName,
+                            title: "Bạn có ca làm việc mới",
+                            message: message,
+                            actionUrl: "https://workbridge.io.vn/my-work",
+                            actionText: "Xem lịch làm việc"
+                        );
+                    } catch { }
+                });
+            }
+
             return (await GetAssignmentResponseAsync(newAssignment.ShiftAssignmentId), null);
         }
 
@@ -438,6 +465,26 @@ namespace WorkBridge.Application.Services
                 }
                 catch { }
             });
+
+            var employeeUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == employment.EmployeeUserId);
+            if (employeeUser != null && !string.IsNullOrEmpty(employeeUser.Email))
+            {
+                var branchName = await _context.Branches.Where(b => b.BranchId == shift.BranchId).Select(b => b.Name).FirstOrDefaultAsync() ?? "Doanh nghiệp";
+                var message = $"Bạn đã được quản lý đổi vào ca làm việc \"{shift.Title}\" lúc {shift.StartTime:dd/MM/yyyy HH:mm} - {shift.EndTime:HH:mm} tại {branchName}.";
+                
+                _ = Task.Run(async () => {
+                    try {
+                        await _emailService.SendNotificationEmailAsync(
+                            toEmail: employeeUser.Email,
+                            toName: employeeUser.FullName,
+                            title: "Bạn có ca làm việc mới",
+                            message: message,
+                            actionUrl: "https://workbridge.io.vn/my-work",
+                            actionText: "Xem lịch làm việc"
+                        );
+                    } catch { }
+                });
+            }
 
             return (await GetAssignmentResponseAsync(assignment.ShiftAssignmentId), null);
         }
