@@ -560,12 +560,16 @@ const EmployerShifts = () => {
 
     const formatTime = (value) => {
         if (!value) return '--';
-        return parseDate(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const d = parseDate(value);
+        if (!d) return '--';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
     const formatDateTime = (value) => {
         if (!value) return '--';
-        return parseDate(value).toLocaleString();
+        const d = parseDate(value);
+        if (!d) return '--';
+        return d.toLocaleString();
     };
 
     const formatMinutes = (minutes = 0) => {
@@ -577,8 +581,8 @@ const EmployerShifts = () => {
     };
 
     const getShiftPosition = (startTimeStr, endTimeStr) => {
-        const start = new Date(startTimeStr);
-        const end = new Date(endTimeStr);
+        const start = parseDate(startTimeStr);
+        const end = parseDate(endTimeStr);
 
         // Convert to fractional hours
         const startHour = start.getHours() + start.getMinutes() / 60;
@@ -603,14 +607,14 @@ const EmployerShifts = () => {
     };
 
     const positionShifts = (dayShifts) => {
-        const sorted = [...dayShifts].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        const sorted = [...dayShifts].sort((a, b) => parseDate(a.startTime) - parseDate(b.startTime));
         const columns = [];
 
         sorted.forEach(shift => {
             let placed = false;
             for (let i = 0; i < columns.length; i++) {
                 const lastShift = columns[i][columns[i].length - 1];
-                if (new Date(shift.startTime) >= new Date(lastShift.endTime)) {
+                if (parseDate(shift.startTime) >= parseDate(lastShift.endTime)) {
                     columns[i].push(shift);
                     shift.colIndex = i;
                     placed = true;
@@ -1614,7 +1618,7 @@ const EmployerShifts = () => {
                                 {/* Day Columns */}
                                 {weekDays.map((day, dIdx) => {
                                     const dayShifts = visibleWeekShifts.filter(s => {
-                                        const sDate = new Date(s.startTime);
+                                        const sDate = parseDate(s.startTime);
                                         return sDate.getFullYear() === day.getFullYear() &&
                                             sDate.getMonth() === day.getMonth() &&
                                             sDate.getDate() === day.getDate();

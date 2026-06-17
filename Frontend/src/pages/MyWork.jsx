@@ -34,7 +34,9 @@ const parseDate = (value) => {
 
 const formatDateTime = (value) => {
     if (!value) return '--';
-    return parseDate(value).toLocaleString('vi-VN', {
+    const d = parseDate(value);
+    if (!d) return '--';
+    return d.toLocaleString('vi-VN', {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -44,7 +46,9 @@ const formatDateTime = (value) => {
 
 const formatDate = (value) => {
     if (!value) return '--';
-    return parseDate(value).toLocaleDateString('vi-VN', {
+    const d = parseDate(value);
+    if (!d) return '--';
+    return d.toLocaleDateString('vi-VN', {
         weekday: 'short',
         day: '2-digit',
         month: '2-digit'
@@ -53,7 +57,9 @@ const formatDate = (value) => {
 
 const formatFullDate = (value) => {
     if (!value) return '--';
-    return parseDate(value).toLocaleDateString('vi-VN', {
+    const d = parseDate(value);
+    if (!d) return '--';
+    return d.toLocaleDateString('vi-VN', {
         weekday: 'long',
         day: '2-digit',
         month: '2-digit',
@@ -63,6 +69,7 @@ const formatFullDate = (value) => {
 
 const addMinutes = (value, minutes) => {
     const date = parseDate(value);
+    if (!date) return new Date();
     date.setMinutes(date.getMinutes() + minutes);
     return date;
 };
@@ -70,6 +77,7 @@ const addMinutes = (value, minutes) => {
 const isSameCalendarDay = (a, b) => {
     const first = parseDate(a);
     const second = parseDate(b);
+    if (!first || !second) return false;
     return first.getDate() === second.getDate() &&
         first.getMonth() === second.getMonth() &&
         first.getFullYear() === second.getFullYear();
@@ -182,7 +190,9 @@ const isToday = (someDate) => isSameCalendarDay(someDate, new Date());
 
 const formatTime = (value) => {
     if (!value) return '--';
-    return parseDate(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const d = parseDate(value);
+    if (!d) return '--';
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
 const getDayName = (dayIndex) => {
@@ -192,13 +202,18 @@ const getDayName = (dayIndex) => {
 
 const getDateKey = (value) => {
     const date = parseDate(value);
-    if (Number.isNaN(date.getTime())) return '';
-    return date.toISOString().slice(0, 10);
+    if (!date || Number.isNaN(date.getTime())) return '';
+    // Format as YYYY-MM-DD using local time
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 };
 
 const getShiftPosition = (startTimeStr, endTimeStr) => {
     const start = parseDate(startTimeStr);
     const end = parseDate(endTimeStr);
+    if (!start || !end) return { top: '0%', height: '8%' };
     const startHour = start.getHours() + start.getMinutes() / 60;
     let endHour = end.getHours() + end.getMinutes() / 60;
 
@@ -393,9 +408,9 @@ const MyWork = () => {
         const status = assignment?.attendanceStatus || 'NotStarted';
         const start = parseDate(shift.startTime);
         const end = parseDate(shift.endTime);
-        const checkInOpenAt = addMinutes(start, -CHECK_IN_LEAD_MINUTES);
-        const checkInCloseAt = addMinutes(end, -CHECK_IN_MIN_REMAINING_MINUTES);
-        const checkOutCloseAt = addMinutes(end, CHECK_OUT_GRACE_MINUTES);
+        const checkInOpenAt = addMinutes(shift.startTime, -CHECK_IN_LEAD_MINUTES);
+        const checkInCloseAt = addMinutes(shift.endTime, -CHECK_IN_MIN_REMAINING_MINUTES);
+        const checkOutCloseAt = addMinutes(shift.endTime, CHECK_OUT_GRACE_MINUTES);
 
         if (!assignment) return { kind: 'none' };
 
@@ -858,7 +873,7 @@ const MyWork = () => {
                             </span>
                         </div>
                         <h3 className="text-lg font-black tracking-tight text-slate-950">
-                            Tuần bắt đầu {parseDate(registrationWindow.weekStartDate).toLocaleDateString('vi-VN')}
+                            Tuần bắt đầu {parseDate(registrationWindow.weekStartDate)?.toLocaleDateString('vi-VN')}
                         </h3>
                         <p className="mt-1 text-sm font-medium text-slate-700">
                             Mở từ {formatDateTime(registrationWindow.openAt)} đến {formatDateTime(registrationWindow.closeAt)}
