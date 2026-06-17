@@ -1106,7 +1106,7 @@ const MyWork = () => {
                                     </span>
                                 )}
                             </div>
-                            <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
+                            <h1 className="mt-4 text-2xl font-black text-primary-dk sm:text-3xl">
                                 Công việc của tôi
                             </h1>
                             <p className="mt-1 text-sm font-medium text-slate-600">
@@ -1172,7 +1172,7 @@ const MyWork = () => {
 
                     <section id="registration" className="scroll-mt-24">
                         <div className="mb-4">
-                            <h2 className="text-xl font-black tracking-tight text-slate-900">Đăng ký ca tuần sau</h2>
+                            <h2 className="text-xl font-black tracking-tight text-primary-dk">Đăng ký ca tuần sau</h2>
                             <p className="mt-1 text-sm font-medium text-slate-600">Chọn ca theo từng ngày, hệ thống tự kiểm tra trùng lịch trước khi gửi.</p>
                         </div>
                         {registrationWindows.length === 0 ? (
@@ -1191,7 +1191,7 @@ const MyWork = () => {
                     <section id="attendance" className="scroll-mt-24 overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-sm">
                         <div className="grid gap-4 border-b border-slate-100 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                             <div>
-                                <h2 className="text-xl font-black tracking-tight text-slate-950">Lịch làm việc và chấm công</h2>
+                                <h2 className="text-xl font-black tracking-tight text-primary-dk">Lịch làm việc và chấm công</h2>
                                 <p className="mt-1 text-sm font-medium text-slate-700">Xem lịch tuần, vào ca/ra ca và kiểm tra lịch sử công.</p>
                             </div>
                             <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
@@ -1483,7 +1483,7 @@ const MyWork = () => {
 
                     <section id="pass-requests" className="scroll-mt-24 overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-sm">
                         <div className="border-b border-slate-100 p-5">
-                            <h2 className="text-xl font-black tracking-tight text-slate-950">Yêu cầu nhường ca</h2>
+                            <h2 className="text-xl font-black tracking-tight text-primary-dk">Yêu cầu nhường ca</h2>
                             <p className="mt-1 text-sm font-medium text-slate-700">Yêu cầu tự động hết hạn 2 giờ trước khi ca bắt đầu.</p>
                         </div>
                         <div className="grid divide-y divide-slate-100 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
@@ -1515,7 +1515,7 @@ const MyWork = () => {
                         <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
                             <div className="mb-5 flex items-start justify-between gap-3">
                                 <div>
-                                    <h2 className="text-lg font-black tracking-tight text-slate-900">Công việc đang làm</h2>
+                                    <h2 className="text-lg font-black tracking-tight text-primary-dk">Công việc đang làm</h2>
                                     <p className="mt-1 text-sm font-medium text-slate-600">Thông tin nhân viên chính thức.</p>
                                 </div>
                                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -1540,7 +1540,7 @@ const MyWork = () => {
                                                     <p className="truncate text-base font-black text-slate-900">{employment.position}</p>
                                                     <p className="mt-1 truncate text-sm font-semibold text-slate-700">{employment.branchName}</p>
                                                 </div>
-                                                <span className="rounded-xl bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-200">
+                                                <span className="shrink-0 whitespace-nowrap rounded-xl bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-200">
                                                     Đang làm
                                                 </span>
                                             </div>
@@ -1579,7 +1579,7 @@ const MyWork = () => {
                         </section>
 
                         <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="text-lg font-black tracking-tight text-slate-900">Lối tắt</h2>
+                            <h2 className="text-lg font-black tracking-tight text-primary-dk">Lối tắt</h2>
                             <div className="mt-4 grid gap-2">
                                 {[
                                     { sectionId: 'registration', label: 'Đăng ký ca', icon: 'event_available' },

@@ -55,7 +55,7 @@ export default function EmployerVerification() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      toast.success(response.data.message || 'Hồ sơ xác thực đã được gửi');
+      toast.success('Gửi yêu cầu xác thực thành công');
       fetchProfile();
       setLicenseFile(null);
     } catch (error) {
