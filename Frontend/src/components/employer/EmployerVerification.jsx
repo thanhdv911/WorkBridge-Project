@@ -8,6 +8,7 @@ export default function EmployerVerification() {
   const [taxId, setTaxId] = useState('');
   const [licenseFile, setLicenseFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -56,8 +57,10 @@ export default function EmployerVerification() {
         },
       });
       toast.success('Gửi yêu cầu xác thực thành công');
+      setIsSuccess(true);
       fetchProfile();
       setLicenseFile(null);
+      setTimeout(() => setIsSuccess(false), 3000);
     } catch (error) {
       console.error('Submit verification error:', error);
       toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi gửi xác thực');
@@ -161,13 +164,18 @@ export default function EmployerVerification() {
             <p className="mt-1 text-xs text-slate-500">Hỗ trợ định dạng: .jpg, .png, .pdf. Tối đa 5MB.</p>
           </div>
 
-          {currentStatus !== 'Pending' && (
+          {(currentStatus !== 'Pending' || isSuccess) && (
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-600 transition-colors disabled:bg-slate-400"
+              disabled={submitting || isSuccess}
+              className={`w-full py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
+                isSuccess 
+                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                  : 'bg-primary text-white hover:bg-primary-600 disabled:bg-slate-400'
+              }`}
             >
-              {submitting ? 'Đang gửi...' : 'Gửi yêu cầu xác thực'}
+              {isSuccess && <span className="material-symbols-outlined !text-[20px]">check_circle</span>}
+              {submitting ? 'Đang gửi...' : isSuccess ? 'Gửi yêu cầu xác thực thành công' : 'Gửi yêu cầu xác thực'}
             </button>
           )}
         </form>
