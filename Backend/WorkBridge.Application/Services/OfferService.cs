@@ -685,7 +685,8 @@ namespace WorkBridge.Application.Services
                               StartDate = employment.StartDate,
                               EndDate = employment.EndDate,
                               CurrentHourlyRate = rate.HourlyRate,
-                              ExpectedShifts = employment.ExpectedShifts
+                              ExpectedShifts = employment.ExpectedShifts,
+                              AvatarUrl = user.AvatarUrl
                           })
                 .FirstOrDefaultAsync();
         }

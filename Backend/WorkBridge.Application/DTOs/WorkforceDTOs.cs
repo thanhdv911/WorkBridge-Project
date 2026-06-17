@@ -84,6 +84,7 @@ namespace WorkBridge.Application.DTOs
         public int JobPostId { get; set; }
         public string JobTitle { get; set; } = string.Empty;
         public string? ExpectedShifts { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 
     public class UpdateEmployeePositionRequest

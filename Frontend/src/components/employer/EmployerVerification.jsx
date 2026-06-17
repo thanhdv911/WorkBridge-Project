@@ -66,6 +66,10 @@ export default function EmployerVerification() {
     }
   };
 
+  const currentStatus = profile?.verificationStatus === 'Pending' && !profile?.businessLicenseUrl 
+    ? 'Unverified' 
+    : profile?.verificationStatus;
+
   if (loading) return <div className="p-8 text-center">Đang tải dữ liệu...</div>;
 
   return (
@@ -78,34 +82,46 @@ export default function EmployerVerification() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <span className="font-semibold text-slate-700">Trạng thái hiện tại:</span>
-          {profile?.verificationStatus === 'Verified' && (
+          {currentStatus === 'Verified' && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
               <span className="material-symbols-outlined !text-[16px]">verified</span>
               Đã xác thực
             </span>
           )}
-          {profile?.verificationStatus === 'Pending' && (
+          {currentStatus === 'Pending' && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
               <span className="material-symbols-outlined !text-[16px]">pending_actions</span>
               Đang chờ duyệt
             </span>
           )}
-          {profile?.verificationStatus === 'Rejected' && (
+          {currentStatus === 'Rejected' && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm font-medium">
               <span className="material-symbols-outlined !text-[16px]">cancel</span>
               Bị từ chối
             </span>
           )}
+          {currentStatus === 'Unverified' && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
+              <span className="material-symbols-outlined !text-[16px]">help</span>
+              Chưa xác thực
+            </span>
+          )}
         </div>
-        {profile?.verificationStatus === 'Verified' && (
+        {currentStatus === 'Verified' && (
           <p className="text-emerald-600 text-sm">Hồ sơ của bạn đã được xác thực thành công. Bạn có thể đăng tin bình thường.</p>
         )}
-        {profile?.verificationStatus === 'Pending' && (
+        {currentStatus === 'Pending' && (
           <p className="text-amber-600 text-sm">Hồ sơ đang trong quá trình xét duyệt. Chúng tôi sẽ phản hồi sớm nhất.</p>
+        )}
+        {currentStatus === 'Unverified' && (
+          <p className="text-slate-600 text-sm">Bạn cần điền mã số thuế và tải lên giấy phép kinh doanh để được xác thực.</p>
+        )}
+        {currentStatus === 'Rejected' && (
+          <p className="text-rose-600 text-sm">Hồ sơ của bạn không hợp lệ hoặc bị từ chối. Vui lòng kiểm tra và gửi lại.</p>
         )}
       </div>
 
-      {profile?.verificationStatus !== 'Verified' && (
+      {currentStatus !== 'Verified' && (
         <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Mã số thuế doanh nghiệp *</label>
@@ -113,7 +129,7 @@ export default function EmployerVerification() {
               type="text"
               value={taxId}
               onChange={(e) => setTaxId(e.target.value)}
-              disabled={profile?.verificationStatus === 'Pending'}
+              disabled={currentStatus === 'Pending'}
               className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="VD: 0312345678"
               required
@@ -133,7 +149,7 @@ export default function EmployerVerification() {
             <input
               type="file"
               onChange={handleFileChange}
-              disabled={profile?.verificationStatus === 'Pending'}
+              disabled={currentStatus === 'Pending'}
               accept=".png,.jpg,.jpeg,.pdf,.webp"
               className="block w-full text-sm text-slate-500
                 file:mr-4 file:py-2 file:px-4
@@ -145,7 +161,7 @@ export default function EmployerVerification() {
             <p className="mt-1 text-xs text-slate-500">Hỗ trợ định dạng: .jpg, .png, .pdf. Tối đa 5MB.</p>
           </div>
 
-          {profile?.verificationStatus !== 'Pending' && (
+          {currentStatus !== 'Pending' && (
             <button
               type="submit"
               disabled={submitting}

@@ -244,18 +244,18 @@ const positionShifts = (dayShifts) => {
 
 const WorkStat = ({ label, value, icon, tone = 'slate' }) => {
     const tones = {
-        slate: 'bg-slate-950 text-white',
-        sky: 'bg-sky-50 text-sky-700 ring-1 ring-sky-100',
-        emerald: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
-        amber: 'bg-amber-50 text-amber-700 ring-1 ring-amber-100'
+        slate: 'bg-slate-900 text-white',
+        sky: 'bg-sky-50 text-sky-700 ring-1 ring-sky-200',
+        emerald: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+        amber: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
     };
 
     return (
-        <div className="rounded-[22px] border border-white/80 bg-white p-4 shadow-sm">
+        <div className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-black text-slate-800">{label}</p>
-                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-950">{value}</p>
+                    <p className="text-xs font-bold text-slate-600">{label}</p>
+                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900">{value}</p>
                 </div>
                 <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tones[tone] || tones.slate}`}>
                     <span className="material-symbols-outlined !text-[22px]">{icon}</span>
@@ -1085,204 +1085,95 @@ const MyWork = () => {
 
     return (
         <div className="applicant-shell min-h-screen pb-16 font-display text-slate-900">
-            <header className="applicant-page-hero">
-                <section className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-end">
-                        <div className="min-w-0">
+            <header className="border-b border-slate-200 bg-white shadow-sm">
+                <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="applicant-eyebrow">
-                                    <span className="material-symbols-outlined !text-[17px]">work_history</span>
+                                <span className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">
+                                    <span className="material-symbols-outlined !text-[16px]">work_history</span>
                                     Không gian làm việc
                                 </span>
-                                <span className="inline-flex h-9 items-center rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-bold text-sky-50">
-                                    {needsActionCount > 0 ? `${needsActionCount} việc cần xử lý` : 'Không có việc gấp'}
-                                </span>
+                                {needsActionCount > 0 ? (
+                                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 ring-1 ring-rose-200">
+                                        <span className="material-symbols-outlined !text-[16px]">warning</span>
+                                        {needsActionCount} việc cần xử lý
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
+                                        <span className="material-symbols-outlined !text-[16px]">check_circle</span>
+                                        Không có việc gấp
+                                    </span>
+                                )}
                             </div>
-
-                            <h1 className="mt-5 text-3xl font-black text-white sm:text-4xl">
+                            <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
                                 Công việc của tôi
                             </h1>
-                            <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-sky-100 sm:text-base">
-                                Theo dõi công việc chính thức, đăng ký ca tuần sau, chấm công và xử lý nhường ca trong một màn hình rõ ràng hơn.
+                            <p className="mt-1 text-sm font-medium text-slate-600">
+                                Theo dõi công việc chính thức, đăng ký ca tuần sau, chấm công và xử lý nhường ca.
                             </p>
-
-                            <div className="mt-5 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-                                <WorkStat label="Công việc" value={activeEmployments.length} icon="badge" tone="slate" />
-                                <WorkStat label="Ca hôm nay" value={todayShiftItems.length} icon="today" tone="sky" />
-                                <WorkStat label="Đã ghi nhận" value={completedCount} icon="task_alt" tone="emerald" />
-                                <WorkStat label="Yêu cầu chờ" value={pendingIncomingCount} icon="swap_horiz" tone="amber" />
-                            </div>
                         </div>
-
-                        <aside className="rounded-[26px] border border-white/15 bg-white/12 p-5 text-white shadow-2xl shadow-sky-950/10 backdrop-blur">
-                            <div className="flex items-start justify-between gap-3">
-                                <div>
-                                    <p className="text-xs font-black text-sky-100/80">Ca ưu tiên</p>
-                                    <h2 className="mt-1 text-xl font-black text-white">
-                                        {primaryShift ? getShiftDisplayName(primaryShift.shift.title) : 'Chưa có ca sắp tới'}
-                                    </h2>
-                                    <p className="mt-1 text-sm font-semibold text-sky-50/80">
-                                        {primaryShift
-                                            ? `${formatFullDate(primaryShift.shift.startTime)}, ${formatTime(primaryShift.shift.startTime)} đến ${formatTime(primaryShift.shift.endTime)}`
-                                            : 'Khi có ca hôm nay hoặc ca sắp tới, hệ thống sẽ đưa lên đây.'}
-                                    </p>
-                                </div>
-                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                                    primaryAction?.enabled ? 'bg-primary text-white' : 'bg-white/15 text-sky-50 ring-1 ring-white/15'
-                                }`}>
-                                    <span className="material-symbols-outlined !text-[24px]">{primaryAction?.enabled ? 'bolt' : 'event'}</span>
-                                </div>
-                            </div>
-
-                            {primaryShift && (
-                                <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                                    <p className="text-sm font-black text-slate-900">{primaryShift.shift.branchName}</p>
-                                    <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-800">Check-in</p>
-                                            <p className="mt-1 font-black text-slate-800">{formatTime(primaryShift.assignment.checkInAt)}</p>
-                                        </div>
-                                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-800">Check-out</p>
-                                            <p className="mt-1 font-black text-slate-800">{formatTime(primaryShift.assignment.checkOutAt)}</p>
-                                        </div>
-                                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                                            <p className="font-black text-slate-800">Đã làm</p>
-                                            <p className="mt-1 font-black text-slate-800">{formatMinutes(primaryShift.assignment.workedMinutes || 0)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                        {renderAction(primaryShift.shift, primaryShift.assignment)}
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedShiftForDetails(primaryShift.shift)}
-                                            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary/30 hover:text-primary"
-                                        >
-                                            <span className="material-symbols-outlined !text-[18px]">visibility</span>
-                                            Xem ca
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </aside>
                     </div>
-                </section>
+
+                    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <WorkStat label="Công việc" value={activeEmployments.length} icon="badge" tone="slate" />
+                        <WorkStat label="Ca hôm nay" value={todayShiftItems.length} icon="today" tone="sky" />
+                        <WorkStat label="Đã ghi nhận" value={completedCount} icon="task_alt" tone="emerald" />
+                        <WorkStat label="Yêu cầu chờ" value={pendingIncomingCount} icon="swap_horiz" tone="amber" />
+                    </div>
+                </div>
             </header>
 
-            <main className="applicant-page-content mx-auto grid max-w-[1440px] items-start gap-6 px-4 sm:px-6 xl:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:px-8">
-                <aside className="relative min-w-0">
-                    <div
-                        className="my-work-sidebar space-y-5 xl:sticky xl:top-24"
-                    >
-                    <section className="rounded-[28px] border border-white/80 bg-white p-5 shadow-sm">
-                        <div className="mb-5 flex items-start justify-between gap-3">
-                            <div>
-                                <h2 className="text-lg font-black tracking-tight text-slate-950">Công việc đang làm</h2>
-                                <p className="mt-1 text-sm font-medium text-slate-700">Thông tin nhân viên chính thức.</p>
-                            </div>
-                            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                <span className="material-symbols-outlined">badge</span>
-                            </span>
-                        </div>
-
-                        {activeEmployments.length === 0 ? (
-                            <div className="rounded-2xl bg-slate-50 p-5 text-center">
-                                <p className="text-sm font-black text-slate-700">Chưa có công việc nào</p>
-                                <p className="mt-1 text-xs font-semibold text-slate-700">Bạn cần chấp nhận lời mời nhận việc chính thức trước.</p>
-                                <Link to="/offers" className="mt-4 inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-black text-white">
-                                    Xem lời mời
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {activeEmployments.map((employment) => (
-                                    <article key={employment.employmentId} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-base font-black text-slate-900">{employment.position}</p>
-                                                <p className="mt-1 truncate text-sm font-semibold text-slate-700">{employment.branchName}</p>
-                                            </div>
-                                            <span className="rounded-xl bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">
-                                                Đang làm
-                                            </span>
-                                        </div>
-
-                                        {employment.expectedShifts && (
-                                            <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                                                <span className="material-symbols-outlined !text-[15px]">schedule</span>
-                                                Ca: {employment.expectedShifts}
-                                            </p>
-                                        )}
-
-                                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                            <span className="rounded-xl bg-primary/10 px-3 py-1 text-xs font-black text-primary">
-                                                {formatCurrency(employment.currentHourlyRate)}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedEmployerForReport({
-                                                        id: employment.employerId,
-                                                        name: employment.branchName
-                                                    });
-                                                    setShowReportModal(true);
-                                                }}
-                                                className="inline-flex items-center gap-1 text-xs font-black text-slate-800 transition hover:text-rose-600"
-                                                title="Báo cáo doanh nghiệp này"
-                                            >
-                                                <span className="material-symbols-outlined !text-[14px]">flag</span>
-                                                Báo cáo
-                                            </button>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                    </section>
-
-                    <section className="rounded-[28px] border border-white/80 bg-white p-5 shadow-sm">
-                        <h2 className="text-lg font-black tracking-tight text-slate-950">Lối tắt</h2>
-                        <div className="mt-4 grid gap-2">
-                            {[
-                                { sectionId: 'registration', label: 'Đăng ký ca', icon: 'event_available' },
-                                { sectionId: 'attendance', tab: 'mylist', label: 'Chấm công', icon: 'fact_check' },
-                                { sectionId: 'attendance', tab: 'history', label: 'Lịch sử', icon: 'history' },
-                                { sectionId: 'pass-requests', label: 'Nhường ca', icon: 'swap_horiz' },
-                                { to: '/payslips', label: 'Phiếu lương', icon: 'receipt_long' }
-                            ].map(({ to, sectionId, tab, label, icon }) => (
-                                to ? (
-                                    <Link key={label} to={to} className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-black text-slate-800 transition hover:bg-slate-50 hover:text-primary">
-                                        <span className="material-symbols-outlined !text-[20px]">{icon}</span>
-                                        {label}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        key={label}
-                                        type="button"
-                                        onClick={() => openWorkShortcut(sectionId, tab)}
-                                        className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition ${
-                                            tab && activeTab === tab
-                                                ? 'bg-primary/10 text-primary'
-                                                : 'text-slate-800 hover:bg-slate-50 hover:text-primary'
-                                        }`}
-                                    >
-                                        <span className="material-symbols-outlined !text-[20px]">{icon}</span>
-                                        {label}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                    </section>
-                    </div>
-                </aside>
-
+            <main className="mx-auto grid max-w-[1440px] items-start gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px] lg:px-8">
                 <div className="min-w-0 space-y-6">
-                    <section id="registration" className="scroll-mt-24">
-                        <div className="mb-4 flex flex-col gap-2 rounded-[24px] border border-white/15 bg-gradient-to-br from-sky-950 via-primary to-sky-400 p-5 shadow-lg shadow-sky-900/10 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h2 className="text-xl font-black tracking-tight text-white">Đăng ký ca tuần sau</h2>
-                                <p className="mt-1 text-sm font-semibold text-sky-50">Chọn ca theo từng ngày, hệ thống tự kiểm tra trùng lịch trước khi gửi.</p>
+                    {primaryShift && (
+                        <section className="rounded-[24px] border border-primary/20 bg-primary/5 p-5 shadow-sm">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined !text-[20px] text-primary">bolt</span>
+                                        <h2 className="text-lg font-black tracking-tight text-primary">Ca ưu tiên: {getShiftDisplayName(primaryShift.shift.title)}</h2>
+                                    </div>
+                                    <p className="mt-1 text-sm font-semibold text-slate-700">
+                                        {formatFullDate(primaryShift.shift.startTime)}, {formatTime(primaryShift.shift.startTime)} đến {formatTime(primaryShift.shift.endTime)} tại {primaryShift.shift.branchName}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedShiftForDetails(primaryShift.shift)}
+                                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm transition hover:border-primary/30 hover:text-primary"
+                                >
+                                    <span className="material-symbols-outlined !text-[16px]">visibility</span>
+                                    Xem ca
+                                </button>
                             </div>
+                            
+                            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-[16px] bg-white p-4 ring-1 ring-slate-200/60 shadow-sm">
+                                <div className="grid grid-cols-3 gap-6 text-sm">
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500">Check-in</p>
+                                        <p className="mt-0.5 font-black text-slate-900">{formatTime(primaryShift.assignment.checkInAt)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500">Check-out</p>
+                                        <p className="mt-0.5 font-black text-slate-900">{formatTime(primaryShift.assignment.checkOutAt)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500">Đã làm</p>
+                                        <p className="mt-0.5 font-black text-slate-900">{formatMinutes(primaryShift.assignment.workedMinutes || 0)}</p>
+                                    </div>
+                                </div>
+                                <div className="shrink-0">
+                                    {renderAction(primaryShift.shift, primaryShift.assignment)}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    <section id="registration" className="scroll-mt-24">
+                        <div className="mb-4">
+                            <h2 className="text-xl font-black tracking-tight text-slate-900">Đăng ký ca tuần sau</h2>
+                            <p className="mt-1 text-sm font-medium text-slate-600">Chọn ca theo từng ngày, hệ thống tự kiểm tra trùng lịch trước khi gửi.</p>
                         </div>
                         {registrationWindows.length === 0 ? (
                             <EmptyState
@@ -1619,6 +1510,109 @@ const MyWork = () => {
                         </div>
                     </section>
                 </div>
+                <aside className="relative min-w-0">
+                    <div className="space-y-5 xl:sticky xl:top-24">
+                        <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+                            <div className="mb-5 flex items-start justify-between gap-3">
+                                <div>
+                                    <h2 className="text-lg font-black tracking-tight text-slate-900">Công việc đang làm</h2>
+                                    <p className="mt-1 text-sm font-medium text-slate-600">Thông tin nhân viên chính thức.</p>
+                                </div>
+                                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                    <span className="material-symbols-outlined">badge</span>
+                                </span>
+                            </div>
+
+                            {activeEmployments.length === 0 ? (
+                                <div className="rounded-2xl bg-slate-50 p-5 text-center">
+                                    <p className="text-sm font-black text-slate-700">Chưa có công việc nào</p>
+                                    <p className="mt-1 text-xs font-medium text-slate-500">Bạn cần chấp nhận lời mời nhận việc chính thức trước.</p>
+                                    <Link to="/offers" className="mt-4 inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-black text-white">
+                                        Xem lời mời
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {activeEmployments.map((employment) => (
+                                        <article key={employment.employmentId} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-base font-black text-slate-900">{employment.position}</p>
+                                                    <p className="mt-1 truncate text-sm font-semibold text-slate-700">{employment.branchName}</p>
+                                                </div>
+                                                <span className="rounded-xl bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-200">
+                                                    Đang làm
+                                                </span>
+                                            </div>
+
+                                            {employment.expectedShifts && (
+                                                <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                                    <span className="material-symbols-outlined !text-[15px]">schedule</span>
+                                                    Ca: {employment.expectedShifts}
+                                                </p>
+                                            )}
+
+                                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                                <span className="rounded-xl bg-primary/10 px-3 py-1 text-xs font-black text-primary">
+                                                    {formatCurrency(employment.currentHourlyRate)}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedEmployerForReport({
+                                                            id: employment.employerId,
+                                                            name: employment.branchName
+                                                        });
+                                                        setShowReportModal(true);
+                                                    }}
+                                                    className="inline-flex items-center gap-1 text-xs font-black text-slate-600 transition hover:text-rose-600"
+                                                    title="Báo cáo doanh nghiệp này"
+                                                >
+                                                    <span className="material-symbols-outlined !text-[14px]">flag</span>
+                                                    Báo cáo
+                                                </button>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+
+                        <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+                            <h2 className="text-lg font-black tracking-tight text-slate-900">Lối tắt</h2>
+                            <div className="mt-4 grid gap-2">
+                                {[
+                                    { sectionId: 'registration', label: 'Đăng ký ca', icon: 'event_available' },
+                                    { sectionId: 'attendance', tab: 'mylist', label: 'Chấm công', icon: 'fact_check' },
+                                    { sectionId: 'attendance', tab: 'history', label: 'Lịch sử', icon: 'history' },
+                                    { sectionId: 'pass-requests', label: 'Nhường ca', icon: 'swap_horiz' },
+                                    { to: '/payslips', label: 'Phiếu lương', icon: 'receipt_long' }
+                                ].map(({ to, sectionId, tab, label, icon }) => (
+                                    to ? (
+                                        <Link key={label} to={to} className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 hover:text-primary">
+                                            <span className="material-symbols-outlined !text-[20px]">{icon}</span>
+                                            {label}
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            key={label}
+                                            type="button"
+                                            onClick={() => openWorkShortcut(sectionId, tab)}
+                                            className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition ${
+                                                tab && activeTab === tab
+                                                    ? 'bg-primary/10 text-primary'
+                                                    : 'text-slate-700 hover:bg-slate-50 hover:text-primary'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined !text-[20px]">{icon}</span>
+                                            {label}
+                                        </button>
+                                    )
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+                </aside>
             </main>
 
             {selectedShiftForDetails && (

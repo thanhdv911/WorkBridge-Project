@@ -1623,7 +1623,8 @@ namespace WorkBridge.Application.Services
                        CurrentHourlyRate = rate.HourlyRate,
                        JobPostId = job.JobPostId,
                        JobTitle = job.Title,
-                       ExpectedShifts = employment.ExpectedShifts
+                       ExpectedShifts = employment.ExpectedShifts,
+                       AvatarUrl = user.AvatarUrl
                    };
         }
 

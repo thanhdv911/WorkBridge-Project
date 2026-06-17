@@ -1736,15 +1736,15 @@ const EmployerShifts = () => {
             {/* Create Shift Modal */}
             {isCreateModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div className="bg-white w-full max-w-md max-h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
+                        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
                             <div>
                                 <h3 className="text-lg font-extrabold text-slate-800">Tạo ca làm việc</h3>
                                 <p className="text-sm text-slate-700 mt-0.5">Lên lịch ca làm việc mới cho nhân viên.</p>
                             </div>
                             <button
                                 onClick={() => setIsCreateModalOpen(false)}
-                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800"
+                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800 shrink-0"
                             >
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
@@ -1754,7 +1754,7 @@ const EmployerShifts = () => {
                                 await createShift(e);
                                 setIsCreateModalOpen(false);
                             }}
-                            className="p-6 space-y-4"
+                            className="p-5 sm:p-6 space-y-4 overflow-y-auto min-h-0 flex-1"
                         >
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 uppercase">Chi nhánh</label>
@@ -1875,20 +1875,20 @@ const EmployerShifts = () => {
             {/* Template Configuration Modal */}
             {isTemplateModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div className="bg-white w-full max-w-md max-h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+                        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
                             <div>
                                 <h3 className="text-lg font-extrabold text-slate-800">Cấu hình Ca làm việc mẫu</h3>
                                 <p className="text-sm text-slate-700 mt-0.5">Định nghĩa 3 khung giờ làm việc mặc định cho doanh nghiệp của bạn.</p>
                             </div>
                             <button
                                 onClick={() => setIsTemplateModalOpen(false)}
-                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800"
+                                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-800 shrink-0"
                             >
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>
-                        <form onSubmit={saveTemplates} className="p-6 space-y-4">
+                        <form onSubmit={saveTemplates} className="p-5 sm:p-6 space-y-4 overflow-y-auto min-h-0 flex-1">
                             {editTemplates.map((t, idx) => (
                                 <div key={idx} className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200/50">
                                     <span className="text-xs font-black text-slate-700 uppercase tracking-wider">{getShiftDisplayName(t.shiftName)}</span>

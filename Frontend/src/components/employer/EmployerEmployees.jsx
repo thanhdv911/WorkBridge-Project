@@ -442,9 +442,13 @@ const EmployerEmployees = () => {
                                             <div key={employee.employmentId} className="px-5 sm:px-6 py-5 grid lg:grid-cols-[minmax(0,1.2fr)_minmax(180px,240px)_auto] gap-4 lg:items-center hover:bg-slate-50/[0.4] transition-colors">
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-3.5 min-w-0">
-                                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-primary flex items-center justify-center text-white font-black shrink-0 shadow-sm">
-                                                            {employee.employeeName?.charAt(0) || 'E'}
-                                                        </div>
+                                                        {employee.avatarUrl ? (
+                                                            <img src={employee.avatarUrl} alt={employee.employeeName} className="w-12 h-12 rounded-xl object-cover shrink-0 shadow-sm border border-slate-200" />
+                                                        ) : (
+                                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-primary flex items-center justify-center text-white font-black shrink-0 shadow-sm">
+                                                                {employee.employeeName?.charAt(0) || 'E'}
+                                                            </div>
+                                                        )}
                                                         <div className="min-w-0">
                                                             <p className="font-bold text-slate-800 truncate">{employee.employeeName}</p>
                                                             <p className="text-xs text-slate-800 truncate">{employee.employeeEmail}</p>
