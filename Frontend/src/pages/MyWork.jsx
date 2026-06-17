@@ -25,9 +25,16 @@ const getCurrentUserId = () => {
     }
 };
 
+const parseDate = (value) => {
+    if (!value) return null;
+    let str = typeof value === 'string' ? value : value.toString();
+    if (str.endsWith('Z')) str = str.slice(0, -1);
+    return new Date(str);
+};
+
 const formatDateTime = (value) => {
     if (!value) return '--';
-    return new Date(value).toLocaleString('vi-VN', {
+    return parseDate(value).toLocaleString('vi-VN', {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -37,7 +44,7 @@ const formatDateTime = (value) => {
 
 const formatDate = (value) => {
     if (!value) return '--';
-    return new Date(value).toLocaleDateString('vi-VN', {
+    return parseDate(value).toLocaleDateString('vi-VN', {
         weekday: 'short',
         day: '2-digit',
         month: '2-digit'
@@ -46,7 +53,7 @@ const formatDate = (value) => {
 
 const formatFullDate = (value) => {
     if (!value) return '--';
-    return new Date(value).toLocaleDateString('vi-VN', {
+    return parseDate(value).toLocaleDateString('vi-VN', {
         weekday: 'long',
         day: '2-digit',
         month: '2-digit',
@@ -55,7 +62,7 @@ const formatFullDate = (value) => {
 };
 
 const addMinutes = (value, minutes) => {
-    const date = new Date(value);
+    const date = parseDate(value);
     date.setMinutes(date.getMinutes() + minutes);
     return date;
 };
@@ -118,7 +125,7 @@ const getPreferredAssignments = (shift) => (shift?.assignments || [])
 
 const shiftsOverlap = (a, b) => {
     if (!a || !b) return false;
-    return new Date(a.startTime) < new Date(b.endTime) && new Date(b.startTime) < new Date(a.endTime);
+    return parseDate() < parseDate() && parseDate() < parseDate();
 };
 
 const buildRegistrationSelections = (windows, currentUserId) => {
@@ -175,7 +182,7 @@ const isToday = (someDate) => isSameCalendarDay(someDate, new Date());
 
 const formatTime = (value) => {
     if (!value) return '--';
-    return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return parseDate(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
 const getDayName = (dayIndex) => {
@@ -214,14 +221,14 @@ const getShiftPosition = (startTimeStr, endTimeStr) => {
 const positionShifts = (dayShifts) => {
     const sorted = dayShifts
         .map((shift) => ({ ...shift }))
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        .sort((a, b) => parseDate() - parseDate());
     const columns = [];
 
     sorted.forEach((shift) => {
         let placed = false;
         for (let i = 0; i < columns.length; i += 1) {
             const lastShift = columns[i][columns[i].length - 1];
-            if (new Date(shift.startTime) >= new Date(lastShift.endTime)) {
+            if (parseDate() >= new Date(lastShift.endTime)) {
                 columns[i].push(shift);
                 shift.colIndex = i;
                 placed = true;
@@ -384,8 +391,8 @@ const MyWork = () => {
 
     const getAttendanceActionState = useCallback((shift, assignment) => {
         const status = assignment?.attendanceStatus || 'NotStarted';
-        const start = new Date(shift.startTime);
-        const end = new Date(shift.endTime);
+        const start = parseDate();
+        const end = parseDate();
         const checkInOpenAt = addMinutes(start, -CHECK_IN_LEAD_MINUTES);
         const checkInCloseAt = addMinutes(end, -CHECK_IN_MIN_REMAINING_MINUTES);
         const checkOutCloseAt = addMinutes(end, CHECK_OUT_GRACE_MINUTES);
@@ -474,7 +481,7 @@ const MyWork = () => {
                 return assignment ? { shift, assignment } : null;
             })
             .filter(Boolean)
-            .sort((a, b) => new Date(a.shift.startTime) - new Date(b.shift.startTime));
+            .sort((a, b) => parseDate() - parseDate());
     }, [shifts, currentUserId]);
 
     const activeEmployments = useMemo(
@@ -488,7 +495,7 @@ const MyWork = () => {
     );
 
     const nextShiftItem = useMemo(
-        () => myShiftItems.find((item) => new Date(item.shift.endTime) >= now),
+        () => myShiftItems.find((item) => parseDate() >= now),
         [myShiftItems, now]
     );
 
@@ -512,9 +519,9 @@ const MyWork = () => {
             .filter((item) => {
                 const status = item.assignment?.attendanceStatus;
                 return !focusShiftIds.has(item.shift.workShiftId) &&
-                    (new Date(item.shift.endTime) < now || completedAttendanceStatuses.includes(status));
+                    (parseDate() < now || completedAttendanceStatuses.includes(status));
             })
-            .sort((a, b) => new Date(b.shift.startTime) - new Date(a.shift.startTime));
+            .sort((a, b) => parseDate() - parseDate());
     }, [myShiftItems, focusShiftIds, now]);
 
     const paginatedHistoryItems = useMemo(() => {
@@ -641,7 +648,7 @@ const MyWork = () => {
     const canPassShift = (shift, assignment) => {
         if (!assignment || assignment.status !== 'Assigned') return false;
         if (assignment.attendanceStatus) return false;
-        return new Date(shift.startTime).getTime() - Date.now() > 2 * 60 * 60 * 1000;
+        return parseDate().getTime() - Date.now() > 2 * 60 * 60 * 1000;
     };
 
     const closePassModal = () => {
@@ -898,7 +905,7 @@ const MyWork = () => {
                                 const dayKey = getDateKey(day);
                                 const dayShifts = shiftsInWindow
                                     .filter((shift) => getDateKey(shift.startTime) === dayKey)
-                                    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+                                    .sort((a, b) => parseDate() - parseDate());
 
                                 return (
                                     <div key={dayKey} className="min-w-0 overflow-hidden rounded-xl border border-slate-100 bg-white">

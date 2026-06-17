@@ -551,14 +551,21 @@ const EmployerShifts = () => {
             someDate.getFullYear() === today.getFullYear();
     };
 
+    const parseDate = (value) => {
+        if (!value) return null;
+        let str = typeof value === 'string' ? value : value.toString();
+        if (str.endsWith('Z')) str = str.slice(0, -1);
+        return new Date(str);
+    };
+
     const formatTime = (value) => {
         if (!value) return '--';
-        return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        return parseDate(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
     const formatDateTime = (value) => {
         if (!value) return '--';
-        return new Date(value).toLocaleString();
+        return parseDate(value).toLocaleString();
     };
 
     const formatMinutes = (minutes = 0) => {
