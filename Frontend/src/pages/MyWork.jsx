@@ -68,8 +68,8 @@ const addMinutes = (value, minutes) => {
 };
 
 const isSameCalendarDay = (a, b) => {
-    const first = new Date(a);
-    const second = new Date(b);
+    const first = parseDate(a);
+    const second = parseDate(b);
     return first.getDate() === second.getDate() &&
         first.getMonth() === second.getMonth() &&
         first.getFullYear() === second.getFullYear();
@@ -125,7 +125,7 @@ const getPreferredAssignments = (shift) => (shift?.assignments || [])
 
 const shiftsOverlap = (a, b) => {
     if (!a || !b) return false;
-    return parseDate() < parseDate() && parseDate() < parseDate();
+    return parseDate(a.startTime) < parseDate(b.endTime) && parseDate(b.startTime) < parseDate(a.endTime);
 };
 
 const buildRegistrationSelections = (windows, currentUserId) => {
@@ -191,14 +191,14 @@ const getDayName = (dayIndex) => {
 };
 
 const getDateKey = (value) => {
-    const date = new Date(value);
+    const date = parseDate(value);
     if (Number.isNaN(date.getTime())) return '';
     return date.toISOString().slice(0, 10);
 };
 
 const getShiftPosition = (startTimeStr, endTimeStr) => {
-    const start = new Date(startTimeStr);
-    const end = new Date(endTimeStr);
+    const start = parseDate(startTimeStr);
+    const end = parseDate(endTimeStr);
     const startHour = start.getHours() + start.getMinutes() / 60;
     let endHour = end.getHours() + end.getMinutes() / 60;
 
@@ -221,14 +221,14 @@ const getShiftPosition = (startTimeStr, endTimeStr) => {
 const positionShifts = (dayShifts) => {
     const sorted = dayShifts
         .map((shift) => ({ ...shift }))
-        .sort((a, b) => parseDate() - parseDate());
+        .sort((a, b) => parseDate(a.startTime) - parseDate(b.startTime));
     const columns = [];
 
     sorted.forEach((shift) => {
         let placed = false;
         for (let i = 0; i < columns.length; i += 1) {
             const lastShift = columns[i][columns[i].length - 1];
-            if (parseDate() >= new Date(lastShift.endTime)) {
+            if (parseDate(shift.startTime) >= parseDate(lastShift.endTime)) {
                 columns[i].push(shift);
                 shift.colIndex = i;
                 placed = true;
@@ -391,8 +391,8 @@ const MyWork = () => {
 
     const getAttendanceActionState = useCallback((shift, assignment) => {
         const status = assignment?.attendanceStatus || 'NotStarted';
-        const start = parseDate();
-        const end = parseDate();
+        const start = parseDate(shift.startTime);
+        const end = parseDate(shift.endTime);
         const checkInOpenAt = addMinutes(start, -CHECK_IN_LEAD_MINUTES);
         const checkInCloseAt = addMinutes(end, -CHECK_IN_MIN_REMAINING_MINUTES);
         const checkOutCloseAt = addMinutes(end, CHECK_OUT_GRACE_MINUTES);
@@ -481,7 +481,7 @@ const MyWork = () => {
                 return assignment ? { shift, assignment } : null;
             })
             .filter(Boolean)
-            .sort((a, b) => parseDate() - parseDate());
+            .sort((a, b) => parseDate(a.shift.startTime) - parseDate(b.shift.startTime));
     }, [shifts, currentUserId]);
 
     const activeEmployments = useMemo(
@@ -495,13 +495,13 @@ const MyWork = () => {
     );
 
     const nextShiftItem = useMemo(
-        () => myShiftItems.find((item) => parseDate() >= now),
+        () => myShiftItems.find((item) => parseDate(item.shift.endTime) >= now),
         [myShiftItems, now]
     );
 
     const focusDate = useMemo(() => {
         if (todayShiftItems.length > 0) return now;
-        return nextShiftItem ? new Date(nextShiftItem.shift.startTime) : null;
+        return nextShiftItem ? parseDate(nextShiftItem.shift.startTime) : null;
     }, [todayShiftItems.length, nextShiftItem, now]);
 
     const focusShiftItems = useMemo(() => {
@@ -519,9 +519,9 @@ const MyWork = () => {
             .filter((item) => {
                 const status = item.assignment?.attendanceStatus;
                 return !focusShiftIds.has(item.shift.workShiftId) &&
-                    (parseDate() < now || completedAttendanceStatuses.includes(status));
+                    (parseDate(item.shift.endTime) < now || completedAttendanceStatuses.includes(status));
             })
-            .sort((a, b) => parseDate() - parseDate());
+            .sort((a, b) => parseDate(b.shift.startTime) - parseDate(a.shift.startTime));
     }, [myShiftItems, focusShiftIds, now]);
 
     const paginatedHistoryItems = useMemo(() => {
@@ -648,7 +648,7 @@ const MyWork = () => {
     const canPassShift = (shift, assignment) => {
         if (!assignment || assignment.status !== 'Assigned') return false;
         if (assignment.attendanceStatus) return false;
-        return parseDate().getTime() - Date.now() > 2 * 60 * 60 * 1000;
+        return parseDate(shift.startTime).getTime() - Date.now() > 2 * 60 * 60 * 1000;
     };
 
     const closePassModal = () => {
@@ -858,7 +858,7 @@ const MyWork = () => {
                             </span>
                         </div>
                         <h3 className="text-lg font-black tracking-tight text-slate-950">
-                            Tuần bắt đầu {new Date(registrationWindow.weekStartDate).toLocaleDateString('vi-VN')}
+                            Tuần bắt đầu {parseDate(registrationWindow.weekStartDate).toLocaleDateString('vi-VN')}
                         </h3>
                         <p className="mt-1 text-sm font-medium text-slate-700">
                             Mở từ {formatDateTime(registrationWindow.openAt)} đến {formatDateTime(registrationWindow.closeAt)}
@@ -905,7 +905,7 @@ const MyWork = () => {
                                 const dayKey = getDateKey(day);
                                 const dayShifts = shiftsInWindow
                                     .filter((shift) => getDateKey(shift.startTime) === dayKey)
-                                    .sort((a, b) => parseDate() - parseDate());
+                                    .sort((a, b) => parseDate(a.startTime) - parseDate(b.startTime));
 
                                 return (
                                     <div key={dayKey} className="min-w-0 overflow-hidden rounded-xl border border-slate-100 bg-white">
