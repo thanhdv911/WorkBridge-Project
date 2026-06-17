@@ -74,7 +74,10 @@ namespace WorkBridge.Application.Services
                 LogoUrl = profile.LogoUrl,
                 ReputationScore = reputationScore,
                 ReportCount = profile.ReportCount,
-                Status = profile.Status ?? "Active"
+                Status = profile.Status ?? "Active",
+                VerificationStatus = profile.VerificationStatus ?? "Unverified",
+                BusinessLicenseUrl = profile.BusinessLicenseUrl,
+                TaxId = profile.TaxId
             };
         }
 
