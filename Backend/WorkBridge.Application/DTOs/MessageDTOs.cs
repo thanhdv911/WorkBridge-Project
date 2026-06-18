@@ -38,6 +38,7 @@ namespace WorkBridge.Application.DTOs
         public int ContactId { get; set; }
         public string ContactName { get; set; } = null!;
         public string? ContactRole { get; set; }
+        public string? AvatarUrl { get; set; }
         public string LastMessage { get; set; } = null!;
         public DateTime? LastMessageAt { get; set; }
         public int UnreadCount { get; set; }

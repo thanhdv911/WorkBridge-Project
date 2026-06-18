@@ -62,6 +62,8 @@ namespace WorkBridge.Application.Services
                 {
                     ContactId = contactId,
                     ContactName = contact.FullName,
+                    ContactRole = contact.Role.ToString(),
+                    AvatarUrl = contact.AvatarUrl,
                     LastMessage = BuildConversationPreview(lastMessage),
                     LastMessageAt = lastMessage?.SentAt,
                     UnreadCount = unreadCount,
