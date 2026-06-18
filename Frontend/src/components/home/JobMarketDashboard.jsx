@@ -318,15 +318,17 @@ export default function JobMarketDashboard() {
       <div className="market-dashboard-container relative overflow-hidden rounded-3xl p-6 lg:p-8">
         
         {/* Glow decorative effects */}
-        <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-[#1392ec]/10 blur-3xl pointer-events-none" />
-        <div className="absolute -right-20 -bottom-20 h-60 w-60 rounded-full bg-purple-500/5 blur-3xl pointer-events-none" />
-                {/* Title row */}
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-sky-200/80 pb-5">
+        <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-blue-500/20 blur-[100px] pointer-events-none" />
+        <div className="absolute right-0 bottom-0 h-60 w-60 rounded-full bg-purple-500/20 blur-[100px] pointer-events-none" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-80 rounded-full bg-teal-400/10 blur-[120px] pointer-events-none" />
+
+        {/* Title row */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div className="flex items-center gap-3">
-            <div className="h-3 w-3 rounded-full bg-[#1392ec] animate-ping" />
-            <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+            <div className="h-3 w-3 rounded-full bg-sky-400 animate-ping shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
+            <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-white flex items-center gap-2.5 drop-shadow-md">
               Thị trường việc làm hôm nay
-              <span className="text-[#1392ec] font-black bg-white/95 px-3.5 py-0.5 rounded-xl text-base lg:text-lg tracking-wide border border-sky-200 shadow-sm">
+              <span className="text-sky-300 font-black bg-white/10 backdrop-blur-md px-3.5 py-0.5 rounded-xl text-base lg:text-lg tracking-wide border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
                 {todayStr}
               </span>
             </h2>
@@ -337,38 +339,38 @@ export default function JobMarketDashboard() {
         <div className="relative z-10 mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_2fr]">
           
           {/* LEFT PANEL: Latest jobs with mascot */}
-          <div className="flex flex-col justify-between rounded-2xl border border-sky-100 bg-white/80 p-5 backdrop-blur-sm shadow-sm">
+          <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             
             {/* Robot and Headline row */}
-            <div className="flex items-start gap-4 mb-4">
+            <div className="flex items-start gap-4 mb-4 relative z-10">
               <div className="relative shrink-0 select-none market-mascot-animation">
-                <div className="absolute -inset-1.5 rounded-full bg-[#1392ec]/15 blur-md pointer-events-none" />
-                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-white bg-sky-50/60 shadow-md shadow-sky-200/50 flex items-center justify-center">
+                <div className="absolute -inset-1.5 rounded-full bg-sky-400/20 blur-md pointer-events-none" />
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 bg-slate-900/50 shadow-[0_0_15px_rgba(56,189,248,0.3)] flex items-center justify-center">
                   <img 
                     src="/market-mascot-light.png" 
                     alt="WorkBridge AI Mascot" 
-                    className="w-full h-full object-cover scale-[1.05]"
+                    className="w-full h-full object-cover scale-[1.05] drop-shadow-lg mix-blend-screen"
                   />
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900 tracking-wide">Việc làm mới nhất</h3>
-                <p className="text-xs text-slate-650 font-semibold leading-relaxed mt-1">
+                <h3 className="text-lg font-black text-white tracking-wide drop-shadow-sm">Việc làm mới nhất</h3>
+                <p className="text-xs text-slate-300 font-medium leading-relaxed mt-1">
                   Được cập nhật tự động liên tục theo thời gian thực từ các đối tác tin cậy.
                 </p>
               </div>
             </div>
 
             {/* Live Job Postings List */}
-            <div className="space-y-3 flex-1 flex flex-col justify-center my-3">
+            <div className="space-y-3 flex-1 flex flex-col justify-center my-3 relative z-10">
               {loadingJobs ? (
                 // Skeleton loading
                 [...Array(3)].map((_, i) => (
-                  <div key={i} className="h-16 rounded-xl bg-slate-100/60 animate-pulse border border-slate-200/40" />
+                  <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse border border-white/10" />
                 ))
               ) : latestJobs.length === 0 ? (
-                <div className="py-8 text-center text-xs font-bold text-slate-800">
-                  <span className="material-symbols-outlined !text-3xl text-slate-800 block mb-1">work_off</span>
+                <div className="py-8 text-center text-xs font-bold text-slate-400">
+                  <span className="material-symbols-outlined !text-3xl text-slate-500 block mb-1">work_off</span>
                   Không có tin tuyển dụng mới
                 </div>
               ) : (
@@ -386,10 +388,10 @@ export default function JobMarketDashboard() {
                     <a
                       key={jobPostIdVal}
                       href={`/jobs/${jobPostIdVal}`}
-                      className="group flex items-center gap-3 rounded-xl border border-sky-100/50 bg-white p-3.5 transition-all duration-350 hover:border-[#1392ec]/60 hover:bg-sky-50/50 hover:shadow-md"
+                      className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3.5 transition-all duration-300 hover:border-sky-400/50 hover:bg-white/10 hover:shadow-[0_4px_20px_rgba(56,189,248,0.15)]"
                     >
                       {/* Logo container */}
-                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-white transition-all group-hover:border-[#1392ec]/40">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/20 bg-slate-800 flex items-center justify-center text-xs font-bold text-white transition-all group-hover:border-sky-400/40">
                         {logoUrlStr ? (
                           <img 
                             src={logoUrlStr.startsWith('http') ? logoUrlStr : `${API_BASE_URL}${logoUrlStr.startsWith('/') ? '' : '/'}${logoUrlStr}`}
@@ -397,7 +399,7 @@ export default function JobMarketDashboard() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="bg-gradient-to-br from-[#1392ec] to-purple-600 w-full h-full flex items-center justify-center font-bold">
+                          <span className="bg-gradient-to-br from-sky-400 to-indigo-500 w-full h-full flex items-center justify-center font-bold">
                             {companyInitials}
                           </span>
                         )}
@@ -405,20 +407,20 @@ export default function JobMarketDashboard() {
 
                       {/* Text details */}
                       <div className="min-w-0 flex-1">
-                        <h4 className="truncate text-xs font-black text-slate-800 group-hover:text-[#1392ec] transition-colors leading-snug">
+                        <h4 className="truncate text-xs font-black text-slate-100 group-hover:text-sky-300 transition-colors leading-snug">
                           {titleStr}
                         </h4>
-                        <p className="truncate text-[10.5px] font-bold text-slate-700 mt-0.5">
+                        <p className="truncate text-[10.5px] font-bold text-slate-400 mt-0.5">
                           {compNameStr}
                         </p>
                       </div>
 
                       {/* Info side badges */}
                       <div className="text-right shrink-0 flex flex-col items-end gap-1">
-                        <span className="text-[10px] font-black text-[#1392ec] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100/60 shadow-sm">
+                        <span className="text-[10px] font-black text-sky-300 bg-sky-400/10 px-1.5 py-0.5 rounded border border-sky-400/20 shadow-sm">
                           {payRateVal ? `${payRateVal.toLocaleString('vi-VN')} ${translatePayUnit(payUnitVal)}` : 'Thỏa thuận'}
                         </span>
-                        <span className="text-[9.5px] font-bold text-slate-700 truncate max-w-[80px]">
+                        <span className="text-[9.5px] font-bold text-slate-400 truncate max-w-[80px]">
                           {locationStr.split(',').pop().trim()}
                         </span>
                       </div>
@@ -431,7 +433,7 @@ export default function JobMarketDashboard() {
             {/* Action link */}
             <a 
               href="/jobs" 
-              className="mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-[#1392ec] hover:bg-[#1392ec]/90 text-white font-black text-xs py-3.5 shadow-md shadow-sky-200 transition-all active:scale-98"
+              className="relative z-10 mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-black text-xs py-3.5 shadow-[0_4px_15px_rgba(56,189,248,0.3)] transition-all active:scale-95"
             >
               Xem tất cả cơ hội tuyển dụng
               <span className="material-symbols-outlined !text-sm font-black">arrow_forward</span>
@@ -448,33 +450,33 @@ export default function JobMarketDashboard() {
                 {
                   value: jobsMonthCount.toLocaleString('vi-VN'),
                   label: 'Việc làm mới tháng này',
-                  border: 'border-sky-200',
-                  valueColor: 'text-[#1392ec]',
-                  bg: 'bg-white'
+                  border: 'border-white/10 hover:border-sky-400/50',
+                  valueColor: 'text-sky-300 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]',
+                  bg: 'bg-white/5 backdrop-blur-xl hover:bg-white/10'
                 },
                 {
                   value: activeJobsCount.toLocaleString('vi-VN'),
                   label: 'Việc làm đang tuyển',
-                  border: 'border-purple-200',
-                  valueColor: 'text-purple-600',
-                  bg: 'bg-white'
+                  border: 'border-white/10 hover:border-purple-400/50',
+                  valueColor: 'text-purple-300 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)]',
+                  bg: 'bg-white/5 backdrop-blur-xl hover:bg-white/10'
                 },
                 {
                   value: companiesCount.toLocaleString('vi-VN'),
                   label: 'Doanh nghiệp tuyển dụng',
-                  border: 'border-emerald-200',
-                  valueColor: 'text-emerald-600',
-                  bg: 'bg-white'
+                  border: 'border-white/10 hover:border-emerald-400/50',
+                  valueColor: 'text-emerald-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]',
+                  bg: 'bg-white/5 backdrop-blur-xl hover:bg-white/10'
                 }
               ].map((card, i) => (
                 <div 
                   key={i} 
-                  className={`flex flex-col justify-center rounded-2xl border ${card.border} ${card.bg} p-4 text-center hover:scale-[1.03] transition-all duration-300 shadow-sm`}
+                  className={`flex flex-col justify-center rounded-2xl border ${card.border} ${card.bg} p-4 text-center hover:-translate-y-1 transition-all duration-300 shadow-xl`}
                 >
-                  <h3 className={`text-sm sm:text-xl lg:text-2xl font-black ${card.valueColor} tracking-tight leading-none`}>
+                  <h3 className={`text-sm sm:text-xl lg:text-3xl font-black ${card.valueColor} tracking-tight leading-none`}>
                     {card.value}
                   </h3>
-                  <p className="text-[10px] sm:text-xs font-black text-slate-650 leading-tight mt-2 break-words">
+                  <p className="text-[10px] sm:text-xs font-bold text-slate-300 leading-tight mt-2 break-words">
                     {card.label}
                   </p>
                 </div>
@@ -485,55 +487,58 @@ export default function JobMarketDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
               
               {/* Chart 1: Line Chart */}
-              <div className="rounded-2xl border border-sky-100 bg-white/90 p-4 flex flex-col justify-between relative shadow-sm">
-                <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-                  <h4 className="text-xs lg:text-sm font-black text-slate-800 flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#1392ec] shadow-sm animate-pulse" />
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 flex flex-col justify-between relative shadow-xl overflow-hidden">
+                {/* Background glow for chart */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-sky-500/10 blur-[50px] pointer-events-none" />
+
+                <div className="relative z-10 flex items-center justify-between mb-3 border-b border-white/10 pb-2">
+                  <h4 className="text-xs lg:text-sm font-black text-slate-100 flex items-center gap-1.5 drop-shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)] animate-pulse" />
                     Tăng trưởng cơ hội việc làm (Lũy kế)
                   </h4>
                 </div>
 
                 {/* SVG Area (Proportional aspect ratio) */}
-                <div className="relative w-full aspect-[5/2] mt-1 select-none">
+                <div className="relative z-10 w-full aspect-[5/2] mt-1 select-none">
                   {loadingStats ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-400">
                       Đang tải dữ liệu...
                     </div>
                   ) : (
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 500 200">
                       <defs>
                         {/* Gradients */}
                         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#1392ec" />
-                          <stop offset="100%" stopColor="#00f2fe" />
+                          <stop offset="0%" stopColor="#38bdf8" />
+                          <stop offset="100%" stopColor="#818cf8" />
                         </linearGradient>
                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#1392ec" stopOpacity="0.15" />
-                          <stop offset="100%" stopColor="#1392ec" stopOpacity="0" />
+                          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
                         </linearGradient>
                       </defs>
 
                       {/* Dotted Grid lines */}
-                      <line x1="55" y1="20" x2="485" y2="20" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="55" y1="57.5" x2="485" y2="57.5" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="55" y1="95" x2="485" y2="95" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="55" y1="132.5" x2="485" y2="132.5" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="55" y1="170" x2="485" y2="170" stroke="#cbd5e1" strokeWidth="1.2" />
+                      <line x1="55" y1="20" x2="485" y2="20" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="55" y1="57.5" x2="485" y2="57.5" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="55" y1="95" x2="485" y2="95" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="55" y1="132.5" x2="485" y2="132.5" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="55" y1="170" x2="485" y2="170" stroke="#475569" strokeWidth="1.2" />
 
                       {/* Y-Axis labels */}
-                      <text x="45" y="24" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">
+                      <text x="45" y="24" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">
                         {lineChartRange.max.toLocaleString('vi-VN')}
                       </text>
-                      <text x="45" y="99" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">
+                      <text x="45" y="99" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">
                         {Math.floor((lineChartRange.max + lineChartRange.min) / 2).toLocaleString('vi-VN')}
                       </text>
-                      <text x="45" y="174" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">
+                      <text x="45" y="174" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">
                         {lineChartRange.min.toLocaleString('vi-VN')}
                       </text>
 
                       {/* X-Axis labels */}
                       {linePoints.map((p, idx) => (
-                        <text key={idx} x={p.x} y="190" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="middle">
+                        <text key={idx} x={p.x} y="190" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="middle">
                           {p.label}
                         </text>
                       ))}
@@ -542,7 +547,7 @@ export default function JobMarketDashboard() {
                       <path d={areaPathD} fill="url(#areaGrad)" />
 
                       {/* Line path */}
-                      <path d={linePathD} fill="none" stroke="url(#lineGrad)" strokeWidth="3.2" strokeLinecap="round" />
+                      <path d={linePathD} fill="none" stroke="url(#lineGrad)" strokeWidth="3.2" strokeLinecap="round" style={{ filter: 'drop-shadow(0px 4px 6px rgba(56, 189, 248, 0.4))' }} />
 
                       {/* Interactive Circles on vertices */}
                       {linePoints.map((p, idx) => (
@@ -551,10 +556,11 @@ export default function JobMarketDashboard() {
                           cx={p.x} 
                           cy={p.y} 
                           r={activeLineIndex === idx ? "7.5" : "5.5"} 
-                          fill={activeLineIndex === idx ? "#00f2fe" : "#1392ec"} 
-                          stroke="#ffffff" 
+                          fill={activeLineIndex === idx ? "#e0f2fe" : "#38bdf8"} 
+                          stroke="#0f172a" 
                           strokeWidth="2.2"
                           className="cursor-pointer transition-all duration-150"
+                          style={{ filter: activeLineIndex === idx ? 'drop-shadow(0 0 8px rgba(56,189,248,0.8))' : 'none' }}
                           onMouseEnter={() => setActiveLineIndex(idx)}
                           onMouseLeave={() => setActiveLineIndex(null)}
                         />
@@ -565,7 +571,7 @@ export default function JobMarketDashboard() {
                   {/* SVG Tooltip */}
                   {activeLineIndex !== null && linePoints[activeLineIndex] && (
                     <div 
-                      className="absolute z-30 bg-slate-900 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-black text-white shadow-xl pointer-events-none"
+                      className="absolute z-30 bg-slate-800/95 border border-slate-600 px-2.5 py-1.5 rounded-lg text-xs font-black text-white shadow-[0_4px_15px_rgba(0,0,0,0.5)] pointer-events-none backdrop-blur-md"
                       style={{
                         left: `${(linePoints[activeLineIndex].x / 500) * 100}%`,
                         top: `${(linePoints[activeLineIndex].y / 200) * 100 - 30}%`,
@@ -579,12 +585,13 @@ export default function JobMarketDashboard() {
               </div>
 
               {/* Chart 2: Bar Chart */}
-              <div className="rounded-2xl border border-sky-100 bg-white/90 p-4 flex flex-col justify-between relative shadow-sm">
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 flex flex-col justify-between relative shadow-xl overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 blur-[50px] pointer-events-none" />
                 
                 {/* Header with Industry Dropdown */}
-                <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 relative z-20">
-                  <h4 className="text-xs lg:text-sm font-black text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
-                    <span className="h-2 w-2 rounded-full bg-purple-500 shadow-sm" />
+                <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2 relative z-20">
+                  <h4 className="text-xs lg:text-sm font-black text-slate-100 flex items-center gap-1.5 whitespace-nowrap drop-shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
                     Top tuyển dụng theo:
                   </h4>
 
@@ -592,13 +599,13 @@ export default function JobMarketDashboard() {
                   <div className="relative ml-2">
                     <button 
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="flex items-center gap-1 rounded bg-white border border-slate-200 px-2 py-1 text-[10.5px] font-black text-[#1392ec] transition-colors hover:bg-sky-50 whitespace-nowrap"
+                      className="flex items-center gap-1 rounded bg-white/10 border border-white/20 px-2 py-1 text-[10.5px] font-black text-sky-300 transition-colors hover:bg-white/20 whitespace-nowrap shadow-sm backdrop-blur-md"
                     >
                       {chartFilter}
                       <span className="material-symbols-outlined !text-[14px]">expand_more</span>
                     </button>
                     {showDropdown && (
-                      <div className="absolute right-0 mt-1 w-28 rounded-lg border border-slate-200 bg-white p-1 shadow-xl text-[10px] font-black text-slate-700 z-50">
+                      <div className="absolute right-0 mt-1 w-28 rounded-xl border border-slate-700 bg-slate-800/95 p-1.5 shadow-[0_10px_25px_rgba(0,0,0,0.5)] backdrop-blur-xl text-[10px] font-black text-slate-200 z-50">
                         {['Ngành nghề', 'Khu vực'].map((opt) => (
                           <button
                             key={opt}
@@ -606,7 +613,7 @@ export default function JobMarketDashboard() {
                               setChartFilter(opt);
                               setShowDropdown(false);
                             }}
-                            className={`w-full text-left px-2 py-1.5 rounded transition-colors ${chartFilter === opt ? 'bg-[#1392ec]/10 text-[#1392ec]' : 'hover:bg-slate-50'}`}
+                            className={`w-full text-left px-2 py-1.5 rounded transition-colors ${chartFilter === opt ? 'bg-sky-500/20 text-sky-300' : 'hover:bg-slate-700'}`}
                           >
                             {opt}
                           </button>
@@ -617,21 +624,21 @@ export default function JobMarketDashboard() {
                 </div>
 
                 {/* SVG Area (Proportional aspect ratio) */}
-                <div className="relative w-full aspect-[5/2] mt-1 select-none">
+                <div className="relative z-10 w-full aspect-[5/2] mt-1 select-none">
                   {categories.length === 0 ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-400">
                       Đang phân tích dữ liệu...
                     </div>
                   ) : (
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 500 200">
                       <defs>
                         <linearGradient id="barBlueGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#00f2fe" />
-                          <stop offset="100%" stopColor="#1d4ed8" />
+                          <stop offset="0%" stopColor="#38bdf8" />
+                          <stop offset="100%" stopColor="#0284c7" />
                         </linearGradient>
                         <linearGradient id="barPurpleGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#c084fc" />
-                          <stop offset="100%" stopColor="#6b21a8" />
+                          <stop offset="100%" stopColor="#7e22ce" />
                         </linearGradient>
                         <linearGradient id="barOrangeGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#fb923c" />
@@ -639,7 +646,7 @@ export default function JobMarketDashboard() {
                         </linearGradient>
                         <linearGradient id="barCyanGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#2dd4bf" />
-                          <stop offset="100%" stopColor="#0e7490" />
+                          <stop offset="100%" stopColor="#0f766e" />
                         </linearGradient>
                         <linearGradient id="barYellowGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#facc15" />
@@ -648,19 +655,19 @@ export default function JobMarketDashboard() {
                       </defs>
 
                       {/* Dotted Grid lines */}
-                      <line x1="50" y1="20" x2="485" y2="20" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="50" y1="70" x2="485" y2="70" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="50" y1="120" x2="485" y2="120" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="0.85" />
-                      <line x1="50" y1="170" x2="485" y2="170" stroke="#cbd5e1" strokeWidth="1.2" />
+                      <line x1="50" y1="20" x2="485" y2="20" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="50" y1="70" x2="485" y2="70" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="50" y1="120" x2="485" y2="120" stroke="#334155" strokeDasharray="3 3" strokeWidth="0.85" />
+                      <line x1="50" y1="170" x2="485" y2="170" stroke="#475569" strokeWidth="1.2" />
 
                       {/* Y-Axis labels */}
-                      <text x="40" y="24" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">
+                      <text x="40" y="24" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">
                         {barChartYMax.toLocaleString('vi-VN')}
                       </text>
-                      <text x="40" y="99" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">
+                      <text x="40" y="99" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">
                         {Math.floor(barChartYMax / 2).toLocaleString('vi-VN')}
                       </text>
-                      <text x="40" y="174" fill="#64748b" fontSize="10" fontWeight="900" textAnchor="end">0</text>
+                      <text x="40" y="174" fill="#94a3b8" fontSize="10" fontWeight="900" textAnchor="end">0</text>
 
                       {/* Bars */}
                       {barItems.map((bar, idx) => (
@@ -673,10 +680,11 @@ export default function JobMarketDashboard() {
                           fill={bar.color}
                           rx="4"
                           ry="4"
-                          className="cursor-pointer transition-all duration-300 hover:brightness-110 hover:shadow-md"
+                          className="cursor-pointer transition-all duration-300"
                           style={{
                             transformOrigin: `${bar.x + barWidth/2}px 170px`,
-                            transform: activeBarIndex === idx ? 'scaleY(1.03)' : 'scaleY(1)'
+                            transform: activeBarIndex === idx ? 'scaleY(1.05)' : 'scaleY(1)',
+                            filter: activeBarIndex === idx ? 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' : 'none'
                           }}
                           onMouseEnter={() => setActiveBarIndex(idx)}
                           onMouseLeave={() => setActiveBarIndex(null)}
@@ -689,7 +697,7 @@ export default function JobMarketDashboard() {
                           key={idx}
                           x={bar.x + barWidth / 2}
                           y="188"
-                          fill="#64748b"
+                          fill="#94a3b8"
                           fontSize="8.5"
                           fontWeight="900"
                           textAnchor="middle"
@@ -703,7 +711,7 @@ export default function JobMarketDashboard() {
                   {/* SVG Tooltip */}
                   {activeBarIndex !== null && barItems[activeBarIndex] && (
                     <div 
-                      className="absolute z-30 bg-slate-900 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-black text-white shadow-xl pointer-events-none"
+                      className="absolute z-30 bg-slate-800/95 border border-slate-600 px-2.5 py-1.5 rounded-lg text-xs font-black text-white shadow-[0_4px_15px_rgba(0,0,0,0.5)] pointer-events-none backdrop-blur-md"
                       style={{
                         left: `${((barItems[activeBarIndex].x + barWidth / 2) / 500) * 100}%`,
                         top: `${(barItems[activeBarIndex].y / 200) * 100 - 20}%`,
@@ -716,9 +724,9 @@ export default function JobMarketDashboard() {
                 </div>
 
                 {/* Colored Legend Dots */}
-                <div className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 border-t border-slate-100 pt-2.5 mt-2">
+                <div className="relative z-10 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 border-t border-white/10 pt-2.5 mt-2">
                   {barChartData.map((d, idx) => (
-                    <span key={idx} className="flex items-center gap-1.5 text-[9.5px] font-black text-slate-800">
+                    <span key={idx} className="flex items-center gap-1.5 text-[9.5px] font-black text-slate-300">
                       <span className="h-2 w-2 rounded-full shadow-sm" style={{ backgroundColor: d.legendColor }} />
                       {d.category}
                     </span>

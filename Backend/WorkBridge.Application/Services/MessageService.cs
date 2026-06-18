@@ -85,18 +85,27 @@ namespace WorkBridge.Application.Services
             };
         }
 
-        public async Task<IEnumerable<MessageResponse>> GetChatHistoryAsync(int userId, int contactId)
+        public async Task<PagedResult<MessageResponse>> GetChatHistoryAsync(int userId, int contactId, int page = 1, int pageSize = 50)
         {
             if (!await CanAccessThreadAsync(userId, contactId))
             {
-                return Enumerable.Empty<MessageResponse>();
+                return new PagedResult<MessageResponse> { Items = Enumerable.Empty<MessageResponse>(), TotalItems = 0, Page = page, TotalPages = 0 };
             }
 
-            var messages = await _context.Messages
+            var query = _context.Messages
                 .Include(m => m.Sender)
-                .Where(m => (m.SenderId == userId && m.ReceiverId == contactId) || (m.SenderId == contactId && m.ReceiverId == userId))
-                .OrderBy(m => m.SentAt)
+                .Where(m => (m.SenderId == userId && m.ReceiverId == contactId) || (m.SenderId == contactId && m.ReceiverId == userId));
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var messages = await query
+                .OrderByDescending(m => m.SentAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            messages.Reverse();
 
             var interviewIds = messages
                 .Where(m => m.InterviewId.HasValue)
@@ -113,11 +122,12 @@ namespace WorkBridge.Application.Services
             var interviewSummaries = await GetInterviewSummariesAsync(interviewIds);
             var offerSummaries = await GetOfferSummariesAsync(offerIds);
 
-            return messages.Select(m => new MessageResponse
+            var items = messages.Select(m => new MessageResponse
             {
                 MessageId = m.MessageId,
                 SenderId = m.SenderId,
                 SenderName = m.Sender.FullName,
+                SenderAvatarUrl = m.Sender.AvatarUrl,
                 ReceiverId = m.ReceiverId,
                 Content = m.Content,
                 MessageType = string.IsNullOrWhiteSpace(m.MessageType) ? "Text" : m.MessageType,
@@ -131,6 +141,14 @@ namespace WorkBridge.Application.Services
                 IsRead = m.IsRead,
                 SentAt = m.SentAt
             }).ToList();
+
+            return new PagedResult<MessageResponse>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                Page = page,
+                TotalPages = totalPages
+            };
         }
 
         public async Task<MessageResponse?> SendMessageAsync(int senderId, SendMessageRequest request)

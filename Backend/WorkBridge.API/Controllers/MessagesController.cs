@@ -36,10 +36,10 @@ namespace WorkBridge.API.Controllers
         }
 
         [HttpGet("{contactId}")]
-        public async Task<IActionResult> GetChatHistory(int contactId)
+        public async Task<IActionResult> GetChatHistory(int contactId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
         {
             var userId = GetUserId();
-            var history = await _messageService.GetChatHistoryAsync(userId, contactId);
+            var history = await _messageService.GetChatHistoryAsync(userId, contactId, page, pageSize);
 
             await _messageService.MarkAsReadAsync(userId, contactId);
 

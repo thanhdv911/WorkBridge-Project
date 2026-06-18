@@ -7,6 +7,7 @@ namespace WorkBridge.Application.DTOs
         public int MessageId { get; set; }
         public int SenderId { get; set; }
         public string SenderName { get; set; } = null!;
+        public string? SenderAvatarUrl { get; set; }
         public int ReceiverId { get; set; }
         public string Content { get; set; } = null!;
         public string MessageType { get; set; } = "Text";
@@ -15,6 +16,14 @@ namespace WorkBridge.Application.DTOs
         public OfferResponse? Offer { get; set; }
         public bool IsRead { get; set; }
         public DateTime? SentAt { get; set; }
+    }
+
+    public class PagedResult<T>
+    {
+        public System.Collections.Generic.IEnumerable<T> Items { get; set; } = new System.Collections.Generic.List<T>();
+        public int TotalItems { get; set; }
+        public int Page { get; set; }
+        public int TotalPages { get; set; }
     }
 
     public class SendMessageRequest

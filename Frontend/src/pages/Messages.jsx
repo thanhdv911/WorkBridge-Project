@@ -160,6 +160,9 @@ const Messages = () => {
     const navigate = useNavigate();
     const [conversations, setConversations] = useState([]);
     const [messages, setMessages] = useState([]);
+    const [chatPage, setChatPage] = useState(1);
+    const [chatTotalPages, setChatTotalPages] = useState(1);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [selectedContact, setSelectedContact] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [newMessage, setNewMessage] = useState('');
@@ -461,11 +464,11 @@ const Messages = () => {
     }, [selectedContact?.contactId, isEmployer, currentUserId]);
 
     useEffect(() => {
-        if (messages.length > lastMessageCountRef.current) {
+        if (chatPage === 1 && messages.length > lastMessageCountRef.current) {
             scrollToBottom(messages.length === 1 ? 'auto' : 'smooth');
         }
         lastMessageCountRef.current = messages.length;
-    }, [messages.length]);
+    }, [messages.length, chatPage]);
 
     const scrollToBottom = (behavior = 'smooth') => {
         const container = messagesContainerRef.current;
@@ -484,14 +487,34 @@ const Messages = () => {
         }
     };
 
-    const fetchChatHistory = async (contactId) => {
+    const fetchChatHistory = async (contactId, page = 1) => {
+        if (page > 1) setLoadingMore(true);
         try {
-            const res = await api.get(`/messages/${contactId}`);
-            setMessages(res.data || []);
+            const res = await api.get(`/messages/${contactId}?page=${page}&pageSize=30`);
+            const fetchedMessages = res.data.items || [];
+            if (page === 1) {
+                setMessages(fetchedMessages);
+                setChatPage(res.data.page);
+                setChatTotalPages(res.data.totalPages);
+            } else {
+                setMessages(prev => {
+                    const existingIds = new Set(prev.map(m => getValue(m, 'messageId')));
+                    const newMessages = fetchedMessages.filter(m => !existingIds.has(getValue(m, 'messageId')));
+                    return [...newMessages, ...prev];
+                });
+                setChatPage(res.data.page);
+            }
             fetchConversations();
         } catch (error) {
             console.error('Error fetching chat history:', error);
+        } finally {
+            if (page > 1) setLoadingMore(false);
         }
+    };
+
+    const handleLoadMore = () => {
+        if (!selectedContact || chatPage >= chatTotalPages || loadingMore) return;
+        fetchChatHistory(selectedContact.contactId, chatPage + 1);
     };
 
     const fetchChatContext = async (contactId) => {
@@ -1023,7 +1046,15 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
         const isOwn = getMessageSenderId(message) === currentUserId;
         const content = getValue(message, 'content');
         return (
-            <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                {!isOwn && (
+                    <img
+                        src={getValue(message, 'senderAvatarUrl') || "/default-avatar.png"}
+                        alt="avatar"
+                        className="h-8 w-8 rounded-full object-cover shrink-0 border border-slate-200"
+                        onError={(e) => { e.target.onerror = null; e.target.src = "/default-avatar.png"; }}
+                    />
+                )}
                 <div className={`max-w-[82%] break-words rounded-lg px-4 py-2.5 text-sm shadow-sm sm:max-w-[72%] lg:max-w-[62%] ${
                     isOwn
                         ? 'rounded-br-sm bg-[#1687d9] text-white'
@@ -1225,6 +1256,18 @@ Giữ giọng văn đời thường, rõ ý, không dùng từ quá máy móc.`;
                                         </div>
                                     ) : (
                                         <div className="mx-auto flex w-full max-w-[860px] flex-col gap-3">
+                                            {chatPage < chatTotalPages && (
+                                                <div className="flex justify-center mb-2 mt-1">
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={handleLoadMore} 
+                                                        disabled={loadingMore}
+                                                        className="rounded-full bg-white px-4 py-1.5 text-[11px] font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                        {loadingMore ? 'Đang tải...' : 'Tải thêm tin nhắn cũ'}
+                                                    </button>
+                                                </div>
+                                            )}
                                             {messages.map((message, index) => (
                                                 <React.Fragment key={getValue(message, 'messageId') || `${getMessageType(message)}-${index}`}>
                                                     {renderMessageBubble(message)}

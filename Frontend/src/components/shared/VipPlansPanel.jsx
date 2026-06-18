@@ -837,7 +837,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
 
     return (
       <div className="anim-fadeUp overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 px-6 py-4">
           <div>
             <p className="text-xs font-black uppercase tracking-wide text-[#1687d9]">PayOS VietQR</p>
             <h2 className="text-lg font-black text-slate-900">{copy.paymentTitle}</h2>
@@ -846,10 +846,10 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
             type="button"
             onClick={() => cancelCurrentPayment({ reason: 'Người dùng bấm hủy trên màn hình QR.' })}
             disabled={cancelingPayment}
-            className="flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-800 transition hover:bg-slate-50"
+            className="flex h-9 shrink-0 sm:w-auto w-full items-center justify-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-800 transition hover:bg-slate-50"
           >
             <span className="material-symbols-outlined !text-base">{cancelingPayment ? 'progress_activity' : 'close'}</span>
-            {cancelingPayment ? 'Đang hủy' : 'Hủy'}
+            {cancelingPayment ? 'Đang hủy' : 'Hủy giao dịch'}
           </button>
         </div>
 
@@ -871,9 +871,9 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
               ['Nội dung', paymentRequest.description]
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-black uppercase text-slate-800">{label}</p>
-                  <p className="truncate text-sm font-black text-slate-800">{value || '-'}</p>
+                  <p className="break-all text-sm font-black text-slate-800">{value || '-'}</p>
                 </div>
                 <button
                   type="button"
@@ -1080,7 +1080,7 @@ export default function VipPlansPanel({ audience = 'Applicant' }) {
             <p className="mt-1 text-sm font-semibold text-slate-700">Theo dõi giao dịch PayOS, giao dịch đã hủy và VIP được admin cấp.</p>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
               ['Đã trả', `${formatCurrency(transactionSummary?.totalRevenue)} VND`],
               ['Thành công', transactionSummary?.paidTransactions ?? 0],

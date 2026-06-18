@@ -10,7 +10,7 @@ namespace WorkBridge.Application.Services
     public interface IMessageService
     {
         Task<IEnumerable<ConversationResponse>> GetConversationsAsync(int userId);
-        Task<IEnumerable<MessageResponse>> GetChatHistoryAsync(int userId, int contactId);
+        Task<PagedResult<MessageResponse>> GetChatHistoryAsync(int userId, int contactId, int page = 1, int pageSize = 50);
         Task<MessageResponse?> SendMessageAsync(int senderId, SendMessageRequest request);
         Task MarkAsReadAsync(int userId, int contactId);
         Task<int> GetUnreadCountAsync(int userId);

@@ -988,7 +988,7 @@ function FeaturedJobCard({ job, isSaved, onToggleSave }) {
     <article className={`home-best-card ${isVip ? 'is-vip' : ''}`}>
       {isVip && (
         <div className="home-best-vip-badge" title="Tin tuyển dụng nổi bật / VIP">
-          <span className="material-symbols-outlined">bolt</span>
+          <span className="material-symbols-outlined">diamond</span>
         </div>
       )}
 
