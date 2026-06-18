@@ -4,6 +4,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import { signalRService } from '../services/signalrService';
 import Pagination from '../components/shared/Pagination';
+import { getNotificationIcon } from '../utils/notificationIcon';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -112,7 +113,7 @@ const Notifications = () => {
                 navigate('/employer-dashboard?tab=employees');
             } else if (titleLower.includes('shift') || msgLower.includes('shift')) {
                 navigate('/employer-dashboard?tab=shifts');
-            } else if (titleLower.includes('payroll') || msgLower.includes('payroll')) {
+            } else if (titleLower.includes('payroll') || titleLower.includes('payroll')) {
                 navigate('/employer-dashboard?tab=payroll');
             } else {
                 navigate('/employer-dashboard');
@@ -196,8 +197,7 @@ const Notifications = () => {
                                         n.isRead ? 'bg-slate-100 text-slate-800' : 'bg-primary/10 text-primary'
                                     }`}>
                                         <span className="material-symbols-outlined !text-[20px]">
-                                            {n.title.includes('Success') || n.title.includes('Accepted') || n.title.includes('Paid') ? 'check_circle' :
-                                             n.title.includes('Rejected') || n.title.includes('Fired') || n.title.includes('Ended') ? 'cancel' : 'info'}
+                                            {getNotificationIcon(n.title, n.message)}
                                         </span>
                                     </div>
                                     <div className="flex-1">

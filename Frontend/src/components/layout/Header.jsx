@@ -6,6 +6,8 @@ import { signalRService } from '../../services/signalrService';
 import { translateCategory } from '../../utils/translate';
 import WorkBridgeLogo from '../shared/WorkBridgeLogo';
 import { useAuthModal } from '../../contexts/AuthModalContext';
+import { getCategorySlug } from '../../utils/categorySlug';
+import { getNotificationIcon } from '../../utils/notificationIcon';
 
 const WORKSPACE_PATHS = ['/my-applications', '/saved-jobs', '/offers', '/interviews', '/my-work', '/payslips'];
 
@@ -34,8 +36,6 @@ function getCategoryIcon(name) {
 
 const NAV_LINK_BASE = 'text-sm font-semibold transition-colors';
 const NAV_LINK_ACTIVE = 'text-primary relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded';
-
-import { getCategorySlug } from '../../utils/categorySlug';
 
 export default function Header() {
   const { openLogin, openSignup, user, logoutUser } = useAuthModal();
@@ -242,7 +242,7 @@ export default function Header() {
         navigate('/employer-dashboard?tab=employees');
       } else if (titleLower.includes('shift') || msgLower.includes('shift')) {
         navigate('/employer-dashboard?tab=shifts');
-      } else if (titleLower.includes('payroll') || msgLower.includes('payroll')) {
+      } else if (titleLower.includes('payroll') || titleLower.includes('payroll')) {
         navigate('/employer-dashboard?tab=payroll');
       } else {
         navigate('/employer-dashboard');
@@ -560,8 +560,7 @@ export default function Header() {
                               >
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.isRead ? 'bg-slate-100 text-slate-800' : 'bg-primary/10 text-primary'}`}>
                                   <span className="material-symbols-outlined !text-[16px]">
-                                      {n.title.includes('Success') || n.title.includes('Accepted') || n.title.includes('Paid') ? 'check_circle' :
-                                       n.title.includes('Rejected') || n.title.includes('Fired') || n.title.includes('Ended') ? 'cancel' : 'info'}
+                                    {getNotificationIcon(n.title, n.message)}
                                   </span>
                                 </div>
                                 <div className="flex-1 min-w-0">

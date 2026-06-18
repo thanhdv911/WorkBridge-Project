@@ -287,7 +287,7 @@ const AiChatWidget = () => {
     setThreadLoading(true);
     try {
       const res = await api.get(`/messages/${contactId}`);
-      setThreadMessages(res.data || []);
+      setThreadMessages(res.data?.items || res.data || []);
       fetchConversationsRef.current?.();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Không thể tải hội thoại.');

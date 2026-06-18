@@ -981,7 +981,6 @@ function FeaturedJobCard({ job, isSaved, onToggleSave }) {
   const locationLabel = compactLocationLabel(job.location) || 'Việt Nam';
 
   // Badges: Visual highlights for featured/VIP jobs
-  const hasTopBadge = isVip;
   const hasHotBadge = isVip;
 
   return (
@@ -1012,7 +1011,6 @@ function FeaturedJobCard({ job, isSaved, onToggleSave }) {
         <div>
           {/* Badge Tags */}
           <div className="home-best-card-tags">
-            {hasTopBadge && <span className="home-best-tag is-top">TOP</span>}
             {hasHotBadge && <span className="home-best-tag is-hot">NỔI BẬT</span>}
           </div>
 
