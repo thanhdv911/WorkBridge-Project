@@ -1066,14 +1066,14 @@ function Testimonials() {
       text: '"Tìm được công việc thực tập IT hoàn hảo phù hợp lịch học ở trường. Nộp đơn thứ Hai, được công ty công nghệ nhận thực tập thứ Tư!"'
     },
     {
-      initials: 'ML',
-      name: 'Lê Văn Minh',
-      role: 'Marketing • ĐH Kinh tế Quốc dân',
+      initials: 'HN',
+      name: 'Nguyễn Phúc Hào',
+      role: 'Sinh viên CNTT • ĐH FPT Đà Nẵng',
       text: '"Chất lượng nhà tuyển dụng ở đây tốt hơn nhiều so với các nền tảng khác. Tôi đã làm ở một quán cà phê tuyệt vời 3 tháng — tìm được ở đây."'
     },
     {
       image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200',
-      name: 'Phạm Thanh Hà',
+      name: 'Chi Uyên Uyên',
       role: 'Marketing • ĐH FPT',
       text: '"Yêu thích tính năng ứng tuyển nhanh! Ứng tuyển 5 vị trí trong một buổi tối và có 3 buổi phỏng vấn vào cuối tuần."'
     },
