@@ -27,6 +27,9 @@ const EmployerPayroll = () => {
     const [itemPages, setItemPages] = useState({});
     const [isVip, setIsVip] = useState(false);
     const [checkingVip, setCheckingVip] = useState(true);
+    const [adjustingItem, setAdjustingItem] = useState(null);
+    const [adjustForm, setAdjustForm] = useState({ bonus: 0, penalty: 0, deduction: 0 });
+    const [adjustLoading, setAdjustLoading] = useState(false);
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -123,22 +126,33 @@ const EmployerPayroll = () => {
         }
     };
 
-    const adjustItem = async (item) => {
-        const bonus = Number(window.prompt('Tiền thưởng (VNĐ):', item.bonus || 0));
-        if (Number.isNaN(bonus) || bonus < 0) return toast.error('Tiền thưởng không hợp lệ.');
-        const penalty = Number(window.prompt('Tiền phạt (VNĐ):', item.penalty || 0));
-        if (Number.isNaN(penalty) || penalty < 0) return toast.error('Tiền phạt/kỷ luật không hợp lệ.');
-        const deduction = Number(window.prompt('Khoản khấu trừ khác (VNĐ):', item.deduction || 0));
-        if (Number.isNaN(deduction) || deduction < 0) return toast.error('Khoản khấu trừ không hợp lệ.');
+    const openAdjustModal = (item) => {
+        setAdjustingItem(item);
+        setAdjustForm({
+            bonus: item.bonus || 0,
+            penalty: item.penalty || 0,
+            deduction: item.deduction || 0
+        });
+    };
 
+    const handleAdjustSave = async () => {
+        if (!adjustingItem) return;
+        setAdjustLoading(true);
         try {
-            await api.patch(`/workforce/payroll/items/${item.payrollItemId}/adjust`, { bonus, penalty, deduction }, {
+            await api.patch(`/workforce/payroll/items/${adjustingItem.payrollItemId}/adjust`, { 
+                bonus: Number(adjustForm.bonus), 
+                penalty: Number(adjustForm.penalty), 
+                deduction: Number(adjustForm.deduction) 
+            }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success('Đã điều chỉnh mục lương thành công.');
+            toast.success('Đã điều chỉnh mức lương thành công.');
+            setAdjustingItem(null);
             fetchPayroll();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không thể điều chỉnh mục lương.');
+            toast.error(error.response?.data?.message || 'Không thể điều chỉnh mức lương.');
+        } finally {
+            setAdjustLoading(false);
         }
     };
 
@@ -211,10 +225,16 @@ const EmployerPayroll = () => {
             <section className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 sm:p-6">
                 <h2 className="text-xl font-bold text-slate-800">Bảng tính lương</h2>
                 <p className="text-sm text-slate-700 mt-1">Khởi tạo bảng lương từ danh sách giờ công đã duyệt. Ngày phát lương mặc định là ngày 5 của tháng tiếp theo.</p>
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                    <input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} className="h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                    <input type="number" value={year} onChange={(e) => setYear(e.target.value)} className="h-11 px-4 rounded-xl border border-slate-200 text-sm" />
-                    <button onClick={generatePayroll} disabled={generating} className="h-11 px-6 rounded-xl bg-primary text-white font-bold text-sm disabled:opacity-60">
+                <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-700">Tháng</span>
+                        <input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} className="h-11 w-20 px-3 text-center rounded-xl border border-slate-200 text-sm" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-700">Năm</span>
+                        <input type="number" value={year} onChange={(e) => setYear(e.target.value)} className="h-11 w-24 px-3 text-center rounded-xl border border-slate-200 text-sm" />
+                    </div>
+                    <button onClick={generatePayroll} disabled={generating} className="h-11 px-6 rounded-xl bg-primary text-white font-bold text-sm disabled:opacity-60 ml-0 sm:ml-2">
                         {generating ? 'Đang tính lương...' : 'Khởi tạo bảng lương'}
                     </button>
                 </div>
@@ -264,16 +284,20 @@ const EmployerPayroll = () => {
                                 {period.items?.length > 0 && (
                                     <div className="mt-4 grid gap-2">
                                         {paginatedItems.map(item => (
-                                            <div key={item.payrollItemId} className="rounded-xl bg-slate-50 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
-                                                <span className="font-bold text-slate-700">{item.employeeName}</span>
-                                                <span className="text-slate-700">{Math.round(item.totalApprovedMinutes / 60)} giờ làm</span>
-                                                <span className="text-slate-700">Thưởng: +{Number(item.bonus).toLocaleString()}đ / Phạt: -{(Number(item.penalty) + Number(item.deduction)).toLocaleString()}đ</span>
-                                                <span className="font-bold text-slate-800">{Number(item.finalSalary).toLocaleString()} VNĐ</span>
-                                                {period.status === 'Draft' && (
-                                                    <button onClick={() => adjustItem(item)} className="h-8 px-3 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-800">
-                                                        Điều chỉnh
-                                                    </button>
-                                                )}
+                                            <div key={item.payrollItemId} className="rounded-xl bg-slate-50 p-3 grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_2.5fr_1fr_80px] items-center gap-3 text-sm">
+                                                <span className="font-bold text-slate-700 truncate" title={item.employeeName}>{item.employeeName}</span>
+                                                <span className="text-slate-700 text-center">{Math.round(item.totalApprovedMinutes / 60)} giờ làm</span>
+                                                <span className="text-slate-700 text-center truncate" title={`Thưởng: +${Number(item.bonus).toLocaleString()}đ / Phạt: -${(Number(item.penalty) + Number(item.deduction)).toLocaleString()}đ`}>
+                                                    Thưởng: +{Number(item.bonus).toLocaleString()}đ / Phạt: -{(Number(item.penalty) + Number(item.deduction)).toLocaleString()}đ
+                                                </span>
+                                                <span className="font-bold text-slate-800 text-right">{Number(item.finalSalary).toLocaleString()} VNĐ</span>
+                                                <div className="flex justify-end">
+                                                    {period.status === 'Draft' && (
+                                                        <button onClick={() => openAdjustModal(item)} className="h-8 px-3 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-800 whitespace-nowrap hover:bg-slate-100 transition-colors">
+                                                            Điều chỉnh
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                         <Pagination
@@ -302,6 +326,47 @@ const EmployerPayroll = () => {
                     </div>
                 )}
             </section>
+
+            {/* Adjust Modal */}
+            {adjustingItem && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm transition-all anim-fadeIn">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 anim-scaleUp">
+                        <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between bg-slate-50/50">
+                            <h3 className="font-bold text-lg text-slate-800">Điều chỉnh lương</h3>
+                            <button onClick={() => setAdjustingItem(null)} className="flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors">
+                                <span className="material-symbols-outlined !text-[20px]">close</span>
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 mb-2">
+                                <p className="text-sm font-semibold text-slate-700">Nhân viên: <span className="text-primary font-bold">{adjustingItem.employeeName}</span></p>
+                                <p className="text-xs text-slate-500 mt-0.5">Mức lương sau điều chỉnh sẽ được tính lại dựa trên thông số này.</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Tiền thưởng (VNĐ)</label>
+                                <input type="number" value={adjustForm.bonus} onChange={(e) => setAdjustForm({...adjustForm, bonus: e.target.value})} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" min="0" placeholder="0" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Tiền phạt/kỷ luật (VNĐ)</label>
+                                <input type="number" value={adjustForm.penalty} onChange={(e) => setAdjustForm({...adjustForm, penalty: e.target.value})} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" min="0" placeholder="0" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Khấu trừ khác (VNĐ)</label>
+                                <input type="number" value={adjustForm.deduction} onChange={(e) => setAdjustForm({...adjustForm, deduction: e.target.value})} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" min="0" placeholder="0" />
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                            <button onClick={() => setAdjustingItem(null)} className="px-5 py-2.5 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-800 transition-colors text-sm">
+                                Hủy bỏ
+                            </button>
+                            <button onClick={handleAdjustSave} disabled={adjustLoading} className="px-5 py-2.5 rounded-xl font-bold bg-primary text-white hover:bg-primary-dk transition-colors text-sm disabled:opacity-60 flex items-center gap-2 shadow-sm shadow-primary/20">
+                                {adjustLoading ? <span className="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span> : <span className="material-symbols-outlined !text-[18px]">save</span>}
+                                Lưu điều chỉnh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

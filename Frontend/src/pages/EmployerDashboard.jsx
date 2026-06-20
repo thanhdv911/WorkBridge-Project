@@ -156,9 +156,6 @@ export default function EmployerDashboard() {
             <h1 className="anim-fadeUp mt-4 text-3xl font-black text-white lg:text-4xl">
               Quản lý tuyển dụng
             </h1>
-            <p className="anim-fadeUp-d1 mt-2 max-w-2xl text-sm font-medium leading-relaxed text-sky-100">
-              Quản lý hồ sơ công ty, tin tuyển dụng, ứng viên, ca làm và bảng lương trong một bảng điều khiển đồng bộ.
-            </p>
           </div>
           <button
             onClick={() => handleTabChange('post-job')}
