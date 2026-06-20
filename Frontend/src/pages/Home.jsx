@@ -577,7 +577,7 @@ function Categories() {
 
   return (
     <section className="home-section relative w-full py-16 lg:py-24 bg-gradient-to-br from-[#f0f9ff] via-[#e0f2fe] to-[#f8fafc] border-y border-sky-100 overflow-hidden mt-4 mb-10 lg:mt-4 lg:mb-16">
-      
+
       {/* Decorative full-width background blobs (Crystal effect) */}
       <div className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[600px] h-[600px] rounded-full bg-blue-300/20 blur-[100px] pointer-events-none mix-blend-multiply"></div>
       <div className="absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 w-[500px] h-[500px] rounded-full bg-emerald-200/20 blur-[100px] pointer-events-none mix-blend-multiply"></div>
@@ -594,72 +594,72 @@ function Categories() {
               Top danh mục <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1392ec] to-blue-600 drop-shadow-sm">nổi bật</span>
             </h2>
           </div>
-          
+
           <a href="/jobs" className="group mt-6 md:mt-0 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-6 py-3 text-sm font-bold text-slate-700 hover:text-[#1392ec] shadow-sm border border-white hover:border-[#1392ec]/30 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-            Khám phá tất cả 
+            Khám phá tất cả
             <span className="material-symbols-outlined !text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
           </a>
         </div>
 
         <div className="relative z-20">
-        {loading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
-            {[...Array(8)].map((_, index) => (
-              <div key={index} className="home-category-skeleton bg-white rounded-[1.5rem]" />
-            ))}
-          </div>
-        ) : categories.length === 0 ? (
-          <EmptyState icon="category" title="Chưa có danh mục nào" text="Danh mục sẽ xuất hiện khi admin cập nhật dữ liệu." />
-        ) : (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
-            {categories.slice(0, 8).map((category, index) => {
-              const categoryName = category.categoryName || category.name;
-              const jobCount = categoryCounts[category.categoryId] || 0;
+          {loading ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
+              {[...Array(8)].map((_, index) => (
+                <div key={index} className="home-category-skeleton bg-white rounded-[1.5rem]" />
+              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <EmptyState icon="category" title="Chưa có danh mục nào" text="Danh mục sẽ xuất hiện khi admin cập nhật dữ liệu." />
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
+              {categories.slice(0, 8).map((category, index) => {
+                const categoryName = category.categoryName || category.name;
+                const jobCount = categoryCounts[category.categoryId] || 0;
 
-              const CATEGORY_IMAGES = [
-                'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=400', // Code/IT
-                'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&q=80&w=400', // Marketing
-                'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=400', // Retail
-                'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=400', // Support
-                'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400', // Finance
-                'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=400', // F&B
-                'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=400', // Logistics
-                'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=400'  // Design
-              ];
+                const CATEGORY_IMAGES = [
+                  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=400', // Code/IT
+                  'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&q=80&w=400', // Marketing
+                  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=400', // Retail
+                  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=400', // Support
+                  'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400', // Finance
+                  'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=400', // F&B
+                  'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=400', // Logistics
+                  'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=400'  // Design
+                ];
 
-              const image = CATEGORY_IMAGES[index % CATEGORY_IMAGES.length];
+                const image = CATEGORY_IMAGES[index % CATEGORY_IMAGES.length];
 
-              return (
-                <a
-                  key={category.categoryId}
-                  className="group flex flex-col rounded-[1.5rem] bg-white border border-slate-200/70 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden h-[240px]"
-                  href={`/jobs?category=${category.categoryId}`}
-                >
-                  {/* Top Image Part (60%) */}
-                  <div className="h-[140px] w-full overflow-hidden relative">
-                    <img src={image} alt={categoryName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
-                  </div>
+                return (
+                  <a
+                    key={category.categoryId}
+                    className="group flex flex-col rounded-[1.5rem] bg-white border border-slate-200/70 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden h-[240px]"
+                    href={`/jobs?category=${category.categoryId}`}
+                  >
+                    {/* Top Image Part (60%) */}
+                    <div className="h-[140px] w-full overflow-hidden relative">
+                      <img src={image} alt={categoryName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
+                    </div>
 
-                  {/* Bottom Text Part (40%) */}
-                  <div className="p-4 lg:p-5 flex flex-col justify-between flex-1 bg-white relative z-10">
-                    <h3 className="text-base lg:text-lg font-bold text-slate-800 leading-snug group-hover:text-[#1392ec] transition-colors line-clamp-1">
-                      {translateCategory(categoryName)}
-                    </h3>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-sm font-semibold text-slate-500">
-                        {jobCount.toLocaleString('vi-VN')} việc làm
-                      </p>
-                      <div className="w-8 h-8 rounded-full bg-sky-50 text-[#1392ec] flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shadow-sm">
-                         <span className="material-symbols-outlined !text-[15px]">arrow_forward</span>
+                    {/* Bottom Text Part (40%) */}
+                    <div className="p-4 lg:p-5 flex flex-col justify-between flex-1 bg-white relative z-10">
+                      <h3 className="text-base lg:text-lg font-bold text-slate-800 leading-snug group-hover:text-[#1392ec] transition-colors line-clamp-1">
+                        {translateCategory(categoryName)}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm font-semibold text-slate-500">
+                          {jobCount.toLocaleString('vi-VN')} việc làm
+                        </p>
+                        <div className="w-8 h-8 rounded-full bg-sky-50 text-[#1392ec] flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shadow-sm">
+                          <span className="material-symbols-outlined !text-[15px]">arrow_forward</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        )}
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -839,133 +839,133 @@ function LatestJobs() {
         <div className="home-jobs-content space-y-6">
 
 
-        {/* REDESIGNED HEADER */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-2xl font-black tracking-tight home-best-title">
-              Việc làm nổi bật
-            </h2>
-            <span className="text-slate-300 hidden sm:inline">|</span>
-            <div className="home-best-badge-ai">
-              <span className="material-symbols-outlined !text-[15px] animate-pulse">psychology</span>
-              Đề xuất bởi WORKBRIDGE AI
+          {/* REDESIGNED HEADER */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-black tracking-tight home-best-title">
+                Việc làm nổi bật
+              </h2>
+              <span className="text-slate-300 hidden sm:inline">|</span>
+              <div className="home-best-badge-ai">
+                <span className="material-symbols-outlined !text-[15px] animate-pulse">psychology</span>
+                Đề xuất bởi WORKBRIDGE AI
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 self-end md:self-auto">
+              <a href="/jobs" className="text-sm font-bold text-slate-700 hover:text-[#1392ec] flex items-center gap-1 transition-colors">
+                Xem tất cả
+                <span className="material-symbols-outlined !text-base">arrow_forward</span>
+              </a>
+
+              {/* Pagination moved to bottom */}
             </div>
           </div>
 
-          <div className="flex items-center gap-4 self-end md:self-auto">
-            <a href="/jobs" className="text-sm font-bold text-slate-700 hover:text-[#1392ec] flex items-center gap-1 transition-colors">
-              Xem tất cả
-              <span className="material-symbols-outlined !text-base">arrow_forward</span>
-            </a>
-
-            {/* Pagination moved to bottom */}
-          </div>
-        </div>
-
-        {/* REDESIGNED FILTERS ROW */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-shrink-0">
-            <select
-              value={filterMode}
-              onChange={(e) => setFilterMode(e.target.value)}
-              className="home-best-filter-select appearance-none !pr-10 !pl-10 cursor-pointer hover:border-[#1392ec] transition-all outline-none focus:ring-2 focus:ring-[#1392ec]/20 bg-white"
-            >
-              <option value="location">Lọc theo: Địa điểm</option>
-              <option value="salary">Lọc theo: Mức lương</option>
-            </select>
-            <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">filter_list</span>
-            <span className="material-symbols-outlined !text-base text-slate-800 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
-          </div>
-
-          <div className="flex items-center gap-2 flex-1 min-w-0 max-w-2xl sm:justify-end">
-            <button onClick={() => scrollPills('left')} className="home-best-pill-arrow" aria-label="Cuộn trái">
-              <span className="material-symbols-outlined !text-base">chevron_left</span>
-            </button>
-
-            <div ref={pillsRef} className="home-best-pills-container flex-1">
-              {filterMode === 'location' && LOCATION_PILLS.map((pill) => (
-                <button
-                  key={pill.label}
-                  onClick={() => {
-                    setSelectedLocPill(pill.label);
-                    setPage(1);
-                  }}
-                  className={`home-best-pill ${selectedLocPill === pill.label ? 'active' : ''}`}
-                >
-                  {pill.label}
-                </button>
-              ))}
-
-              {filterMode === 'salary' && SALARY_PILLS.map((pill) => (
-                <button
-                  key={pill.label}
-                  onClick={() => {
-                    setSelectedSalaryPill(pill.label);
-                    setPage(1);
-                  }}
-                  className={`home-best-pill ${selectedSalaryPill === pill.label ? 'active' : ''}`}
-                >
-                  {pill.label}
-                </button>
-              ))}
+          {/* REDESIGNED FILTERS ROW */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-shrink-0">
+              <select
+                value={filterMode}
+                onChange={(e) => setFilterMode(e.target.value)}
+                className="home-best-filter-select appearance-none !pr-10 !pl-10 cursor-pointer hover:border-[#1392ec] transition-all outline-none focus:ring-2 focus:ring-[#1392ec]/20 bg-white"
+              >
+                <option value="location">Lọc theo: Địa điểm</option>
+                <option value="salary">Lọc theo: Mức lương</option>
+              </select>
+              <span className="material-symbols-outlined !text-lg text-slate-800 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">filter_list</span>
+              <span className="material-symbols-outlined !text-base text-slate-800 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
             </div>
 
-            <button onClick={() => scrollPills('right')} className="home-best-pill-arrow" aria-label="Cuộn phải">
-              <span className="material-symbols-outlined !text-base">chevron_right</span>
-            </button>
+            <div className="flex items-center gap-2 flex-1 min-w-0 max-w-2xl sm:justify-end">
+              <button onClick={() => scrollPills('left')} className="home-best-pill-arrow" aria-label="Cuộn trái">
+                <span className="material-symbols-outlined !text-base">chevron_left</span>
+              </button>
+
+              <div ref={pillsRef} className="home-best-pills-container flex-1">
+                {filterMode === 'location' && LOCATION_PILLS.map((pill) => (
+                  <button
+                    key={pill.label}
+                    onClick={() => {
+                      setSelectedLocPill(pill.label);
+                      setPage(1);
+                    }}
+                    className={`home-best-pill ${selectedLocPill === pill.label ? 'active' : ''}`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+
+                {filterMode === 'salary' && SALARY_PILLS.map((pill) => (
+                  <button
+                    key={pill.label}
+                    onClick={() => {
+                      setSelectedSalaryPill(pill.label);
+                      setPage(1);
+                    }}
+                    className={`home-best-pill ${selectedSalaryPill === pill.label ? 'active' : ''}`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+
+              <button onClick={() => scrollPills('right')} className="home-best-pill-arrow" aria-label="Cuộn phải">
+                <span className="material-symbols-outlined !text-base">chevron_right</span>
+              </button>
+            </div>
           </div>
+
+          {/* REDESIGNED GRID */}
+          {loading ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="h-44 rounded-2xl bg-slate-100 animate-pulse border border-slate-200/50" />
+              ))}
+            </div>
+          ) : jobs.length === 0 ? (
+            <EmptyState icon="work_off" title="Chưa có việc làm nào" text="Hãy thử điều chỉnh bộ lọc địa điểm khác." />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {jobs.map((job) => (
+                <FeaturedJobCard
+                  key={job.jobPostId}
+                  job={job}
+                  isSaved={savedJobIds.includes(job.jobPostId)}
+                  onToggleSave={handleToggleSave}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* BOTTOM PAGINATION FOOTER */}
+          {totalPages > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Trang trước"
+              >
+                <span className="material-symbols-outlined !text-xl">chevron_left</span>
+              </button>
+
+              <span className="text-sm font-bold text-slate-400 mx-4">
+                <span className="text-primary text-base">{page}</span> / {totalPages} trang
+              </span>
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Trang sau"
+              >
+                <span className="material-symbols-outlined !text-xl">chevron_right</span>
+              </button>
+            </div>
+          )}
+
         </div>
-
-        {/* REDESIGNED GRID */}
-        {loading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="h-44 rounded-2xl bg-slate-100 animate-pulse border border-slate-200/50" />
-            ))}
-          </div>
-        ) : jobs.length === 0 ? (
-          <EmptyState icon="work_off" title="Chưa có việc làm nào" text="Hãy thử điều chỉnh bộ lọc địa điểm khác." />
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {jobs.map((job) => (
-              <FeaturedJobCard
-                key={job.jobPostId}
-                job={job}
-                isSaved={savedJobIds.includes(job.jobPostId)}
-                onToggleSave={handleToggleSave}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* BOTTOM PAGINATION FOOTER */}
-        {totalPages > 0 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Trang trước"
-            >
-              <span className="material-symbols-outlined !text-xl">chevron_left</span>
-            </button>
-
-            <span className="text-sm font-bold text-slate-400 mx-4">
-              <span className="text-primary text-base">{page}</span> / {totalPages} trang
-            </span>
-
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="home-best-header-arrow w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Trang sau"
-            >
-              <span className="material-symbols-outlined !text-xl">chevron_right</span>
-            </button>
-          </div>
-        )}
-
-      </div>
       </div>
     </section>
   );
@@ -1066,14 +1066,14 @@ function Testimonials() {
       text: '"Tìm được công việc thực tập IT hoàn hảo phù hợp lịch học ở trường. Nộp đơn thứ Hai, được công ty công nghệ nhận thực tập thứ Tư!"'
     },
     {
-      initials: 'HN',
+      image: '/nguyen-phuc-hao.png',
       name: 'Nguyễn Phúc Hào',
       role: 'Sinh viên CNTT • ĐH FPT Đà Nẵng',
       text: '"Chất lượng nhà tuyển dụng ở đây tốt hơn nhiều so với các nền tảng khác. Tôi đã làm ở một quán cà phê tuyệt vời 3 tháng — tìm được ở đây."'
     },
     {
-      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200',
-      name: 'Chi Uyên Uyên',
+      image: '/chi-uyen-uyen.png',
+      name: 'Chị Uyên Uyên',
       role: 'Marketing • ĐH FPT',
       text: '"Yêu thích tính năng ứng tuyển nhanh! Ứng tuyển 5 vị trí trong một buổi tối và có 3 buổi phỏng vấn vào cuối tuần."'
     },
