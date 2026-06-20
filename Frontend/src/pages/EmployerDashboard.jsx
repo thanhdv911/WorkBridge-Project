@@ -16,11 +16,12 @@ import EmployerPayroll from '../components/employer/EmployerPayroll';
 import EmployerInterviews from '../components/employer/EmployerInterviews';
 import EmployerVipTab from '../components/employer/EmployerVipTab';
 import EmployerVerification from '../components/employer/EmployerVerification';
+import EmployerOverview from '../components/employer/EmployerOverview';
 
 export default function EmployerDashboard() {
   const { logoutUser } = useAuthModal();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'profile';
+  const activeTab = searchParams.get('tab') || 'overview';
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -97,53 +98,6 @@ export default function EmployerDashboard() {
     return null;
   }
 
-  // Real statistics data matching user preferences
-  const stats = [
-    {
-      label: 'Tin tuyển dụng',
-      value: loadingStats ? '...' : (statsData?.jobPostCount ?? 0),
-      icon: 'work',
-      color: 'text-primary',
-      bg: 'bg-primary/10'
-    },
-    {
-      label: 'Tổng đơn ứng tuyển',
-      value: loadingStats ? '...' : (statsData?.totalApplications ?? 0),
-      icon: 'description',
-      color: 'text-blue-500',
-      bg: 'bg-blue-50'
-    },
-    {
-      label: 'Ứng viên phù hợp',
-      value: loadingStats ? '...' : `${statsData?.suitablePercentage ?? 0}%`,
-      icon: 'how_to_reg',
-      color: 'text-green-500',
-      bg: 'bg-green-50'
-    },
-    {
-      label: 'Đánh giá doanh nghiệp',
-      value: loadingStats ? '...' : `${statsData?.rating ?? 5.0} ★`,
-      icon: 'star',
-      color: 'text-amber-500',
-      bg: 'bg-amber-50'
-    },
-    {
-      label: 'Điểm uy tín tuyển dụng',
-      value: loadingStats ? '...' : `${statsData?.reputationScore ?? 100} / 100`,
-      icon: 'verified_user',
-      color: (statsData?.reputationScore ?? 100) >= 90
-        ? 'text-emerald-500'
-        : (statsData?.reputationScore ?? 100) >= 80
-        ? 'text-amber-500'
-        : 'text-rose-500',
-      bg: (statsData?.reputationScore ?? 100) >= 90
-        ? 'bg-emerald-50'
-        : (statsData?.reputationScore ?? 100) >= 80
-        ? 'bg-amber-50'
-        : 'bg-rose-50'
-    }
-  ];
-
   return (
     <div className="applicant-shell min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 font-display text-slate-900">
       <section className="applicant-page-hero">
@@ -168,7 +122,7 @@ export default function EmployerDashboard() {
 
       <div className="applicant-page-content mx-auto mb-8 w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
         {profileData && profileData.verificationStatus !== 'Verified' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 shadow-sm">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div className="flex items-start gap-3">
               <span className="material-symbols-outlined text-amber-500 mt-0.5">warning</span>
               <div>
@@ -184,15 +138,6 @@ export default function EmployerDashboard() {
             </button>
           </div>
         )}
-
-        <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4 pb-4 lg:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="applicant-card anim-fadeUp card-lift p-6 flex flex-col justify-center gap-1.5 flex-shrink-0 snap-start w-[260px] lg:w-auto border border-slate-200/60 bg-white/50 backdrop-blur-xl" style={{animationDelay: `${idx * 0.12}s`}}>
-               <p className="text-sm font-medium text-slate-700">{stat.label}</p>
-               <p className="text-2xl font-semibold tracking-tight text-slate-800">{stat.value}</p>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="mx-auto grid w-full max-w-[1440px] min-w-0 gap-6 px-4 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8">
@@ -200,6 +145,13 @@ export default function EmployerDashboard() {
           
           <div className="hidden lg:block text-[10px] font-black text-primary uppercase tracking-widest px-4 pt-2 pb-1">Quản lý chung</div>
           
+          <button
+            onClick={() => handleTabChange('overview')}
+            className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'overview' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-outlined !text-lg text-inherit">dashboard</span>Tổng quan
+          </button>
+
           <button
             onClick={() => handleTabChange('profile')}
             className={`flex-shrink-0 snap-start lg:w-full flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-bold transition-colors ${activeTab === 'profile' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-800 hover:bg-slate-100'}`}
@@ -300,6 +252,7 @@ export default function EmployerDashboard() {
         </aside>
 
         <main className="min-w-0">
+          {activeTab === 'overview' && <EmployerOverview statsData={statsData} loadingStats={loadingStats} onNavigate={handleTabChange} />}
           {activeTab === 'profile' && <EmployerProfileTab />}
           {activeTab === 'verification' && <EmployerVerification />}
           {activeTab === 'post-job' && (

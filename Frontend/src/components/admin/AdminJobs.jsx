@@ -138,8 +138,12 @@ const AdminJobs = () => {
                         <article key={job.jobPostId} className="group rounded-[24px] border border-white/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_24px_70px_rgba(15,23,42,0.10)] sm:p-5">
                             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                                 <div className="flex min-w-0 gap-4">
-                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-800 ring-1 ring-slate-100 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-                                        <span className="material-symbols-outlined !text-[29px]">work</span>
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-800 ring-1 ring-slate-100 transition-colors group-hover:bg-primary/10 group-hover:text-primary overflow-hidden">
+                                        {job.companyLogoUrl ? (
+                                            <img src={job.companyLogoUrl} alt={job.companyName} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="material-symbols-outlined !text-[29px]">work</span>
+                                        )}
                                     </div>
 
                                     <div className="min-w-0">
