@@ -518,6 +518,16 @@ const JobDetails = () => {
                                 )}
                             </div>
 
+                            {/* Company Description */}
+                            {job.companyDescription && (
+                                <div className="pt-2 border-t border-slate-100">
+                                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold mb-2">Giới thiệu công ty</p>
+                                    <p className="text-xs text-slate-700 leading-relaxed line-clamp-5">
+                                        {job.companyDescription}
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Report count warning */}
                             {showEmployerReportWarning && (
                                 <div className="p-3.5 rounded-xl bg-rose-50/50 border border-rose-100/50 flex items-start gap-2.5 mt-2">

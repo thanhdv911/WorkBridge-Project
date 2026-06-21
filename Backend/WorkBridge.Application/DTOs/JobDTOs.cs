@@ -33,6 +33,7 @@ namespace WorkBridge.Application.DTOs
         public int EmployerReputationScore { get; set; } = 100;
         public int EmployerReportCount { get; set; }
         public string EmployerStatus { get; set; } = "Active";
+        public string? CompanyDescription { get; set; }
         public List<ShiftResponse> Shifts { get; set; } = new();
     }
 
