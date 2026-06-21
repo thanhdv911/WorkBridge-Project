@@ -114,7 +114,7 @@ namespace WorkBridge.Application.Services
                     EmployerReputationScore = j.Employer.ReputationScore,
                     EmployerReportCount = j.Employer.ReportCount,
                     EmployerStatus = j.Employer.Status,
-                    CompanyDescription = j.Employer.CompanyDescription,
+                    CompanyDescription = j.Employer.Description,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {
                         ShiftId = s.ShiftId,
@@ -178,7 +178,7 @@ namespace WorkBridge.Application.Services
                     EmployerReputationScore = j.Employer.ReputationScore,
                     EmployerReportCount = j.Employer.ReportCount,
                     EmployerStatus = j.Employer.Status,
-                    CompanyDescription = j.Employer.CompanyDescription,
+                    CompanyDescription = j.Employer.Description,
                     Shifts = j.Shifts.Select(s => new ShiftResponse
                     {
                         ShiftId = s.ShiftId,
